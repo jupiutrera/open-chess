@@ -19,7 +19,8 @@ test('play a bot, resign, review the game', async ({ page }) => {
   await page.goto('/#/play/bot/pip?color=w&tc=none&hints=1&undo=1&eval=0')
   await expect(page.locator('cg-board')).toBeVisible()
 
-  const moves = page.locator('.tabular button')
+  // the mobile move strip is in the DOM too (hidden on desktop), so count only visible moves
+  const moves = page.locator('.tabular button:visible')
   await move(page, 'e2', 'e4')
   await expect(moves).toHaveCount(2, { timeout: 20_000 })
   await move(page, 'g1', 'f3')
