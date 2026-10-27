@@ -53,7 +53,17 @@ export function App() {
   useEffect(() => startSync(), [])
   useEffect(() => requestPersistentStorage(), [])
   const soundSet = useSettings((s) => s.soundSet)
-  useEffect(() => preloadSounds(soundSet), [soundSet])
+  // sounds can only play after a user gesture anyway; fetching them then keeps startup light
+  useEffect(() => {
+    const go = () => preloadSounds(soundSet)
+    if (navigator.userActivation?.hasBeenActive) return go()
+    window.addEventListener('pointerdown', go, { once: true })
+    window.addEventListener('keydown', go, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', go)
+      window.removeEventListener('keydown', go)
+    }
+  }, [soundSet])
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
     void StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light })

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import type { Quality } from '../features/review/classify'
 import { QualityIcon, qualityColor } from './QualityIcon'
 
@@ -14,8 +14,24 @@ export interface MoveListProps {
   className?: string
 }
 
+/** Props equal, with `qualities` compared item by item (callers rebuild the array each render). */
+function sameProps(a: MoveListProps, b: MoveListProps) {
+  for (const k of Object.keys({ ...a, ...b }) as (keyof MoveListProps)[]) {
+    if (k === 'qualities') {
+      const x = a.qualities
+      const y = b.qualities
+      if (x === y) continue
+      if (!x || !y || x.length !== y.length || x.some((q, i) => q !== y[i])) return false
+    } else if (a[k] !== b[k]) return false
+  }
+  return true
+}
+
 /** Two-column numbered move list in the chess.com style. */
-export function MoveList({ sans, ply, onSelect, qualities, startNumber = 1, blackFirst = false, className = '' }: MoveListProps) {
+export const MoveList = memo(MoveListView, sameProps)
+export const MoveStrip = memo(MoveStripView, sameProps)
+
+function MoveListView({ sans, ply, onSelect, qualities, startNumber = 1, blackFirst = false, className = '' }: MoveListProps) {
   const active = useRef<HTMLButtonElement>(null)
   const box = useRef<HTMLDivElement>(null)
   // Scroll only the list itself: scrollIntoView would also scroll the page on mobile.
@@ -73,7 +89,7 @@ export function MoveList({ sans, ply, onSelect, qualities, startNumber = 1, blac
 }
 
 /** One-line, horizontally scrolling move list for phones. */
-export function MoveStrip({ sans, ply, onSelect, qualities, className = '' }: Omit<MoveListProps, 'startNumber' | 'blackFirst'>) {
+function MoveStripView({ sans, ply, onSelect, qualities, className = '' }: Omit<MoveListProps, 'startNumber' | 'blackFirst'>) {
   const box = useRef<HTMLDivElement>(null)
   const active = useRef<HTMLButtonElement>(null)
   useEffect(() => {

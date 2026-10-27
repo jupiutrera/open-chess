@@ -60,7 +60,9 @@ export class Engine {
     this.ready = (async () => {
       this.send('uci')
       await this.waitFor((l) => l === 'uciok')
-      this.send('setoption name Hash value 32')
+      // phones with little memory get a smaller hash (several engines can be alive at once)
+      const lowMemory = ((navigator as { deviceMemory?: number }).deviceMemory ?? 8) <= 4
+      this.send(`setoption name Hash value ${lowMemory ? 16 : 32}`)
       await this.isReady()
     })()
     // callers see the failure through search(); this only keeps it from being reported as unhandled

@@ -303,6 +303,7 @@ export default function PlayBot() {
   }
 
   const cap = useMemo(() => capturedPieces(game.fen), [game.fen])
+  const lineSans = useMemo(() => (assist.engine ? help.lines.slice(0, 3).map((l) => uciLineToSan(game.fen, l.pv, 8).join(' ')) : []), [assist.engine, help.lines, game.fen])
   const botEdge = userColor === 'w' ? -cap.diff : cap.diff
   const mood: Mood = end
     ? end.result === '1/2-1/2'
@@ -396,7 +397,7 @@ export default function PlayBot() {
                       >
                         {l ? formatScore(l.score) : '…'}
                       </span>
-                      <span className="truncate text-fg-2">{l ? uciLineToSan(game.fen, l.pv, 8).join(' ') : ''}</span>
+                      <span className="truncate text-fg-2">{l ? lineSans[i] : ''}</span>
                     </div>
                   )
                 })}
