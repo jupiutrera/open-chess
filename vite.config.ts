@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,6 +9,37 @@ import { readdirSync } from 'node:fs'
 const DEFAULT_PIECES = 'staunty'
 const DEFAULT_SOUNDS = 'wood'
 const otherSoundSets = readdirSync('public/sounds').filter((d) => d !== DEFAULT_SOUNDS)
+
+/**
+ * Content Security Policy for the built app (the dev server needs inline scripts for hot reload).
+ * Network access is limited to the public chess APIs and, when configured, the Supabase project.
+ */
+function csp(): Plugin {
+  return {
+    name: 'open-chess-csp',
+    apply: 'build',
+    transformIndexHtml(html) {
+      const supabase = process.env.VITE_SUPABASE_URL ? new URL(process.env.VITE_SUPABASE_URL).origin : ''
+      const connect = ["'self'", 'https://lichess.org', 'https://explorer.lichess.ovh', 'https://tablebase.lichess.ovh', 'https://api.chess.com', supabase, supabase.replace('https://', 'wss://')]
+      const policy = [
+        "default-src 'self'",
+        // Stockfish is WebAssembly
+        "script-src 'self' 'wasm-unsafe-eval'",
+        "worker-src 'self' blob:",
+        // inline style attributes (board squares, transforms)
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "media-src 'self' data: blob:",
+        `connect-src ${connect.filter(Boolean).join(' ')}`,
+        "object-src 'none'",
+        "base-uri 'self'",
+      ].join('; ')
+      return html.replace('<head>', `<head>
+    <meta http-equiv="Content-Security-Policy" content="${policy}" />`)
+    },
+  }
+}
 
 export default defineConfig({
   base: './',
@@ -27,6 +59,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    csp(),
     VitePWA({
       // the app asks before switching versions (see UpdateBanner)
       registerType: 'prompt',

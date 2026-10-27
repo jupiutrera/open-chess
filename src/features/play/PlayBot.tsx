@@ -158,6 +158,11 @@ export default function PlayBot() {
       clock: clock.enabled ? { w: clock.left('w'), b: clock.left('b') } : undefined,
     })
   }
+  // read at unmount: the live game object is replaced on resume and rematch
+  const leaveNote = useRef(() => {})
+  leaveNote.current = () => {
+    if (!endRef.current && game.chess.history().length) toast(t('play.saved'))
+  }
   useEffect(() => persist.current(), [liveFen])
   useEffect(() => {
     const save = () => persist.current()
@@ -167,7 +172,7 @@ export default function PlayBot() {
       window.removeEventListener('pagehide', save)
       document.removeEventListener('visibilitychange', save)
       save()
-      if (!endRef.current && game.chess.history().length) toast(t('play.saved'))
+      leaveNote.current()
     }
   }, [])
 

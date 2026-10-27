@@ -11,6 +11,7 @@ import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
 import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut, syncConfigured, syncNow, useSync } from '../../sync/sync'
 import { saveTextFile } from '../../ui/files'
+import { fmtDecimal } from '../../i18n/format'
 
 export default function Profile() {
   const { t } = useTranslation()
@@ -55,7 +56,7 @@ export default function Profile() {
           <Stat label={t('profile.puzzleRating')} value={data?.rating} />
           <Stat label={t('profile.puzzlesSolved')} value={data?.solved} />
           <Stat label={t('profile.gamesPlayed')} value={data?.gamesPlayed} />
-          <Stat label={t('profile.avgAccuracy')} value={data?.avgAcc != null ? `${data.avgAcc.toFixed(1)}%` : '-'} />
+          <Stat label={t('profile.avgAccuracy')} value={data?.avgAcc != null ? `${fmtDecimal(data.avgAcc)}%` : '-'} />
           <Stat label={t('profile.rushBest')} value={data?.rushBest} />
         </div>
 

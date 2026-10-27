@@ -1,6 +1,6 @@
 {
   "nav": {
-    "home": "Home",
+    "home": "Inizio",
     "play": "Gioca",
     "puzzles": "Problemi",
     "learn": "Impara",
@@ -390,7 +390,7 @@
     "syncNow": "Sincronizza ora",
     "lastSync": "Ultima sincronizzazione: {{when}}",
     "never": "mai",
-    "backup": "Backup",
+    "backup": "Copia di sicurezza",
     "export": "Esporta dati",
     "importBackup": "Ripristina backup",
     "restored": "Backup ripristinato"

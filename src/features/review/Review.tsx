@@ -22,6 +22,7 @@ import { useSettings } from '../../settings'
 import { BoardScreenSkeleton, Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
+import { fmtDecimal } from '../../i18n/format'
 
 type Mode = 'summary' | 'moves'
 
@@ -398,10 +399,10 @@ function Summary({
 
         <span className="font-semibold text-fg-2">{t('review.accuracy')}</span>
         <span className={`tabular rounded-md bg-[#f1f1f1] py-1.5 text-center text-[20px] font-extrabold text-[#262421] ${userColor === 'w' ? 'ring-2 ring-accent' : ''}`}>
-          {accuracy.white.toFixed(1)}
+          {fmtDecimal(accuracy.white)}
         </span>
         <span className={`tabular rounded-md bg-[#1b1a18] py-1.5 text-center text-[20px] font-extrabold text-[#f1f1f1] ${userColor === 'b' ? 'ring-2 ring-accent' : ''}`}>
-          {accuracy.black.toFixed(1)}
+          {fmtDecimal(accuracy.black)}
         </span>
       </div>
 
