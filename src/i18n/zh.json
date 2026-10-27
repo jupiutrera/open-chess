@@ -11,7 +11,8 @@
     "import": "导入",
     "profile": "个人资料",
     "settings": "设置",
-    "more": "更多"
+    "more": "更多",
+    "main": "主导航"
   },
   "common": {
     "white": "白方",
@@ -31,7 +32,10 @@
     "rating": "等级分",
     "flip": "翻转棋盘",
     "copied": "已复制",
-    "error": "出错了"
+    "error": "出错了",
+    "updateReady": "Open Chess 有新版本",
+    "update": "更新",
+    "later": "稍后"
   },
   "home": {
     "greeting": "今天练什么？",
@@ -104,7 +108,14 @@
       "suggest": "轮到你时的最佳着法",
       "feedback": "为你的每步棋标注质量图标",
       "engine": "Stockfish 的最佳变化"
-    }
+    },
+    "inProgress": "与 {{name}} 的对局进行中",
+    "movesPlayed_one": "{{count}} 步",
+    "movesPlayed_other": "{{count}} 步",
+    "continue": "继续",
+    "discard": "放弃",
+    "saved": "对局已保存，可在“对弈”中继续。",
+    "localInProgress": "未完成的双人对局"
   },
   "bots": {
     "group": {

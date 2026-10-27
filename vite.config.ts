@@ -13,7 +13,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // the app asks before switching versions (see UpdateBanner)
+      registerType: 'prompt',
       // registered from main.tsx only on the web; the Android app ships its assets in the APK
       injectRegister: null,
       includeAssets: ['icon.svg'],

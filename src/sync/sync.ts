@@ -35,6 +35,14 @@ const PULL_SEQ_KEY = 'oc-sync-pull-seq'
 const PULL_TS_KEY = 'oc-sync-pull-ts'
 /** rows committed late can carry a seq below the cursor; re-read this window to catch them */
 const PULL_OVERLAP_MS = 2 * 60_000
+/** account the cursors belong to: another account must start from scratch */
+const CURSOR_USER_KEY = 'oc-sync-user'
+
+function resetCursors() {
+  localStorage.removeItem(PUSH_KEY)
+  localStorage.removeItem(PULL_SEQ_KEY)
+  localStorage.removeItem(PULL_TS_KEY)
+}
 
 function table(name: string) {
   return db[name as (typeof SYNC_TABLES)[number]] as unknown as EntityTable<SyncRow, 'id'>
@@ -118,6 +126,11 @@ export function startSync(): () => void {
       const user = session?.user ?? null
       const prev = useSync.getState().user
       useSync.setState({ user })
+      if (user && localStorage.getItem(CURSOR_USER_KEY) !== user.id) {
+        // a different account (even without a sign-out in between) must not reuse the cursors
+        resetCursors()
+        localStorage.setItem(CURSOR_USER_KEY, user.id)
+      }
       if (user && user.id !== prev?.id) void syncNow()
     })
     unsubscribe = () => sub.subscription.unsubscribe()
@@ -150,9 +163,8 @@ export async function signInWithGoogle() {
 
 export async function signOut() {
   if (syncConfigured) await (await supabase()).auth.signOut()
-  localStorage.removeItem(PUSH_KEY)
-  localStorage.removeItem(PULL_SEQ_KEY)
-  localStorage.removeItem(PULL_TS_KEY)
+  resetCursors()
+  localStorage.removeItem(CURSOR_USER_KEY)
 }
 
 /** Full local backup as JSON (works without an account). */
@@ -162,13 +174,26 @@ export async function exportBackup(): Promise<string> {
   return JSON.stringify({ app: 'open-chess', version: 1, exportedAt: Date.now(), tables: out })
 }
 
+/** Restores a backup in one transaction (a bad file changes nothing); newer local rows are kept. */
 export async function importBackup(json: string) {
-  const parsed = JSON.parse(json) as { app: string; tables: Record<string, SyncRow[]> }
-  if (parsed.app !== 'open-chess') throw new Error('not an Open Chess backup')
+  const parsed = JSON.parse(json) as { app?: string; tables?: Record<string, unknown> }
+  if (parsed?.app !== 'open-chess' || typeof parsed.tables !== 'object' || !parsed.tables) throw new Error('not an Open Chess backup')
+  const rows = new Map<string, SyncRow[]>()
   for (const name of SYNC_TABLES) {
-    for (const row of parsed.tables[name] ?? []) {
-      const local = await table(name).get(row.id)
-      if (!local || local.updatedAt < row.updatedAt) await table(name).put(row)
-    }
+    const list = parsed.tables[name] ?? []
+    if (!Array.isArray(list)) throw new Error(`bad table ${name}`)
+    for (const r of list as SyncRow[]) if (typeof r?.id !== 'string' || typeof r.updatedAt !== 'number') throw new Error(`bad row in ${name}`)
+    rows.set(name, list as SyncRow[])
   }
+  await db.transaction('rw', SYNC_TABLES.map(table), async () => {
+    for (const [name, list] of rows) {
+      for (const row of list) {
+        const local = await table(name).get(row.id)
+        if (!local || local.updatedAt < row.updatedAt) await table(name).put(row)
+      }
+    }
+  })
+  // restored rows keep their old updatedAt, which can be below the push cursor: push everything once
+  localStorage.removeItem(PUSH_KEY)
+  void syncNow()
 }

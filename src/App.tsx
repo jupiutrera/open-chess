@@ -4,7 +4,9 @@ import { App as CapApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { Layout } from './ui/Layout'
-import { Toaster } from './ui/kit'
+import { UpdateBanner } from './ui/UpdateBanner'
+import { requestPersistentStorage } from './ui/files'
+import { Toaster, closeTopOverlay } from './ui/kit'
 import { applyDocumentSettings, useSettings } from './settings'
 import { startSync } from './sync/sync'
 import { preloadSounds } from './chess/sounds'
@@ -27,12 +29,13 @@ const Import = lazy(() => import('./features/import/Import'))
 const Profile = lazy(() => import('./features/profile/Profile'))
 const SettingsPage = lazy(() => import('./features/profile/SettingsPage'))
 
-/** Android hardware back button follows router history. */
+/** Android hardware back button closes the open sheet or menu first, then follows router history. */
 function BackButton() {
   const nav = useNavigate()
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
     const h = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (closeTopOverlay()) return
       if (canGoBack && location.hash !== '#/') nav(-1)
       else void CapApp.exitApp()
     })
@@ -48,6 +51,7 @@ export function App() {
   const pieces = useSettings((s) => s.pieces)
   useEffect(() => applyDocumentSettings({ theme, board, lang, pieces }), [theme, board, lang, pieces])
   useEffect(() => startSync(), [])
+  useEffect(() => requestPersistentStorage(), [])
   const soundSet = useSettings((s) => s.soundSet)
   useEffect(() => preloadSounds(soundSet), [soundSet])
   useEffect(() => {
@@ -82,6 +86,7 @@ export function App() {
           </Route>
         </Routes>
       <Toaster />
+      <UpdateBanner />
     </HashRouter>
   )
 }

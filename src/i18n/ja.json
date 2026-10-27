@@ -11,7 +11,8 @@
     "import": "インポート",
     "profile": "プロフィール",
     "settings": "設定",
-    "more": "その他"
+    "more": "その他",
+    "main": "メイン"
   },
   "common": {
     "white": "白",
@@ -31,7 +32,10 @@
     "rating": "レーティング",
     "flip": "盤を反転",
     "copied": "コピーしました",
-    "error": "問題が発生しました"
+    "error": "問題が発生しました",
+    "updateReady": "Open Chessの新しいバージョンがあります",
+    "update": "更新",
+    "later": "後で"
   },
   "home": {
     "greeting": "今日は何を練習しますか？",
@@ -104,7 +108,14 @@
       "suggest": "あなたの手番での最善手",
       "feedback": "あなたの各手に品質アイコンを表示",
       "engine": "Stockfish の最善の読み筋"
-    }
+    },
+    "inProgress": "{{name}}との対局が進行中",
+    "movesPlayed_one": "{{count}}手",
+    "movesPlayed_other": "{{count}}手",
+    "continue": "続ける",
+    "discard": "破棄",
+    "saved": "対局を保存しました。「対局」から再開できます。",
+    "localInProgress": "未完了の2人対局"
   },
   "bots": {
     "group": {

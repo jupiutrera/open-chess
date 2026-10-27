@@ -76,6 +76,23 @@ export function useGame(initialFen: string = START_FEN) {
     return c
   }, [])
 
+  /** Rebuilds a game from its SAN moves (a saved game in progress); stops at the first illegal one. */
+  const replay = useCallback((sanMoves: string[], fen: string = START_FEN) => {
+    const c = new Chess(fen)
+    for (const san of sanMoves) {
+      try {
+        c.move(san)
+      } catch {
+        break
+      }
+    }
+    live.current = c
+    const hist = c.history({ verbose: true })
+    setStartFen(fen)
+    setMoves(hist)
+    setPly(hist.length)
+  }, [])
+
   const goto = useCallback(
     (p: number) => setPly(Math.max(0, Math.min(p, live.current.history().length))),
     [],
@@ -95,6 +112,7 @@ export function useGame(initialFen: string = START_FEN) {
     undo,
     reset,
     loadPgn,
+    replay,
     goto,
   }
 }

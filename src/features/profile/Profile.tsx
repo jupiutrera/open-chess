@@ -10,6 +10,7 @@ import { BotAvatar } from '../play/BotAvatar'
 import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
 import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut, syncConfigured, syncNow, useSync } from '../../sync/sync'
+import { saveTextFile } from '../../ui/files'
 
 export default function Profile() {
   const { t } = useTranslation()
@@ -168,13 +169,12 @@ function SyncPanel({ lang }: { lang: string }) {
 function BackupPanel() {
   const { t } = useTranslation()
   const download = async () => {
-    const json = await exportBackup()
-    const blob = new Blob([json], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `open-chess-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
+    try {
+      await saveTextFile(`open-chess-${new Date().toISOString().slice(0, 10)}.json`, await exportBackup(), 'application/json')
+    } catch (e) {
+      // closing the share sheet rejects too; only real failures are worth a message
+      if (!/cancel/i.test(String((e as Error)?.message ?? e))) toast(t('common.error'), 'error')
+    }
   }
   return (
     <Panel className="p-4">

@@ -11,7 +11,8 @@
     "import": "Import",
     "profile": "Profile",
     "settings": "Settings",
-    "more": "More"
+    "more": "More",
+    "main": "Main"
   },
   "common": {
     "white": "White",
@@ -31,7 +32,10 @@
     "rating": "Rating",
     "flip": "Flip board",
     "copied": "Copied",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "updateReady": "A new version of Open Chess is ready",
+    "update": "Update",
+    "later": "Later"
   },
   "home": {
     "greeting": "What are we training today?",
@@ -104,7 +108,14 @@
       "suggest": "The best move when it's your turn",
       "feedback": "A quality icon on each of your moves",
       "engine": "Stockfish's top lines"
-    }
+    },
+    "inProgress": "Game in progress against {{name}}",
+    "movesPlayed_one": "{{count}} move",
+    "movesPlayed_other": "{{count}} moves",
+    "continue": "Continue",
+    "discard": "Discard",
+    "saved": "Game saved. You can continue it from Play.",
+    "localInProgress": "Unfinished two-player game"
   },
   "bots": {
     "group": {

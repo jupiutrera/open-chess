@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Users, Shuffle } from '@phosphor-icons/react'
-import { BOTS, BOT_GROUPS, type Bot } from './bots'
+import { BOTS, BOT_GROUPS, botById, type Bot } from './bots'
+import { clearLiveGame, loadLiveGame } from './liveGame'
 import { BotAvatar } from './BotAvatar'
 import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
@@ -47,6 +48,8 @@ export default function PlayHub() {
   const [tc, setTc] = useState('none')
   const record = useBotRecord(selected.id)
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
+  const [live, setLive] = useState(() => loadLiveGame('bot'))
+  const liveBot = live?.botId ? botById(live.botId) : undefined
 
   const start = () => {
     const q = new URLSearchParams({ color, tc })
@@ -56,6 +59,32 @@ export default function PlayHub() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader title={t('play.title')} />
+      {live && liveBot && (
+        <div className="px-4 pb-4 lg:px-6">
+          <Panel className="flex flex-wrap items-center gap-3 p-3">
+            <BotAvatar bot={liveBot} size={40} />
+            <div className="min-w-0 flex-1">
+              <div className="font-bold">{t('play.inProgress', { name: liveBot.name })}</div>
+              <div className="tabular text-[13px] text-fg-3">{t('play.movesPlayed', { count: Math.ceil(live.sans.length / 2) })}</div>
+            </div>
+            <button
+              className="btn"
+              onClick={() => {
+                clearLiveGame('bot')
+                setLive(null)
+              }}
+            >
+              {t('play.discard')}
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => nav(`/play/bot/${liveBot.id}?${new URLSearchParams({ tc: live.tc, color: live.userColor ?? 'w', resume: '1' })}`)}
+            >
+              {t('play.continue')}
+            </button>
+          </Panel>
+        </div>
+      )}
       <div className="grid gap-5 px-4 pb-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-6">
         <div className="hidden lg:block">
           <div className="mx-auto max-w-[min(100%,calc(100dvh-180px))]">

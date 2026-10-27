@@ -82,6 +82,20 @@ export function useClock(baseSec: number, incSec: number, onFlag: (side: 'w' | '
     setActive(null)
   }, [baseSec])
 
+  /** Puts back saved times and starts `side`'s clock (resuming a game). */
+  const restore = useCallback(
+    (t: { w: number; b: number }, side: 'w' | 'b') => {
+      if (!enabled) return
+      flagged.current = false
+      warned.current = { w: t.w <= 10_000, b: t.b <= 10_000 }
+      timeRef.current = t
+      activeRef.current = null
+      setTime(t)
+      start(side)
+    },
+    [enabled, start],
+  )
+
   // a different time control picked before the game starts
   useEffect(() => reset(), [reset])
 
@@ -91,5 +105,5 @@ export function useClock(baseSec: number, incSec: number, onFlag: (side: 'w' | '
     return activeRef.current === side ? Math.max(0, t - (performance.now() - last.current)) : t
   }, [])
 
-  return { enabled, time, active, press, stop, reset, setTurn, left }
+  return { enabled, time, active, press, stop, reset, setTurn, restore, left }
 }

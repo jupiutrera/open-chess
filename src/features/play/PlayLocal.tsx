@@ -15,6 +15,7 @@ import { GameOverDialog, type GameEnd } from './GameOver'
 import { TIME_CONTROLS } from './PlayHub'
 import { Panel, Toggle } from '../../ui/kit'
 import { cloneWithHistory } from './PlayBot'
+import { clearLiveGame, loadLiveGame, saveLiveGame, type LiveGame } from './liveGame'
 
 export default function PlayLocal() {
   const { t } = useTranslation()
@@ -29,12 +30,16 @@ export default function PlayLocal() {
   const [dialog, setDialog] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
   const ended = useRef(false)
+  const [saved, setSaved] = useState(() => loadLiveGame('local'))
+  // applied once the chosen time control has reset the clock
+  const pendingResume = useRef<LiveGame | null>(null)
 
   const finish = async (e: GameEnd) => {
     if (ended.current) return
     ended.current = true
     setEnd(e)
     clock.stop()
+    clearLiveGame('local')
     play('end')
     const row = await saveGame({
       source: 'local',
@@ -51,6 +56,47 @@ export default function PlayLocal() {
 
   const clock = useClock(tc.base, tc.inc, (side) => void finish(timeoutResult(game.chess, side)))
   const liveFen = game.fens[game.fens.length - 1]
+
+  useEffect(() => {
+    const g = pendingResume.current
+    if (!started || !g) return
+    pendingResume.current = null
+    game.replay(g.sans)
+    if (g.clock) clock.restore(g.clock, game.chess.turn())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, tc.base])
+
+  const resume = (g: LiveGame) => {
+    pendingResume.current = g
+    setTcId(TIME_CONTROLS.some((c) => c.id === g.tc) ? g.tc : 'none')
+    setAutoFlip(!!g.autoFlip)
+    setStarted(true)
+    play('start')
+  }
+
+  // autosave after every move and when the page is hidden or left
+  const persist = useRef(() => {})
+  persist.current = () => {
+    if (ended.current || !started) return
+    saveLiveGame({
+      kind: 'local',
+      tc: tcId,
+      autoFlip,
+      sans: game.chess.history(),
+      clock: clock.enabled ? { w: clock.left('w'), b: clock.left('b') } : undefined,
+    })
+  }
+  useEffect(() => persist.current(), [liveFen])
+  useEffect(() => {
+    const save = () => persist.current()
+    window.addEventListener('pagehide', save)
+    document.addEventListener('visibilitychange', save)
+    return () => {
+      window.removeEventListener('pagehide', save)
+      document.removeEventListener('visibilitychange', save)
+      save()
+    }
+  }, [])
 
   useEffect(() => {
     const r = gameResultText(game.chess)
@@ -78,6 +124,26 @@ export default function PlayLocal() {
     return (
       <div className="mx-auto max-w-md p-4 lg:p-6">
         <h1 className="mb-4 text-[24px] font-extrabold">{t('play.local')}</h1>
+        {saved && (
+          <Panel className="mb-4 flex items-center gap-3 p-3">
+            <div className="min-w-0 flex-1">
+              <div className="font-bold">{t('play.localInProgress')}</div>
+              <div className="tabular text-[13px] text-fg-3">{t('play.movesPlayed', { count: Math.ceil(saved.sans.length / 2) })}</div>
+            </div>
+            <button
+              className="btn"
+              onClick={() => {
+                clearLiveGame('local')
+                setSaved(null)
+              }}
+            >
+              {t('play.discard')}
+            </button>
+            <button className="btn btn-primary" onClick={() => resume(saved)}>
+              {t('play.continue')}
+            </button>
+          </Panel>
+        )}
         <Panel className="space-y-4 p-4">
           <div>
             <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.time')}</div>
@@ -97,6 +163,7 @@ export default function PlayLocal() {
           <button
             className="btn btn-primary btn-lg w-full"
             onClick={() => {
+              clearLiveGame('local')
               setStarted(true)
               play('start')
             }}
@@ -178,6 +245,7 @@ export default function PlayLocal() {
             ended.current = false
             setEnd(null)
             setDialog(false)
+            clearLiveGame('local')
             game.reset()
             clock.reset()
           }}

@@ -11,7 +11,8 @@
     "import": "Importer",
     "profile": "Profil",
     "settings": "Réglages",
-    "more": "Plus"
+    "more": "Plus",
+    "main": "Principale"
   },
   "common": {
     "white": "Blancs",
@@ -31,7 +32,10 @@
     "rating": "Classement",
     "flip": "Retourner l’échiquier",
     "copied": "Copié",
-    "error": "Une erreur s’est produite"
+    "error": "Une erreur s’est produite",
+    "updateReady": "Une nouvelle version d'Open Chess est disponible",
+    "update": "Mettre à jour",
+    "later": "Plus tard"
   },
   "home": {
     "greeting": "On s’entraîne à quoi aujourd’hui ?",
@@ -104,7 +108,14 @@
       "suggest": "Le meilleur coup quand c’est à vous",
       "feedback": "Une icône de qualité sur chacun de vos coups",
       "engine": "Les meilleures lignes de Stockfish"
-    }
+    },
+    "inProgress": "Partie en cours contre {{name}}",
+    "movesPlayed_one": "{{count}} coup",
+    "movesPlayed_other": "{{count}} coups",
+    "continue": "Reprendre",
+    "discard": "Abandonner",
+    "saved": "Partie enregistrée. Reprenez-la depuis Jouer.",
+    "localInProgress": "Partie à deux joueurs non terminée"
   },
   "bots": {
     "group": {

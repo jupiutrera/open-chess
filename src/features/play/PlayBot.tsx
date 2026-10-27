@@ -19,6 +19,7 @@ import { botAcceptsDraw, botById, botMove } from './bots'
 import { TIME_CONTROLS } from './PlayHub'
 import { GameOverDialog, type GameEnd } from './GameOver'
 import { saveGame } from '../../db/games'
+import { clearLiveGame, loadLiveGame, saveLiveGame } from './liveGame'
 import { winPercent } from '../review/classify'
 import { Panel, Sheet, toast } from '../../ui/kit'
 import { useSettings } from '../../settings'
@@ -41,7 +42,12 @@ export default function PlayBot() {
     const c = params.get('color')
     return c === 'b' ? 'b' : c === 'w' ? 'w' : Math.random() < 0.5 ? 'w' : 'b'
   }, [params])
-  const [userColor, setUserColor] = useState<'w' | 'b'>(pickColor)
+  // a saved game in progress against this bot, when coming from "Continue"
+  const [resumed] = useState(() => {
+    const g = params.get('resume') ? loadLiveGame('bot') : null
+    return g && g.botId === bot.id ? g : null
+  })
+  const [userColor, setUserColor] = useState<'w' | 'b'>(() => resumed?.userColor ?? pickColor())
   const [orientation, setOrientation] = useState<'white' | 'black'>(userColor === 'w' ? 'white' : 'black')
   const game = useGame()
   const [end, setEnd] = useState<GameEnd | null>(null)
@@ -72,6 +78,7 @@ export default function PlayBot() {
       say(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'lose' : 'win')
       setEnd(e)
       clock.stop()
+      clearLiveGame('bot')
       play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
       const row = await saveGame({
         source: 'bot',
@@ -94,6 +101,14 @@ export default function PlayBot() {
   )
 
   const clock = useClock(tc.base, tc.inc, (side) => void finish(timeoutResult(game.chess, side)))
+
+  // put a resumed game back on the board, clock included
+  useEffect(() => {
+    if (!resumed) return
+    game.replay(resumed.sans)
+    if (resumed.clock) clock.restore(resumed.clock, game.chess.turn())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // engine lifecycle
   useEffect(() => {
@@ -128,6 +143,32 @@ export default function PlayBot() {
 
   const turn = game.chess.turn()
   const liveFen = game.fens[game.fens.length - 1]
+
+  // autosave after every move, and when the page is hidden or left (clock times)
+  const persist = useRef(() => {})
+  persist.current = () => {
+    if (endRef.current) return
+    saveLiveGame({
+      kind: 'bot',
+      botId: bot.id,
+      userColor,
+      tc: tc.id,
+      sans: game.chess.history(),
+      clock: clock.enabled ? { w: clock.left('w'), b: clock.left('b') } : undefined,
+    })
+  }
+  useEffect(() => persist.current(), [liveFen])
+  useEffect(() => {
+    const save = () => persist.current()
+    window.addEventListener('pagehide', save)
+    document.addEventListener('visibilitychange', save)
+    return () => {
+      window.removeEventListener('pagehide', save)
+      document.removeEventListener('visibilitychange', save)
+      save()
+      if (!endRef.current && game.chess.history().length) toast(t('play.saved'))
+    }
+  }, [])
 
   // check end of game after every move
   useEffect(() => {
@@ -251,6 +292,7 @@ export default function PlayBot() {
     setSavedId(null)
     setHint([])
     lastChatPly.current = -10
+    clearLiveGame('bot')
     setTimeout(() => say('greet'), 500)
     game.reset()
     clock.reset()
