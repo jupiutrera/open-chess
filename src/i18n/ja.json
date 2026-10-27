@@ -35,7 +35,14 @@
     "error": "問題が発生しました",
     "updateReady": "Open Chessの新しいバージョンがあります",
     "update": "更新",
-    "later": "後で"
+    "later": "後で",
+    "evaluation": "評価値 {{score}}",
+    "piece": {
+      "queen": "クイーン",
+      "rook": "ルーク",
+      "bishop": "ビショップ",
+      "knight": "ナイト"
+    }
   },
   "home": {
     "greeting": "今日は何を練習しますか？",
@@ -414,6 +421,8 @@
       "piano": "ピアノ",
       "nes": "NES",
       "futuristic": "未来的"
-    }
+    },
+    "highContrast": "ハイコントラスト",
+    "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）"
   }
 }

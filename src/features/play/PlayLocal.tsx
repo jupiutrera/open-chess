@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowsDownUp, ArrowCounterClockwise, Flag, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
+import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { MoveList, MoveStrip } from '../../board/MoveList'
@@ -103,6 +104,8 @@ export default function PlayLocal() {
     if (r) void finish(r)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveFen])
+
+  useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setFlip((f) => !f) })
 
   const turn = game.chess.turn()
   const orientation = (autoFlip ? turn === 'b' : false) !== flip ? 'black' : 'white'

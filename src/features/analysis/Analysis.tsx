@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
+import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
 import { MoveList } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
@@ -92,16 +93,7 @@ export default function Analysis() {
     [engineOn, best],
   )
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return
-      if (e.key === 'ArrowLeft') game.goto(game.ply - 1)
-      if (e.key === 'ArrowRight') game.goto(game.ply + 1)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [game])
+  useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   const copy = async (text: string) => {
     try {

@@ -21,14 +21,18 @@ export function Home() {
   const rating = useLiveQuery(() => getPuzzleRating(), [])
   const due = useLiveQuery(() => db.repertoire.where('due').below(Date.now()).filter((r) => !r.deleted).count(), [])
   const [daily, setDaily] = useState<{ p: Puzzle; fen: string; color: 'white' | 'black' } | null>(null)
+  const [dailyFailed, setDailyFailed] = useState(false)
 
   useEffect(() => {
-    void dailyPuzzle().then((p) => {
-      if (!p) return
-      const c = new Chess(p.fen)
-      playUci(c, p.moves[0])
-      setDaily({ p, fen: c.fen(), color: c.turn() === 'w' ? 'white' : 'black' })
-    })
+    void dailyPuzzle()
+      .then((p) => {
+        if (!p) return setDailyFailed(true)
+        const c = new Chess(p.fen)
+        playUci(c, p.moves[0])
+        setDaily({ p, fen: c.fen(), color: c.turn() === 'w' ? 'white' : 'black' })
+      })
+      // offline before the puzzles were ever cached
+      .catch(() => setDailyFailed(true))
   }, [])
 
   const last = games?.[0]
@@ -115,7 +119,13 @@ export function Home() {
                 {daily && <span className="tabular text-[13px] text-fg-3">{daily.p.rating}</span>}
               </div>
               <div className="px-3 pb-3">
-                {daily ? <Board fen={daily.fen} orientation={daily.color} /> : <Skeleton className="aspect-square w-full rounded" />}
+                {daily ? (
+                  <Board fen={daily.fen} orientation={daily.color} />
+                ) : dailyFailed ? (
+                  <div className="grid aspect-square w-full place-items-center rounded bg-panel-2 p-4 text-center text-[14px] text-fg-3">{t('common.offline')}</div>
+                ) : (
+                  <Skeleton className="aspect-square w-full rounded" />
+                )}
               </div>
             </Panel>
           </Link>

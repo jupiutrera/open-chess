@@ -6,6 +6,7 @@ import type { Config } from '@lichess-org/chessground/config'
 import type { Key } from '@lichess-org/chessground/types'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Chess } from 'chess.js'
+import { useTranslation } from 'react-i18next'
 import { toDests, isPromotion } from '../chess/util'
 import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
@@ -216,6 +217,7 @@ function PromotionPicker({
   const fromTop = (color === 'w') === (orientation === 'white')
   const pieces = ['q', 'n', 'r', 'b']
   const role: Record<string, string> = { q: 'queen', n: 'knight', r: 'rook', b: 'bishop' }
+  const { t } = useTranslation()
   return (
     <div className="absolute inset-0 z-20 bg-black/45" onClick={() => onPick(null)}>
       <div
@@ -234,7 +236,7 @@ function PromotionPicker({
             className="cg-wrap aspect-square w-full transition-colors duration-100 hover:bg-[#ddd]"
             style={{ position: 'relative' }}
             onClick={() => onPick(p)}
-            aria-label={role[p]}
+            aria-label={t(`common.piece.${role[p]}`)}
           >
             <PieceSprite role={role[p]} color={color} />
           </button>

@@ -35,7 +35,14 @@
     "error": "出错了",
     "updateReady": "Open Chess 有新版本",
     "update": "更新",
-    "later": "稍后"
+    "later": "稍后",
+    "evaluation": "评估 {{score}}",
+    "piece": {
+      "queen": "后",
+      "rook": "车",
+      "bishop": "象",
+      "knight": "马"
+    }
   },
   "home": {
     "greeting": "今天练什么？",
@@ -414,6 +421,8 @@
       "piano": "钢琴",
       "nes": "NES",
       "futuristic": "未来感"
-    }
+    },
+    "highContrast": "高对比度",
+    "highContrastHint": "按钮和次要文字更易读（WCAG AA）"
   }
 }

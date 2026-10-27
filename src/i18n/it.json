@@ -35,7 +35,14 @@
     "error": "Qualcosa è andato storto",
     "updateReady": "È disponibile una nuova versione di Open Chess",
     "update": "Aggiorna",
-    "later": "Più tardi"
+    "later": "Più tardi",
+    "evaluation": "Valutazione {{score}}",
+    "piece": {
+      "queen": "Donna",
+      "rook": "Torre",
+      "bishop": "Alfiere",
+      "knight": "Cavallo"
+    }
   },
   "home": {
     "greeting": "Cosa alleniamo oggi?",
@@ -414,6 +421,8 @@
       "piano": "Pianoforte",
       "nes": "NES",
       "futuristic": "Futuristico"
-    }
+    },
+    "highContrast": "Contrasto elevato",
+    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)"
   }
 }

@@ -22,6 +22,9 @@
   --accent-lo: #45753c;
   --on-accent: #ffffff;
   --danger: #e35d4b;
+  /* backgrounds behind white text that must stay readable (toasts): >= 4.5:1 */
+  --success-strong: #4e8228;
+  --danger-strong: #c8432f;
   --warn: #f2b43c;
 
   /* Move-quality vocabulary */
@@ -67,6 +70,18 @@
   --text: #22201d;
   --text-2: #4c4a47;
   --text-3: #6f6c68;
+}
+
+/* Opt-in: chess.com's green with white text is 2.4:1; these tones reach WCAG AA */
+:root[data-contrast='high'] {
+  --accent: #4e8228;
+  --accent-hi: #5a8f2e;
+  --accent-lo: #33561a;
+  --danger: #c8432f;
+  --text-3: #b0afad;
+}
+:root[data-theme='light'][data-contrast='high'] {
+  --text-3: #55524e;
 }
 
 :root[data-board='brown'] { --sq-light: #f0d9b5; --sq-dark: #b58863; }
@@ -338,7 +353,8 @@ cg-board square.right {
   width: 100%;
   margin-inline: auto;
   /* keeps the bars and board on screen on short landscape tablets */
-  max-width: max(300px, calc(100dvh - 72px - var(--inset-top) - var(--inset-bottom) - var(--bars) * var(--bar)));
+  /* 72px of chrome plus the 64px bottom navigation shown below lg */
+  max-width: max(300px, calc(100dvh - 72px - 64px - var(--inset-top) - var(--inset-bottom) - var(--bars) * var(--bar)));
 }
 .bl-side {
   width: 100%;
@@ -545,6 +561,19 @@ cg-board square.right {
   .skeleton {
     animation: none;
     background-image: none;
+  }
+}
+
+/* Everything else that moves: inline transitions (eval bar, toggles), the speech bubble, pulses.
+   Colour fades stay short; movement is dropped. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: color, background-color, border-color, opacity !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
 import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, Star, ArrowCounterClockwise, MagnifyingGlass } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
+import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { MoveList } from '../../board/MoveList'
@@ -39,11 +40,19 @@ export default function Review() {
   const [retry, setRetry] = useState<null | 'waiting' | 'wrong' | 'right'>(null)
 
   useEffect(() => {
+    let alive = true
     void getGame(id).then((g) => {
+      if (!alive) return
       setGame(g ?? null)
       if (g?.userColor === 'b') setOrientation('black')
     })
+    return () => {
+      alive = false
+    }
   }, [id])
+
+  const retryTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(retryTimer.current), [])
 
   // analyze when missing
   useEffect(() => {
@@ -88,17 +97,7 @@ export default function Review() {
     [parsed, total],
   )
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === 'INPUT') return
-      if (e.key === 'ArrowLeft') goto(ply - 1)
-      else if (e.key === 'ArrowRight') goto(ply + 1)
-      else if (e.key === 'Home') goto(0)
-      else if (e.key === 'End') goto(total)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [goto, ply, total])
+  useBoardKeys({ ply, total, goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   if (game === undefined) return <BoardScreenSkeleton />
   if (game === null || !parsed)
@@ -197,7 +196,7 @@ export default function Review() {
       play('wrong')
       setRetry('wrong')
       setVariation({ fen: c.fen(), lastMove: [m.from, m.to], quality: 'mistake' })
-      setTimeout(() => {
+      retryTimer.current = setTimeout(() => {
         setVariation(null)
         setRetry('waiting')
       }, 900)

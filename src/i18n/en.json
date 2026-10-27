@@ -35,7 +35,14 @@
     "error": "Something went wrong",
     "updateReady": "A new version of Open Chess is ready",
     "update": "Update",
-    "later": "Later"
+    "later": "Later",
+    "evaluation": "Evaluation {{score}}",
+    "piece": {
+      "queen": "Queen",
+      "rook": "Rook",
+      "bishop": "Bishop",
+      "knight": "Knight"
+    }
   },
   "home": {
     "greeting": "What are we training today?",
@@ -414,6 +421,8 @@
       "piano": "Piano",
       "nes": "NES",
       "futuristic": "Futuristic"
-    }
+    },
+    "highContrast": "High contrast",
+    "highContrastHint": "More readable buttons and secondary text (WCAG AA)"
   }
 }

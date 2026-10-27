@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
 import { Lightbulb, ArrowCounterClockwise, Flag, Handshake, ArrowsDownUp, CaretLeft, CaretRight, SlidersHorizontal } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
+import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { BotAvatar, type Mood } from './BotAvatar'
@@ -210,6 +211,8 @@ export default function PlayBot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveFen, turn, userColor, botRetry])
 
+  useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
+
   const userTurn = turn === userColor && game.atLive && !end
   const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
 
@@ -364,7 +367,8 @@ export default function PlayBot() {
         }
         side={
           <Panel className="flex flex-col lg:h-full">
-            <div className="flex items-center gap-3 border-b border-line p-3">
+            {/* on phones the game actions come first, right under the board; the bot card goes last */}
+            <div className="flex items-center gap-3 border-b border-line p-3 max-lg:order-4 max-lg:border-b-0 max-lg:border-t">
               <BotAvatar bot={bot} mood={mood} size={44} />
               <div className="min-w-0 flex-1">
                 <div className="font-bold">
@@ -385,7 +389,7 @@ export default function PlayBot() {
               </button>
             </div>
             {assist.engine && (
-              <div className="border-b border-line py-1">
+              <div className="border-b border-line py-1 max-lg:order-5">
                 {[0, 1, 2].map((i) => {
                   const l = help.lines[i]
                   return (
@@ -403,7 +407,7 @@ export default function PlayBot() {
                 })}
               </div>
             )}
-            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} className="border-b border-line lg:hidden" />
+            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} className="border-b border-line max-lg:order-1 lg:hidden" />
             <MoveList
               sans={game.sans}
               ply={game.ply}
@@ -411,7 +415,7 @@ export default function PlayBot() {
               qualities={assist.feedback ? qualities : undefined}
               className="hidden min-h-[120px] flex-1 py-1 lg:block"
             />
-            <div className="flex items-center justify-center gap-1 border-t border-line p-2">
+            <div className="flex items-center justify-center gap-1 border-t border-line p-2 max-lg:order-3">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />
               </button>
@@ -422,7 +426,7 @@ export default function PlayBot() {
                 <ArrowsDownUp size={22} weight="bold" />
               </button>
             </div>
-            <div className="grid grid-cols-4 gap-2 border-t border-line p-3">
+            <div className="grid grid-cols-4 gap-2 border-t border-line p-3 max-lg:order-2 max-lg:border-t-0">
               {end ? (
                 <>
                   <button className="btn btn-primary col-span-4" disabled={!savedId} onClick={() => savedId && nav(`/review/${savedId}`)}>

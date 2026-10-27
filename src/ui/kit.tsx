@@ -7,6 +7,8 @@ import { ArrowLeft, X } from '@phosphor-icons/react'
 /* Overlays (sheets, menus) stack so Escape and the Android back button close the top one first. */
 const overlays: { current: () => void }[] = []
 
+export const overlayOpen = () => overlays.length > 0
+
 /** Closes the topmost open overlay; false when none is open. */
 export function closeTopOverlay(): boolean {
   const top = overlays[overlays.length - 1]
@@ -215,13 +217,17 @@ export const toast = (text: string, tone?: 'info' | 'error' | 'success') => useT
 export function Toaster() {
   const items = useToasts((s) => s.items)
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+var(--inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6">
+    // one live region that stays mounted: screen readers miss regions inserted together with their text
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+var(--inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6"
+    >
       {items.map((i) => (
         <div
           key={i.id}
-          role="status"
           className={`enter rounded-lg px-4 py-2.5 text-[14px] font-semibold shadow-lg ${
-            i.tone === 'error' ? 'bg-danger text-white' : i.tone === 'success' ? 'bg-accent text-white' : 'bg-raise-2 text-fg'
+            i.tone === 'error' ? 'bg-[var(--danger-strong)] text-white' : i.tone === 'success' ? 'bg-[var(--success-strong)] text-white' : 'bg-raise-2 text-fg'
           }`}
         >
           {i.text}
