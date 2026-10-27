@@ -30,6 +30,9 @@ export default function Import() {
   const [error, setError] = useState<string | null>(null)
   const [have, setHave] = useState<Set<string>>(new Set())
   const [pgn, setPgn] = useState('')
+  /** `until` cursor for the next page of Lichess games */
+  const [lichessNext, setLichessNext] = useState<number | undefined>(undefined)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
     void importedIds().then(setHave)
@@ -39,6 +42,7 @@ export default function Import() {
     setUser(remembered(source))
     setGames(null)
     setArchives([])
+    setLichessNext(undefined)
     setError(null)
   }, [source])
 
@@ -53,6 +57,7 @@ export default function Import() {
     setLoading(true)
     setError(null)
     setGames(null)
+    setLichessNext(undefined)
     try {
       if (source === 'chesscom') {
         const a = await chesscomArchives(u)
@@ -64,7 +69,9 @@ export default function Import() {
         setMonth(a[0])
         setGames(await chesscomMonth(a[0]))
       } else {
-        setGames(await lichessGames(u))
+        const page = await lichessGames(u)
+        setGames(page.games)
+        setLichessNext(page.next)
       }
     } catch (e) {
       setError(e instanceof NotFoundError ? t('import.notFound') : online ? t('common.error') : t('common.offline'))
@@ -82,6 +89,20 @@ export default function Import() {
       setError(t('common.error'))
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadMoreLichess = async () => {
+    if (!lichessNext) return
+    setLoadingMore(true)
+    try {
+      const page = await lichessGames(user.trim(), lichessNext)
+      setGames((gs) => [...(gs ?? []), ...page.games])
+      setLichessNext(page.next)
+    } catch {
+      toast(online ? t('common.error') : t('common.offline'), 'error')
+    } finally {
+      setLoadingMore(false)
     }
   }
 
@@ -230,6 +251,13 @@ export default function Import() {
                     )
                   })}
                 </ul>
+                {source === 'lichess' && lichessNext && (
+                  <div className="border-t border-line p-3 text-center">
+                    <button className="btn" disabled={loadingMore} onClick={() => void loadMoreLichess()}>
+                      {t('import.loadMore')}
+                    </button>
+                  </div>
+                )}
               </Panel>
             )}
           </>

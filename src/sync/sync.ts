@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { create } from 'zustand'
 import type { EntityTable } from 'dexie'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
@@ -6,8 +6,14 @@ import { db, SYNC_TABLES, type SyncRow } from '../db/db'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-export const supabase: SupabaseClient | null = url && key ? createClient(url, key) : null
-export const syncConfigured = !!supabase
+export const syncConfigured = !!(url && key)
+
+let client: Promise<SupabaseClient> | null = null
+/** The Supabase SDK is only downloaded when sync is configured. */
+function supabase(): Promise<SupabaseClient> {
+  client ??= import('@supabase/supabase-js').then(({ createClient }) => createClient(url!, key!))
+  return client
+}
 
 interface SyncState {
   user: User | null
@@ -24,7 +30,11 @@ export const useSync = create<SyncState>(() => ({
 }))
 
 const PUSH_KEY = 'oc-sync-push'
-const PULL_KEY = 'oc-sync-pull'
+/** last pulled seq, and the server_ts of that row */
+const PULL_SEQ_KEY = 'oc-sync-pull-seq'
+const PULL_TS_KEY = 'oc-sync-pull-ts'
+/** rows committed late can carry a seq below the cursor; re-read this window to catch them */
+const PULL_OVERLAP_MS = 2 * 60_000
 
 function table(name: string) {
   return db[name as (typeof SYNC_TABLES)[number]] as unknown as EntityTable<SyncRow, 'id'>
@@ -34,13 +44,13 @@ let running: Promise<void> | null = null
 
 /** Pushes local changes, then pulls remote ones. Last write (updatedAt) wins. */
 export function syncNow(): Promise<void> {
-  if (!supabase || !useSync.getState().user) return Promise.resolve()
+  if (!syncConfigured || !useSync.getState().user) return Promise.resolve()
   running ??= doSync().finally(() => (running = null))
   return running
 }
 
 async function doSync() {
-  const sb = supabase!
+  const sb = await supabase()
   useSync.setState({ syncing: true, error: null })
   try {
     const lastPush = Number(localStorage.getItem(PUSH_KEY)) || 0
@@ -61,24 +71,30 @@ async function doSync() {
     }
     localStorage.setItem(PUSH_KEY, String(pushStart))
 
-    let cursor = localStorage.getItem(PULL_KEY) ?? '1970-01-01T00:00:00Z'
+    let cursor = Number(localStorage.getItem(PULL_SEQ_KEY)) || 0
+    let lastTs = localStorage.getItem(PULL_TS_KEY)
+    let first = true
     for (;;) {
-      const { data, error } = await sb
-        .from('records')
-        .select('tbl,id,data,updated_at,server_ts')
-        .gt('server_ts', cursor)
-        .order('server_ts', { ascending: true })
-        .limit(500)
+      let q = sb.from('records').select('tbl,id,data,updated_at,server_ts,seq')
+      // the first page also re-reads recent rows, in case one committed behind the cursor
+      q = first && lastTs ? q.or(`seq.gt.${cursor},server_ts.gt.${new Date(Date.parse(lastTs) - PULL_OVERLAP_MS).toISOString()}`) : q.gt('seq', cursor)
+      first = false
+      const { data, error } = await q.order('seq', { ascending: true }).limit(500)
       if (error) throw error
       if (!data?.length) break
-      for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string }[]) {
-        if (!SYNC_TABLES.includes(r.tbl as never)) continue
-        const t = table(r.tbl)
-        const local = await t.get(r.id)
-        if (!local || local.updatedAt < r.updated_at) await t.put({ ...r.data, updatedAt: r.updated_at })
-        cursor = r.server_ts
+      for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]) {
+        if (SYNC_TABLES.includes(r.tbl as never)) {
+          const t = table(r.tbl)
+          const local = await t.get(r.id)
+          if (!local || local.updatedAt < r.updated_at) await t.put({ ...r.data, updatedAt: r.updated_at })
+        }
+        if (r.seq > cursor) {
+          cursor = r.seq
+          lastTs = r.server_ts
+        }
       }
-      localStorage.setItem(PULL_KEY, cursor)
+      localStorage.setItem(PULL_SEQ_KEY, String(cursor))
+      if (lastTs) localStorage.setItem(PULL_TS_KEY, lastTs)
       if (data.length < 500) break
     }
     const now = Date.now()
@@ -93,12 +109,18 @@ async function doSync() {
 
 /** Wires auth state and periodic sync; returns a cleanup. */
 export function startSync(): () => void {
-  if (!supabase) return () => {}
-  const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-    const user = session?.user ?? null
-    const prev = useSync.getState().user
-    useSync.setState({ user })
-    if (user && user.id !== prev?.id) void syncNow()
+  if (!syncConfigured) return () => {}
+  let stopped = false
+  let unsubscribe = () => {}
+  void supabase().then((sb) => {
+    if (stopped) return
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
+      const user = session?.user ?? null
+      const prev = useSync.getState().user
+      useSync.setState({ user })
+      if (user && user.id !== prev?.id) void syncNow()
+    })
+    unsubscribe = () => sub.subscription.unsubscribe()
   })
   const onOnline = () => void syncNow()
   const onHide = () => document.visibilityState === 'hidden' && void syncNow()
@@ -106,7 +128,8 @@ export function startSync(): () => void {
   document.addEventListener('visibilitychange', onHide)
   const timer = setInterval(() => void syncNow(), 3 * 60_000)
   return () => {
-    sub.subscription.unsubscribe()
+    stopped = true
+    unsubscribe()
     window.removeEventListener('online', onOnline)
     document.removeEventListener('visibilitychange', onHide)
     clearInterval(timer)
@@ -114,21 +137,22 @@ export function startSync(): () => void {
 }
 
 export async function signInWithEmail(email: string) {
-  if (!supabase) throw new Error('sync not configured')
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } })
+  if (!syncConfigured) throw new Error('sync not configured')
+  const { error } = await (await supabase()).auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } })
   if (error) throw error
 }
 
 export async function signInWithGoogle() {
-  if (!supabase) throw new Error('sync not configured')
-  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } })
+  if (!syncConfigured) throw new Error('sync not configured')
+  const { error } = await (await supabase()).auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } })
   if (error) throw error
 }
 
 export async function signOut() {
-  await supabase?.auth.signOut()
+  if (syncConfigured) await (await supabase()).auth.signOut()
   localStorage.removeItem(PUSH_KEY)
-  localStorage.removeItem(PULL_KEY)
+  localStorage.removeItem(PULL_SEQ_KEY)
+  localStorage.removeItem(PULL_TS_KEY)
 }
 
 /** Full local backup as JSON (works without an account). */

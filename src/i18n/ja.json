@@ -118,6 +118,8 @@
     "title": "対局の振り返り",
     "analyzing": "対局を解析中…",
     "progress": "{{total}} 手中 {{n}} 手目",
+    "engineFailed": "このブラウザでは Stockfish を読み込めませんでした。再読み込みするか、最新のブラウザをお使いください。",
+    "reload": "再読み込み",
     "accuracy": "正確度",
     "gameRating": "推定パフォーマンス",
     "start": "振り返りを開始",
@@ -328,6 +330,7 @@
     "none": "その期間の対局はありません",
     "importReview": "インポートして振り返る",
     "importAll": "すべてインポート",
+    "loadMore": "以前の対局を読み込む",
     "already": "インポート済み",
     "remember": "このユーザーを記憶する"
   },

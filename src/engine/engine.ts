@@ -40,6 +40,9 @@ export class Engine {
   private worker: Worker
   private ready: Promise<void>
   private listeners = new Set<(line: string) => void>()
+  /** rejecters of every promise waiting on the worker, failed together if it dies */
+  private pending = new Set<(err: Error) => void>()
+  private error: Error | null = null
   private queue: Promise<unknown> = Promise.resolve()
   private gen = 0
   private current: { multipv: number; elo?: number; skill?: number } = { multipv: 1 }
@@ -50,27 +53,50 @@ export class Engine {
       const line = typeof e.data === 'string' ? e.data : String(e.data)
       for (const l of this.listeners) l(line)
     }
+    this.worker.onerror = (e: ErrorEvent) => {
+      e.preventDefault()
+      this.fail(new Error(e.message || 'Stockfish failed to load'))
+    }
     this.ready = (async () => {
       this.send('uci')
       await this.waitFor((l) => l === 'uciok')
       this.send('setoption name Hash value 32')
       await this.isReady()
     })()
+    // callers see the failure through search(); this only keeps it from being reported as unhandled
+    this.ready.catch(() => undefined)
+  }
+
+  /** Set once the worker has crashed or failed to load; every search rejects from then on. */
+  get failed(): Error | null {
+    return this.error
+  }
+
+  private fail(err: Error) {
+    if (this.error) return
+    this.error = err
+    this.listeners.clear()
+    for (const reject of this.pending) reject(err)
+    this.pending.clear()
   }
 
   private send(cmd: string) {
     this.worker.postMessage(cmd)
   }
 
+  /** Resolves on the first line matching `pred`; rejects if the worker dies first. */
   private waitFor(pred: (line: string) => boolean): Promise<string> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      if (this.error) return reject(this.error)
       const fn = (l: string) => {
         if (pred(l)) {
           this.listeners.delete(fn)
+          this.pending.delete(reject)
           resolve(l)
         }
       }
       this.listeners.add(fn)
+      this.pending.add(reject)
     })
   }
 
@@ -123,11 +149,15 @@ export class Engine {
     }
     await this.isReady()
 
+    // a newer search may have arrived while waiting for readyok
+    if (gen !== this.gen) return { bestmove: null, lines: [], depth: 0 }
+
     const whiteToMove = fen.split(' ')[1] !== 'b'
     const lines = new Map<number, PvLine>()
     let lastDepth = 0
 
-    const done = new Promise<SearchResult>((resolve) => {
+    const done = new Promise<SearchResult>((resolve, reject) => {
+      if (this.error) return reject(this.error)
       const fn = (l: string) => {
         if (l.startsWith('info') && l.includes(' pv ')) {
           const parsed = parseInfo(l, whiteToMove)
@@ -141,6 +171,7 @@ export class Engine {
           }
         } else if (l.startsWith('bestmove')) {
           this.listeners.delete(fn)
+          this.pending.delete(reject)
           const bm = l.split(' ')[1]
           resolve({
             bestmove: bm && bm !== '(none)' ? bm : null,
@@ -150,9 +181,9 @@ export class Engine {
         }
       }
       this.listeners.add(fn)
+      this.pending.add(reject)
     })
 
-    if (gen !== this.gen) return { bestmove: null, lines: [], depth: 0 }
     this.send(`position fen ${fen}`)
     if (opts.movetime) this.send(`go movetime ${opts.movetime}${opts.depth ? ` depth ${opts.depth}` : ''}`)
     else if (opts.depth) this.send(`go depth ${opts.depth}`)
@@ -189,9 +220,9 @@ export function parseInfo(line: string, whiteToMove: boolean): PvLine | null {
 }
 
 let shared: Engine | null = null
-/** One engine instance for background work (bots, review). */
+/** One engine instance for background work (bots, review). A crashed worker is replaced. */
 export function sharedEngine(): Engine {
-  shared ??= new Engine()
+  if (!shared || shared.failed) shared = new Engine()
   return shared
 }
 

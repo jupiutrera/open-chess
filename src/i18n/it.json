@@ -118,6 +118,8 @@
     "title": "Analisi partita",
     "analyzing": "Analisi della partita…",
     "progress": "Mossa {{n}} di {{total}}",
+    "engineFailed": "Impossibile caricare Stockfish in questo browser. Ricarica la pagina o usa un browser aggiornato.",
+    "reload": "Ricarica",
     "accuracy": "Precisione",
     "gameRating": "Prestazione stimata",
     "start": "Inizia l'analisi",
@@ -328,6 +330,7 @@
     "none": "Nessuna partita in quel periodo",
     "importReview": "Importa e analizza",
     "importAll": "Importa tutto",
+    "loadMore": "Carica partite precedenti",
     "already": "Già importata",
     "remember": "Ricorda questo utente"
   },

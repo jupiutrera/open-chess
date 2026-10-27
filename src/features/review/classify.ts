@@ -114,7 +114,10 @@ export function estimateRating(accuracy: number): number {
   return 3200
 }
 
-/** True when the moved piece is left en prise (a real sacrifice). */
+/**
+ * True when the moved piece is left en prise (a real sacrifice). Only the moved
+ * piece counts: leaving another piece hanging (e.g. ignoring a pin) is not detected.
+ */
 export function isSacrifice(fenBefore: string, uci: string): boolean {
   const c = new Chess(fenBefore)
   const mover = c.turn()
@@ -128,10 +131,7 @@ export function isSacrifice(fenBefore: string, uci: string): boolean {
   const gained = captured ? PIECE_VALUE[captured.type] : 0
   const opp = mover === 'w' ? 'b' : 'w'
   const attackers = c.attackers(to, opp)
-  if (!attackers.length) {
-    // also count other pieces of ours left hanging after the move (e.g. a pin ignored)
-    return false
-  }
+  if (!attackers.length) return false
   const defenders = c.attackers(to, mover)
   const cheapest = Math.min(...attackers.map((sq) => PIECE_VALUE[c.get(sq)!.type] || 100))
   const netLoss = value - gained

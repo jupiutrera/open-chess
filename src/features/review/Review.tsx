@@ -31,6 +31,7 @@ export default function Review() {
   const depth = useSettings((s) => s.reviewDepth)
   const [game, setGame] = useState<GameRow | null | undefined>(undefined)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+  const [engineFailed, setEngineFailed] = useState(false)
   const [mode, setMode] = useState<Mode>('summary')
   const [ply, setPly] = useState(0)
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
@@ -49,12 +50,16 @@ export default function Review() {
     if (!game || game.review) return
     const signal = { cancelled: false }
     setProgress({ done: 0, total: 1 })
-    void analyzeGame(game, depth, (done, total) => setProgress({ done, total }), signal).then((review) => {
-      if (review && !signal.cancelled) {
-        setGame({ ...game, review })
-        setProgress(null)
-      }
-    })
+    setEngineFailed(false)
+    analyzeGame(game, depth, (done, total) => setProgress({ done, total }), signal).then(
+      (review) => {
+        if (review && !signal.cancelled) {
+          setGame({ ...game, review })
+          setProgress(null)
+        }
+      },
+      () => !signal.cancelled && setEngineFailed(true),
+    )
     return () => {
       signal.cancelled = true
       sharedEngine().stop()
@@ -235,7 +240,7 @@ export default function Review() {
           </div>
 
           {!review ? (
-            <Analyzing progress={progress} />
+            <Analyzing progress={progress} failed={engineFailed} />
           ) : mode === 'summary' ? (
             <Summary
               game={game}
@@ -329,8 +334,18 @@ function NavBtn({ children, onClick, label }: { children: React.ReactNode; onCli
   )
 }
 
-function Analyzing({ progress }: { progress: { done: number; total: number } | null }) {
+function Analyzing({ progress, failed }: { progress: { done: number; total: number } | null; failed: boolean }) {
   const { t } = useTranslation()
+  if (failed) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+        <p className="text-fg-2">{t('review.engineFailed')}</p>
+        <button className="btn btn-primary" onClick={() => location.reload()}>
+          {t('review.reload')}
+        </button>
+      </div>
+    )
+  }
   const pct = progress ? (progress.done / Math.max(1, progress.total)) * 100 : 0
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">

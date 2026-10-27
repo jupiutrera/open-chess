@@ -13,7 +13,7 @@ import { db } from '../../db/db'
 import { recentGames } from '../../db/games'
 import { dailyPuzzle, getPuzzleRating, type Puzzle } from '../puzzles/puzzlesData'
 import { playUci } from '../../chess/util'
-import { GameRowItem } from '../profile/Games'
+import { GameRowItem } from '../profile/GameRowItem'
 
 export function Home() {
   const { t } = useTranslation()

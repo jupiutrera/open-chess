@@ -156,9 +156,9 @@ From 1400 Elo up, Stockfish's `UCI_Elo` does the work. Below that Stockfish won'
 <details>
 <summary><b>Puzzles, data and sync</b></summary>
 
-`scripts/build-puzzles.mjs` streams the Lichess puzzle database (about 300 MB of zstd), keeps the popular puzzles and splits them into files per 100-point band that load on demand. Your rating uses **Glicko-2**.
+`scripts/build-puzzles.mjs` streams the Lichess puzzle database (about 300 MB of zstd), keeps the popular puzzles and splits them into files per 100-point band that load on demand. The opening book is available offline from the start, and each puzzle band (plus its two neighbours) is cached as soon as you use it, so you keep puzzles at your level without a connection. Your rating uses **Glicko-2**.
 
-Your data lives in IndexedDB. Every row carries `updatedAt` and a soft delete, so the optional Supabase sync is a simple last-write-wins with per-user RLS. Without Supabase configured, nothing is sent anywhere.
+Your data lives in IndexedDB. Every row carries `updatedAt` and a soft delete, so the optional Supabase sync is a simple last-write-wins with per-user RLS: the server ignores any write older than the one it holds, and changes are pulled by a server-side sequence. The device's modification time wins, so a badly skewed clock can let the wrong change win. Without Supabase configured, nothing is sent anywhere.
 
 </details>
 
@@ -196,7 +196,16 @@ cd android && ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-For a signed release, create a keystore, configure it in `android/app/build.gradle` and run `./gradlew assembleRelease`.
+For a signed release, create a keystore and point to it from `android/keystore.properties` (git-ignored):
+
+```properties
+storeFile=/path/to/open-chess.jks
+storePassword=…
+keyAlias=open-chess
+keyPassword=…
+```
+
+then run `./gradlew assembleRelease`. Back the keystore up: if it's lost, nobody can update the installed app. Pushing a `v*` tag runs `android-release.yml`, which builds the signed APK and attaches it to the release; it needs the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` secrets.
 
 </details>
 
@@ -204,7 +213,7 @@ For a signed release, create a keystore, configure it in `android/app/build.grad
 <summary><b>🔄 Sync across devices (Supabase)</b></summary>
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Run [`supabase/migrations/0001_records.sql`](supabase/migrations/0001_records.sql) in the SQL editor.
+2. Run the migrations in [`supabase/migrations/`](supabase/migrations/) in order in the SQL editor. If you already used sync, run only the new ones.
 3. Under *Authentication*, enable Email (magic link) and optionally Google. Add the app URL to *Redirect URLs*.
 4. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 

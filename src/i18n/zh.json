@@ -118,6 +118,8 @@
     "title": "对局复盘",
     "analyzing": "正在分析对局…",
     "progress": "第 {{n}} 步，共 {{total}} 步",
+    "engineFailed": "无法在此浏览器中加载 Stockfish。请刷新页面或使用最新版浏览器。",
+    "reload": "刷新",
     "accuracy": "准确率",
     "gameRating": "估计表现分",
     "start": "开始复盘",
@@ -328,6 +330,7 @@
     "none": "该时间段内没有棋局",
     "importReview": "导入并复盘",
     "importAll": "全部导入",
+    "loadMore": "加载更早的对局",
     "already": "已导入",
     "remember": "记住此用户"
   },

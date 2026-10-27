@@ -27,6 +27,10 @@ export function loadIndex(): Promise<Index | null> {
   indexP ??= fetch(`${base}index.json`)
     .then((r) => (r.ok ? (r.json() as Promise<Index>) : null))
     .catch(() => null)
+    .then((idx) => {
+      if (!idx) indexP = null // offline: try again next time
+      return idx
+    })
   return indexP
 }
 
@@ -38,10 +42,21 @@ function loadBucket(b: number): Promise<Puzzle[]> {
       .then((rows: [string, string, string, number, string][]) =>
         rows.map(([id, fen, moves, rating, themes]) => ({ id, fen, moves: moves.split(' '), rating, themes: themes.split(' ') })),
       )
-      .catch(() => [])
+      .catch(() => {
+        bucketCache.delete(b) // offline: try again next time
+        return []
+      })
     bucketCache.set(b, p)
   }
   return p
+}
+
+/** Warms the service worker cache with the buckets around `b`, so nearby puzzles work offline later. */
+function prefetchAround(idx: Index, b: number) {
+  if (!navigator.onLine) return
+  for (const n of [b - idx.step, b + idx.step]) {
+    if (n >= idx.min && n < idx.max && !bucketCache.has(n)) void loadBucket(n)
+  }
 }
 
 function bucketOf(idx: Index, rating: number) {
@@ -60,6 +75,7 @@ export async function nextPuzzle(target: number, opts: { theme?: string; exclude
       const b = bucketOf(idx, target) + off * idx.step
       if (b < idx.min || b >= idx.max) continue
       const list = await loadBucket(b)
+      if (spread === 0) prefetchAround(idx, b)
       const pool = list.filter((p) => !seen.has(p.id) && (!opts.theme || p.themes.includes(opts.theme)))
       if (pool.length) return pool[Math.floor(Math.random() * pool.length)]
     }

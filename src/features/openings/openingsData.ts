@@ -19,7 +19,10 @@ export function loadOpenings(): Promise<Map<string, Opening>> {
       for (const [k, [eco, name, line]] of Object.entries(obj)) m.set(k, { eco, name, line, epd: k })
       return m
     })
-    .catch(() => new Map())
+    .catch(() => {
+      cache = null // offline: try again next time
+      return new Map<string, Opening>()
+    })
   return cache
 }
 

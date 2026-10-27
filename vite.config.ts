@@ -24,7 +24,6 @@ export default defineConfig({
         theme_color: '#262421',
         background_color: '#302e2b',
         display: 'standalone',
-        orientation: 'portrait',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -33,7 +32,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,wasm,mp3}'],
+        // the opening book and puzzle index are small and needed everywhere; puzzle buckets (15 MB) cache as they load
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,wasm,mp3}', 'data/openings.json', 'data/puzzles/index.json'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
           {
