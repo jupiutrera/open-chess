@@ -1,0 +1,133 @@
+import { db, kvGet, kvSet, put, type PuzzleAttemptRow } from '../../db/db'
+import { uid } from '../../chess/util'
+import { DEFAULT_GLICKO, updateGlicko, type Glicko } from './glicko'
+
+export interface Puzzle {
+  id: string
+  /** position before the opponent's setup move */
+  fen: string
+  /** UCI moves: first is the opponent's, then alternate solver/opponent */
+  moves: string[]
+  rating: number
+  themes: string[]
+}
+
+interface Index {
+  step: number
+  min: number
+  max: number
+  buckets: Record<string, number>
+}
+
+const base = `${import.meta.env.BASE_URL}data/puzzles/`
+let indexP: Promise<Index | null> | null = null
+const bucketCache = new Map<number, Promise<Puzzle[]>>()
+
+export function loadIndex(): Promise<Index | null> {
+  indexP ??= fetch(`${base}index.json`)
+    .then((r) => (r.ok ? (r.json() as Promise<Index>) : null))
+    .catch(() => null)
+  return indexP
+}
+
+function loadBucket(b: number): Promise<Puzzle[]> {
+  let p = bucketCache.get(b)
+  if (!p) {
+    p = fetch(`${base}r${b}.json`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows: [string, string, string, number, string][]) =>
+        rows.map(([id, fen, moves, rating, themes]) => ({ id, fen, moves: moves.split(' '), rating, themes: themes.split(' ') })),
+      )
+      .catch(() => [])
+    bucketCache.set(b, p)
+  }
+  return p
+}
+
+function bucketOf(idx: Index, rating: number) {
+  return Math.floor(Math.max(idx.min, Math.min(idx.max - 1, rating)) / idx.step) * idx.step
+}
+
+/** Picks an unseen puzzle near the target rating, optionally of one theme. */
+export async function nextPuzzle(target: number, opts: { theme?: string; exclude?: Set<string> } = {}): Promise<Puzzle | null> {
+  const idx = await loadIndex()
+  if (!idx) return null
+  const seen = opts.exclude ?? new Set((await db.puzzleAttempts.toArray()).map((a) => a.puzzleId))
+  // look in the target bucket first, then widen
+  for (let spread = 0; spread <= 6; spread++) {
+    const offsets = spread === 0 ? [0] : [spread, -spread]
+    for (const off of offsets) {
+      const b = bucketOf(idx, target) + off * idx.step
+      if (b < idx.min || b >= idx.max) continue
+      const list = await loadBucket(b)
+      const pool = list.filter((p) => !seen.has(p.id) && (!opts.theme || p.themes.includes(opts.theme)))
+      if (pool.length) return pool[Math.floor(Math.random() * pool.length)]
+    }
+  }
+  return null
+}
+
+/** Same puzzle for everyone on a given day. */
+export async function dailyPuzzle(date = new Date()): Promise<Puzzle | null> {
+  const idx = await loadIndex()
+  if (!idx) return null
+  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000)
+  const b = 1400 + (day % 8) * 100
+  const list = await loadBucket(Math.min(idx.max - idx.step, b))
+  if (!list.length) return null
+  return list[(day * 2654435761) % list.length]
+}
+
+/** Rush ladder: puzzles get harder as the score grows. */
+export async function rushPuzzle(n: number, exclude: Set<string>): Promise<Puzzle | null> {
+  const target = 600 + n * 70
+  return nextPuzzle(target, { exclude })
+}
+
+export async function getPuzzleRating(): Promise<Glicko> {
+  return kvGet<Glicko>('puzzleRating', DEFAULT_GLICKO)
+}
+
+export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAttemptRow['mode'], rated: boolean) {
+  let ratingAfter: number | undefined
+  if (rated) {
+    const g = await getPuzzleRating()
+    const next = updateGlicko(g, p.rating, 80, solved ? 1 : 0)
+    await kvSet('puzzleRating', next)
+    ratingAfter = next.rating
+  }
+  await put<PuzzleAttemptRow>('puzzleAttempts', {
+    id: uid(),
+    puzzleId: p.id,
+    rating: p.rating,
+    solved,
+    mode,
+    date: Date.now(),
+    ratingAfter,
+  })
+  return ratingAfter
+}
+
+export const THEMES = [
+  'mateIn1',
+  'mateIn2',
+  'mateIn3',
+  'fork',
+  'pin',
+  'skewer',
+  'discoveredAttack',
+  'hangingPiece',
+  'sacrifice',
+  'backRankMate',
+  'smotheredMate',
+  'deflection',
+  'attraction',
+  'trappedPiece',
+  'promotion',
+  'zugzwang',
+  'quietMove',
+  'defensiveMove',
+  'opening',
+  'middlegame',
+  'endgame',
+]

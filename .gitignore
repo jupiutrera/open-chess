@@ -1,0 +1,16 @@
+node_modules
+dist
+dev-dist
+.env
+.env.local
+public/stockfish
+android/app/build
+android/.gradle
+android/local.properties
+*.keystore
+.impeccable/live
+data-cache
+test-results
+playwright-report
+*.tsbuildinfo
+dev-dist

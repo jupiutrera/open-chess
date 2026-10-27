@@ -1,0 +1,372 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import '@lichess-org/chessground/assets/chessground.base.css';
+@import '@lichess-org/chessground/assets/chessground.cburnett.css';
+
+/* Tokens. Dark is the default; light follows the same hierarchy. */
+:root {
+  color-scheme: dark;
+  --bg: #302e2b;
+  --bg-rail: #262421;
+  --panel: #262522;
+  --panel-2: #21201d;
+  --raise: #3c3a37;
+  --raise-2: #4b4847;
+  --line: #3f3d3a;
+  --text: #f1f0ef;
+  --text-2: #c3c2c1;
+  --text-3: #989795;
+  --accent: #81b64c;
+  --accent-hi: #95c75e;
+  --accent-lo: #45753c;
+  --on-accent: #ffffff;
+  --danger: #e35d4b;
+  --warn: #f2b43c;
+
+  /* Move-quality vocabulary */
+  --q-brilliant: #26c2a3;
+  --q-great: #749bbf;
+  --q-best: #81b64c;
+  --q-excellent: #96bc4b;
+  --q-good: #95b776;
+  --q-book: #a88865;
+  --q-inaccuracy: #f7c631;
+  --q-mistake: #ffa459;
+  --q-miss: #ff7769;
+  --q-blunder: #fa412d;
+  --q-forced: #96af8b;
+
+  /* Board (overridden per theme via data-board) */
+  --sq-light: #ebecd0;
+  --sq-dark: #739552;
+  --sq-last: rgba(255, 255, 51, 0.42);
+  --sq-check: rgba(235, 60, 50, 0.85);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f1f0ee;
+  --bg-rail: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f7f6f4;
+  --raise: #e8e6e3;
+  --raise-2: #dcdad6;
+  --line: #e0ddd9;
+  --text: #22201d;
+  --text-2: #4c4a47;
+  --text-3: #6f6c68;
+}
+
+:root[data-board='brown'] { --sq-light: #f0d9b5; --sq-dark: #b58863; }
+:root[data-board='blue'] { --sq-light: #dee3e6; --sq-dark: #8ca2ad; }
+:root[data-board='gray'] { --sq-light: #d9d9d9; --sq-dark: #a1a1a1; }
+:root[data-board='purple'] { --sq-light: #e8e1ef; --sq-dark: #9a7fb3; }
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-rail: var(--bg-rail);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-raise: var(--raise);
+  --color-raise-2: var(--raise-2);
+  --color-line: var(--line);
+  --color-fg: var(--text);
+  --color-fg-2: var(--text-2);
+  --color-fg-3: var(--text-3);
+  --color-accent: var(--accent);
+  --color-accent-hi: var(--accent-hi);
+  --color-accent-lo: var(--accent-lo);
+  --color-danger: var(--danger);
+  --color-warn: var(--warn);
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+  --radius-ui: var(--radius);
+  --radius-ui-lg: var(--radius-lg);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-hi);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--raise-2) transparent;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+/* Buttons: chess.com-style raised action with a lip, press sinks into it. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+  background: var(--raise);
+  color: var(--text);
+  box-shadow: 0 3px 0 0 var(--panel-2);
+  transition:
+    transform 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out),
+    background-color 150ms ease;
+  cursor: pointer;
+  user-select: none;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 var(--panel-2);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 4px 0 0 var(--accent-lo);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.18);
+}
+.btn-primary:active:not(:disabled) {
+  box-shadow: 0 2px 0 0 var(--accent-lo);
+}
+.btn-lg {
+  min-height: 3.5rem;
+  font-size: 1.25rem;
+  border-radius: 12px;
+}
+.btn-ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-2);
+}
+.btn-icon {
+  min-height: 2.5rem;
+  width: 2.5rem;
+  padding: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) {
+    background: var(--raise-2);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hi);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--raise);
+    color: var(--text);
+  }
+}
+
+.field {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.field::placeholder {
+  color: var(--text-3);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+}
+
+/* Board */
+cg-board {
+  background-color: var(--sq-dark);
+  background-image: conic-gradient(
+    var(--sq-dark) 0 90deg,
+    var(--sq-light) 0 180deg,
+    var(--sq-dark) 0 270deg,
+    var(--sq-light) 0
+  );
+  background-size: 25% 25%;
+  border-radius: 4px;
+}
+cg-board square.last-move {
+  background-color: var(--sq-last);
+}
+cg-board square.selected {
+  background-color: rgba(255, 255, 51, 0.5);
+}
+cg-board square.check {
+  background: radial-gradient(ellipse at center, var(--sq-check) 0%, rgba(231, 0, 0, 0.5) 30%, transparent 75%);
+}
+cg-board square.move-dest {
+  background: radial-gradient(rgba(0, 0, 0, 0.16) 21%, transparent 23%);
+}
+cg-board square.oc-dest {
+  background: radial-gradient(transparent 0%, transparent 77%, rgba(0, 0, 0, 0.16) 79%);
+}
+cg-board square.premove-dest {
+  background: radial-gradient(rgba(20, 30, 85, 0.25) 21%, transparent 23%);
+}
+cg-board square.move-dest:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+cg-board square.hint-from,
+cg-board square.hint-to {
+  background-color: rgba(38, 194, 163, 0.45);
+}
+cg-board square.wrong {
+  background-color: rgba(250, 65, 45, 0.55);
+}
+cg-board square.right {
+  background-color: rgba(129, 182, 76, 0.6);
+}
+.cg-wrap coords {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: clamp(8px, 1.6vmin, 12px);
+}
+.cg-wrap coords.ranks {
+  left: 2px;
+  top: 2px;
+  right: auto;
+  transform: none;
+}
+.cg-wrap coords.files {
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  top: auto;
+  height: auto;
+  text-transform: lowercase;
+}
+.cg-wrap coords.files coord {
+  text-align: right;
+  padding-right: 3px;
+}
+.cg-wrap coords coord {
+  opacity: 1;
+}
+.cg-wrap coords.ranks coord:nth-child(odd),
+.cg-wrap coords.files coord:nth-child(even) {
+  color: var(--sq-light);
+}
+.cg-wrap coords.ranks coord:nth-child(even),
+.cg-wrap coords.files coord:nth-child(odd) {
+  color: var(--sq-dark);
+}
+.cg-wrap.orientation-black coords.ranks coord:nth-child(odd),
+.cg-wrap.orientation-black coords.files coord:nth-child(even) {
+  color: var(--sq-dark);
+}
+.cg-wrap.orientation-black coords.ranks coord:nth-child(even),
+.cg-wrap.orientation-black coords.files coord:nth-child(odd) {
+  color: var(--sq-light);
+}
+.cg-wrap coords.ranks {
+  height: 100%;
+}
+.cg-wrap coords.ranks coord {
+  text-shadow: none;
+}
+
+/* Move-quality badge sitting on the destination square */
+.q-badge {
+  position: absolute;
+  width: 34%;
+  max-width: 30px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(9px, 1.5vmin, 13px);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Enter animation used for panels and dialogs */
+.enter {
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.pop {
+  transition:
+    opacity 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.shake {
+  animation: shake 220ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter,
+  .pop {
+    @starting-style {
+      transform: none;
+    }
+  }
+  .shake {
+    animation: none;
+  }
+  .btn {
+    transition: background-color 150ms ease;
+  }
+}

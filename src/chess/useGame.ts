@@ -1,0 +1,99 @@
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { Chess, type Move } from 'chess.js'
+import { START_FEN } from './util'
+import { playMoveSound } from './sounds'
+
+/**
+ * Game state with history browsing. `ply` is the position being viewed;
+ * moves are only accepted at the live position.
+ */
+export function useGame(initialFen: string = START_FEN) {
+  const [startFen, setStartFen] = useState(initialFen)
+  const [moves, setMoves] = useState<Move[]>([])
+  const [ply, setPly] = useState(0)
+  const live = useRef(new Chess(initialFen))
+  const plyRef = useRef(0)
+  plyRef.current = ply
+
+  const fens = useMemo(() => [startFen, ...moves.map((m) => m.after)], [startFen, moves])
+  const fen = fens[ply] ?? fens[fens.length - 1]
+  const atLive = ply === moves.length
+  const lastMove = ply > 0 ? ([moves[ply - 1].from, moves[ply - 1].to] as [string, string]) : null
+
+  /** Plays a move at the live position; with `branch`, from the viewed ply (dropping later moves). */
+  const move = useCallback((from: string, to: string, promotion?: string, sound = true, branch = false): Move | null => {
+    if (branch) {
+      const extra = live.current.history().length - plyRef.current
+      if (extra > 0) {
+        const trial = new Chess(live.current.history({ verbose: true })[plyRef.current].before)
+        try {
+          trial.move({ from, to, promotion })
+        } catch {
+          return null
+        }
+        for (let i = 0; i < extra; i++) live.current.undo()
+      }
+    }
+    let m: Move
+    try {
+      m = live.current.move({ from, to, promotion })
+    } catch {
+      return null
+    }
+    if (sound) playMoveSound(m)
+    const hist = live.current.history({ verbose: true })
+    setMoves(hist)
+    setPly(hist.length)
+    return m
+  }, [])
+
+  const undo = useCallback((n = 1) => {
+    for (let i = 0; i < n; i++) live.current.undo()
+    const hist = live.current.history({ verbose: true })
+    setMoves(hist)
+    setPly(hist.length)
+  }, [])
+
+  const reset = useCallback((fen: string = START_FEN) => {
+    live.current = new Chess(fen)
+    setStartFen(fen)
+    setMoves([])
+    setPly(0)
+  }, [])
+
+  const loadPgn = useCallback((pgn: string) => {
+    const c = new Chess()
+    c.loadPgn(pgn)
+    const hist = c.history({ verbose: true })
+    const first = hist[0]?.before ?? c.fen()
+    live.current = c
+    setStartFen(first)
+    setMoves(hist)
+    setPly(hist.length)
+    return c
+  }, [])
+
+  const goto = useCallback(
+    (p: number) => setPly(Math.max(0, Math.min(p, live.current.history().length))),
+    [],
+  )
+
+  return {
+    chess: live.current,
+    startFen,
+    moves,
+    sans: moves.map((m) => m.san),
+    fens,
+    fen,
+    ply,
+    atLive,
+    lastMove,
+    move,
+    undo,
+    reset,
+    loadPgn,
+    goto,
+  }
+}
+
+export type GameApi = ReturnType<typeof useGame>
