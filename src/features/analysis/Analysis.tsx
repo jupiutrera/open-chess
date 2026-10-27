@@ -19,7 +19,7 @@ import { BoardLayout } from '../../board/BoardLayout'
 import { MoveList } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
-import { gameResultText, parseUci, uciLineToSan } from '../../chess/util'
+import { gameResultText, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import { formatScore } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
@@ -49,7 +49,11 @@ export default function Analysis() {
     try {
       if (pgn) game.loadPgn(pgn)
       else if (fen) {
-        new Chess(fen)
+        const problem = positionProblem(fen)
+        if (problem) {
+          toast(t(`analysis.illegal.${problem}`), 'error')
+          return
+        }
         game.reset(fen)
         if (fen.split(' ')[1] === 'b') setOrientation('black')
       }
@@ -291,12 +295,9 @@ function Loader({
         <button
           className="btn"
           onClick={() => {
-            try {
-              new Chess(fenText.trim())
-              onFen(fenText.trim())
-            } catch {
-              toast(t('analysis.invalidFen'), 'error')
-            }
+            const problem = positionProblem(fenText.trim())
+            if (problem) toast(t(`analysis.illegal.${problem}`), 'error')
+            else onFen(fenText.trim())
           }}
         >
           {t('analysis.loadFen')}

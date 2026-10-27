@@ -127,10 +127,11 @@ export function isSacrifice(fenBefore: string, uci: string): boolean {
   const to = move.to as Square
   const piece = c.get(to)
   if (!piece || piece.type === 'p' || piece.type === 'k') return false
-  const value = PIECE_VALUE[piece.type]
+  // a promotion on an attacked square only risks the pawn
+  const value = move.promotion ? PIECE_VALUE.p : PIECE_VALUE[piece.type]
   const gained = captured ? PIECE_VALUE[captured.type] : 0
-  const opp = mover === 'w' ? 'b' : 'w'
-  const attackers = c.attackers(to, opp)
+  // legal captures only: a pinned attacker cannot take
+  const attackers = [...new Set(c.moves({ verbose: true }).filter((m) => m.to === to).map((m) => m.from))]
   if (!attackers.length) return false
   const defenders = c.attackers(to, mover)
   const cheapest = Math.min(...attackers.map((sq) => PIECE_VALUE[c.get(sq)!.type] || 100))
@@ -195,7 +196,7 @@ export function classifyMoves(
 
       const prev = out[i - 1]
       const opponentErred = prev && (prev.quality === 'mistake' || prev.quality === 'blunder' || prev.quality === 'miss')
-      if (opponentErred && (quality === 'inaccuracy' || quality === 'mistake' || quality === 'blunder') && loss >= 8 && winBefore >= 60) {
+      if (opponentErred && (quality === 'inaccuracy' || quality === 'mistake' || quality === 'blunder') && loss >= 8 && winBefore >= 60 && winAfter >= 50) {
         quality = 'miss'
       }
 

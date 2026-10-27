@@ -84,7 +84,8 @@
       "fifty": "por la regla de 50 movimientos",
       "resign": "por abandono",
       "timeout": "por tiempo",
-      "agreement": "por acuerdo"
+      "agreement": "por acuerdo",
+      "timeoutVsInsufficient": "por tiempo contra material insuficiente"
     },
     "confirmResign": "¿Seguro que quieres abandonar?",
     "level": "Nivel",
@@ -302,7 +303,14 @@
     "editHelp": "Elige una pieza y toca una casilla. Toca una pieza del tablero con la goma para quitarla.",
     "eraser": "Goma",
     "castling": "Enroques",
-    "editorShort": "Editor"
+    "editorShort": "Editor",
+    "illegal": {
+      "invalid": "FEN no válido",
+      "kings": "Cada bando necesita exactamente un rey",
+      "pawns": "No puede haber peones en la primera ni en la última fila",
+      "count": "Demasiadas piezas para un bando",
+      "check": "El bando que no mueve no puede estar en jaque"
+    }
   },
   "games": {
     "title": "Mis partidas",

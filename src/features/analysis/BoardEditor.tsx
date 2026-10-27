@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Chess } from 'chess.js'
 import { Eraser } from '@phosphor-icons/react'
 import { PieceIcon, PieceSprite } from '../../board/QualityIcon'
-import { START_FEN } from '../../chess/util'
+import { START_FEN, positionProblem } from '../../chess/util'
 import { Segmented, toast } from '../../ui/kit'
 
 type Grid = (string | null)[][] // [rank 8..1][file a..h], FEN letters
@@ -75,12 +74,9 @@ export function BoardEditor({ initialFen, onDone }: { initialFen: string; onDone
 
   const done = () => {
     const f = fen()
-    try {
-      new Chess(f)
-      onDone(f)
-    } catch {
-      toast(t('analysis.invalidFen'), 'error')
-    }
+    const problem = positionProblem(f)
+    if (problem) toast(t(`analysis.illegal.${problem}`), 'error')
+    else onDone(f)
   }
 
   const toggleCastle = (flag: string) =>

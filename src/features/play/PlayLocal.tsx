@@ -8,7 +8,7 @@ import { PlayerBar } from '../../board/PlayerBar'
 import { MoveList, MoveStrip } from '../../board/MoveList'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
-import { capturedPieces, gameResultText } from '../../chess/util'
+import { capturedPieces, gameResultText, timeoutResult } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { saveGame } from '../../db/games'
 import { GameOverDialog, type GameEnd } from './GameOver'
@@ -49,7 +49,7 @@ export default function PlayLocal() {
     setTimeout(() => setDialog(true), 400)
   }
 
-  const clock = useClock(tc.base, tc.inc, (side) => void finish({ result: side === 'w' ? '0-1' : '1-0', reason: 'timeout' }))
+  const clock = useClock(tc.base, tc.inc, (side) => void finish(timeoutResult(game.chess, side)))
   const liveFen = game.fens[game.fens.length - 1]
 
   useEffect(() => {
@@ -148,7 +148,14 @@ export default function PlayLocal() {
                 </button>
               ) : (
                 <>
-                  <button className="btn" onClick={() => game.undo(1)} disabled={!game.moves.length}>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      game.undo(1)
+                      clock.setTurn(game.chess.turn())
+                    }}
+                    disabled={!game.moves.length}
+                  >
                     <ArrowCounterClockwise size={20} weight="bold" /> {t('play.undo')}
                   </button>
                   <button className="btn" onClick={() => void finish({ result: turn === 'w' ? '0-1' : '1-0', reason: 'resign' })}>

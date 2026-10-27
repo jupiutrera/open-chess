@@ -12,7 +12,7 @@ import { MoveList, MoveStrip } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
-import { capturedPieces, gameResultText, parseUci, uciLineToSan } from '../../chess/util'
+import { capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
@@ -48,6 +48,9 @@ export default function PlayBot() {
   const [dialog, setDialog] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
   const [thinking, setThinking] = useState(false)
+  const [offering, setOffering] = useState(false)
+  // bumped to retry the bot's move when its search was cut short
+  const [botRetry, setBotRetry] = useState(0)
   const [hint, setHint] = useState<DrawShape[]>([])
   const [confirmResign, setConfirmResign] = useState(false)
   const [assistOpen, setAssistOpen] = useState(false)
@@ -90,13 +93,7 @@ export default function PlayBot() {
     [bot, userColor, tc, game.chess, say],
   )
 
-  const clock = useClock(tc.base, tc.inc, (side) => {
-    const opp = side === 'w' ? 'b' : 'w'
-    // insufficient material for the side with time left is a draw
-    const c = game.chess
-    const hasMating = c.board().flat().some((p) => p && p.color === opp && p.type !== 'k')
-    void finish({ result: hasMating ? (opp === 'w' ? '1-0' : '0-1') : '1/2-1/2', reason: 'timeout' })
-  })
+  const clock = useClock(tc.base, tc.inc, (side) => void finish(timeoutResult(game.chess, side)))
 
   // engine lifecycle
   useEffect(() => {
@@ -144,21 +141,33 @@ export default function PlayBot() {
     let cancelled = false
     setThinking(true)
     const started = performance.now()
-    void botMove(bot, sharedEngine(), liveFen).then(async (uci) => {
-      const minThink = 350 + Math.random() * 500
-      const wait = Math.max(0, minThink - (performance.now() - started))
-      await new Promise((r) => setTimeout(r, wait))
-      if (cancelled || endRef.current || !uci) return
-      const { from, to, promotion } = parseUci(uci)
-      if (game.move(from, to, promotion)) clock.press(turn)
-      setThinking(false)
-    })
+    const botClock = clock.enabled ? { left: clock.left(turn), inc: tc.inc * 1000 } : undefined
+    botMove(bot, sharedEngine(), liveFen, game.chess.history(), botClock)
+      .then(async (uci) => {
+        const minThink = Math.min(350 + Math.random() * 500, botClock ? botClock.left / 60 : Infinity)
+        const wait = Math.max(0, minThink - (performance.now() - started))
+        await new Promise((r) => setTimeout(r, wait))
+        if (cancelled || endRef.current) return
+        setThinking(false)
+        if (!uci) {
+          // the search was superseded (e.g. by a hint or a draw offer): think again
+          setBotRetry((n) => n + 1)
+          return
+        }
+        const { from, to, promotion } = parseUci(uci)
+        if (game.move(from, to, promotion)) clock.press(turn)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setThinking(false)
+        toast(t('review.engineFailed'), 'error')
+      })
     return () => {
       cancelled = true
       setThinking(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [liveFen, turn, userColor])
+  }, [liveFen, turn, userColor, botRetry])
 
   const userTurn = turn === userColor && game.atLive && !end
   const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
@@ -196,8 +205,9 @@ export default function PlayBot() {
 
   const showHint = async () => {
     if (turn !== userColor || endRef.current) return
-    const r = await sharedEngine().search(liveFen, { depth: 12 })
-    if (!r.bestmove) return
+    const fen = liveFen
+    const r = await sharedEngine().search(fen, { depth: 12 })
+    if (!r.bestmove || game.fens[game.fens.length - 1] !== fen) return
     const { from, to } = parseUci(r.bestmove)
     setHint([{ orig: from as never, dest: to as never, brush: 'paleGreen' }])
   }
@@ -208,13 +218,19 @@ export default function PlayBot() {
     if (game.moves.length < n) return
     sharedEngine().stop()
     game.undo(n)
+    clock.setTurn(game.chess.turn())
     setHint([])
   }
 
   const offerDraw = async () => {
-    if (endRef.current) return
-    const r = await sharedEngine().search(liveFen, { depth: 10 })
-    const w = r.lines[0] ? winPercent(r.lines[0].score) : 50
+    if (endRef.current || thinking || offering) return
+    setOffering(true)
+    const r = await sharedEngine()
+      .search(liveFen, { depth: 10 })
+      .finally(() => setOffering(false))
+    // interrupted (the user moved meanwhile): no answer rather than a guess
+    if (!r.lines[0] || endRef.current) return
+    const w = winPercent(r.lines[0].score)
     const botColor = userColor === 'w' ? 'b' : 'w'
     if (game.moves.length >= 20 && botAcceptsDraw(w, botColor)) {
       toast(t('play.drawAccepted'))
@@ -380,7 +396,7 @@ export default function PlayBot() {
                 <>
                   <ActionButton icon={<Lightbulb size={22} weight="bold" />} label={t('play.hint')} onClick={showHint} disabled={turn !== userColor} />
                   <ActionButton icon={<ArrowCounterClockwise size={22} weight="bold" />} label={t('play.undo')} onClick={takeback} disabled={game.moves.length < 1} />
-                  <ActionButton icon={<Handshake size={22} weight="bold" />} label={t('play.draw')} onClick={offerDraw} />
+                  <ActionButton icon={<Handshake size={22} weight="bold" />} label={t('play.draw')} onClick={offerDraw} disabled={thinking || offering} />
                   <ActionButton icon={<Flag size={22} weight="bold" />} label={t('play.resign')} onClick={() => setConfirmResign(true)} />
                 </>
               )}

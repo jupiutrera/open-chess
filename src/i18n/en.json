@@ -84,7 +84,8 @@
       "fifty": "by the 50-move rule",
       "resign": "by resignation",
       "timeout": "on time",
-      "agreement": "by agreement"
+      "agreement": "by agreement",
+      "timeoutVsInsufficient": "by timeout vs insufficient material"
     },
     "confirmResign": "Are you sure you want to resign?",
     "level": "Level",
@@ -302,7 +303,14 @@
     "editHelp": "Pick a piece and tap a square. Tap a piece with the eraser to remove it.",
     "eraser": "Eraser",
     "castling": "Castling",
-    "editorShort": "Editor"
+    "editorShort": "Editor",
+    "illegal": {
+      "invalid": "Invalid FEN",
+      "kings": "Each side needs exactly one king",
+      "pawns": "Pawns can't stand on the first or last rank",
+      "count": "Too many pieces for one side",
+      "check": "The side not to move can't be in check"
+    }
   },
   "games": {
     "title": "My games",

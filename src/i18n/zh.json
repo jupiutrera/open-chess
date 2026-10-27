@@ -84,7 +84,8 @@
       "fifty": "五十步规则",
       "resign": "认输",
       "timeout": "超时",
-      "agreement": "双方同意"
+      "agreement": "双方同意",
+      "timeoutVsInsufficient": "超时（对方子力不足）"
     },
     "confirmResign": "确定要认输吗？",
     "level": "级别",
@@ -302,7 +303,14 @@
     "editHelp": "选择一个棋子再点击格子。用橡皮擦点击棋子即可移除。",
     "eraser": "橡皮擦",
     "castling": "王车易位",
-    "editorShort": "编辑器"
+    "editorShort": "编辑器",
+    "illegal": {
+      "invalid": "无效的 FEN",
+      "kings": "双方必须各有且仅有一个王",
+      "pawns": "兵不能位于第一或最后一横排",
+      "count": "一方棋子过多",
+      "check": "非行棋方不能处于被将军状态"
+    }
   },
   "games": {
     "title": "我的棋局",

@@ -84,7 +84,8 @@
       "fifty": "50手ルール",
       "resign": "投了",
       "timeout": "時間切れ",
-      "agreement": "合意"
+      "agreement": "合意",
+      "timeoutVsInsufficient": "時間切れ（相手の駒不足）"
     },
     "confirmResign": "本当に投了しますか？",
     "level": "レベル",
@@ -302,7 +303,14 @@
     "editHelp": "駒を選んでマスをタップします。消しゴムで駒をタップすると取り除けます。",
     "eraser": "消しゴム",
     "castling": "キャスリング",
-    "editorShort": "エディター"
+    "editorShort": "エディター",
+    "illegal": {
+      "invalid": "無効なFENです",
+      "kings": "両陣営にキングがちょうど1つずつ必要です",
+      "pawns": "1段目と8段目にポーンは置けません",
+      "count": "片方の駒が多すぎます",
+      "check": "手番でない側がチェックされている局面は不正です"
+    }
   },
   "games": {
     "title": "マイ棋譜",

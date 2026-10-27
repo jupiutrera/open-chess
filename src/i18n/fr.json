@@ -84,7 +84,8 @@
       "fifty": "par la règle des 50 coups",
       "resign": "par abandon",
       "timeout": "au temps",
-      "agreement": "d’un commun accord"
+      "agreement": "d’un commun accord",
+      "timeoutVsInsufficient": "au temps contre matériel insuffisant"
     },
     "confirmResign": "Voulez-vous vraiment abandonner ?",
     "level": "Niveau",
@@ -302,7 +303,14 @@
     "editHelp": "Choisissez une pièce et touchez une case. Touchez une pièce avec la gomme pour l’enlever.",
     "eraser": "Gomme",
     "castling": "Roques",
-    "editorShort": "Éditeur"
+    "editorShort": "Éditeur",
+    "illegal": {
+      "invalid": "FEN non valide",
+      "kings": "Chaque camp doit avoir exactement un roi",
+      "pawns": "Aucun pion ne peut se trouver sur la première ou la dernière rangée",
+      "count": "Trop de pièces pour un camp",
+      "check": "Le camp qui ne joue pas ne peut pas être en échec"
+    }
   },
   "games": {
     "title": "Mes parties",

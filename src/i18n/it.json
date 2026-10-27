@@ -84,7 +84,8 @@
       "fifty": "per la regola delle 50 mosse",
       "resign": "per abbandono",
       "timeout": "per tempo",
-      "agreement": "di comune accordo"
+      "agreement": "di comune accordo",
+      "timeoutVsInsufficient": "per tempo contro materiale insufficiente"
     },
     "confirmResign": "Vuoi davvero abbandonare?",
     "level": "Livello",
@@ -302,7 +303,14 @@
     "editHelp": "Scegli un pezzo e tocca una casa. Tocca un pezzo con la gomma per toglierlo.",
     "eraser": "Gomma",
     "castling": "Arrocchi",
-    "editorShort": "Editor"
+    "editorShort": "Editor",
+    "illegal": {
+      "invalid": "FEN non valido",
+      "kings": "Ogni lato deve avere esattamente un re",
+      "pawns": "Non ci possono essere pedoni sulla prima o sull'ultima traversa",
+      "count": "Troppi pezzi per un lato",
+      "check": "Il lato che non muove non può essere sotto scacco"
+    }
   },
   "games": {
     "title": "Le mie partite",
