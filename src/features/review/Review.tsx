@@ -20,6 +20,7 @@ import type { GameRow } from '../../db/db'
 import { useSettings } from '../../settings'
 import { Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
+import { BotAvatar } from '../play/BotAvatar'
 
 type Mode = 'summary' | 'moves'
 
@@ -146,6 +147,7 @@ export default function Review() {
       captured={c === 'w' ? cap.byWhite : cap.byBlack}
       advantage={c === 'w' ? cap.diff : -cap.diff}
       hue={bot && game.userColor && c !== game.userColor ? bot.hue : c === 'w' ? 40 : 230}
+      avatar={bot && game.userColor && c !== game.userColor ? <BotAvatar bot={bot} size={40} /> : undefined}
     />
   )
 

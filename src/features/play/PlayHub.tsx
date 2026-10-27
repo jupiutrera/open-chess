@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Users, Shuffle } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, type Bot } from './bots'
-import { Avatar } from '../../board/PlayerBar'
+import { BotAvatar } from './BotAvatar'
 import { PieceIcon } from '../../board/QualityIcon'
 import { PageHeader, Panel, Segmented } from '../../ui/kit'
 import { AssistToggles } from './AssistToggles'
@@ -57,7 +57,7 @@ export default function PlayHub() {
         <div className="hidden lg:block">
           <div className="mx-auto max-w-[min(100%,calc(100dvh-180px))]">
             <div className="mb-2 flex items-center gap-2.5">
-              <Avatar label={selected.name} hue={selected.hue} size={40} />
+              <BotAvatar bot={selected} size={40} />
               <span className="font-bold">
                 {selected.name} <span className="font-normal text-fg-3">({selected.elo})</span>
               </span>
@@ -68,7 +68,7 @@ export default function PlayHub() {
 
         <Panel className="flex flex-col overflow-hidden">
           <div className="flex items-center gap-4 border-b border-line p-4">
-            <Avatar label={selected.name} hue={selected.hue} size={64} />
+            <BotAvatar bot={selected} size={64} />
             <div className="min-w-0">
               <div className="text-[20px] font-extrabold">
                 {selected.name} <span className="tabular font-semibold text-fg-3">{selected.elo}</span>
@@ -94,7 +94,7 @@ export default function PlayHub() {
                       }`}
                       aria-pressed={b.id === selected.id}
                     >
-                      <Avatar label={b.name} hue={b.hue} size={48} />
+                      <BotAvatar bot={b} size={48} />
                       <span className="w-full truncate text-center text-[12px] font-semibold">{b.name}</span>
                       <span className="tabular -mt-1 text-[11px] text-fg-3">{b.elo}</span>
                     </button>

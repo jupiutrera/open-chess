@@ -6,7 +6,7 @@ import { PageHeader, Panel, toast, timeAgo } from '../../ui/kit'
 import { db, kvGet } from '../../db/db'
 import { getPuzzleRating } from '../puzzles/puzzlesData'
 import { BOTS } from '../play/bots'
-import { Avatar } from '../../board/PlayerBar'
+import { BotAvatar } from '../play/BotAvatar'
 import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
 import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut, syncConfigured, syncNow, useSync } from '../../sync/sync'
@@ -73,7 +73,7 @@ export default function Profile() {
             <ul className="divide-y divide-line">
               {data.vsBots.map((r) => (
                 <li key={r.bot.id} className="flex items-center gap-3 px-4 py-2.5">
-                  <Avatar label={r.bot.name} hue={r.bot.hue} size={32} />
+                  <BotAvatar bot={r.bot} size={32} />
                   <span className="flex-1 font-semibold">
                     {r.bot.name} <span className="tabular font-normal text-fg-3">{r.bot.elo}</span>
                   </span>

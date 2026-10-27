@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { PieceIcon } from './QualityIcon'
 
 export function Avatar({ label, hue, size = 40, children }: { label: string; hue?: number; size?: number; children?: ReactNode }) {
@@ -39,6 +39,7 @@ export function PlayerBar({
   clockActive,
   thinking,
   avatar,
+  bubble,
 }: {
   name: string
   rating?: number | string
@@ -51,12 +52,15 @@ export function PlayerBar({
   clockActive?: boolean
   thinking?: string
   avatar?: ReactNode
+  /** a line the player says; shown as a speech bubble for a few seconds */
+  bubble?: { text: string; key: number }
 }) {
   const oppColor = color === 'w' ? 'b' : 'w'
   const low = clock !== undefined && clock < 20_000
   return (
-    <div className="flex h-12 items-center gap-2.5 px-0.5">
+    <div className="relative flex h-12 items-center gap-2.5 px-0.5">
       {avatar ?? <Avatar label={name} hue={hue} size={40} />}
+      {bubble && <SpeechBubble key={bubble.key} text={bubble.text} />}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-1.5 truncate text-[15px] font-bold">
           <span className="truncate">{name}</span>
@@ -81,6 +85,19 @@ export function PlayerBar({
           {formatClock(clock)}
         </div>
       )}
+    </div>
+  )
+}
+
+function SpeechBubble({ text }: { text: string }) {
+  const [shown, setShown] = useState(true)
+  useEffect(() => {
+    const id = setTimeout(() => setShown(false), 3800 + text.length * 30)
+    return () => clearTimeout(id)
+  }, [text])
+  return (
+    <div className={`speech ${shown ? '' : 'speech-out'}`} role="status">
+      {text}
     </div>
   )
 }

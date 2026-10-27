@@ -469,3 +469,43 @@ cg-board square.right {
     animation: none;
   }
 }
+
+/* Bot speech bubble: hangs from the avatar over the board's top edge */
+.speech {
+  position: absolute;
+  left: 2px;
+  top: calc(100% - 2px);
+  z-index: 30;
+  max-width: min(320px, 80%);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border-top-left-radius: 4px;
+  background: #fff;
+  color: #22201d;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+  transform-origin: 14px 0;
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.9) translateY(-4px);
+  }
+}
+.speech::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: -6px;
+  border: 6px solid transparent;
+  border-top: 0;
+  border-bottom-color: #fff;
+}
+.speech-out {
+  opacity: 0;
+  transform: scale(0.96);
+}
