@@ -2,23 +2,28 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
-import { Lightbulb, ArrowCounterClockwise, Flag, Handshake, ArrowsDownUp, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { Lightbulb, ArrowCounterClockwise, Flag, Handshake, ArrowsDownUp, CaretLeft, CaretRight, SlidersHorizontal } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
-import { PlayerBar, Avatar } from '../../board/PlayerBar'
-import { MoveList } from '../../board/MoveList'
+import { PlayerBar } from '../../board/PlayerBar'
+import { BotAvatar, type Mood } from './BotAvatar'
+import { botLine, type ChatEvent } from './botChat'
+import { MoveList, MoveStrip } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
-import { capturedPieces, gameResultText, parseUci } from '../../chess/util'
+import { capturedPieces, gameResultText, parseUci, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
-import { Engine, sharedEngine, type Score } from '../../engine/engine'
+import { formatScore, sharedEngine } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
 import { TIME_CONTROLS } from './PlayHub'
 import { GameOverDialog, type GameEnd } from './GameOver'
 import { saveGame } from '../../db/games'
 import { winPercent } from '../review/classify'
 import { Panel, Sheet, toast } from '../../ui/kit'
+import { useSettings } from '../../settings'
+import { useAssist } from './useAssist'
+import { AssistToggles } from './AssistToggles'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 
 export default function PlayBot() {
@@ -28,9 +33,8 @@ export default function PlayBot() {
   const [params] = useSearchParams()
   const bot = botById(botId) ?? botById('ivan')!
   const tc = TIME_CONTROLS.find((c) => c.id === params.get('tc')) ?? TIME_CONTROLS[0]
-  const allowHints = params.get('hints') !== '0'
-  const allowUndo = params.get('undo') !== '0'
-  const showEval = params.get('eval') === '1'
+  const assist = useSettings((s) => s.assist)
+  const lang = useSettings((s) => s.lang)
 
   const pickColor = useCallback(() => {
     const c = params.get('color')
@@ -44,18 +48,27 @@ export default function PlayBot() {
   const [savedId, setSavedId] = useState<string | null>(null)
   const [thinking, setThinking] = useState(false)
   const [hint, setHint] = useState<DrawShape[]>([])
-  const [evalScore, setEvalScore] = useState<Score | undefined>()
   const [confirmResign, setConfirmResign] = useState(false)
-  const evalEngine = useRef<Engine | null>(null)
+  const [assistOpen, setAssistOpen] = useState(false)
+  const [chat, setChat] = useState<{ text: string; key: number } | null>(null)
+  const lastChatPly = useRef(-10)
+  const say = useCallback(
+    (event: ChatEvent, chance = 1) => {
+      if (Math.random() > chance) return
+      setChat({ text: botLine(bot, event, lang), key: Date.now() })
+    },
+    [bot, lang],
+  )
   const endRef = useRef<GameEnd | null>(null)
 
   const finish = useCallback(
     async (e: GameEnd) => {
       if (endRef.current) return
       endRef.current = e
+      say(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'lose' : 'win')
       setEnd(e)
       clock.stop()
-      play('end')
+      play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
       const row = await saveGame({
         source: 'bot',
         chess: cloneWithHistory(game.chess),
@@ -73,7 +86,7 @@ export default function PlayBot() {
       setTimeout(() => setDialog(true), 450)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [bot, userColor, tc, game.chess],
+    [bot, userColor, tc, game.chess, say],
   )
 
   const clock = useClock(tc.base, tc.inc, (side) => {
@@ -88,12 +101,32 @@ export default function PlayBot() {
   useEffect(() => {
     void sharedEngine().newGame()
     play('start')
-    if (showEval) evalEngine.current = new Engine()
+    const greet = setTimeout(() => say('greet'), 500)
     return () => {
+      clearTimeout(greet)
       sharedEngine().stop()
-      evalEngine.current?.destroy()
     }
-  }, [showEval])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // the bot reacts to captures and checks, without talking on every move
+  const moveCount = game.moves.length
+  useEffect(() => {
+    const m = game.moves[moveCount - 1]
+    if (!m || endRef.current || moveCount - lastChatPly.current < 3) return
+    const byBot = m.color !== userColor
+    let spoke = false
+    const react = (e: ChatEvent, chance: number) => {
+      if (spoke || Math.random() > chance) return
+      say(e)
+      spoke = true
+    }
+    if (byBot && m.san.includes('+')) react('check', 0.35)
+    if (byBot && m.captured) react('capture', m.captured === 'p' ? 0.15 : 0.5)
+    if (!byBot && m.captured && m.captured !== 'p') react('lostPiece', 0.55)
+    if (spoke) lastChatPly.current = moveCount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moveCount])
 
   const turn = game.chess.turn()
   const liveFen = game.fens[game.fens.length - 1]
@@ -126,11 +159,29 @@ export default function PlayBot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liveFen, turn, userColor])
 
-  // optional eval bar
+  const userTurn = turn === userColor && game.atLive && !end
+  const help = useAssist({ assist, fen: game.fen, moves: game.moves, userColor, userTurn })
+
+  const shapes = useMemo(() => {
+    const out: DrawShape[] = [...hint]
+    const arrow = (uci: string, brush: string): DrawShape => ({ orig: uci.slice(0, 2) as never, dest: uci.slice(2, 4) as never, brush })
+    if (assist.suggest && userTurn && help.lines[0]?.pv[0] && !hint.length) out.push(arrow(help.lines[0].pv[0], 'green'))
+    if (assist.threats && userTurn && help.threat) out.push(arrow(help.threat, 'red'))
+    return out
+  }, [hint, assist.suggest, assist.threats, userTurn, help.lines, help.threat])
+
+  const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
+  const badge = assist.feedback && viewedMove && help.feedback[game.ply] ? { square: viewedMove.to, quality: help.feedback[game.ply] } : null
+  const qualities = useMemo(() => game.moves.map((_, i) => help.feedback[i + 1]), [game.moves, help.feedback])
+
+  const lastFeedback = help.feedback[moveCount]
   useEffect(() => {
-    if (!showEval || !evalEngine.current) return
-    void evalEngine.current.search(liveFen, { depth: 14 }).then((r) => r.lines[0] && setEvalScore(r.lines[0].score))
-  }, [liveFen, showEval])
+    if (lastFeedback === 'blunder' && !endRef.current) {
+      say('blunder', 0.7)
+      lastChatPly.current = moveCount
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastFeedback])
 
   const onUserMove = (from: string, to: string, promotion?: string) => {
     if (!game.atLive || endRef.current) return
@@ -181,6 +232,9 @@ export default function PlayBot() {
     setDialog(false)
     setSavedId(null)
     setHint([])
+    help.reset()
+    lastChatPly.current = -10
+    setTimeout(() => say('greet'), 500)
     game.reset()
     clock.reset()
     setUserColor(c)
@@ -190,6 +244,18 @@ export default function PlayBot() {
   }
 
   const cap = useMemo(() => capturedPieces(game.fen), [game.fen])
+  const botEdge = userColor === 'w' ? -cap.diff : cap.diff
+  const mood: Mood = end
+    ? end.result === '1/2-1/2'
+      ? 'neutral'
+      : (end.result === '1-0') === (userColor === 'w')
+        ? 'sad'
+        : 'happy'
+    : botEdge >= 3
+      ? 'happy'
+      : botEdge <= -3
+        ? 'sad'
+        : 'neutral'
   const botBar = (
     <PlayerBar
       name={bot.name}
@@ -200,7 +266,8 @@ export default function PlayBot() {
       clock={clock.enabled ? clock.time[userColor === 'w' ? 'b' : 'w'] : undefined}
       clockActive={clock.active === (userColor === 'w' ? 'b' : 'w')}
       thinking={thinking ? t('play.thinking') : undefined}
-      avatar={<Avatar label={bot.name} hue={bot.hue} size={40} />}
+      avatar={<BotAvatar bot={bot} mood={mood} size={40} />}
+      bubble={chat ?? undefined}
     />
   )
   const userBar = (
@@ -218,10 +285,10 @@ export default function PlayBot() {
   return (
     <>
       <BoardLayout
-        above={showEval ? <EvalStrip score={evalScore} orientation={orientation} /> : undefined}
+        above={assist.eval ? <EvalStrip score={help.score} orientation={orientation} /> : undefined}
         top={flipped ? userBar : botBar}
         bottom={flipped ? botBar : userBar}
-        evalBar={showEval ? <EvalBar score={evalScore} orientation={orientation} /> : undefined}
+        evalBar={assist.eval ? <EvalBar score={help.score} orientation={orientation} /> : undefined}
         board={
           <Board
             fen={game.fen}
@@ -229,20 +296,61 @@ export default function PlayBot() {
             movable={end || !game.atLive ? 'none' : userColor === 'w' ? 'white' : 'black'}
             lastMove={game.lastMove}
             onMove={onUserMove}
-            shapes={hint}
+            shapes={shapes}
+            badge={badge}
             premoves
+            outcome={end && game.atLive ? end : null}
           />
         }
         side={
-          <Panel className="flex flex-col lg:h-[min(calc(100dvh-140px),720px)]">
+          <Panel className="flex flex-col lg:h-full">
             <div className="flex items-center gap-3 border-b border-line p-3">
-              <Avatar label={bot.name} hue={bot.hue} size={36} />
-              <div className="font-bold">
-                {bot.name} <span className="tabular font-normal text-fg-3">{bot.elo}</span>
+              <BotAvatar bot={bot} mood={mood} size={44} />
+              <div className="min-w-0 flex-1">
+                <div className="font-bold">
+                  {bot.name} <span className="tabular font-normal text-fg-3">{bot.elo}</span>
+                </div>
+                <p key={chat?.key} className="enter truncate text-[13px] text-fg-2" title={chat?.text}>
+                  {chat?.text ?? bot.bio[lang]}
+                </p>
               </div>
-              {tc.base > 0 && <span className="tabular ml-auto text-[13px] text-fg-3">{tc.label}</span>}
+              {tc.base > 0 && <span className="tabular shrink-0 text-[13px] text-fg-3">{tc.label}</span>}
+              <button
+                className="btn btn-ghost btn-icon -mr-1 shrink-0"
+                onClick={() => setAssistOpen(true)}
+                aria-label={t('play.assist')}
+                title={t('play.assist')}
+              >
+                <SlidersHorizontal size={20} weight="bold" />
+              </button>
             </div>
-            <MoveList sans={game.sans} ply={game.ply} onSelect={game.goto} className="min-h-[120px] flex-1 py-1" />
+            {assist.engine && (
+              <div className="border-b border-line py-1">
+                {[0, 1, 2].map((i) => {
+                  const l = help.lines[i]
+                  return (
+                    <div key={i} className="flex items-baseline gap-2 px-3 py-1 text-[13px]">
+                      <span
+                        className={`tabular w-14 shrink-0 rounded px-1 py-0.5 text-center font-mono font-bold ${
+                          l && (l.score.mate !== undefined ? l.score.mate > 0 : (l.score.cp ?? 0) >= 0) ? 'bg-[#f1f1f1] text-[#262421]' : 'bg-[#1b1a18] text-[#f1f1f1]'
+                        }`}
+                      >
+                        {l ? formatScore(l.score) : '…'}
+                      </span>
+                      <span className="truncate text-fg-2">{l ? uciLineToSan(game.fen, l.pv, 8).join(' ') : ''}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} className="border-b border-line lg:hidden" />
+            <MoveList
+              sans={game.sans}
+              ply={game.ply}
+              onSelect={game.goto}
+              qualities={assist.feedback ? qualities : undefined}
+              className="hidden min-h-[120px] flex-1 py-1 lg:block"
+            />
             <div className="flex items-center justify-center gap-1 border-t border-line p-2">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />
@@ -269,8 +377,8 @@ export default function PlayBot() {
                 </>
               ) : (
                 <>
-                  <ActionButton icon={<Lightbulb size={22} weight="bold" />} label={t('play.hint')} onClick={showHint} disabled={!allowHints || turn !== userColor} />
-                  <ActionButton icon={<ArrowCounterClockwise size={22} weight="bold" />} label={t('play.undo')} onClick={takeback} disabled={!allowUndo || game.moves.length < 1} />
+                  <ActionButton icon={<Lightbulb size={22} weight="bold" />} label={t('play.hint')} onClick={showHint} disabled={turn !== userColor} />
+                  <ActionButton icon={<ArrowCounterClockwise size={22} weight="bold" />} label={t('play.undo')} onClick={takeback} disabled={game.moves.length < 1} />
                   <ActionButton icon={<Handshake size={22} weight="bold" />} label={t('play.draw')} onClick={offerDraw} />
                   <ActionButton icon={<Flag size={22} weight="bold" />} label={t('play.resign')} onClick={() => setConfirmResign(true)} />
                 </>
@@ -291,6 +399,9 @@ export default function PlayBot() {
           onNew={() => nav('/play')}
         />
       )}
+      <Sheet open={assistOpen} onClose={() => setAssistOpen(false)} title={t('play.assist')}>
+        <AssistToggles />
+      </Sheet>
       <Sheet open={confirmResign} onClose={() => setConfirmResign(false)} title={t('play.resign')}>
         <p className="mb-4 text-fg-2">{t('play.confirmResign')}</p>
         <div className="grid grid-cols-2 gap-2">

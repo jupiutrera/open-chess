@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { CloudArrowUp, SignOut, GoogleLogo, EnvelopeSimple, DownloadSimple, UploadSimple, ArrowsClockwise } from '@phosphor-icons/react'
-import { PageHeader, Panel, toast, timeAgo } from '../../ui/kit'
+import { PageHeader, Panel, Skeleton, SkeletonText, toast, timeAgo } from '../../ui/kit'
 import { db, kvGet } from '../../db/db'
 import { getPuzzleRating } from '../puzzles/puzzlesData'
 import { BOTS } from '../play/bots'
-import { Avatar } from '../../board/PlayerBar'
+import { BotAvatar } from '../play/BotAvatar'
 import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
 import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut, syncConfigured, syncNow, useSync } from '../../sync/sync'
@@ -60,7 +60,9 @@ export default function Profile() {
 
         <Panel className="p-4">
           <h2 className="mb-3 font-extrabold">{t('profile.ratingHistory')}</h2>
-          {data && data.history.length > 1 ? (
+          {!data ? (
+            <Skeleton className="h-40 rounded" />
+          ) : data.history.length > 1 ? (
             <RatingChart points={data.history} lang={lang} />
           ) : (
             <p className="text-[14px] text-fg-3">{t('profile.noData')}</p>
@@ -73,7 +75,7 @@ export default function Profile() {
             <ul className="divide-y divide-line">
               {data.vsBots.map((r) => (
                 <li key={r.bot.id} className="flex items-center gap-3 px-4 py-2.5">
-                  <Avatar label={r.bot.name} hue={r.bot.hue} size={32} />
+                  <BotAvatar bot={r.bot} size={32} />
                   <span className="flex-1 font-semibold">
                     {r.bot.name} <span className="tabular font-normal text-fg-3">{r.bot.elo}</span>
                   </span>
@@ -97,7 +99,7 @@ function Stat({ label, value }: { label: string; value: number | string | undefi
   return (
     <Panel className="p-4">
       <div className="text-[12px] font-bold text-fg-3">{label}</div>
-      <div className="tabular mt-1 text-[26px] font-extrabold leading-none">{value ?? '…'}</div>
+      <div className="tabular mt-1 text-[26px] font-extrabold leading-none">{value ?? <SkeletonText width="2.5ch" />}</div>
     </Panel>
   )
 }

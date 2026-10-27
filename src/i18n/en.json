@@ -60,9 +60,6 @@
     "time": "Time",
     "noTime": "No clock",
     "assist": "Assistance",
-    "hints": "Hints",
-    "takebacks": "Takebacks",
-    "evalBar": "Evaluation bar",
     "play": "Play",
     "resign": "Resign",
     "draw": "Offer draw",
@@ -92,7 +89,21 @@
     "confirmResign": "Are you sure you want to resign?",
     "level": "Level",
     "record": "Your record: {{w}} W · {{d}} D · {{l}} L",
-    "autoFlip": "Flip the board every turn"
+    "autoFlip": "Flip the board every turn",
+    "assistOpt": {
+      "eval": "Evaluation bar",
+      "threats": "Threat arrows",
+      "suggest": "Suggestion arrows",
+      "feedback": "Move feedback",
+      "engine": "Engine"
+    },
+    "assistHint": {
+      "eval": "Who is winning and by how much",
+      "threats": "What your opponent is threatening",
+      "suggest": "The best move when it's your turn",
+      "feedback": "A quality icon on each of your moves",
+      "engine": "Stockfish's top lines"
+    }
   },
   "bots": {
     "group": {

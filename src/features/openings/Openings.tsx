@@ -10,7 +10,7 @@ import { MoveList } from '../../board/MoveList'
 import { PieceIcon } from '../../board/QualityIcon'
 import { useGame } from '../../chess/useGame'
 import { parseUci } from '../../chess/util'
-import { Panel, Segmented, Sheet, toast, useOnline } from '../../ui/kit'
+import { Panel, Segmented, Sheet, Skeleton, toast, useOnline } from '../../ui/kit'
 import { lookupOpening, namedContinuations, searchOpenings, type Opening } from './openingsData'
 import { fetchExplorer, type ExplorerDb, type ExplorerResult } from './explorerApi'
 import { addLine } from './repertoire'
@@ -80,7 +80,7 @@ export default function Openings() {
           />
         }
         side={
-          <Panel className="flex flex-col overflow-hidden lg:h-[min(calc(100dvh-140px),760px)]">
+          <Panel className="flex flex-col overflow-hidden lg:h-full">
             <div className="border-b border-line p-3">
               <Segmented
                 value={tab}
@@ -275,7 +275,13 @@ function RepertoirePanel({ onShow }: { onShow: (line: string, color: 'w' | 'b') 
     return [...m.values()]
   }, [rows])
 
-  if (!rows) return null
+  if (!rows)
+    return (
+      <div className="grid gap-2 p-3" aria-busy>
+        <Skeleton className="h-[62px] rounded-lg" />
+        <Skeleton className="h-[62px] rounded-lg" />
+      </div>
+    )
   return (
     <div className="flex-1 overflow-y-auto p-3">
       <div className="grid gap-2">

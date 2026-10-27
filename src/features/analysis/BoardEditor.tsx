@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
 import { Eraser } from '@phosphor-icons/react'
-import { PieceIcon } from '../../board/QualityIcon'
+import { PieceIcon, PieceSprite } from '../../board/QualityIcon'
 import { START_FEN } from '../../chess/util'
 import { Segmented, toast } from '../../ui/kit'
 
@@ -39,6 +39,8 @@ function boardToFen(g: Grid): string {
     })
     .join('/')
 }
+
+const ROLE: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
 
 const PALETTE = ['K', 'Q', 'R', 'B', 'N', 'P', 'k', 'q', 'r', 'b', 'n', 'p']
 
@@ -92,17 +94,23 @@ export function BoardEditor({ initialFen, onDone }: { initialFen: string; onDone
   return (
     <div>
       <p className="mb-3 text-[13px] text-fg-3">{t('analysis.editHelp')}</p>
-      <div className="grid aspect-square w-full grid-cols-8 overflow-hidden rounded">
+      <div className="grid aspect-square w-full grid-cols-8 grid-rows-8 overflow-hidden rounded">
         {grid.map((row, r) =>
           row.map((p, f) => (
             <button
               key={`${r}${f}`}
               onClick={() => place(r, f)}
-              className="relative grid place-items-center"
+              className="relative aspect-square min-h-0 min-w-0"
               style={{ background: (r + f) % 2 ? 'var(--sq-dark)' : 'var(--sq-light)' }}
               aria-label={`${'abcdefgh'[f]}${8 - r}`}
             >
-              {p && <PieceIcon piece={p.toLowerCase()} color={p === p.toUpperCase() ? 'w' : 'b'} size={38} />}
+              {p && (
+                <span className="absolute inset-[4%]">
+                  <span className="cg-wrap block h-full w-full">
+                    <PieceSprite role={ROLE[p.toLowerCase()]} color={p === p.toUpperCase() ? 'w' : 'b'} />
+                  </span>
+                </span>
+              )}
             </button>
           )),
         )}
@@ -112,9 +120,14 @@ export function BoardEditor({ initialFen, onDone }: { initialFen: string; onDone
           <button
             key={p}
             onClick={() => setTool(p)}
-            className={`grid aspect-square place-items-center rounded-md ${tool === p ? 'bg-raise-2 ring-2 ring-accent' : 'bg-panel-2'}`}
+            className={`relative aspect-square rounded-md transition-colors duration-100 ${tool === p ? 'bg-raise-2 ring-2 ring-accent' : 'bg-panel-2 hover:bg-raise'}`}
+            aria-pressed={tool === p}
           >
-            <PieceIcon piece={p.toLowerCase()} color={p === p.toUpperCase() ? 'w' : 'b'} size={30} />
+            <span className="absolute inset-[10%]">
+              <span className="cg-wrap block h-full w-full">
+                <PieceSprite role={ROLE[p.toLowerCase()]} color={p === p.toUpperCase() ? 'w' : 'b'} />
+              </span>
+            </span>
           </button>
         ))}
         <button

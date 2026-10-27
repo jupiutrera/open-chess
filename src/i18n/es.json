@@ -60,9 +60,6 @@
     "time": "Tiempo",
     "noTime": "Sin reloj",
     "assist": "Ayudas",
-    "hints": "Pistas",
-    "takebacks": "Deshacer",
-    "evalBar": "Barra de evaluación",
     "play": "Jugar",
     "resign": "Abandonar",
     "draw": "Ofrecer tablas",
@@ -92,7 +89,21 @@
     "confirmResign": "¿Seguro que quieres abandonar?",
     "level": "Nivel",
     "record": "Tu marcador: {{w}} V · {{d}} T · {{l}} D",
-    "autoFlip": "Girar el tablero en cada turno"
+    "autoFlip": "Girar el tablero en cada turno",
+    "assistOpt": {
+      "eval": "Barra de evaluación",
+      "threats": "Flechas de amenaza",
+      "suggest": "Flechas de sugerencia",
+      "feedback": "Valoración de jugadas",
+      "engine": "Motor"
+    },
+    "assistHint": {
+      "eval": "Quién va ganando y por cuánto",
+      "threats": "Lo que tu rival amenaza jugar",
+      "suggest": "La mejor jugada cuando te toca",
+      "feedback": "Icono de calidad en cada jugada tuya",
+      "engine": "Las mejores líneas de Stockfish"
+    }
   },
   "bots": {
     "group": {

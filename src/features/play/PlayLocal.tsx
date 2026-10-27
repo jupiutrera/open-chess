@@ -5,7 +5,7 @@ import { ArrowsDownUp, ArrowCounterClockwise, Flag, CaretLeft, CaretRight } from
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
-import { MoveList } from '../../board/MoveList'
+import { MoveList, MoveStrip } from '../../board/MoveList'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
 import { capturedPieces, gameResultText } from '../../chess/util'
@@ -118,6 +118,7 @@ export default function PlayLocal() {
             fen={game.fen}
             orientation={orientation}
             movable={end || !game.atLive ? 'none' : 'both'}
+            outcome={end && game.atLive ? end : null}
             lastMove={game.lastMove}
             onMove={(f, to, p) => {
               const before = game.chess.turn()
@@ -126,8 +127,9 @@ export default function PlayLocal() {
           />
         }
         side={
-          <Panel className="flex flex-col lg:h-[min(calc(100dvh-140px),720px)]">
-            <MoveList sans={game.sans} ply={game.ply} onSelect={game.goto} className="min-h-[120px] flex-1 py-1" />
+          <Panel className="flex flex-col lg:h-full">
+            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} className="border-b border-line lg:hidden" />
+            <MoveList sans={game.sans} ply={game.ply} onSelect={game.goto} className="hidden min-h-[120px] flex-1 py-1 lg:block" />
             <div className="flex items-center justify-center gap-1 border-t border-line p-2">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />

@@ -9,6 +9,7 @@ import { toDests, isPromotion } from '../chess/util'
 import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
 import { QualityBadge, PieceSprite } from './QualityIcon'
+import { OutcomeMarks } from './OutcomeMarks'
 
 export interface BoardProps {
   fen: string
@@ -22,6 +23,8 @@ export interface BoardProps {
   /** extra square classes, e.g. hints or wrong-move flashes */
   highlights?: Map<string, string>
   premoves?: boolean
+  /** finished game: marks both kings with the outcome, chess.com style */
+  outcome?: { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null
   className?: string
 }
 
@@ -37,6 +40,7 @@ export function Board({
   badge,
   highlights,
   premoves = false,
+  outcome,
   className = '',
 }: BoardProps) {
   const el = useRef<HTMLDivElement>(null)
@@ -98,7 +102,11 @@ export function Board({
         },
       },
     })
-    return () => api.current?.destroy()
+    const stopKnightArrows = bendKnightArrows(el.current)
+    return () => {
+      stopKnightArrows()
+      api.current?.destroy()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -124,6 +132,7 @@ export function Board({
     <div className={`relative aspect-square w-full select-none ${className}`}>
       <div ref={el} style={{ position: 'absolute', inset: 0 }} />
       {badge && badgePos && <QualityBadge quality={badge.quality} style={badgePos} />}
+      {outcome && chess && <OutcomeMarks chess={chess} outcome={outcome} orientation={orientation} />}
       {promo && (
         <PromotionPicker
           color={promoColor}
@@ -139,6 +148,47 @@ export function Board({
       )}
     </div>
   )
+}
+
+/**
+ * chessground draws every arrow straight; knight jumps read better as an L.
+ * Arrows are SVG lines in square units, so any line spanning (1,2) or (2,1)
+ * squares is swapped for a path that runs the long leg first, keeping the
+ * stroke, marker and the end margin chessground applied.
+ */
+function bendKnightArrows(root: HTMLElement): () => void {
+  const bend = () => {
+    for (const line of root.querySelectorAll<SVGLineElement>('svg.cg-shapes line')) {
+      const x1 = Number(line.getAttribute('x1'))
+      const y1 = Number(line.getAttribute('y1'))
+      const x2 = Number(line.getAttribute('x2'))
+      const y2 = Number(line.getAttribute('y2'))
+      const tx = Math.round(x2 - x1)
+      const ty = Math.round(y2 - y1)
+      const ax = Math.abs(tx)
+      const ay = Math.abs(ty)
+      if (!((ax === 1 && ay === 2) || (ax === 2 && ay === 1))) continue
+      // chessground stops the line short of the target centre by this margin
+      const margin = Math.hypot(x1 + tx - x2, y1 + ty - y2)
+      const horizontalFirst = ax > ay
+      const cx = horizontalFirst ? x1 + tx : x1
+      const cy = horizontalFirst ? y1 : y1 + ty
+      const ex = horizontalFirst ? x1 + tx : x1 + tx - Math.sign(tx) * margin
+      const ey = horizontalFirst ? y1 + ty - Math.sign(ty) * margin : y1 + ty
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      for (const attr of line.getAttributeNames()) {
+        if (!['x1', 'y1', 'x2', 'y2'].includes(attr)) path.setAttribute(attr, line.getAttribute(attr)!)
+      }
+      path.setAttribute('d', `M${x1},${y1} L${cx},${cy} L${ex},${ey}`)
+      path.setAttribute('fill', 'none')
+      path.setAttribute('stroke-linejoin', 'round')
+      line.replaceWith(path)
+    }
+  }
+  const obs = new MutationObserver(bend)
+  obs.observe(root, { childList: true, subtree: true })
+  bend()
+  return () => obs.disconnect()
 }
 
 function PromotionPicker({

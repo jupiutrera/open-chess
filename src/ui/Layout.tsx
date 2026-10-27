@@ -1,9 +1,13 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { DotsThreeOutline } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Logo } from './Logo'
 import { AppIcon, type AppIconName } from './AppIcon'
+import { BoardScreenSkeleton, HubSkeleton } from './kit'
+
+/** Board screens get a board-shaped placeholder while their code loads; hubs and lists get cards. */
+const BOARD_ROUTES = /^\/(play\/(bot|local)|review\/|puzzles\/(rated|daily|rush)|openings|lessons\/|analysis)/
 
 interface Item {
   to: string
@@ -53,7 +57,9 @@ export function Layout() {
       </nav>
 
       <main className="min-w-0 flex-1 overflow-y-auto pb-[calc(64px+var(--inset-bottom))] lg:pb-0">
-        <Outlet />
+        <Suspense fallback={BOARD_ROUTES.test(location.pathname) ? <BoardScreenSkeleton /> : <HubSkeleton />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Mobile bottom bar */}

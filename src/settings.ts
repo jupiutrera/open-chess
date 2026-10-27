@@ -6,6 +6,15 @@ export type PieceSet = (typeof PIECE_SETS)[number]
 
 export type BoardTheme = 'green' | 'brown' | 'blue' | 'gray' | 'purple'
 
+/** In-game help against bots */
+export interface AssistSettings {
+  eval: boolean
+  threats: boolean
+  suggest: boolean
+  feedback: boolean
+  engine: boolean
+}
+
 export interface Settings {
   lang: 'es' | 'en'
   theme: 'dark' | 'light'
@@ -18,6 +27,7 @@ export interface Settings {
   animation: boolean
   haptics: boolean
   reviewDepth: number
+  assist: AssistSettings
   /** optional personal token: the Lichess opening explorer requires one */
   lichessToken: string
   set: (patch: Partial<Omit<Settings, 'set'>>) => void
@@ -37,6 +47,7 @@ export const useSettings = create<Settings>()(
       animation: true,
       haptics: true,
       reviewDepth: 14,
+      assist: { eval: false, threats: false, suggest: false, feedback: true, engine: false },
       lichessToken: '',
       set: (patch) => set(patch),
     }),

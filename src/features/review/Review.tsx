@@ -18,8 +18,9 @@ import { playMoveSound, play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type Score } from '../../engine/engine'
 import type { GameRow } from '../../db/db'
 import { useSettings } from '../../settings'
-import { Panel } from '../../ui/kit'
+import { BoardScreenSkeleton, Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
+import { BotAvatar } from '../play/BotAvatar'
 
 type Mode = 'summary' | 'moves'
 
@@ -94,7 +95,7 @@ export default function Review() {
     return () => window.removeEventListener('keydown', onKey)
   }, [goto, ply, total])
 
-  if (game === undefined) return null
+  if (game === undefined) return <BoardScreenSkeleton />
   if (game === null || !parsed)
     return (
       <div className="p-6 text-fg-2">
@@ -130,9 +131,12 @@ export default function Review() {
         : current && { square: parsed.moves[ply - 1].to, quality: current.quality }
       : null
 
+  const h = parsed.headers
+  const result = (h.Result ?? game.result) as '1-0' | '0-1' | '1/2-1/2' | '*'
+  const outcome = ply === total && !variation && !retry && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
+
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
-  const h = parsed.headers
   const whiteName = h.White ?? game.white
   const blackName = h.Black ?? game.black
   const bar = (c: 'w' | 'b') => (
@@ -143,6 +147,7 @@ export default function Review() {
       captured={c === 'w' ? cap.byWhite : cap.byBlack}
       advantage={c === 'w' ? cap.diff : -cap.diff}
       hue={bot && game.userColor && c !== game.userColor ? bot.hue : c === 'w' ? 40 : 230}
+      avatar={bot && game.userColor && c !== game.userColor ? <BotAvatar bot={bot} size={40} /> : undefined}
     />
   )
 
@@ -210,12 +215,13 @@ export default function Review() {
           lastMove={lastMove}
           shapes={shapes}
           badge={badge || null}
+          outcome={outcome}
           movable={retry === 'waiting' && current ? (current.color === 'w' ? 'white' : 'black') : 'none'}
           onMove={onRetryMove}
         />
       }
       side={
-        <Panel className="flex flex-col overflow-hidden lg:h-[min(calc(100dvh-140px),760px)]">
+        <Panel className="flex flex-col overflow-hidden lg:h-full">
           <div className="flex items-center gap-2 border-b border-line px-4 py-3">
             <Star size={20} weight="fill" className="text-accent" />
             <h1 className="text-[17px] font-extrabold">{t('review.title')}</h1>
@@ -304,6 +310,15 @@ export default function Review() {
       }
     />
   )
+}
+
+/** Normalises our own, Lichess and chess.com termination headers. */
+function endReason(termination: string | undefined, fen: string): string {
+  const t = (termination ?? '').toLowerCase()
+  if (new Chess(fen).isCheckmate() || t.includes('checkmate')) return 'checkmate'
+  if (t.includes('resign')) return 'resign'
+  if (t.includes('time')) return 'timeout'
+  return t || 'other'
 }
 
 function NavBtn({ children, onClick, label }: { children: React.ReactNode; onClick: () => void; label: string }) {

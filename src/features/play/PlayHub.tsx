@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Users, Shuffle } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, type Bot } from './bots'
-import { Avatar } from '../../board/PlayerBar'
+import { BotAvatar } from './BotAvatar'
+import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
-import { PageHeader, Panel, Segmented, Toggle } from '../../ui/kit'
+import { PageHeader, Panel, Segmented } from '../../ui/kit'
+import { AssistToggles } from './AssistToggles'
 import { Board } from '../../board/Board'
 import { db } from '../../db/db'
 import { useSettings } from '../../settings'
@@ -42,13 +44,11 @@ export default function PlayHub() {
   const [selected, setSelected] = useState<Bot>(BOTS[4])
   const [color, setColor] = useState<'w' | 'b' | 'r'>('w')
   const [tc, setTc] = useState('none')
-  const [hints, setHints] = useState(true)
-  const [undo, setUndo] = useState(true)
-  const [evalBar, setEvalBar] = useState(false)
   const record = useBotRecord(selected.id)
+  const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
 
   const start = () => {
-    const q = new URLSearchParams({ color, tc, hints: hints ? '1' : '0', undo: undo ? '1' : '0', eval: evalBar ? '1' : '0' })
+    const q = new URLSearchParams({ color, tc })
     nav(`/play/bot/${selected.id}?${q}`)
   }
 
@@ -58,11 +58,14 @@ export default function PlayHub() {
       <div className="grid gap-5 px-4 pb-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-6">
         <div className="hidden lg:block">
           <div className="mx-auto max-w-[min(100%,calc(100dvh-180px))]">
-            <div className="mb-2 flex items-center gap-2.5">
-              <Avatar label={selected.name} hue={selected.hue} size={40} />
+            <div className="relative mb-2 flex h-12 items-center gap-2.5">
+              <BotAvatar bot={selected} size={40} />
               <span className="font-bold">
                 {selected.name} <span className="font-normal text-fg-3">({selected.elo})</span>
               </span>
+              <div key={selected.id} className="speech">
+                {greeting}
+              </div>
             </div>
             <Board fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" orientation={color === 'b' ? 'black' : 'white'} />
           </div>
@@ -70,7 +73,7 @@ export default function PlayHub() {
 
         <Panel className="flex flex-col overflow-hidden">
           <div className="flex items-center gap-4 border-b border-line p-4">
-            <Avatar label={selected.name} hue={selected.hue} size={64} />
+            <BotAvatar bot={selected} size={64} />
             <div className="min-w-0">
               <div className="text-[20px] font-extrabold">
                 {selected.name} <span className="tabular font-semibold text-fg-3">{selected.elo}</span>
@@ -96,7 +99,7 @@ export default function PlayHub() {
                       }`}
                       aria-pressed={b.id === selected.id}
                     >
-                      <Avatar label={b.name} hue={b.hue} size={48} />
+                      <BotAvatar bot={b} size={48} />
                       <span className="w-full truncate text-center text-[12px] font-semibold">{b.name}</span>
                       <span className="tabular -mt-1 text-[11px] text-fg-3">{b.elo}</span>
                     </button>
@@ -138,11 +141,7 @@ export default function PlayHub() {
             </div>
             <details className="group">
               <summary className="cursor-pointer list-none text-[13px] font-bold text-fg-3 hover:text-fg">{t('play.assist')} ›</summary>
-              <div className="divide-y divide-line">
-                <Toggle checked={hints} onChange={setHints} label={t('play.hints')} />
-                <Toggle checked={undo} onChange={setUndo} label={t('play.takebacks')} />
-                <Toggle checked={evalBar} onChange={setEvalBar} label={t('play.evalBar')} />
-              </div>
+              <AssistToggles />
             </details>
             <button className="btn btn-primary btn-lg w-full" onClick={start}>
               {t('play.play')}
