@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MagnifyingGlass, DownloadSimple, CheckCircle, FileArrowUp } from '@phosphor-icons/react'
 import { PageHeader, Panel, Segmented, Skeleton, toast, useOnline } from '../../ui/kit'
-import { chesscomArchives, chesscomMonth, importPgnText, importRemote, importedIds, lichessGames, NotFoundError, type RemoteGame } from './sources'
+import { chesscomArchives, chesscomMonth, importPgnText, importRemote, importedIds, lichessGames, NotFoundError, RateLimitError, type RemoteGame } from './sources'
 import { useSettings } from '../../settings'
 
 type Source = 'chesscom' | 'lichess' | 'pgn'
@@ -74,7 +74,7 @@ export default function Import() {
         setLichessNext(page.next)
       }
     } catch (e) {
-      setError(e instanceof NotFoundError ? t('import.notFound') : online ? t('common.error') : t('common.offline'))
+      setError(e instanceof NotFoundError ? t('import.notFound') : e instanceof RateLimitError ? t('import.rateLimited') : online ? t('common.error') : t('common.offline'))
     } finally {
       setLoading(false)
     }
@@ -114,17 +114,25 @@ export default function Import() {
   const importAll = async () => {
     if (!games) return
     let n = 0
+    let failed = 0
     for (const g of games) {
       if (have.has(g.externalId)) continue
-      await importRemote(g, user.trim())
-      n++
+      // one unreadable game must not stop the rest
+      try {
+        await importRemote(g, user.trim())
+        n++
+      } catch {
+        failed++
+      }
     }
     setHave(await importedIds())
     toast(t('import.imported', { count: n }), 'success')
+    if (failed) toast(t('import.failed', { count: failed }), 'error')
   }
 
   const importPgn = async (text: string) => {
-    const rows = await importPgnText(text)
+    const { rows, failed } = await importPgnText(text)
+    if (failed && rows.length) toast(t('import.failed', { count: failed }), 'error')
     if (!rows.length) {
       toast(t('analysis.invalidPgn'), 'error')
       return

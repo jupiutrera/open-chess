@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
-import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, Star, ArrowCounterClockwise, MagnifyingGlass } from '@phosphor-icons/react'
+import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, Star, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, ArrowsClockwise } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
+import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { MoveList } from '../../board/MoveList'
@@ -21,6 +22,11 @@ import { useSettings } from '../../settings'
 import { BoardScreenSkeleton, Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
+import { fmtDecimal } from '../../i18n/format'
+import { put } from '../../db/db'
+import { saveTextFile } from '../../ui/files'
+import { annotatedPgn } from './pgnExport'
+import { explainMove } from './explain'
 
 type Mode = 'summary' | 'moves'
 
@@ -39,11 +45,19 @@ export default function Review() {
   const [retry, setRetry] = useState<null | 'waiting' | 'wrong' | 'right'>(null)
 
   useEffect(() => {
+    let alive = true
     void getGame(id).then((g) => {
+      if (!alive) return
       setGame(g ?? null)
       if (g?.userColor === 'b') setOrientation('black')
     })
+    return () => {
+      alive = false
+    }
   }, [id])
+
+  const retryTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(retryTimer.current), [])
 
   // analyze when missing
   useEffect(() => {
@@ -67,8 +81,32 @@ export default function Review() {
   }, [game, depth])
 
   const parsed = useMemo(() => (game ? parseGame(game.pgn) : null), [game])
+  const sans = useMemo(() => parsed?.moves.map((m) => m.san) ?? [], [parsed])
+  const qualities = useMemo(() => game?.review?.moves.map((m) => m.quality), [game?.review])
   const review = game?.review
   const total = parsed?.moves.length ?? 0
+  // the turning points: great finds and errors, the user's own when we know their colour
+  const keyMoments = useMemo(
+    () =>
+      (review?.moves ?? []).filter(
+        (m) => KEY_QUALITIES.includes(m.quality) && (!game?.userColor || m.color === game.userColor || m.quality === 'blunder'),
+      ),
+    [review, game?.userColor],
+  )
+
+  const exportPgn = () => {
+    if (!game) return
+    const name = `${game.white}-${game.black}-${new Date(game.date).toISOString().slice(0, 10)}`.replace(/[^\w-]+/g, '_')
+    void saveTextFile(`${name}.pgn`, annotatedPgn(game, (q) => t(`review.q.${q}`)), 'application/x-chess-pgn').catch(() => {})
+  }
+
+  const reanalyze = async () => {
+    if (!game) return
+    // dropping the stored review makes the analysis effect run again at the current depth
+    const fresh = await put<GameRow>('games', { ...game, review: undefined })
+    setMode('summary')
+    setGame(fresh)
+  }
 
   const goto = useCallback(
     (p: number) => {
@@ -88,17 +126,7 @@ export default function Review() {
     [parsed, total],
   )
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === 'INPUT') return
-      if (e.key === 'ArrowLeft') goto(ply - 1)
-      else if (e.key === 'ArrowRight') goto(ply + 1)
-      else if (e.key === 'Home') goto(0)
-      else if (e.key === 'End') goto(total)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [goto, ply, total])
+  useBoardKeys({ ply, total, goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   if (game === undefined) return <BoardScreenSkeleton />
   if (game === null || !parsed)
@@ -197,7 +225,7 @@ export default function Review() {
       play('wrong')
       setRetry('wrong')
       setVariation({ fen: c.fen(), lastMove: [m.from, m.to], quality: 'mistake' })
-      setTimeout(() => {
+      retryTimer.current = setTimeout(() => {
         setVariation(null)
         setRetry('waiting')
       }, 900)
@@ -259,11 +287,16 @@ export default function Review() {
                 setMode('moves')
                 goto(p)
               }}
+              keyMoments={keyMoments}
+              onExport={exportPgn}
+              onReanalyze={reanalyze}
             />
           ) : (
             <>
               <Coach
                 move={current}
+                fenBefore={parsed.fens[ply - 1]}
+                scoreBefore={ply > 1 ? review.moves[ply - 2]?.scoreAfter : undefined}
                 retry={retry}
                 variation={!!variation && !retry}
                 onBest={showBest}
@@ -272,11 +305,34 @@ export default function Review() {
               <div className="px-3 pt-3">
                 <EvalGraph curve={review.curve} moves={review.moves} ply={ply} onSelect={goto} height={64} />
               </div>
+              {keyMoments.length > 0 && (
+                <div className="flex items-center gap-2 px-3 pt-2 text-[13px]">
+                  <span className="font-semibold text-fg-3">{t('review.keyMoments')}</span>
+                  <button
+                    className="btn btn-ghost btn-icon ml-auto"
+                    aria-label={t('review.prevKey')}
+                    title={t('review.prevKey')}
+                    disabled={!keyMoments.some((m) => m.ply < ply)}
+                    onClick={() => goto([...keyMoments].reverse().find((m) => m.ply < ply)!.ply)}
+                  >
+                    <CaretLeft size={18} weight="bold" />
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-icon"
+                    aria-label={t('review.nextKey')}
+                    title={t('review.nextKey')}
+                    disabled={!keyMoments.some((m) => m.ply > ply)}
+                    onClick={() => goto(keyMoments.find((m) => m.ply > ply)!.ply)}
+                  >
+                    <CaretRight size={18} weight="bold" />
+                  </button>
+                </div>
+              )}
               <MoveList
-                sans={parsed.moves.map((m) => m.san)}
+                sans={sans}
                 ply={ply}
                 onSelect={goto}
-                qualities={review.moves.map((m) => m.quality)}
+                qualities={qualities}
                 blackFirst={parsed.startFen.split(' ')[1] === 'b'}
                 startNumber={Number(parsed.startFen.split(' ')[5] ?? 1)}
                 className="min-h-[140px] flex-1 py-2"
@@ -374,7 +430,13 @@ function Summary({
   curve,
   ply,
   onSelect,
+  keyMoments,
+  onExport,
+  onReanalyze,
 }: {
+  keyMoments: MoveReview[]
+  onExport: () => void
+  onReanalyze: () => void
   game: GameRow
   whiteName: string
   blackName: string
@@ -399,10 +461,10 @@ function Summary({
 
         <span className="font-semibold text-fg-2">{t('review.accuracy')}</span>
         <span className={`tabular rounded-md bg-[#f1f1f1] py-1.5 text-center text-[20px] font-extrabold text-[#262421] ${userColor === 'w' ? 'ring-2 ring-accent' : ''}`}>
-          {accuracy.white.toFixed(1)}
+          {fmtDecimal(accuracy.white)}
         </span>
         <span className={`tabular rounded-md bg-[#1b1a18] py-1.5 text-center text-[20px] font-extrabold text-[#f1f1f1] ${userColor === 'b' ? 'ring-2 ring-accent' : ''}`}>
-          {accuracy.black.toFixed(1)}
+          {fmtDecimal(accuracy.black)}
         </span>
       </div>
 
@@ -422,12 +484,44 @@ function Summary({
           {t('review.opening')}: <span className="text-fg-2">{game.opening}</span>
         </p>
       )}
+      {keyMoments.length > 0 && (
+        <div className="mt-4 border-t border-line pt-3">
+          <h2 className="mb-1.5 text-[13px] font-bold text-fg-3">{t('review.keyMoments')}</h2>
+          <ul className="grid gap-1">
+            {keyMoments.slice(0, 8).map((m) => (
+              <li key={m.ply}>
+                <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-raise" onClick={() => onSelect(m.ply)}>
+                  <QualityIcon quality={m.quality} size={20} />
+                  <span className="tabular w-10 text-[13px] text-fg-3">
+                    {Math.ceil(m.ply / 2)}
+                    {m.color === 'w' ? '.' : '...'}
+                  </span>
+                  <span className="font-bold">{m.san}</span>
+                  <span className="ml-auto truncate text-[13px]" style={{ color: qualityColor(m.quality) }}>
+                    {t(`review.q.${m.quality}`)}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <button className="btn btn-primary btn-lg mt-4 w-full" onClick={onStart}>
         {t('review.start')}
       </button>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <button className="btn" onClick={onExport}>
+          <DownloadSimple size={18} weight="bold" /> {t('review.exportPgn')}
+        </button>
+        <button className="btn" onClick={onReanalyze}>
+          <ArrowsClockwise size={18} weight="bold" /> {t('review.reanalyze')}
+        </button>
+      </div>
     </div>
   )
 }
+
+const KEY_QUALITIES: Quality[] = ['brilliant', 'great', 'miss', 'mistake', 'blunder']
 
 function QualityRow({ q, w, b }: { q: Quality; w: number; b: number }) {
   const { t } = useTranslation()
@@ -445,12 +539,16 @@ function QualityRow({ q, w, b }: { q: Quality; w: number; b: number }) {
 
 function Coach({
   move,
+  fenBefore,
+  scoreBefore,
   retry,
   variation,
   onBest,
   onRetry,
 }: {
   move?: MoveReview
+  fenBefore?: string
+  scoreBefore?: Score
   retry: null | 'waiting' | 'wrong' | 'right'
   variation: boolean
   onBest: () => void
@@ -471,6 +569,14 @@ function Coach({
         : retry === 'right'
           ? t('review.retryRight')
           : t(`review.explain.${move.quality}`, { san: move.san })
+  const why = !retry && fenBefore ? explainMove(move, fenBefore, scoreBefore) : null
+  const whyText = why
+    ? why.key === 'hangs'
+      ? t('review.why.hangs', { piece: t(`common.piece.${PIECE_NAME[why.piece]}`).toLocaleLowerCase(), square: why.square })
+      : why.key === 'missedMate'
+        ? t('review.why.missedMate', { count: why.n, san: why.best })
+        : t('review.why.allowsMate', { count: why.n })
+    : null
   const showBestLine = !retry && move.bestSan && !['best', 'book', 'forced', 'brilliant', 'great'].includes(move.quality)
   return (
     <div key={move.ply + (retry ?? '')} className="enter border-b border-line p-4">
@@ -480,6 +586,7 @@ function Coach({
           <p className="text-[16px] font-bold leading-snug" style={{ color: retry ? undefined : qualityColor(move.quality) }}>
             {text}
           </p>
+          {whyText && <p className="mt-0.5 text-[14px] text-fg">{whyText}</p>}
           {showBestLine && <p className="mt-0.5 text-[14px] text-fg-2">{t('review.bestWas', { san: move.bestSan })}</p>}
         </div>
         <span className="tabular rounded bg-panel-2 px-2 py-1 font-mono text-[13px] font-bold">{formatScore(move.scoreAfter)}</span>
@@ -500,3 +607,4 @@ function Coach({
   )
 }
 
+const PIECE_NAME: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }

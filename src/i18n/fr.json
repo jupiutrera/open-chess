@@ -11,7 +11,8 @@
     "import": "Importer",
     "profile": "Profil",
     "settings": "Réglages",
-    "more": "Plus"
+    "more": "Plus",
+    "main": "Principale"
   },
   "common": {
     "white": "Blancs",
@@ -31,7 +32,19 @@
     "rating": "Classement",
     "flip": "Retourner l’échiquier",
     "copied": "Copié",
-    "error": "Une erreur s’est produite"
+    "error": "Une erreur s’est produite",
+    "updateReady": "Une nouvelle version d'Open Chess est disponible",
+    "update": "Mettre à jour",
+    "later": "Plus tard",
+    "evaluation": "Évaluation {{score}}",
+    "piece": {
+      "queen": "Dame",
+      "rook": "Tour",
+      "bishop": "Fou",
+      "knight": "Cavalier",
+      "pawn": "Pion",
+      "king": "Roi"
+    }
   },
   "home": {
     "greeting": "On s’entraîne à quoi aujourd’hui ?",
@@ -47,8 +60,9 @@
     "noGames": "Aucune partie pour l’instant. Jouez contre un bot ou importez vos parties pour les analyser.",
     "lessons": "Continuer à apprendre",
     "openings": "Réviser votre répertoire",
-    "due": "{{count}} coups à réviser",
-    "puzzleRating": "Problèmes"
+    "puzzleRating": "Problèmes",
+    "due_one": "{{count}} coup à réviser",
+    "due_other": "{{count}} coups à réviser"
   },
   "play": {
     "title": "Jouer",
@@ -84,7 +98,8 @@
       "fifty": "par la règle des 50 coups",
       "resign": "par abandon",
       "timeout": "au temps",
-      "agreement": "d’un commun accord"
+      "agreement": "d’un commun accord",
+      "timeoutVsInsufficient": "au temps contre matériel insuffisant"
     },
     "confirmResign": "Voulez-vous vraiment abandonner ?",
     "level": "Niveau",
@@ -103,7 +118,18 @@
       "suggest": "Le meilleur coup quand c’est à vous",
       "feedback": "Une icône de qualité sur chacun de vos coups",
       "engine": "Les meilleures lignes de Stockfish"
-    }
+    },
+    "inProgress": "Partie en cours contre {{name}}",
+    "movesPlayed_one": "{{count}} coup",
+    "movesPlayed_other": "{{count}} coups",
+    "continue": "Reprendre",
+    "discard": "Abandonner",
+    "saved": "Partie enregistrée. Reprenez-la depuis Jouer.",
+    "localInProgress": "Partie à deux joueurs non terminée",
+    "custom": "Perso",
+    "minutes": "Minutes",
+    "increment": "Incrément (s)",
+    "replaceSaved": "Vous avez une partie non terminée contre {{name}}. En commencer une autre l'abandonnera."
   },
   "bots": {
     "group": {
@@ -164,6 +190,16 @@
       "miss": "{{san}} laisse passer l’occasion offerte par votre adversaire.",
       "blunder": "{{san}} est une gaffe.",
       "forced": "{{san}} était le seul coup légal."
+    },
+    "prevKey": "Moment clé précédent",
+    "nextKey": "Moment clé suivant",
+    "exportPgn": "Exporter le PGN",
+    "why": {
+      "hangs": "La pièce ({{piece}}) en {{square}} reste en prise.",
+      "allowsMate_one": "Elle permet un mat en {{count}}.",
+      "allowsMate_other": "Elle permet un mat en {{count}}.",
+      "missedMate_one": "Il y avait mat en {{count}} avec {{san}}.",
+      "missedMate_other": "Il y avait mat en {{count}} en commençant par {{san}}."
     }
   },
   "puzzles": {
@@ -200,7 +236,12 @@
     "newRecord": "Nouveau record !",
     "playAgain": "Rejouer",
     "allThemes": "Tous les thèmes",
-    "history": "Historique"
+    "history": "Historique",
+    "mistakes": "Vos erreurs",
+    "mistakesSub": "Rejouez les positions ratées de vos parties analysées",
+    "mistakesEmpty": "Pas encore d'erreurs à travailler. Jouez ou importez des parties, analysez-les et les positions ratées apparaîtront ici.",
+    "mistakeContext": "Contre {{opponent}} vous avez joué {{san}} ({{quality}}). Trouvez le meilleur coup.",
+    "seeGame": "Voir la partie"
   },
   "themes": {
     "mateIn1": "Mat en 1",
@@ -245,16 +286,18 @@
     "repertoireBlack": "Répertoire des Noirs",
     "emptyRepertoire": "Votre répertoire est vide. Ouvrez l’explorateur, jouez les coups à apprendre et touchez « Ajouter au répertoire ».",
     "train": "S’entraîner",
-    "dueCount": "{{count}} à réviser",
     "allDone": "Rien à réviser aujourd’hui. Bon travail !",
     "yourMove": "Que joueriez-vous ici ?",
     "wrongRep": "Votre répertoire joue {{san}}",
     "rightRep": "Correct !",
-    "positions": "{{count}} positions",
     "search": "Rechercher une ouverture",
     "known": "Suites connues",
     "remove": "Retirer",
-    "needToken": "Les statistiques Lichess nécessitent un jeton personnel gratuit. Ajoutez-le dans"
+    "needToken": "Les statistiques Lichess nécessitent un jeton personnel gratuit. Ajoutez-le dans",
+    "dueCount_one": "{{count}} à réviser",
+    "dueCount_other": "{{count}} à réviser",
+    "positions_one": "{{count}} position",
+    "positions_other": "{{count}} positions"
   },
   "lessons": {
     "title": "Leçons",
@@ -302,7 +345,29 @@
     "editHelp": "Choisissez une pièce et touchez une case. Touchez une pièce avec la gomme pour l’enlever.",
     "eraser": "Gomme",
     "castling": "Roques",
-    "editorShort": "Éditeur"
+    "editorShort": "Éditeur",
+    "illegal": {
+      "invalid": "FEN non valide",
+      "kings": "Chaque camp doit avoir exactement un roi",
+      "pawns": "Aucun pion ne peut se trouver sur la première ou la dernière rangée",
+      "count": "Trop de pièces pour un camp",
+      "check": "Le camp qui ne joue pas ne peut pas être en échec"
+    },
+    "tb": {
+      "title": "Tablebase",
+      "win": "Le camp au trait gagne",
+      "loss": "Le camp au trait perd",
+      "draw": "Nulle",
+      "cursed-win": "Gain, mais nulle par la règle des 50 coups",
+      "blessed-loss": "Perte, mais sauvée par la règle des 50 coups",
+      "maybe-win": "Probablement gagnant",
+      "maybe-loss": "Probablement perdant",
+      "unknown": "Inconnu",
+      "mateIn_one": "· mat en {{count}}",
+      "mateIn_other": "· mat en {{count}}",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
+    }
   },
   "games": {
     "title": "Mes parties",
@@ -325,14 +390,18 @@
     "pastePgn": "Collez le PGN d’une ou plusieurs parties",
     "importPgn": "Importer le PGN",
     "file": "ou envoyez un fichier .pgn",
-    "imported": "{{count}} parties importées",
     "notFound": "Utilisateur introuvable",
     "none": "Aucune partie sur cette période",
     "importReview": "Importer et analyser",
     "importAll": "Tout importer",
     "loadMore": "Charger des parties plus anciennes",
     "already": "Déjà importée",
-    "remember": "Se souvenir de cet utilisateur"
+    "remember": "Se souvenir de cet utilisateur",
+    "imported_one": "{{count}} partie importée",
+    "imported_other": "{{count}} parties importées",
+    "failed_one": "{{count}} partie illisible",
+    "failed_other": "{{count}} parties illisibles",
+    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez."
   },
   "profile": {
     "title": "Profil",
@@ -360,7 +429,10 @@
     "backup": "Sauvegarde",
     "export": "Exporter les données",
     "importBackup": "Restaurer une sauvegarde",
-    "restored": "Sauvegarde restaurée"
+    "restored": "Sauvegarde restaurée",
+    "byOpening": "Par ouverture",
+    "gamesShort_one": "{{count}} p.",
+    "gamesShort_other": "{{count}} p."
   },
   "settings": {
     "title": "Réglages",
@@ -388,6 +460,8 @@
       "piano": "Piano",
       "nes": "NES",
       "futuristic": "Futuriste"
-    }
+    },
+    "highContrast": "Contraste élevé",
+    "highContrastHint": "Boutons et textes secondaires plus lisibles (WCAG AA)"
   }
 }

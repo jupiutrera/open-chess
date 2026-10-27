@@ -11,7 +11,8 @@
     "import": "Import",
     "profile": "Profile",
     "settings": "Settings",
-    "more": "More"
+    "more": "More",
+    "main": "Main"
   },
   "common": {
     "white": "White",
@@ -31,7 +32,19 @@
     "rating": "Rating",
     "flip": "Flip board",
     "copied": "Copied",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "updateReady": "A new version of Open Chess is ready",
+    "update": "Update",
+    "later": "Later",
+    "evaluation": "Evaluation {{score}}",
+    "piece": {
+      "queen": "Queen",
+      "rook": "Rook",
+      "bishop": "Bishop",
+      "knight": "Knight",
+      "pawn": "Pawn",
+      "king": "King"
+    }
   },
   "home": {
     "greeting": "What are we training today?",
@@ -47,8 +60,9 @@
     "noGames": "No games yet. Play a bot or import your games to start reviewing them.",
     "lessons": "Keep learning",
     "openings": "Review your repertoire",
-    "due": "{{count}} moves due for review",
-    "puzzleRating": "Puzzles"
+    "puzzleRating": "Puzzles",
+    "due_one": "{{count}} move due for review",
+    "due_other": "{{count}} moves due for review"
   },
   "play": {
     "title": "Play",
@@ -84,7 +98,8 @@
       "fifty": "by the 50-move rule",
       "resign": "by resignation",
       "timeout": "on time",
-      "agreement": "by agreement"
+      "agreement": "by agreement",
+      "timeoutVsInsufficient": "by timeout vs insufficient material"
     },
     "confirmResign": "Are you sure you want to resign?",
     "level": "Level",
@@ -103,7 +118,18 @@
       "suggest": "The best move when it's your turn",
       "feedback": "A quality icon on each of your moves",
       "engine": "Stockfish's top lines"
-    }
+    },
+    "inProgress": "Game in progress against {{name}}",
+    "movesPlayed_one": "{{count}} move",
+    "movesPlayed_other": "{{count}} moves",
+    "continue": "Continue",
+    "discard": "Discard",
+    "saved": "Game saved. You can continue it from Play.",
+    "localInProgress": "Unfinished two-player game",
+    "custom": "Custom",
+    "minutes": "Minutes",
+    "increment": "Increment (s)",
+    "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it."
   },
   "bots": {
     "group": {
@@ -164,6 +190,16 @@
       "miss": "{{san}} misses the chance your opponent gave you.",
       "blunder": "{{san}} is a blunder.",
       "forced": "{{san}} was the only legal move."
+    },
+    "prevKey": "Previous key moment",
+    "nextKey": "Next key moment",
+    "exportPgn": "Export PGN",
+    "why": {
+      "hangs": "It leaves the {{piece}} on {{square}} hanging.",
+      "allowsMate_one": "It allows mate in {{count}}.",
+      "allowsMate_other": "It allows mate in {{count}}.",
+      "missedMate_one": "There was mate in {{count}} with {{san}}.",
+      "missedMate_other": "There was mate in {{count}} starting with {{san}}."
     }
   },
   "puzzles": {
@@ -200,7 +236,12 @@
     "newRecord": "New record!",
     "playAgain": "Play again",
     "allThemes": "All themes",
-    "history": "History"
+    "history": "History",
+    "mistakes": "Your mistakes",
+    "mistakesSub": "Replay the positions you got wrong in your reviewed games",
+    "mistakesEmpty": "No mistakes to practise yet. Play or import games, review them, and the positions you got wrong will show up here.",
+    "mistakeContext": "Against {{opponent}} you played {{san}} ({{quality}}). Find the best move.",
+    "seeGame": "See game"
   },
   "themes": {
     "mateIn1": "Mate in 1",
@@ -245,16 +286,18 @@
     "repertoireBlack": "Black repertoire",
     "emptyRepertoire": "Your repertoire is empty. Open the explorer, play the moves you want to learn and tap “Add to repertoire”.",
     "train": "Train",
-    "dueCount": "{{count}} due",
     "allDone": "Nothing due today. Good work!",
     "yourMove": "What would you play here?",
     "wrongRep": "Your repertoire plays {{san}}",
     "rightRep": "Correct!",
-    "positions": "{{count}} positions",
     "search": "Search openings",
     "known": "Named continuations",
     "remove": "Remove",
-    "needToken": "Lichess stats need a free personal token. Add it in"
+    "needToken": "Lichess stats need a free personal token. Add it in",
+    "dueCount_one": "{{count}} due",
+    "dueCount_other": "{{count}} due",
+    "positions_one": "{{count}} position",
+    "positions_other": "{{count}} positions"
   },
   "lessons": {
     "title": "Lessons",
@@ -302,7 +345,29 @@
     "editHelp": "Pick a piece and tap a square. Tap a piece with the eraser to remove it.",
     "eraser": "Eraser",
     "castling": "Castling",
-    "editorShort": "Editor"
+    "editorShort": "Editor",
+    "illegal": {
+      "invalid": "Invalid FEN",
+      "kings": "Each side needs exactly one king",
+      "pawns": "Pawns can't stand on the first or last rank",
+      "count": "Too many pieces for one side",
+      "check": "The side not to move can't be in check"
+    },
+    "tb": {
+      "title": "Tablebase",
+      "win": "Side to move wins",
+      "loss": "Side to move loses",
+      "draw": "Draw",
+      "cursed-win": "Win, but drawn by the 50-move rule",
+      "blessed-loss": "Loss, but saved by the 50-move rule",
+      "maybe-win": "Probably winning",
+      "maybe-loss": "Probably losing",
+      "unknown": "Unknown",
+      "mateIn_one": "· mate in {{count}}",
+      "mateIn_other": "· mate in {{count}}",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
+    }
   },
   "games": {
     "title": "My games",
@@ -325,14 +390,18 @@
     "pastePgn": "Paste the PGN of one or more games",
     "importPgn": "Import PGN",
     "file": "or upload a .pgn file",
-    "imported": "{{count}} games imported",
     "notFound": "User not found",
     "none": "No games in that period",
     "importReview": "Import and review",
     "importAll": "Import all",
     "loadMore": "Load older games",
     "already": "Already imported",
-    "remember": "Remember this user"
+    "remember": "Remember this user",
+    "imported_one": "{{count}} game imported",
+    "imported_other": "{{count}} games imported",
+    "failed_one": "{{count}} game couldn't be read",
+    "failed_other": "{{count}} games couldn't be read",
+    "rateLimited": "Too many requests in a row. Wait a minute and try again."
   },
   "profile": {
     "title": "Profile",
@@ -360,7 +429,10 @@
     "backup": "Backup",
     "export": "Export data",
     "importBackup": "Restore backup",
-    "restored": "Backup restored"
+    "restored": "Backup restored",
+    "byOpening": "By opening",
+    "gamesShort_one": "{{count}} g.",
+    "gamesShort_other": "{{count}} g."
   },
   "settings": {
     "title": "Settings",
@@ -388,6 +460,8 @@
       "piano": "Piano",
       "nes": "NES",
       "futuristic": "Futuristic"
-    }
+    },
+    "highContrast": "High contrast",
+    "highContrastHint": "More readable buttons and secondary text (WCAG AA)"
   }
 }

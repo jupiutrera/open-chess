@@ -51,7 +51,8 @@ export async function analyzeGame(
     if (term) {
       positions.push({ fen, lines: [], score: term })
     } else {
-      const r = await engine.search(fen, { depth, multipv: 2 })
+      // depth is the target; the time cap keeps a long game on a slow phone from taking minutes
+      const r = await engine.search(fen, { depth, multipv: 2, movetime: 1200 })
       if (signal?.cancelled) return null
       positions.push({ fen, lines: r.lines, score: r.lines[0]?.score ?? { cp: 0 } })
     }

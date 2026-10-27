@@ -26,6 +26,13 @@ export default function LessonPlayer() {
   const [stepIdx, setStepIdx] = useState(0)
   const [finished, setFinished] = useState(false)
   const step: LessonStep | undefined = lesson?.steps[stepIdx]
+  // delayed replies belong to one step: moving on (or leaving) cancels them
+  const pending = useRef<ReturnType<typeof setTimeout>[]>([])
+  const later = (fn: () => void, ms: number) => pending.current.push(setTimeout(fn, ms))
+  useEffect(() => () => {
+    pending.current.forEach(clearTimeout)
+    pending.current = []
+  }, [stepIdx])
   const chess = useRef(new Chess())
   const [fen, setFen] = useState(step?.fen ?? '')
   const [lastMove, setLastMove] = useState<[string, string] | null>(null)
@@ -102,7 +109,7 @@ export default function LessonPlayer() {
         setHighlights(new Map([[m.to, 'right']]))
         ply.current++
         if (ply.current >= step.moves.length) return stepComplete()
-        setTimeout(() => {
+        later(() => {
           const reply = playUci(chess.current, step.moves[ply.current])
           if (reply) {
             playMoveSound(reply)
@@ -117,7 +124,7 @@ export default function LessonPlayer() {
         setState('wrong')
         setFen(trial.fen())
         setHighlights(new Map([[m.to, 'wrong']]))
-        setTimeout(() => {
+        later(() => {
           setFen(chess.current.fen())
           setHighlights(undefined)
           setState('playing')

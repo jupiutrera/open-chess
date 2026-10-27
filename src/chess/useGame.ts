@@ -18,7 +18,10 @@ export function useGame(initialFen: string = START_FEN) {
   const fens = useMemo(() => [startFen, ...moves.map((m) => m.after)], [startFen, moves])
   const fen = fens[ply] ?? fens[fens.length - 1]
   const atLive = ply === moves.length
-  const lastMove = ply > 0 ? ([moves[ply - 1].from, moves[ply - 1].to] as [string, string]) : null
+  // stable identities, so the board isn't reconfigured on unrelated renders (clock ticks)
+  const viewed = ply > 0 ? moves[ply - 1] : undefined
+  const lastMove = useMemo(() => (viewed ? ([viewed.from, viewed.to] as [string, string]) : null), [viewed])
+  const sans = useMemo(() => moves.map((m) => m.san), [moves])
 
   /** Plays a move at the live position; with `branch`, from the viewed ply (dropping later moves). */
   const move = useCallback((from: string, to: string, promotion?: string, sound = true, branch = false): Move | null => {
@@ -73,16 +76,36 @@ export function useGame(initialFen: string = START_FEN) {
     return c
   }, [])
 
+  /** Rebuilds a game from its SAN moves (a saved game in progress); stops at the first illegal one. */
+  const replay = useCallback((sanMoves: string[], fen: string = START_FEN) => {
+    const c = new Chess(fen)
+    for (const san of sanMoves) {
+      try {
+        c.move(san)
+      } catch {
+        break
+      }
+    }
+    live.current = c
+    const hist = c.history({ verbose: true })
+    setStartFen(fen)
+    setMoves(hist)
+    setPly(hist.length)
+  }, [])
+
   const goto = useCallback(
     (p: number) => setPly(Math.max(0, Math.min(p, live.current.history().length))),
     [],
   )
 
   return {
-    chess: live.current,
+    /** the live game; a getter, so it is current even right after replay/reset/loadPgn */
+    get chess() {
+      return live.current
+    },
     startFen,
     moves,
-    sans: moves.map((m) => m.san),
+    sans,
     fens,
     fen,
     ply,
@@ -92,6 +115,7 @@ export function useGame(initialFen: string = START_FEN) {
     undo,
     reset,
     loadPgn,
+    replay,
     goto,
   }
 }

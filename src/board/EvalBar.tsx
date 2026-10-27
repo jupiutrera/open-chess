@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import { formatScore, type Score } from '../engine/engine'
 import { winPercent } from '../features/review/classify'
 
 /** Vertical evaluation bar; White's share grows from White's side of the board. */
 export function EvalBar({ score, orientation = 'white', className = '' }: { score?: Score; orientation?: 'white' | 'black'; className?: string }) {
+  const { t } = useTranslation()
   const white = score ? winPercent(score) : 50
   const whiteAhead = white >= 50
   const label = formatScore(score).replace('+', '')
@@ -16,7 +18,7 @@ export function EvalBar({ score, orientation = 'white', className = '' }: { scor
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(white)}
-      aria-label={`Evaluación ${label}`}
+      aria-label={t('common.evaluation', { score: label })}
     >
       <div
         className="absolute inset-0 bg-[#f1f1f1]"

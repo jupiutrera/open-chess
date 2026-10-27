@@ -30,7 +30,7 @@ Cada PR pasa por el CI: tests unitarios, build y los tests de Playwright. Si fal
 
 - TypeScript estricto, componentes funcionales y Tailwind con los tokens de `src/styles.css` (consulta [DESIGN.md](DESIGN.md)).
 - La interfaz sigue las convenciones de chess.com: si algo existe allí, debería sentirse igual aquí.
-- Los textos visibles van siempre en `es.json` y `en.json`, nunca escritos directamente en el código.
+- Los textos visibles van siempre en los seis archivos de `src/i18n/` (un test comprueba que tengan las mismas claves), nunca escritos directamente en el código. Para cantidades usa las formas `_one` / `_other` de i18next.
 - Animaciones cortas (150-250 ms), solo con `transform` y `opacity`, y respetando `prefers-reduced-motion`.
 
 ## Licencia

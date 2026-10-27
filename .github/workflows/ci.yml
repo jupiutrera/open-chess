@@ -2,6 +2,12 @@ name: CI
 
 on:
   pull_request:
+  # a direct push to main is checked too, not only pull requests
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -13,6 +19,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm test
       - run: npm run build
 
@@ -25,6 +32,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
       - if: failure()

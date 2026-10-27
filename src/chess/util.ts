@@ -101,6 +101,65 @@ export function gameResultText(chess: Chess): { result: '1-0' | '0-1' | '1/2-1/2
   return null
 }
 
+/**
+ * Whether `color` could still deliver mate by some legal sequence (FIDE 6.9: a flag fall
+ * is only a loss if the opponent can mate). A lone minor piece can only mate with help
+ * from the other side's own pieces.
+ */
+export function canMate(chess: Chess, color: Color): boolean {
+  let minors = 0
+  let theirs = 0
+  for (const row of chess.board())
+    for (const sq of row) {
+      if (!sq || sq.type === 'k') continue
+      if (sq.color !== color) theirs++
+      else if (sq.type === 'n' || sq.type === 'b') minors++
+      else return true
+    }
+  return minors >= 2 || (minors === 1 && theirs > 0)
+}
+
+/** Result when `flagged` runs out of time. */
+export function timeoutResult(chess: Chess, flagged: Color): { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } {
+  const opp: Color = flagged === 'w' ? 'b' : 'w'
+  if (!canMate(chess, opp)) return { result: '1/2-1/2', reason: 'timeoutVsInsufficient' }
+  return { result: opp === 'w' ? '1-0' : '0-1', reason: 'timeout' }
+}
+
+export type PositionProblem = 'invalid' | 'kings' | 'pawns' | 'count' | 'check'
+
+/**
+ * Why a FEN is not a playable position, or null. chess.js accepts some impossible ones
+ * (e.g. the side not to move in check), which the engine cannot handle.
+ */
+export function positionProblem(fen: string): PositionProblem | null {
+  let c: Chess
+  try {
+    c = new Chess(fen)
+  } catch {
+    return 'invalid'
+  }
+  const n = { w: { k: 0, p: 0, all: 0 }, b: { k: 0, p: 0, all: 0 } }
+  const board = c.board()
+  for (let r = 0; r < 8; r++)
+    for (const sq of board[r]) {
+      if (!sq) continue
+      const side = n[sq.color]
+      side.all++
+      if (sq.type === 'k') side.k++
+      if (sq.type === 'p') {
+        side.p++
+        if (r === 0 || r === 7) return 'pawns'
+      }
+    }
+  if (n.w.k !== 1 || n.b.k !== 1) return 'kings'
+  if (n.w.p > 8 || n.b.p > 8 || n.w.all > 16 || n.b.all > 16) return 'count'
+  const waiting: Color = c.turn() === 'w' ? 'b' : 'w'
+  const king = board.flat().find((sq) => sq?.type === 'k' && sq.color === waiting)!
+  if (c.isAttacked(king.square, c.turn())) return 'check'
+  return null
+}
+
 export function uid(): string {
   return crypto.randomUUID()
 }

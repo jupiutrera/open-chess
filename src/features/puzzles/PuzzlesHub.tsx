@@ -1,17 +1,32 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Timer, Infinity as InfinityIcon, CaretRight } from '@phosphor-icons/react'
+import { Timer, Infinity as InfinityIcon, CaretRight, CheckCircle, XCircle, Fire } from '@phosphor-icons/react'
 import { AppIcon } from '../../ui/AppIcon'
 import { PageHeader, Panel, SkeletonText } from '../../ui/kit'
 import { db, kvGet } from '../../db/db'
 import { getPuzzleRating, THEMES } from './puzzlesData'
+import { useSettings } from '../../settings'
 
 export default function PuzzlesHub() {
   const { t } = useTranslation()
   const rating = useLiveQuery(() => getPuzzleRating(), [])
   const solved = useLiveQuery(() => db.puzzleAttempts.filter((a) => a.solved && !a.deleted).count(), [])
   const rush = useLiveQuery(() => kvGet<Record<string, number>>('rushBest', {}), [])
+  const lang = useSettings((s) => s.lang)
+  // last rated attempts: the history list and the current run of solved puzzles
+  const recent = useLiveQuery(
+    () =>
+      db.puzzleAttempts
+        .orderBy('date')
+        .reverse()
+        .filter((a) => !a.deleted && (a.mode === 'rated' || a.mode === 'theme' || a.mode === 'daily'))
+        .limit(50)
+        .toArray(),
+    [],
+  )
+  const streak = recent ? recent.findIndex((a) => !a.solved) : 0
+  const run = streak === -1 ? (recent?.length ?? 0) : streak
 
   return (
     <div className="mx-auto max-w-4xl pb-8">
@@ -28,6 +43,11 @@ export default function PuzzlesHub() {
                   <span className="text-fg-3">
                     {' '}
                     · {t('profile.puzzlesSolved')}: {solved}
+                  </span>
+                )}
+                {run > 1 && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-warn">
+                    <Fire size={16} weight="fill" /> {t('puzzles.streak')}: {run}
                   </span>
                 )}
               </div>
@@ -61,6 +81,17 @@ export default function PuzzlesHub() {
           </div>
         </Panel>
 
+        <Link to="/puzzles/mistakes" className="group">
+          <Panel className="flex items-center gap-4 p-5 transition-colors duration-150 group-hover:bg-raise">
+            <AppIcon name="analysis" size={40} />
+            <div className="flex-1">
+              <div className="text-[18px] font-extrabold">{t('puzzles.mistakes')}</div>
+              <div className="text-[13px] text-fg-3">{t('puzzles.mistakesSub')}</div>
+            </div>
+            <CaretRight size={22} className="text-fg-3" />
+          </Panel>
+        </Link>
+
         <Link to="/puzzles/daily" className="group">
           <Panel className="flex items-center gap-4 p-5 transition-colors duration-150 group-hover:bg-raise">
             <AppIcon name="daily" size={40} />
@@ -83,6 +114,26 @@ export default function PuzzlesHub() {
             ))}
           </div>
         </Panel>
+
+        {recent && recent.length > 0 && (
+          <Panel className="p-5">
+            <h2 className="mb-2 text-[18px] font-extrabold">{t('puzzles.history')}</h2>
+            <ul className="divide-y divide-line">
+              {recent.slice(0, 12).map((a) => (
+                <li key={a.id} className="tabular flex items-center gap-3 py-2 text-[14px]">
+                  {a.solved ? (
+                    <CheckCircle size={20} weight="fill" className="text-accent" aria-label={t('puzzles.solved')} />
+                  ) : (
+                    <XCircle size={20} weight="fill" className="text-danger" aria-label={t('puzzles.failed')} />
+                  )}
+                  <span className="font-semibold">{t('puzzles.puzzleRating', { rating: a.rating })}</span>
+                  <span className="text-fg-3">{new Date(a.date).toLocaleDateString(lang)}</span>
+                  {a.ratingAfter !== undefined && <span className="ml-auto font-bold">{a.ratingAfter}</span>}
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        )}
       </div>
     </div>
   )

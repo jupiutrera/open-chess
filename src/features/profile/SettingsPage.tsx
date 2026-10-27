@@ -127,6 +127,7 @@ export default function SettingsPage() {
           <Toggle checked={s.coords} onChange={(v) => s.set({ coords: v })} label={t('settings.coords')} />
           <Toggle checked={s.showDests} onChange={(v) => s.set({ showDests: v })} label={t('settings.showDests')} />
           <Toggle checked={s.animation} onChange={(v) => s.set({ animation: v })} label={t('settings.animation')} />
+          <Toggle checked={s.highContrast} onChange={(v) => s.set({ highContrast: v })} label={t('settings.highContrast')} hint={t('settings.highContrastHint')} />
           <Toggle checked={s.autoQueen} onChange={(v) => s.set({ autoQueen: v })} label={t('settings.autoQueen')} />
         </Panel>
 

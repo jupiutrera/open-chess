@@ -11,7 +11,8 @@
     "import": "导入",
     "profile": "个人资料",
     "settings": "设置",
-    "more": "更多"
+    "more": "更多",
+    "main": "主导航"
   },
   "common": {
     "white": "白方",
@@ -31,7 +32,19 @@
     "rating": "等级分",
     "flip": "翻转棋盘",
     "copied": "已复制",
-    "error": "出错了"
+    "error": "出错了",
+    "updateReady": "Open Chess 有新版本",
+    "update": "更新",
+    "later": "稍后",
+    "evaluation": "评估 {{score}}",
+    "piece": {
+      "queen": "后",
+      "rook": "车",
+      "bishop": "象",
+      "knight": "马",
+      "pawn": "兵",
+      "king": "王"
+    }
   },
   "home": {
     "greeting": "今天练什么？",
@@ -47,8 +60,9 @@
     "noGames": "还没有棋局。与机器人对弈或导入你的棋局来开始复盘。",
     "lessons": "继续学习",
     "openings": "复习你的开局库",
-    "due": "{{count}} 步待复习",
-    "puzzleRating": "谜题"
+    "puzzleRating": "谜题",
+    "due_one": "{{count}} 步待复习",
+    "due_other": "{{count}} 步待复习"
   },
   "play": {
     "title": "对局",
@@ -84,7 +98,8 @@
       "fifty": "五十步规则",
       "resign": "认输",
       "timeout": "超时",
-      "agreement": "双方同意"
+      "agreement": "双方同意",
+      "timeoutVsInsufficient": "超时（对方子力不足）"
     },
     "confirmResign": "确定要认输吗？",
     "level": "级别",
@@ -103,7 +118,18 @@
       "suggest": "轮到你时的最佳着法",
       "feedback": "为你的每步棋标注质量图标",
       "engine": "Stockfish 的最佳变化"
-    }
+    },
+    "inProgress": "与 {{name}} 的对局进行中",
+    "movesPlayed_one": "{{count}} 步",
+    "movesPlayed_other": "{{count}} 步",
+    "continue": "继续",
+    "discard": "放弃",
+    "saved": "对局已保存，可在“对弈”中继续。",
+    "localInProgress": "未完成的双人对局",
+    "custom": "自定义",
+    "minutes": "分钟",
+    "increment": "加秒",
+    "replaceSaved": "你与 {{name}} 的对局尚未结束。开始新对局将放弃它。"
   },
   "bots": {
     "group": {
@@ -164,6 +190,16 @@
       "miss": "{{san}} 错过了对手留给你的机会。",
       "blunder": "{{san}} 是大错。",
       "forced": "{{san}} 是唯一合法的着法。"
+    },
+    "prevKey": "上一个关键时刻",
+    "nextKey": "下一个关键时刻",
+    "exportPgn": "导出 PGN",
+    "why": {
+      "hangs": "{{square}} 的{{piece}}无人保护。",
+      "allowsMate_one": "让对方 {{count}} 步杀。",
+      "allowsMate_other": "让对方 {{count}} 步杀。",
+      "missedMate_one": "{{san}} 可以 {{count}} 步杀。",
+      "missedMate_other": "从 {{san}} 开始可以 {{count}} 步杀。"
     }
   },
   "puzzles": {
@@ -200,7 +236,12 @@
     "newRecord": "新纪录！",
     "playAgain": "再玩一次",
     "allThemes": "所有主题",
-    "history": "历史"
+    "history": "历史",
+    "mistakes": "你的失误",
+    "mistakesSub": "重练你在已复盘对局中走错的局面",
+    "mistakesEmpty": "暂时没有可练习的失误。下棋或导入对局并复盘后，你走错的局面会出现在这里。",
+    "mistakeContext": "对阵 {{opponent}} 时你走了 {{san}}（{{quality}}）。找出最佳着法。",
+    "seeGame": "查看对局"
   },
   "themes": {
     "mateIn1": "一步杀",
@@ -245,16 +286,18 @@
     "repertoireBlack": "黑方开局库",
     "emptyRepertoire": "你的开局库是空的。打开开局浏览器，走出想学的着法，然后点击“加入开局库”。",
     "train": "训练",
-    "dueCount": "{{count}} 个待复习",
     "allDone": "今天没有需要复习的内容。干得好！",
     "yourMove": "这里你会怎么走？",
     "wrongRep": "你的开局库走的是 {{san}}",
     "rightRep": "正确！",
-    "positions": "{{count}} 个局面",
     "search": "搜索开局",
     "known": "已命名的后续",
     "remove": "移除",
-    "needToken": "Lichess 统计需要一个免费的个人令牌。请在此添加："
+    "needToken": "Lichess 统计需要一个免费的个人令牌。请在此添加：",
+    "dueCount_one": "{{count}} 个待复习",
+    "dueCount_other": "{{count}} 个待复习",
+    "positions_one": "{{count}} 个局面",
+    "positions_other": "{{count}} 个局面"
   },
   "lessons": {
     "title": "课程",
@@ -302,7 +345,29 @@
     "editHelp": "选择一个棋子再点击格子。用橡皮擦点击棋子即可移除。",
     "eraser": "橡皮擦",
     "castling": "王车易位",
-    "editorShort": "编辑器"
+    "editorShort": "编辑器",
+    "illegal": {
+      "invalid": "无效的 FEN",
+      "kings": "双方必须各有且仅有一个王",
+      "pawns": "兵不能位于第一或最后一横排",
+      "count": "一方棋子过多",
+      "check": "非行棋方不能处于被将军状态"
+    },
+    "tb": {
+      "title": "残局库",
+      "win": "行棋方胜",
+      "loss": "行棋方负",
+      "draw": "和棋",
+      "cursed-win": "必胜，但按50回合规则为和",
+      "blessed-loss": "必败，但按50回合规则可保和",
+      "maybe-win": "可能胜",
+      "maybe-loss": "可能负",
+      "unknown": "未知",
+      "mateIn_one": "· {{count}} 步杀",
+      "mateIn_other": "· {{count}} 步杀",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
+    }
   },
   "games": {
     "title": "我的棋局",
@@ -325,14 +390,18 @@
     "pastePgn": "粘贴一局或多局的 PGN",
     "importPgn": "导入 PGN",
     "file": "或上传 .pgn 文件",
-    "imported": "已导入 {{count}} 局",
     "notFound": "未找到用户",
     "none": "该时间段内没有棋局",
     "importReview": "导入并复盘",
     "importAll": "全部导入",
     "loadMore": "加载更早的对局",
     "already": "已导入",
-    "remember": "记住此用户"
+    "remember": "记住此用户",
+    "imported_one": "已导入 {{count}} 局",
+    "imported_other": "已导入 {{count}} 局",
+    "failed_one": "{{count}} 局无法读取",
+    "failed_other": "{{count}} 局无法读取",
+    "rateLimited": "请求过于频繁，请等待一分钟后重试。"
   },
   "profile": {
     "title": "个人资料",
@@ -360,7 +429,10 @@
     "backup": "备份",
     "export": "导出数据",
     "importBackup": "恢复备份",
-    "restored": "备份已恢复"
+    "restored": "备份已恢复",
+    "byOpening": "按开局",
+    "gamesShort_one": "{{count}}局",
+    "gamesShort_other": "{{count}}局"
   },
   "settings": {
     "title": "设置",
@@ -388,6 +460,8 @@
       "piano": "钢琴",
       "nes": "NES",
       "futuristic": "未来感"
-    }
+    },
+    "highContrast": "高对比度",
+    "highContrastHint": "按钮和次要文字更易读（WCAG AA）"
   }
 }

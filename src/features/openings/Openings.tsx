@@ -15,6 +15,7 @@ import { lookupOpening, namedContinuations, searchOpenings, type Opening } from 
 import { fetchExplorer, type ExplorerDb, type ExplorerResult } from './explorerApi'
 import { addLine } from './repertoire'
 import { db, softDelete } from '../../db/db'
+import { fmtCompact } from '../../i18n/format'
 
 type Tab = 'explorer' | 'repertoire'
 
@@ -218,7 +219,7 @@ export default function Openings() {
 function StatsTable({ stats, onPlay }: { stats: ExplorerResult; onPlay: (uci: string) => void }) {
   const { t } = useTranslation()
   const total = (m: { white: number; draws: number; black: number }) => m.white + m.draws + m.black
-  const fmt = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n))
+  const fmt = (n: number) => fmtCompact(n)
   if (!stats.moves.length) return <p className="px-4 py-3 text-[14px] text-fg-3">{t('openings.noStats')}</p>
   return (
     <table className="w-full text-[13px]">

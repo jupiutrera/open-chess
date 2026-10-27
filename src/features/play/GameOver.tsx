@@ -41,7 +41,7 @@ export function GameOverDialog({
         : t('play.blackWins')
   const Icon = draw ? Handshake : userColor && !userWon ? SmileySad : Trophy
   return (
-    <Sheet open={open} onClose={onClose}>
+    <Sheet open={open} onClose={onClose} label={title}>
       <div className="flex flex-col items-center gap-1 pb-2 pt-1 text-center">
         <span className={`mb-1 grid h-14 w-14 place-items-center rounded-full ${userWon || (!userColor && !draw) ? 'bg-accent text-white' : 'bg-raise-2 text-fg'}`}>
           <Icon size={30} weight="fill" />

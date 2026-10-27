@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { Chessground } from '@lichess-org/chessground'
 import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
 import type { Key } from '@lichess-org/chessground/types'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Chess } from 'chess.js'
+import { useTranslation } from 'react-i18next'
 import { toDests, isPromotion } from '../chess/util'
 import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
@@ -30,7 +32,13 @@ export interface BoardProps {
 
 const FILES = 'abcdefgh'
 
-export function Board({
+/** Re-renders only when what it shows changes; `onMove` is read through a ref, so a new callback doesn't count. */
+export const Board = memo(BoardView, (a, b) => {
+  for (const k of Object.keys({ ...a, ...b }) as (keyof BoardProps)[]) if (k !== 'onMove' && a[k] !== b[k]) return false
+  return true
+})
+
+function BoardView({
   fen,
   orientation = 'white',
   movable = 'none',
@@ -49,7 +57,9 @@ export function Board({
   onMoveRef.current = onMove
   const fenRef = useRef(fen)
   fenRef.current = fen
-  const settings = useSettings()
+  const settings = useSettings(useShallow((s) => ({ coords: s.coords, animation: s.animation, showDests: s.showDests })))
+  // honour the OS setting even when piece animation is on in the app
+  const reducedMotion = useMemo(() => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches, [])
   const [promo, setPromo] = useState<{ from: string; to: string } | null>(null)
 
   const chess = useMemo(() => {
@@ -70,7 +80,7 @@ export function Board({
       check: chess?.inCheck() ? turn : false,
       lastMove: (lastMove ?? undefined) as Key[] | undefined,
       coordinates: settings.coords,
-      animation: { enabled: settings.animation, duration: 180 },
+      animation: { enabled: settings.animation && !reducedMotion, duration: 180 },
       highlight: { lastMove: true, check: true, custom: highlights as Map<Key, string> | undefined },
       movable: {
         free: false,
@@ -82,7 +92,7 @@ export function Board({
       draggable: { enabled: true, showGhost: true },
       drawable: { enabled: true, autoShapes: shapes ?? [] },
     }
-  }, [fen, orientation, movable, lastMove, settings.coords, settings.animation, settings.showDests, shapes, highlights, chess, premoves])
+  }, [fen, orientation, movable, lastMove, settings.coords, settings.animation, settings.showDests, shapes, highlights, chess, premoves, reducedMotion])
 
   // mount once
   useEffect(() => {
@@ -207,6 +217,7 @@ function PromotionPicker({
   const fromTop = (color === 'w') === (orientation === 'white')
   const pieces = ['q', 'n', 'r', 'b']
   const role: Record<string, string> = { q: 'queen', n: 'knight', r: 'rook', b: 'bishop' }
+  const { t } = useTranslation()
   return (
     <div className="absolute inset-0 z-20 bg-black/45" onClick={() => onPick(null)}>
       <div
@@ -225,7 +236,7 @@ function PromotionPicker({
             className="cg-wrap aspect-square w-full transition-colors duration-100 hover:bg-[#ddd]"
             style={{ position: 'relative' }}
             onClick={() => onPick(p)}
-            aria-label={role[p]}
+            aria-label={t(`common.piece.${role[p]}`)}
           >
             <PieceSprite role={role[p]} color={color} />
           </button>

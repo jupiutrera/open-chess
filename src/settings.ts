@@ -40,6 +40,8 @@ export interface Settings {
   showDests: boolean
   autoQueen: boolean
   animation: boolean
+  /** darker accent and danger colours so white text meets WCAG AA */
+  highContrast: boolean
   haptics: boolean
   reviewDepth: number
   assist: AssistSettings
@@ -61,6 +63,7 @@ export const useSettings = create<Settings>()(
       showDests: true,
       autoQueen: false,
       animation: true,
+      highContrast: false,
       haptics: true,
       reviewDepth: 14,
       assist: { eval: false, threats: false, suggest: false, feedback: true, engine: false },
@@ -71,9 +74,10 @@ export const useSettings = create<Settings>()(
   ),
 )
 
-export function applyDocumentSettings(s: Pick<Settings, 'theme' | 'board' | 'lang' | 'pieces'>) {
+export function applyDocumentSettings(s: Pick<Settings, 'theme' | 'board' | 'lang' | 'pieces' | 'highContrast'>) {
   const root = document.documentElement
   root.dataset.theme = s.theme
+  root.dataset.contrast = s.highContrast ? 'high' : 'normal'
   root.dataset.board = s.board
   root.dataset.pieces = s.pieces
   root.lang = s.lang

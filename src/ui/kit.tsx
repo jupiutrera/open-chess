@@ -1,18 +1,59 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { create } from 'zustand'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, X } from '@phosphor-icons/react'
+
+/* Overlays (sheets, menus) stack so Escape and the Android back button close the top one first. */
+const overlays: { current: () => void }[] = []
+
+export const overlayOpen = () => overlays.length > 0
+
+/** Closes the topmost open overlay; false when none is open. */
+export function closeTopOverlay(): boolean {
+  const top = overlays[overlays.length - 1]
+  if (!top) return false
+  top.current()
+  return true
+}
+
+/** Registers an open overlay so Escape / back close it. */
+export function useDismiss(open: boolean, onClose: () => void) {
+  const ref = useRef({ current: onClose })
+  ref.current.current = onClose
+  useEffect(() => {
+    if (!open) return
+    const entry = ref.current
+    overlays.push(entry)
+    return () => {
+      const i = overlays.indexOf(entry)
+      if (i >= 0) overlays.splice(i, 1)
+    }
+  }, [open])
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && closeTopOverlay()) e.preventDefault()
+  })
+}
+
+/** The parent route, for a back button opened from a deep link with no history. */
+function parentPath(path: string): string {
+  const parts = path.split('/').filter(Boolean)
+  return '/' + parts.slice(0, -1).join('/')
+}
 
 export function PageHeader({ title, back, right }: { title: string; back?: boolean | string; right?: ReactNode }) {
   const nav = useNavigate()
+  const { t } = useTranslation()
+  const { pathname, key } = useLocation()
+  // the first entry of the session has key "default": there is nothing to go back to
+  const goBack = () => (typeof back === 'string' ? nav(back) : key === 'default' ? nav(parentPath(pathname)) : nav(-1))
   return (
     <header className="flex items-center gap-2 px-4 pb-3 pt-4 lg:px-6 lg:pt-6">
       {back && (
-        <button
-          className="btn btn-ghost btn-icon -ml-2"
-          onClick={() => (typeof back === 'string' ? nav(back) : nav(-1))}
-          aria-label="Volver"
-        >
+        <button className="btn btn-ghost btn-icon -ml-2" onClick={goBack} aria-label={t('common.back')}>
           <ArrowLeft size={22} weight="bold" />
         </button>
       )}
@@ -78,26 +119,75 @@ export function Toggle({ checked, onChange, label, hint }: { checked: boolean; o
   )
 }
 
-export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: ReactNode }) {
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+
+/** Keeps Tab inside `box` while mounted, focuses it, and gives focus back on unmount. */
+function useFocusTrap(box: React.RefObject<HTMLElement | null>, active: boolean) {
   useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
+    if (!active || !box.current) return
+    const el = box.current
+    const previous = document.activeElement as HTMLElement | null
+    ;(el.querySelector<HTMLElement>('[data-autofocus]') ?? el).focus({ preventScroll: true })
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)]
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === el)) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    el.addEventListener('keydown', onKey)
+    return () => {
+      el.removeEventListener('keydown', onKey)
+      previous?.focus?.({ preventScroll: true })
+    }
+  }, [active, box])
+}
+
+export function Sheet({
+  open,
+  onClose,
+  title,
+  label,
+  children,
+}: {
+  open: boolean
+  onClose: () => void
+  title?: string
+  /** accessible name when there is no visible title */
+  label?: string
+  children: ReactNode
+}) {
+  const { t } = useTranslation()
+  const titleId = useId()
+  const box = useRef<HTMLDivElement>(null)
+  useDismiss(open, onClose)
+  useFocusTrap(box, open)
   if (!open) return null
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/55 sm:items-center" onClick={onClose}>
       <div
+        ref={box}
         role="dialog"
         aria-modal
-        className="pop max-h-[85dvh] w-full overflow-y-auto rounded-t-2xl bg-panel p-5 pb-[calc(1.25rem+var(--inset-bottom))] sm:max-w-md sm:rounded-2xl sm:pb-5"
+        aria-labelledby={title ? titleId : undefined}
+        aria-label={title ? undefined : label}
+        tabIndex={-1}
+        className="pop max-h-[85dvh] w-full overflow-y-auto rounded-t-2xl bg-panel p-5 pb-[calc(1.25rem+var(--inset-bottom))] outline-none sm:max-w-md sm:rounded-2xl sm:pb-5"
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
           <div className="mb-3 flex items-center">
-            <h2 className="text-[19px] font-extrabold">{title}</h2>
-            <button className="btn btn-ghost btn-icon ml-auto -mr-2" onClick={onClose} aria-label="Cerrar">
+            <h2 id={titleId} className="text-[19px] font-extrabold">
+              {title}
+            </h2>
+            <button className="btn btn-ghost btn-icon ml-auto -mr-2" onClick={onClose} aria-label={t('common.close')}>
               <X size={20} weight="bold" />
             </button>
           </div>
@@ -127,13 +217,17 @@ export const toast = (text: string, tone?: 'info' | 'error' | 'success') => useT
 export function Toaster() {
   const items = useToasts((s) => s.items)
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+var(--inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6">
+    // one live region that stays mounted: screen readers miss regions inserted together with their text
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+var(--inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6"
+    >
       {items.map((i) => (
         <div
           key={i.id}
-          role="status"
           className={`enter rounded-lg px-4 py-2.5 text-[14px] font-semibold shadow-lg ${
-            i.tone === 'error' ? 'bg-danger text-white' : i.tone === 'success' ? 'bg-accent text-white' : 'bg-raise-2 text-fg'
+            i.tone === 'error' ? 'bg-[var(--danger-strong)] text-white' : i.tone === 'success' ? 'bg-[var(--success-strong)] text-white' : 'bg-raise-2 text-fg'
           }`}
         >
           {i.text}

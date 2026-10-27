@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, softDelete } from '../../db/db'
 import { PageHeader, Panel, Segmented, SkeletonRows } from '../../ui/kit'
+import { DownloadSimple } from '@phosphor-icons/react'
 import { GameRowItem } from './GameRowItem'
+import { gamesPgn } from '../review/pgnExport'
+import { saveTextFile } from '../../ui/files'
 
 export default function Games() {
   const { t } = useTranslation()
@@ -21,7 +24,20 @@ export default function Games() {
   )
   return (
     <div className="mx-auto max-w-4xl pb-8">
-      <PageHeader title={t('games.title')} />
+      <PageHeader
+        title={t('games.title')}
+        right={
+          games?.length ? (
+            <button
+              className="btn"
+              aria-label={t('review.exportPgn')}
+              onClick={() => void saveTextFile(`open-chess-${new Date().toISOString().slice(0, 10)}.pgn`, gamesPgn(games), 'application/x-chess-pgn').catch(() => {})}
+            >
+              <DownloadSimple size={18} weight="bold" /> <span className="hidden sm:inline">{t('review.exportPgn')}</span>
+            </button>
+          ) : undefined
+        }
+      />
       <div className="px-4 lg:px-6">
         <Segmented
           className="mb-3 max-w-md"

@@ -10,7 +10,7 @@ web
 
 ## Stack
 
-Delegated: Vite + React + TypeScript + Tailwind v4, chessground (board), chess.js (rules), Stockfish WASM (engine), Dexie (IndexedDB), Supabase (optional sync), i18next (ES/EN), Capacitor (Android). Chosen for one codebase across web and APK and offline-first engine work.
+Delegated: Vite + React + TypeScript + Tailwind v4, chessground (board), chess.js (rules), Stockfish WASM (engine), Dexie (IndexedDB), Supabase (optional sync), i18next (ES, EN, FR, IT, ZH, JA), Capacitor (Android). Chosen for one codebase across web and APK and offline-first engine work.
 
 ## Users
 
@@ -18,7 +18,7 @@ The owner and their circle of friends: chess players tired of chess.com paywalls
 
 ## Product Purpose
 
-A free, self-owned replacement for chess.com's training features: play bots, full game review with move classification and accuracy, rated puzzles and Puzzle Rush, opening explorer and repertoire trainer, lessons and endgame drills, analysis board, import of games from chess.com/Lichess. Success: nobody in the group needs a paid chess.com plan again.
+A free, self-owned replacement for chess.com's training features: play bots, full game review with move classification and accuracy, rated puzzles and Puzzle Rush, opening explorer and repertoire trainer, lessons (including basic endgames), analysis board with endgame tablebase, import of games from chess.com/Lichess. Success: nobody in the group needs a paid chess.com plan again.
 
 ## Positioning
 
@@ -32,7 +32,7 @@ Long, focused sessions; frequent context switches between playing a bot and imme
 
 - No online play between people (explicitly out of scope).
 - Local-first data; optional account to sync between web and phone.
-- Interface in Spanish (default) and English.
+- Interface in six languages: Spanish (default), English, French, Italian, Chinese and Japanese, lessons and bot lines included.
 - Open data only: Lichess puzzle DB (CC0), lichess chess-openings (CC0), public Lichess explorer/tablebase APIs, public chess.com/Lichess game APIs.
 - chessground is GPL-3.0, so the project is GPL-3.0.
 

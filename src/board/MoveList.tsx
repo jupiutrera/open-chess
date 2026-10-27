@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Quality } from '../features/review/classify'
 import { QualityIcon, qualityColor } from './QualityIcon'
 
@@ -14,8 +15,33 @@ export interface MoveListProps {
   className?: string
 }
 
+/** "12... Nf3, blunder": number, side and quality, which the icons alone don't say to a screen reader. */
+function moveLabel(t: (k: string) => string, idx: number, san: string, q: Quality | undefined, startNumber = 1, blackFirst = false) {
+  const half = idx + (blackFirst ? 1 : 0)
+  const n = startNumber + Math.floor(half / 2)
+  const text = `${n}${half % 2 ? '...' : '.'} ${san}`
+  return q && q !== 'forced' ? `${text}, ${t(`review.q.${q}`)}` : text
+}
+
+/** Props equal, with `qualities` compared item by item (callers rebuild the array each render). */
+function sameProps(a: MoveListProps, b: MoveListProps) {
+  for (const k of Object.keys({ ...a, ...b }) as (keyof MoveListProps)[]) {
+    if (k === 'qualities') {
+      const x = a.qualities
+      const y = b.qualities
+      if (x === y) continue
+      if (!x || !y || x.length !== y.length || x.some((q, i) => q !== y[i])) return false
+    } else if (a[k] !== b[k]) return false
+  }
+  return true
+}
+
 /** Two-column numbered move list in the chess.com style. */
-export function MoveList({ sans, ply, onSelect, qualities, startNumber = 1, blackFirst = false, className = '' }: MoveListProps) {
+export const MoveList = memo(MoveListView, sameProps)
+export const MoveStrip = memo(MoveStripView, sameProps)
+
+function MoveListView({ sans, ply, onSelect, qualities, startNumber = 1, blackFirst = false, className = '' }: MoveListProps) {
+  const { t } = useTranslation()
   const active = useRef<HTMLButtonElement>(null)
   const box = useRef<HTMLDivElement>(null)
   // Scroll only the list itself: scrollIntoView would also scroll the page on mobile.
@@ -47,6 +73,8 @@ export function MoveList({ sans, ply, onSelect, qualities, startNumber = 1, blac
       <button
         ref={current ? active : undefined}
         onClick={() => onSelect?.(idx + 1)}
+        aria-current={current ? 'step' : undefined}
+        aria-label={moveLabel(t, idx, sans[idx], q, startNumber, blackFirst)}
         className={`flex min-h-7 items-center gap-1.5 rounded px-1.5 text-left font-semibold transition-colors duration-100 ${
           current ? 'bg-raise-2 text-fg' : 'text-fg-2 hover:bg-raise'
         }`}
@@ -73,14 +101,15 @@ export function MoveList({ sans, ply, onSelect, qualities, startNumber = 1, blac
 }
 
 /** One-line, horizontally scrolling move list for phones. */
-export function MoveStrip({ sans, ply, onSelect, qualities, className = '' }: Omit<MoveListProps, 'startNumber' | 'blackFirst'>) {
+function MoveStripView({ sans, ply, onSelect, qualities, className = '' }: Omit<MoveListProps, 'startNumber' | 'blackFirst'>) {
+  const { t } = useTranslation()
   const box = useRef<HTMLDivElement>(null)
   const active = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const el = active.current
     const c = box.current
     if (!el || !c) return
-    c.scrollTo({ left: el.offsetLeft - c.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' })
+    c.scrollTo({ left: el.offsetLeft - c.clientWidth / 2 + el.clientWidth / 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
   }, [ply, sans.length])
   if (!sans.length) return null
   return (
@@ -94,6 +123,8 @@ export function MoveStrip({ sans, ply, onSelect, qualities, className = '' }: Om
             <button
               ref={current ? active : undefined}
               onClick={() => onSelect?.(i + 1)}
+              aria-current={current ? 'step' : undefined}
+              aria-label={moveLabel(t, i, san, q)}
               className={`flex items-center gap-1 rounded px-1.5 py-0.5 font-semibold ${current ? 'bg-raise-2 text-fg' : 'text-fg-2'}`}
             >
               {q && q !== 'best' && q !== 'excellent' && q !== 'good' && q !== 'forced' && <QualityIcon quality={q} size={14} />}

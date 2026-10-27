@@ -3,26 +3,19 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Users, Shuffle } from '@phosphor-icons/react'
-import { BOTS, BOT_GROUPS, type Bot } from './bots'
+import { BOTS, BOT_GROUPS, botById, type Bot } from './bots'
+import { clearLiveGame, loadLiveGame } from './liveGame'
+import { TimeControlPicker } from './TimeControlPicker'
 import { BotAvatar } from './BotAvatar'
 import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
-import { PageHeader, Panel, Segmented } from '../../ui/kit'
+import { PageHeader, Panel, Segmented, Sheet } from '../../ui/kit'
 import { AssistToggles } from './AssistToggles'
 import { Board } from '../../board/Board'
 import { db } from '../../db/db'
 import { useSettings } from '../../settings'
 import { localize } from '../../i18n/content'
 
-export const TIME_CONTROLS = [
-  { id: 'none', label: '∞', base: 0, inc: 0 },
-  { id: '1+0', label: '1 min', base: 60, inc: 0 },
-  { id: '3+2', label: '3 | 2', base: 180, inc: 2 },
-  { id: '5+0', label: '5 min', base: 300, inc: 0 },
-  { id: '10+0', label: '10 min', base: 600, inc: 0 },
-  { id: '15+10', label: '15 | 10', base: 900, inc: 10 },
-  { id: '30+0', label: '30 min', base: 1800, inc: 0 },
-]
 
 export function useBotRecord(botId: string) {
   return useLiveQuery(async () => {
@@ -47,15 +40,47 @@ export default function PlayHub() {
   const [tc, setTc] = useState('none')
   const record = useBotRecord(selected.id)
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
+  const [live, setLive] = useState(() => loadLiveGame('bot'))
+  const liveBot = live?.botId ? botById(live.botId) : undefined
 
-  const start = () => {
+  // a new game would replace the saved one: ask first
+  const [confirmNew, setConfirmNew] = useState(false)
+  const begin = () => {
+    clearLiveGame('bot')
     const q = new URLSearchParams({ color, tc })
     nav(`/play/bot/${selected.id}?${q}`)
   }
+  const start = () => (live && liveBot ? setConfirmNew(true) : begin())
 
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader title={t('play.title')} />
+      {live && liveBot && (
+        <div className="px-4 pb-4 lg:px-6">
+          <Panel className="flex flex-wrap items-center gap-3 p-3">
+            <BotAvatar bot={liveBot} size={40} />
+            <div className="min-w-0 flex-1">
+              <div className="font-bold">{t('play.inProgress', { name: liveBot.name })}</div>
+              <div className="tabular text-[13px] text-fg-3">{t('play.movesPlayed', { count: Math.ceil(live.sans.length / 2) })}</div>
+            </div>
+            <button
+              className="btn"
+              onClick={() => {
+                clearLiveGame('bot')
+                setLive(null)
+              }}
+            >
+              {t('play.discard')}
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => nav(`/play/bot/${liveBot.id}?${new URLSearchParams({ tc: live.tc, color: live.userColor ?? 'w', resume: '1' })}`)}
+            >
+              {t('play.continue')}
+            </button>
+          </Panel>
+        </div>
+      )}
       <div className="grid gap-5 px-4 pb-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-6">
         <div className="hidden lg:block">
           <div className="mx-auto max-w-[min(100%,calc(100dvh-180px))]">
@@ -125,20 +150,7 @@ export default function PlayHub() {
             </div>
             <div>
               <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.time')}</div>
-              <div className="grid grid-cols-4 gap-1.5">
-                {TIME_CONTROLS.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setTc(c.id)}
-                    className={`tabular min-h-10 rounded-md text-[14px] font-bold transition-colors duration-150 ${
-                      tc === c.id ? 'bg-raise-2 text-fg ring-2 ring-accent' : 'bg-panel-2 text-fg-2 hover:bg-raise'
-                    }`}
-                    aria-label={c.id === 'none' ? t('play.noTime') : c.label}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
+              <TimeControlPicker value={tc} onChange={setTc} />
             </div>
             <details className="group">
               <summary className="cursor-pointer list-none text-[13px] font-bold text-fg-3 hover:text-fg">{t('play.assist')} ›</summary>
@@ -153,6 +165,17 @@ export default function PlayHub() {
           </div>
         </Panel>
       </div>
+      <Sheet open={confirmNew} onClose={() => setConfirmNew(false)} title={t('play.newGame')}>
+        <p className="mb-4 text-fg-2">{t('play.replaceSaved', { name: liveBot?.name ?? '' })}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button className="btn" onClick={() => setConfirmNew(false)}>
+            {t('common.cancel')}
+          </button>
+          <button className="btn btn-primary" onClick={begin}>
+            {t('play.discard')}
+          </button>
+        </div>
+      </Sheet>
     </div>
   )
 }

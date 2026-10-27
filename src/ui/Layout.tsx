@@ -4,10 +4,10 @@ import { DotsThreeOutline } from '@phosphor-icons/react'
 import { Suspense, useState } from 'react'
 import { Logo } from './Logo'
 import { AppIcon, type AppIconName } from './AppIcon'
-import { BoardScreenSkeleton, HubSkeleton } from './kit'
+import { BoardScreenSkeleton, HubSkeleton, useDismiss } from './kit'
 
 /** Board screens get a board-shaped placeholder while their code loads; hubs and lists get cards. */
-const BOARD_ROUTES = /^\/(play\/(bot|local)|review\/|puzzles\/(rated|daily|rush)|openings|lessons\/|analysis)/
+const BOARD_ROUTES = /^\/(play\/(bot|local)|review\/|puzzles\/(rated|daily|rush|mistakes)|openings|lessons\/|analysis)/
 
 interface Item {
   to: string
@@ -19,6 +19,7 @@ export function Layout() {
   const { t } = useTranslation()
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
+  useDismiss(moreOpen, () => setMoreOpen(false))
 
   const primary: Item[] = [
     { to: '/', label: t('nav.home'), icon: 'home' },
@@ -41,7 +42,7 @@ export function Layout() {
   return (
     <div className="flex h-full pt-[var(--inset-top)]">
       {/* Desktop rail */}
-      <nav className="hidden w-[168px] shrink-0 flex-col bg-rail py-3 lg:flex" aria-label="Principal">
+      <nav className="hidden w-[168px] shrink-0 flex-col bg-rail py-3 lg:flex" aria-label={t('nav.main')}>
         <NavLink to="/" className="mb-3 flex items-center gap-2 px-3 py-2">
           <Logo size={30} />
           <span className="whitespace-nowrap text-[17px] font-extrabold tracking-tight">Open Chess</span>
@@ -65,7 +66,7 @@ export function Layout() {
       {/* Mobile bottom bar */}
       <nav
         className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-rail pb-[var(--inset-bottom)] lg:hidden"
-        aria-label="Principal"
+        aria-label={t('nav.main')}
       >
         {mobileMain.map((i) => (
           <NavLink
@@ -91,6 +92,7 @@ export function Layout() {
           onClick={() => setMoreOpen((v) => !v)}
           className={`flex h-16 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold ${moreOpen || inMore ? 'text-fg' : 'text-fg-3'}`}
           aria-expanded={moreOpen}
+          aria-controls="more-menu"
         >
           <DotsThreeOutline size={26} weight={moreOpen || inMore ? 'fill' : 'regular'} />
           {t('nav.more')}
@@ -100,6 +102,7 @@ export function Layout() {
       {moreOpen && (
         <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setMoreOpen(false)}>
           <div
+            id="more-menu"
             className="enter absolute inset-x-0 bottom-[calc(64px+var(--inset-bottom))] rounded-t-2xl bg-panel p-2"
             onClick={(e) => e.stopPropagation()}
           >

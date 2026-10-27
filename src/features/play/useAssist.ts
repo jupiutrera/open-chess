@@ -91,9 +91,13 @@ export function useAssist({
 
   const run = <T,>(job: (e: Engine) => Promise<T>): Promise<T> => {
     const p = queue.current.then(() => {
-      const e = engine.current
-      if (!e) throw new Error('engine gone')
-      return job(e)
+      if (!engine.current) throw new Error('engine gone')
+      // a crashed worker is replaced instead of failing every later job
+      if (engine.current.failed) {
+        engine.current.destroy()
+        engine.current = new Engine()
+      }
+      return job(engine.current)
     })
     queue.current = p.catch(() => undefined)
     return p
@@ -105,8 +109,13 @@ export function useAssist({
       const term = terminalScore(new Chess(f))
       p = term
         ? Promise.resolve({ fen: f, lines: [], score: term })
-        : run((e) => e.search(f, { depth: DEPTH, multipv })).then((r) => ({ fen: f, lines: r.lines, score: r.lines[0]?.score ?? { cp: 0 } }))
+        : run((e) => e.search(f, { depth: DEPTH, multipv })).then((r) => {
+            if (!r.lines[0]) throw new Error('search interrupted')
+            return { fen: f, lines: r.lines, score: r.lines[0].score }
+          })
       evals.current.set(f, p)
+      // failures are not cached, so the position is evaluated again next time
+      p.catch(() => evals.current.get(f) === p && evals.current.delete(f))
     }
     return p
   }
@@ -131,8 +140,10 @@ export function useAssist({
     if (!nf) return
     let p = threatCache.current.get(nf)
     if (!p) {
-      p = run((e) => e.search(nf, { depth: 10 })).then((r) => r.bestmove)
-      threatCache.current.set(nf, p)
+      const job = run((e) => e.search(nf, { depth: 10 })).then((r) => r.bestmove)
+      threatCache.current.set(nf, job)
+      job.catch(() => threatCache.current.get(nf) === job && threatCache.current.delete(nf))
+      p = job
     }
     let alive = true
     void p.then((uci) => alive && uci && setThreat({ fen, uci })).catch(() => {})

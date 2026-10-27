@@ -15,17 +15,19 @@ import {
 } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
+import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
 import { MoveList } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
-import { gameResultText, parseUci, uciLineToSan } from '../../chess/util'
+import { gameResultText, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import { formatScore } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
 import { lookupOpening, type Opening } from '../openings/openingsData'
 import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
 import { BoardEditor } from './BoardEditor'
+import { TablebasePanel } from './TablebasePanel'
 import { useAssist } from '../play/useAssist'
 
 const RATE_ONLY = { eval: false, threats: false, suggest: false, feedback: true, engine: false }
@@ -49,7 +51,11 @@ export default function Analysis() {
     try {
       if (pgn) game.loadPgn(pgn)
       else if (fen) {
-        new Chess(fen)
+        const problem = positionProblem(fen)
+        if (problem) {
+          toast(t(`analysis.illegal.${problem}`), 'error')
+          return
+        }
         game.reset(fen)
         if (fen.split(' ')[1] === 'b') setOrientation('black')
       }
@@ -88,16 +94,7 @@ export default function Analysis() {
     [engineOn, best],
   )
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return
-      if (e.key === 'ArrowLeft') game.goto(game.ply - 1)
-      if (e.key === 'ArrowRight') game.goto(game.ply + 1)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [game])
+  useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   const copy = async (text: string) => {
     try {
@@ -182,6 +179,13 @@ export default function Analysis() {
                 </div>
               </div>
             )}
+            <TablebasePanel
+              fen={game.fen}
+              onPlay={(uci) => {
+                const { from, to, promotion } = parseUci(uci)
+                game.move(from, to, promotion, true, true)
+              }}
+            />
             {opening && (
               <div className="truncate border-b border-line px-4 py-2 text-[13px] text-fg-2">
                 <span className="tabular font-bold text-fg-3">{opening.eco}</span> {opening.name}
@@ -291,12 +295,9 @@ function Loader({
         <button
           className="btn"
           onClick={() => {
-            try {
-              new Chess(fenText.trim())
-              onFen(fenText.trim())
-            } catch {
-              toast(t('analysis.invalidFen'), 'error')
-            }
+            const problem = positionProblem(fenText.trim())
+            if (problem) toast(t(`analysis.illegal.${problem}`), 'error')
+            else onFen(fenText.trim())
           }}
         >
           {t('analysis.loadFen')}

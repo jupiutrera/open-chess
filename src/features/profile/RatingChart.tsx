@@ -1,7 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /** Puzzle rating over attempts: one series, crosshair + tooltip on hover. */
 export function RatingChart({ points, lang }: { points: { date: number; rating: number }[]; lang: string }) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState<number | null>(null)
   const W = 640
@@ -32,7 +34,7 @@ export function RatingChart({ points, lang }: { points: { date: number; rating: 
 
   return (
     <div ref={ref} className="relative" onPointerMove={(e) => onMove(e.clientX)} onPointerLeave={() => setHover(null)}>
-      <svg viewBox={`0 0 ${W} ${H}`} className="block h-[180px] w-full" preserveAspectRatio="none" role="img" aria-label="Rating">
+      <svg viewBox={`0 0 ${W} ${H}`} className="block h-[180px] w-full" preserveAspectRatio="none" role="img" aria-label={t('profile.puzzleRating')}>
         {ticks.map((v) => (
           <g key={v}>
             <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeWidth={1} vectorEffect="non-scaling-stroke" />

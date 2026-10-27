@@ -4,6 +4,7 @@ import { Trash, CaretRight, Robot, Users, Globe, FileText } from '@phosphor-icon
 import type { GameRow } from '../../db/db'
 import { timeAgo } from '../../ui/kit'
 import { useSettings } from '../../settings'
+import { fmtDecimal } from '../../i18n/format'
 
 const SOURCE_ICON = { bot: Robot, local: Users, chesscom: Globe, lichess: Globe, pgn: FileText }
 
@@ -31,7 +32,7 @@ export function GameRowItem({ game, onDelete }: { game: GameRow; onDelete?: () =
           {game.opening ? ` · ${game.opening}` : ''}
         </div>
       </Link>
-      {acc !== null && <span className="tabular hidden text-[13px] font-semibold text-fg-2 sm:block">{acc.toFixed(1)}%</span>}
+      {acc !== null && <span className="tabular hidden text-[13px] font-semibold text-fg-2 sm:block">{fmtDecimal(acc)}%</span>}
       <span
         className={`tabular w-14 rounded px-1.5 py-0.5 text-center text-[13px] font-bold ${
           outcome === 'win' ? 'bg-accent/20 text-accent' : outcome === 'loss' ? 'bg-danger/20 text-danger' : 'bg-raise text-fg-2'

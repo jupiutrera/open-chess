@@ -4,7 +4,9 @@ import { App as CapApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { Layout } from './ui/Layout'
-import { Toaster } from './ui/kit'
+import { UpdateBanner } from './ui/UpdateBanner'
+import { requestPersistentStorage } from './ui/files'
+import { Toaster, closeTopOverlay } from './ui/kit'
 import { applyDocumentSettings, useSettings } from './settings'
 import { startSync } from './sync/sync'
 import { preloadSounds } from './chess/sounds'
@@ -17,6 +19,7 @@ const Review = lazy(() => import('./features/review/Review'))
 const PuzzlesHub = lazy(() => import('./features/puzzles/PuzzlesHub'))
 const PuzzleRated = lazy(() => import('./features/puzzles/PuzzleRated'))
 const PuzzleRush = lazy(() => import('./features/puzzles/PuzzleRush'))
+const PuzzleMistakes = lazy(() => import('./features/puzzles/PuzzleMistakes'))
 const Openings = lazy(() => import('./features/openings/Openings'))
 const OpeningTrainer = lazy(() => import('./features/openings/OpeningTrainer'))
 const Lessons = lazy(() => import('./features/lessons/Lessons'))
@@ -27,12 +30,13 @@ const Import = lazy(() => import('./features/import/Import'))
 const Profile = lazy(() => import('./features/profile/Profile'))
 const SettingsPage = lazy(() => import('./features/profile/SettingsPage'))
 
-/** Android hardware back button follows router history. */
+/** Android hardware back button closes the open sheet or menu first, then follows router history. */
 function BackButton() {
   const nav = useNavigate()
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
     const h = CapApp.addListener('backButton', ({ canGoBack }) => {
+      if (closeTopOverlay()) return
       if (canGoBack && location.hash !== '#/') nav(-1)
       else void CapApp.exitApp()
     })
@@ -46,10 +50,22 @@ export function App() {
   const board = useSettings((s) => s.board)
   const lang = useSettings((s) => s.lang)
   const pieces = useSettings((s) => s.pieces)
-  useEffect(() => applyDocumentSettings({ theme, board, lang, pieces }), [theme, board, lang, pieces])
+  const highContrast = useSettings((s) => s.highContrast)
+  useEffect(() => applyDocumentSettings({ theme, board, lang, pieces, highContrast }), [theme, board, lang, pieces, highContrast])
   useEffect(() => startSync(), [])
+  useEffect(() => requestPersistentStorage(), [])
   const soundSet = useSettings((s) => s.soundSet)
-  useEffect(() => preloadSounds(soundSet), [soundSet])
+  // sounds can only play after a user gesture anyway; fetching them then keeps startup light
+  useEffect(() => {
+    const go = () => preloadSounds(soundSet)
+    if (navigator.userActivation?.hasBeenActive) return go()
+    window.addEventListener('pointerdown', go, { once: true })
+    window.addEventListener('keydown', go, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', go)
+      window.removeEventListener('keydown', go)
+    }
+  }, [soundSet])
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
     void StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light })
@@ -70,6 +86,7 @@ export function App() {
             <Route path="puzzles/rated" element={<PuzzleRated />} />
             <Route path="puzzles/daily" element={<PuzzleRated daily />} />
             <Route path="puzzles/rush/:mode" element={<PuzzleRush />} />
+            <Route path="puzzles/mistakes" element={<PuzzleMistakes />} />
             <Route path="openings" element={<Openings />} />
             <Route path="openings/trainer/:color" element={<OpeningTrainer />} />
             <Route path="lessons" element={<Lessons />} />
@@ -82,6 +99,7 @@ export function App() {
           </Route>
         </Routes>
       <Toaster />
+      <UpdateBanner />
     </HashRouter>
   )
 }

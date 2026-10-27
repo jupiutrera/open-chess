@@ -53,21 +53,41 @@ function loadBucket(b: number): Promise<Puzzle[]> {
 
 /** Warms the service worker cache with the buckets around `b`, so nearby puzzles work offline later. */
 function prefetchAround(idx: Index, b: number) {
-  if (!navigator.onLine) return
-  for (const n of [b - idx.step, b + idx.step]) {
-    if (n >= idx.min && n < idx.max && !bucketCache.has(n)) void loadBucket(n)
+  // neighbouring buckets (~200 KB each) only when the connection allows and the page is idle
+  const conn = (navigator as { connection?: { saveData?: boolean } }).connection
+  if (!navigator.onLine || conn?.saveData) return
+  const go = () => {
+    for (const n of [b - idx.step, b + idx.step]) {
+      if (n >= idx.min && n < idx.max && !bucketCache.has(n)) void loadBucket(n)
+    }
   }
+  if (typeof requestIdleCallback === 'function') requestIdleCallback(go, { timeout: 5000 })
+  else setTimeout(go, 1500)
 }
 
 function bucketOf(idx: Index, rating: number) {
   return Math.floor(Math.max(idx.min, Math.min(idx.max - 1, rating)) / idx.step) * idx.step
 }
 
+/** Ids of puzzles already tried, read once from the index and kept up to date by recordAttempt. */
+let seenIds: Promise<Set<string>> | null = null
+function seenPuzzles(): Promise<Set<string>> {
+  if (!seenIds) {
+    seenIds = db.puzzleAttempts
+      .orderBy('puzzleId')
+      .uniqueKeys()
+      .then((keys) => new Set(keys as string[]))
+    // rows written by sync pulls and backup restores, not only by recordAttempt
+    db.puzzleAttempts.hook('creating', (_key, row) => void seenIds?.then((s) => s.add(row.puzzleId)))
+  }
+  return seenIds
+}
+
 /** Picks an unseen puzzle near the target rating, optionally of one theme. */
 export async function nextPuzzle(target: number, opts: { theme?: string; exclude?: Set<string> } = {}): Promise<Puzzle | null> {
   const idx = await loadIndex()
   if (!idx) return null
-  const seen = opts.exclude ?? new Set((await db.puzzleAttempts.toArray()).map((a) => a.puzzleId))
+  const seen = opts.exclude ?? (await seenPuzzles())
   // look in the target bucket first, then widen
   for (let spread = 0; spread <= 6; spread++) {
     const offsets = spread === 0 ? [0] : [spread, -spread]

@@ -234,8 +234,7 @@ function scoreForMover(line: PvLine, whiteToMove: boolean): number {
   return whiteToMove ? w : 100 - w
 }
 
-function bookMove(bot: Bot, chess: Chess): string | null {
-  const hist = chess.history()
+function bookMove(bot: Bot, chess: Chess, hist: string[]): string | null {
   const pick = (list?: string[]) => {
     if (!list?.length) return null
     const san = list[Math.floor(Math.random() * list.length)]
@@ -254,20 +253,35 @@ function bookMove(bot: Bot, chess: Chess): string | null {
   return null
 }
 
-/** Picks the bot's move for the given position. */
-export async function botMove(bot: Bot, engine: Engine, fen: string): Promise<string | null> {
+/** Thinking time for a search, shrunk so the bot never flags: about 1/30 of its clock plus the increment. */
+export function budgetMs(wanted: number, clock?: { left: number; inc: number }): number {
+  if (!clock) return wanted
+  return Math.max(50, Math.min(wanted, clock.left / 30 + clock.inc * 0.8))
+}
+
+/**
+ * Picks the bot's move for the given position. `history` is the game's SAN list so far
+ * (a FEN carries no history, so the opening book needs it); `clock` is the bot's time left in ms.
+ */
+export async function botMove(
+  bot: Bot,
+  engine: Engine,
+  fen: string,
+  history: string[] = [],
+  clock?: { left: number; inc: number },
+): Promise<string | null> {
   const chess = new Chess(fen)
   const legal = chess.moves({ verbose: true })
   if (!legal.length) return null
-  const book = bookMove(bot, chess)
+  const book = bookMove(bot, chess, history)
   if (book) return book
 
   if (bot.group === 'engine') {
-    const r = await engine.search(fen, { movetime: 1200 })
+    const r = await engine.search(fen, { movetime: budgetMs(1200, clock) })
     return r.bestmove
   }
   if (bot.elo >= 1350) {
-    const movetime = bot.elo >= 2000 ? 900 : 500
+    const movetime = budgetMs(bot.elo >= 2000 ? 900 : 500, clock)
     const r = await engine.search(fen, { movetime, elo: bot.elo })
     return r.bestmove
   }

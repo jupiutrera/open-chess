@@ -60,7 +60,9 @@ export class Engine {
     this.ready = (async () => {
       this.send('uci')
       await this.waitFor((l) => l === 'uciok')
-      this.send('setoption name Hash value 32')
+      // phones with little memory get a smaller hash (several engines can be alive at once)
+      const lowMemory = ((navigator as { deviceMemory?: number }).deviceMemory ?? 8) <= 4
+      this.send(`setoption name Hash value ${lowMemory ? 16 : 32}`)
       await this.isReady()
     })()
     // callers see the failure through search(); this only keeps it from being reported as unhandled
@@ -105,10 +107,16 @@ export class Engine {
     await this.waitFor((l) => l === 'readyok')
   }
 
-  async newGame() {
-    await this.ready
-    this.send('ucinewgame')
-    await this.isReady()
+  /** Clears the hash for a new game; queued so it never lands in the middle of a search. */
+  newGame(): Promise<void> {
+    this.stop()
+    const job = this.queue.then(async () => {
+      await this.ready
+      this.send('ucinewgame')
+      await this.isReady()
+    })
+    this.queue = job.catch(() => undefined)
+    return job
   }
 
   /** Stops the running search (its promise resolves with partial results). */
@@ -210,6 +218,8 @@ export function parseInfo(line: string, whiteToMove: boolean): PvLine | null {
   const multipv = Number(get('multipv') ?? 1)
   const scoreIdx = tok.indexOf('score')
   if (scoreIdx < 0 || !depth) return null
+  // fail-high/low bounds are not real scores
+  if (tok.includes('lowerbound') || tok.includes('upperbound')) return null
   const kind = tok[scoreIdx + 1]
   const val = Number(tok[scoreIdx + 2])
   const sign = whiteToMove ? 1 : -1

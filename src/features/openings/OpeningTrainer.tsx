@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
@@ -6,7 +6,7 @@ import { CheckCircle, XCircle, ArrowRight, Brain } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
 import { Panel } from '../../ui/kit'
-import { dueCards, grade } from './repertoire'
+import { answerQuality, dueCards, grade } from './repertoire'
 import type { RepertoireRow } from '../../db/db'
 import { playUci } from '../../chess/util'
 import { play, playMoveSound } from '../../chess/sounds'
@@ -29,7 +29,11 @@ export default function OpeningTrainer() {
     show(q[0] ?? null)
   }, [side])
 
+  // when the current card appeared, to grade by answer time
+  const shownAt = useRef(0)
+
   const show = (c: RepertoireRow | null) => {
+    shownAt.current = performance.now()
     setCard(c)
     setResult(null)
     setHighlights(undefined)
@@ -68,7 +72,7 @@ export default function OpeningTrainer() {
       setLastMove([m.from, m.to])
       setHighlights(new Map([[m.to, 'right']]))
       setResult('right')
-      await grade(card, 4)
+      await grade(card, answerQuality(true, performance.now() - shownAt.current))
     } else {
       play('wrong')
       setResult('wrong')
@@ -77,7 +81,7 @@ export default function OpeningTrainer() {
       setFen(right.fen())
       setLastMove([rm.from, rm.to])
       setHighlights(new Map([[m.to, 'wrong'], [rm.to, 'right']]))
-      await grade(card, 1)
+      await grade(card, answerQuality(false, 0))
     }
   }
 
