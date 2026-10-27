@@ -118,6 +118,8 @@
     "title": "Game review",
     "analyzing": "Analyzing the game…",
     "progress": "Move {{n}} of {{total}}",
+    "engineFailed": "Stockfish couldn't load in this browser. Try reloading or using an up-to-date browser.",
+    "reload": "Reload",
     "accuracy": "Accuracy",
     "gameRating": "Estimated performance",
     "start": "Start review",

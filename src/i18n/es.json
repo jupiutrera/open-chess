@@ -118,6 +118,8 @@
     "title": "Revisión de partida",
     "analyzing": "Analizando la partida…",
     "progress": "Jugada {{n}} de {{total}}",
+    "engineFailed": "No se pudo cargar Stockfish en este navegador. Prueba a recargar o a usar un navegador actualizado.",
+    "reload": "Recargar",
     "accuracy": "Precisión",
     "gameRating": "Rendimiento estimado",
     "start": "Empezar revisión",

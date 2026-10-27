@@ -118,6 +118,8 @@
     "title": "Analyse de partie",
     "analyzing": "Analyse de la partie…",
     "progress": "Coup {{n}} sur {{total}}",
+    "engineFailed": "Impossible de charger Stockfish dans ce navigateur. Rechargez la page ou utilisez un navigateur à jour.",
+    "reload": "Recharger",
     "accuracy": "Précision",
     "gameRating": "Performance estimée",
     "start": "Commencer l’analyse",
