@@ -63,11 +63,21 @@ function bucketOf(idx: Index, rating: number) {
   return Math.floor(Math.max(idx.min, Math.min(idx.max - 1, rating)) / idx.step) * idx.step
 }
 
+/** Ids of puzzles already tried, read once from the index and kept up to date by recordAttempt. */
+let seenIds: Promise<Set<string>> | null = null
+function seenPuzzles(): Promise<Set<string>> {
+  seenIds ??= db.puzzleAttempts
+    .orderBy('puzzleId')
+    .uniqueKeys()
+    .then((keys) => new Set(keys as string[]))
+  return seenIds
+}
+
 /** Picks an unseen puzzle near the target rating, optionally of one theme. */
 export async function nextPuzzle(target: number, opts: { theme?: string; exclude?: Set<string> } = {}): Promise<Puzzle | null> {
   const idx = await loadIndex()
   if (!idx) return null
-  const seen = opts.exclude ?? new Set((await db.puzzleAttempts.toArray()).map((a) => a.puzzleId))
+  const seen = opts.exclude ?? (await seenPuzzles())
   // look in the target bucket first, then widen
   for (let spread = 0; spread <= 6; spread++) {
     const offsets = spread === 0 ? [0] : [spread, -spread]
@@ -112,6 +122,7 @@ export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAtte
     await kvSet('puzzleRating', next)
     ratingAfter = next.rating
   }
+  void seenPuzzles().then((s) => s.add(p.id))
   await put<PuzzleAttemptRow>('puzzleAttempts', {
     id: uid(),
     puzzleId: p.id,

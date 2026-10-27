@@ -51,8 +51,9 @@
     "noGames": "No games yet. Play a bot or import your games to start reviewing them.",
     "lessons": "Keep learning",
     "openings": "Review your repertoire",
-    "due": "{{count}} moves due for review",
-    "puzzleRating": "Puzzles"
+    "puzzleRating": "Puzzles",
+    "due_one": "{{count}} move due for review",
+    "due_other": "{{count}} moves due for review"
   },
   "play": {
     "title": "Play",
@@ -257,16 +258,18 @@
     "repertoireBlack": "Black repertoire",
     "emptyRepertoire": "Your repertoire is empty. Open the explorer, play the moves you want to learn and tap “Add to repertoire”.",
     "train": "Train",
-    "dueCount": "{{count}} due",
     "allDone": "Nothing due today. Good work!",
     "yourMove": "What would you play here?",
     "wrongRep": "Your repertoire plays {{san}}",
     "rightRep": "Correct!",
-    "positions": "{{count}} positions",
     "search": "Search openings",
     "known": "Named continuations",
     "remove": "Remove",
-    "needToken": "Lichess stats need a free personal token. Add it in"
+    "needToken": "Lichess stats need a free personal token. Add it in",
+    "dueCount_one": "{{count}} due",
+    "dueCount_other": "{{count}} due",
+    "positions_one": "{{count}} position",
+    "positions_other": "{{count}} positions"
   },
   "lessons": {
     "title": "Lessons",
@@ -344,14 +347,18 @@
     "pastePgn": "Paste the PGN of one or more games",
     "importPgn": "Import PGN",
     "file": "or upload a .pgn file",
-    "imported": "{{count}} games imported",
     "notFound": "User not found",
     "none": "No games in that period",
     "importReview": "Import and review",
     "importAll": "Import all",
     "loadMore": "Load older games",
     "already": "Already imported",
-    "remember": "Remember this user"
+    "remember": "Remember this user",
+    "imported_one": "{{count}} game imported",
+    "imported_other": "{{count}} games imported",
+    "failed_one": "{{count}} game couldn't be read",
+    "failed_other": "{{count}} games couldn't be read",
+    "rateLimited": "Too many requests in a row. Wait a minute and try again."
   },
   "profile": {
     "title": "Profile",

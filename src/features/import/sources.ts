@@ -1,6 +1,5 @@
 import { Chess } from 'chess.js'
 import { db, put, type GameRow } from '../../db/db'
-import { uid } from '../../chess/util'
 import { openingName } from '../../db/games'
 
 export interface RemoteGame {
@@ -18,12 +17,20 @@ export interface RemoteGame {
 }
 
 export class NotFoundError extends Error {}
+/** The site asked us to slow down (HTTP 429); Lichess wants a full minute before retrying. */
+export class RateLimitError extends Error {}
+
+async function get(url: string, init?: RequestInit): Promise<Response> {
+  const res = await fetch(url, init)
+  if (res.status === 404) throw new NotFoundError()
+  if (res.status === 429) throw new RateLimitError()
+  if (!res.ok) throw new Error(`${new URL(url).host} ${res.status}`)
+  return res
+}
 
 /** Monthly archive URLs for a chess.com user, newest first. */
 export async function chesscomArchives(user: string): Promise<string[]> {
-  const res = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(user.toLowerCase())}/games/archives`)
-  if (res.status === 404) throw new NotFoundError()
-  if (!res.ok) throw new Error(`chess.com ${res.status}`)
+  const res = await get(`https://api.chess.com/pub/player/${encodeURIComponent(user.toLowerCase())}/games/archives`)
   const data = (await res.json()) as { archives: string[] }
   return [...data.archives].reverse()
 }
@@ -44,9 +51,14 @@ function resultFrom(w: string, b: string): GameRow['result'] {
   return '1/2-1/2'
 }
 
+/** chess.com writes daily games as "1/86400" (one move per N seconds): shown as days. */
+export function chesscomTimeControl(tc: string): string {
+  const daily = /^1\/(\d+)$/.exec(tc)
+  return daily ? `${Math.round(Number(daily[1]) / 86400)}d` : tc
+}
+
 export async function chesscomMonth(archiveUrl: string): Promise<RemoteGame[]> {
-  const res = await fetch(archiveUrl)
-  if (!res.ok) throw new Error(`chess.com ${res.status}`)
+  const res = await get(archiveUrl)
   const data = (await res.json()) as { games: ChesscomGame[] }
   return data.games
     .filter((g) => g.rules === 'chess' && g.pgn)
@@ -60,7 +72,7 @@ export async function chesscomMonth(archiveUrl: string): Promise<RemoteGame[]> {
       blackElo: g.black.rating,
       result: resultFrom(g.white.result, g.black.result),
       date: g.end_time * 1000,
-      timeControl: g.time_control,
+      timeControl: chesscomTimeControl(g.time_control),
       url: g.url,
     }))
     .reverse()
@@ -83,12 +95,23 @@ interface LichessGame {
 /** Lichess statuses for games that never finished; they have no real result. */
 const UNFINISHED = new Set(['created', 'started', 'aborted', 'noStart', 'unknownFinish'])
 
+/** NDJSON lines that parse; a truncated or corrupt line is skipped, not fatal. */
+function ndjsonLines(ndjson: string): LichessGame[] {
+  const out: LichessGame[] = []
+  for (const l of ndjson.split('\n')) {
+    if (!l.trim()) continue
+    try {
+      out.push(JSON.parse(l) as LichessGame)
+    } catch {
+      // skip
+    }
+  }
+  return out
+}
+
 /** Parses the Lichess NDJSON export, keeping finished standard games. */
 export function parseLichessGames(ndjson: string): RemoteGame[] {
-  return ndjson
-    .split('\n')
-    .filter(Boolean)
-    .map((l) => JSON.parse(l) as LichessGame)
+  return ndjsonLines(ndjson)
     .filter((g) => g.variant === 'standard' && g.pgn && !UNFINISHED.has(g.status))
     .map((g) => ({
       externalId: `lichess:${g.id}`,
@@ -113,16 +136,14 @@ export interface LichessPage {
 
 /** One page of a user's games, newest first, created before `until` (ms) when given. */
 export async function lichessGames(user: string, until?: number, max = 50): Promise<LichessPage> {
-  const params = new URLSearchParams({ max: String(max), pgnInJson: 'true', clocks: 'false', evals: 'false', opening: 'true' })
+  const params = new URLSearchParams({ max: String(max), pgnInJson: 'true', clocks: 'false', evals: 'false' })
   if (until) params.set('until', String(until))
-  const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?${params}`, {
+  const res = await get(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?${params}`, {
     headers: { Accept: 'application/x-ndjson' },
   })
-  if (res.status === 404) throw new NotFoundError()
-  if (!res.ok) throw new Error(`lichess ${res.status}`)
   const text = await res.text()
-  const raw = text.split('\n').filter(Boolean)
-  const oldest = raw.length ? (JSON.parse(raw[raw.length - 1]) as LichessGame).createdAt : undefined
+  const raw = ndjsonLines(text)
+  const oldest = raw.length ? raw[raw.length - 1].createdAt : undefined
   return { games: parseLichessGames(text), next: raw.length === max && oldest ? oldest - 1 : undefined }
 }
 
@@ -140,7 +161,8 @@ export async function importRemote(g: RemoteGame, username?: string): Promise<Ga
   const u = username?.toLowerCase()
   const userColor = u ? (g.white.toLowerCase() === u ? 'w' : g.black.toLowerCase() === u ? 'b' : undefined) : undefined
   return put<GameRow>('games', {
-    id: uid(),
+    // derived from the external id, so the same game imported on two devices syncs as one row
+    id: rowIdFor(g.externalId),
     source: g.source,
     pgn: g.pgn,
     white: g.white,
@@ -156,29 +178,73 @@ export async function importRemote(g: RemoteGame, username?: string): Promise<Ga
   })
 }
 
-/** Splits a multi-game PGN file and stores every valid game. */
-export async function importPgnText(text: string): Promise<GameRow[]> {
-  const chunks = text
-    .replace(/\r\n/g, '\n')
-    .split(/\n\s*\n(?=\[Event )/)
-    .map((s) => s.trim())
-    .filter(Boolean)
+/** A URL-safe row id for an external id (chess.com ids are URLs). */
+export function rowIdFor(externalId: string): string {
+  return 'x-' + externalId.replace(/^https?:\/\/(www\.)?/, '').replace(/[^a-zA-Z0-9]+/g, '-')
+}
+
+/** FNV-1a, for a stable id of a PGN game without an external id. */
+function hash(s: string): string {
+  let h = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193)
+  return (h >>> 0).toString(36)
+}
+
+/**
+ * Splits a multi-game PGN file. A game starts at a tag line that follows movetext,
+ * whatever the first tag is (not every exporter starts with [Event).
+ */
+export function splitPgn(text: string): string[] {
+  const games: string[] = []
+  let current: string[] = []
+  let sawMoves = false
+  for (const line of text.replace(/\r\n?/g, '\n').split('\n')) {
+    const isTag = /^\s*\[\w+\s+".*"\]\s*$/.test(line)
+    if (isTag && sawMoves) {
+      games.push(current.join('\n').trim())
+      current = []
+      sawMoves = false
+    }
+    if (!isTag && line.trim()) sawMoves = true
+    current.push(line)
+  }
+  if (current.join('').trim()) games.push(current.join('\n').trim())
+  return games.filter(Boolean)
+}
+
+/**
+ * Stores every valid game of a PGN file, keeping its text as written (variations,
+ * comments, NAGs). Games already imported are skipped; `failed` counts unreadable ones.
+ */
+export async function importPgnText(text: string): Promise<{ rows: GameRow[]; failed: number }> {
   const out: GameRow[] = []
-  for (const pgn of chunks) {
+  let failed = 0
+  for (const pgn of splitPgn(text)) {
     const c = new Chess()
     try {
       c.loadPgn(pgn)
     } catch {
+      failed++
       continue
     }
-    if (!c.history().length) continue
+    if (!c.history().length) {
+      failed++
+      continue
+    }
     const h = c.getHeaders()
+    const externalId = `pgn:${hash([h.White, h.Black, h.Date, h.Round, c.history().join(' ')].join('|'))}`
+    const existing = await db.games.where('externalId').equals(externalId).filter((r) => !r.deleted).first()
+    if (existing) {
+      out.push(existing)
+      continue
+    }
     const res = (h.Result as GameRow['result']) ?? '*'
     out.push(
       await put<GameRow>('games', {
-        id: uid(),
+        id: rowIdFor(externalId),
+        externalId,
         source: 'pgn',
-        pgn: c.pgn(),
+        pgn,
         white: h.White ?? '?',
         black: h.Black ?? '?',
         whiteElo: Number(h.WhiteElo) || undefined,
@@ -189,5 +255,5 @@ export async function importPgnText(text: string): Promise<GameRow[]> {
       }),
     )
   }
-  return out
+  return { rows: out, failed }
 }

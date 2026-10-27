@@ -4,6 +4,12 @@ import { epd, uid } from '../../chess/util'
 
 const DAY = 86_400_000
 
+/** SM-2 quality of an answer: a quick correct one is easy (5) so the ease can recover after failures. */
+export function answerQuality(correct: boolean, ms: number): number {
+  if (!correct) return 2
+  return ms < 6000 ? 5 : 4
+}
+
 /** SM-2 scheduling. quality: 0-5 (>=3 is a pass). */
 export function sm2(card: Pick<RepertoireRow, 'ease' | 'interval' | 'reps'>, quality: number, now = Date.now()) {
   let { ease, interval, reps } = card
@@ -34,7 +40,17 @@ export async function addLine(sans: string[], color: 'w' | 'b', startFen?: strin
     const existing = await db.repertoire.where('epd').equals(key).filter((r) => r.color === color && !r.deleted).first()
     if (existing) {
       if (existing.san !== m.san) {
-        await put<RepertoireRow>('repertoire', { ...existing, san: m.san, uci: m.from + m.to + (m.promotion ?? ''), line: lineText })
+        // a different move here is a new card to learn: its old schedule belonged to the old move
+        await put<RepertoireRow>('repertoire', {
+          ...existing,
+          san: m.san,
+          uci: m.from + m.to + (m.promotion ?? ''),
+          line: lineText,
+          ease: 2.5,
+          interval: 0,
+          reps: 0,
+          due: Date.now(),
+        })
       }
       continue
     }

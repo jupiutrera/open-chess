@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_GLICKO, updateGlicko } from './glicko'
+import { DEFAULT_GLICKO, idleRd, updateGlicko } from './glicko'
 import { sm2 } from '../openings/repertoire'
 
 describe('glicko-2', () => {
@@ -32,5 +32,18 @@ describe('sm-2', () => {
     const r = sm2({ ease: 2.5, interval: 10, reps: 4 }, 1, 0)
     expect(r.reps).toBe(0)
     expect(r.due).toBeLessThan(60 * 60_000)
+  })
+})
+
+describe('idle rating deviation', () => {
+  it('grows with days away and is capped', () => {
+    const g = { rating: 1500, rd: 50, vol: 0.06, at: 1 }
+    const day = 86_400_000
+    expect(idleRd(g, 1)).toBeCloseTo(50)
+    expect(idleRd(g, 30 * day)).toBeGreaterThan(70)
+    expect(idleRd(g, 10_000 * day)).toBe(350)
+  })
+  it('stamps the update time', () => {
+    expect(updateGlicko({ rating: 1500, rd: 200, vol: 0.06 }, 1500, 80, 1, 123).at).toBe(123)
   })
 })

@@ -51,8 +51,9 @@
     "noGames": "Aucune partie pour l’instant. Jouez contre un bot ou importez vos parties pour les analyser.",
     "lessons": "Continuer à apprendre",
     "openings": "Réviser votre répertoire",
-    "due": "{{count}} coups à réviser",
-    "puzzleRating": "Problèmes"
+    "puzzleRating": "Problèmes",
+    "due_one": "{{count}} coup à réviser",
+    "due_other": "{{count}} coups à réviser"
   },
   "play": {
     "title": "Jouer",
@@ -257,16 +258,18 @@
     "repertoireBlack": "Répertoire des Noirs",
     "emptyRepertoire": "Votre répertoire est vide. Ouvrez l’explorateur, jouez les coups à apprendre et touchez « Ajouter au répertoire ».",
     "train": "S’entraîner",
-    "dueCount": "{{count}} à réviser",
     "allDone": "Rien à réviser aujourd’hui. Bon travail !",
     "yourMove": "Que joueriez-vous ici ?",
     "wrongRep": "Votre répertoire joue {{san}}",
     "rightRep": "Correct !",
-    "positions": "{{count}} positions",
     "search": "Rechercher une ouverture",
     "known": "Suites connues",
     "remove": "Retirer",
-    "needToken": "Les statistiques Lichess nécessitent un jeton personnel gratuit. Ajoutez-le dans"
+    "needToken": "Les statistiques Lichess nécessitent un jeton personnel gratuit. Ajoutez-le dans",
+    "dueCount_one": "{{count}} à réviser",
+    "dueCount_other": "{{count}} à réviser",
+    "positions_one": "{{count}} position",
+    "positions_other": "{{count}} positions"
   },
   "lessons": {
     "title": "Leçons",
@@ -344,14 +347,18 @@
     "pastePgn": "Collez le PGN d’une ou plusieurs parties",
     "importPgn": "Importer le PGN",
     "file": "ou envoyez un fichier .pgn",
-    "imported": "{{count}} parties importées",
     "notFound": "Utilisateur introuvable",
     "none": "Aucune partie sur cette période",
     "importReview": "Importer et analyser",
     "importAll": "Tout importer",
     "loadMore": "Charger des parties plus anciennes",
     "already": "Déjà importée",
-    "remember": "Se souvenir de cet utilisateur"
+    "remember": "Se souvenir de cet utilisateur",
+    "imported_one": "{{count}} partie importée",
+    "imported_other": "{{count}} parties importées",
+    "failed_one": "{{count}} partie illisible",
+    "failed_other": "{{count}} parties illisibles",
+    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez."
   },
   "profile": {
     "title": "Profil",

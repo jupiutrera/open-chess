@@ -2,6 +2,7 @@ import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { create } from 'zustand'
 import type { EntityTable } from 'dexie'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
+import { mergeRow } from './merge'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -93,8 +94,8 @@ async function doSync() {
       for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]) {
         if (SYNC_TABLES.includes(r.tbl as never)) {
           const t = table(r.tbl)
-          const local = await t.get(r.id)
-          if (!local || local.updatedAt < r.updated_at) await t.put({ ...r.data, updatedAt: r.updated_at })
+          const keep = mergeRow(r.tbl, await t.get(r.id), { ...r.data, updatedAt: r.updated_at })
+          if (keep) await t.put(keep)
         }
         if (r.seq > cursor) {
           cursor = r.seq

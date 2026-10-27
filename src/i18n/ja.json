@@ -51,8 +51,9 @@
     "noGames": "まだ対局がありません。ボットと対局するか、棋譜をインポートして振り返りを始めましょう。",
     "lessons": "学習を続ける",
     "openings": "レパートリーを復習",
-    "due": "復習する手が {{count}} 個あります",
-    "puzzleRating": "パズル"
+    "puzzleRating": "パズル",
+    "due_one": "復習する手が {{count}} 個あります",
+    "due_other": "復習する手が {{count}} 個あります"
   },
   "play": {
     "title": "対局",
@@ -257,16 +258,18 @@
     "repertoireBlack": "黒のレパートリー",
     "emptyRepertoire": "レパートリーは空です。エクスプローラーを開き、覚えたい手を指して「レパートリーに追加」をタップしてください。",
     "train": "練習",
-    "dueCount": "復習 {{count}} 件",
     "allDone": "今日の復習はありません。お疲れさまでした！",
     "yourMove": "ここで何を指しますか？",
     "wrongRep": "レパートリーでは {{san}} です",
     "rightRep": "正解！",
-    "positions": "{{count}} 局面",
     "search": "オープニングを検索",
     "known": "名前のある続き",
     "remove": "削除",
-    "needToken": "Lichess の統計には無料の個人トークンが必要です。追加はこちら："
+    "needToken": "Lichess の統計には無料の個人トークンが必要です。追加はこちら：",
+    "dueCount_one": "復習 {{count}} 件",
+    "dueCount_other": "復習 {{count}} 件",
+    "positions_one": "{{count}} 局面",
+    "positions_other": "{{count}} 局面"
   },
   "lessons": {
     "title": "レッスン",
@@ -344,14 +347,18 @@
     "pastePgn": "1局以上の PGN を貼り付けてください",
     "importPgn": "PGN をインポート",
     "file": "または .pgn ファイルをアップロード",
-    "imported": "{{count}} 局をインポートしました",
     "notFound": "ユーザーが見つかりません",
     "none": "その期間の対局はありません",
     "importReview": "インポートして振り返る",
     "importAll": "すべてインポート",
     "loadMore": "以前の対局を読み込む",
     "already": "インポート済み",
-    "remember": "このユーザーを記憶する"
+    "remember": "このユーザーを記憶する",
+    "imported_one": "{{count}} 局をインポートしました",
+    "imported_other": "{{count}} 局をインポートしました",
+    "failed_one": "{{count}} 局を読み込めませんでした",
+    "failed_other": "{{count}} 局を読み込めませんでした",
+    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。"
   },
   "profile": {
     "title": "プロフィール",

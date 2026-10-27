@@ -51,8 +51,9 @@
     "noGames": "Ancora nessuna partita. Gioca contro un bot o importa le tue partite per analizzarle.",
     "lessons": "Continua a imparare",
     "openings": "Ripassa il tuo repertorio",
-    "due": "{{count}} mosse da ripassare",
-    "puzzleRating": "Problemi"
+    "puzzleRating": "Problemi",
+    "due_one": "{{count}} mossa da ripassare",
+    "due_other": "{{count}} mosse da ripassare"
   },
   "play": {
     "title": "Gioca",
@@ -257,16 +258,18 @@
     "repertoireBlack": "Repertorio con il Nero",
     "emptyRepertoire": "Il tuo repertorio è vuoto. Apri l'esploratore, gioca le mosse che vuoi imparare e tocca “Aggiungi al repertorio”.",
     "train": "Allenati",
-    "dueCount": "{{count}} da ripassare",
     "allDone": "Niente da ripassare oggi. Ottimo lavoro!",
     "yourMove": "Cosa giocheresti qui?",
     "wrongRep": "Il tuo repertorio gioca {{san}}",
     "rightRep": "Corretto!",
-    "positions": "{{count}} posizioni",
     "search": "Cerca aperture",
     "known": "Continuazioni note",
     "remove": "Rimuovi",
-    "needToken": "Le statistiche di Lichess richiedono un token personale gratuito. Aggiungilo in"
+    "needToken": "Le statistiche di Lichess richiedono un token personale gratuito. Aggiungilo in",
+    "dueCount_one": "{{count}} da ripassare",
+    "dueCount_other": "{{count}} da ripassare",
+    "positions_one": "{{count}} posizione",
+    "positions_other": "{{count}} posizioni"
   },
   "lessons": {
     "title": "Lezioni",
@@ -344,14 +347,18 @@
     "pastePgn": "Incolla il PGN di una o più partite",
     "importPgn": "Importa PGN",
     "file": "oppure carica un file .pgn",
-    "imported": "{{count}} partite importate",
     "notFound": "Utente non trovato",
     "none": "Nessuna partita in quel periodo",
     "importReview": "Importa e analizza",
     "importAll": "Importa tutto",
     "loadMore": "Carica partite precedenti",
     "already": "Già importata",
-    "remember": "Ricorda questo utente"
+    "remember": "Ricorda questo utente",
+    "imported_one": "{{count}} partita importata",
+    "imported_other": "{{count}} partite importate",
+    "failed_one": "{{count}} partita non leggibile",
+    "failed_other": "{{count}} partite non leggibili",
+    "rateLimited": "Troppe richieste di seguito. Attendi un minuto e riprova."
   },
   "profile": {
     "title": "Profilo",

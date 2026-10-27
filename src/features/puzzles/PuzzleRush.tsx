@@ -25,15 +25,27 @@ export default function PuzzleRush() {
   const [best, setBest] = useState(0)
   const [record, setRecord] = useState(false)
   const seen = useRef(new Set<string>())
+  // guards against a double end (time running out on the third miss) and late callbacks
+  const over = useRef(false)
+  const nextTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(nextTimer.current), [])
   const strikes = results.filter((r) => !r).length
 
   const advance = useCallback(async (n: number) => {
     const p = await rushPuzzle(n, seen.current)
-    if (p) seen.current.add(p.id)
+    if (over.current) return
+    if (!p) {
+      // nothing left to play (e.g. offline with no cached puzzles): end the run instead of hanging
+      setPhase('over')
+      over.current = true
+      return
+    }
+    seen.current.add(p.id)
     setPuzzle(p)
   }, [])
 
   const start = () => {
+    over.current = false
     seen.current = new Set()
     setScore(0)
     setResults([])
@@ -50,6 +62,9 @@ export default function PuzzleRush() {
 
   const end = useCallback(
     async (finalScore: number) => {
+      if (over.current) return
+      over.current = true
+      clearTimeout(nextTimer.current)
       setPhase('over')
       play('end')
       const all = await kvGet<Record<string, number>>('rushBest', {})
@@ -82,7 +97,7 @@ export default function PuzzleRush() {
   const pz = usePuzzle(phase === 'running' ? puzzle : null, {
     stopOnWrong: true,
     onDone: (solved) => {
-      if (!puzzle) return
+      if (!puzzle || over.current) return
       void recordAttempt(puzzle, solved, 'rush', false)
       const nextResults = [...results, solved]
       setResults(nextResults)
@@ -92,7 +107,7 @@ export default function PuzzleRush() {
         void end(nextScore)
         return
       }
-      setTimeout(() => void advance(nextResults.length), solved ? 250 : 500)
+      nextTimer.current = setTimeout(() => void advance(nextResults.length), solved ? 250 : 500)
     },
   })
 

@@ -51,8 +51,9 @@
     "noGames": "还没有棋局。与机器人对弈或导入你的棋局来开始复盘。",
     "lessons": "继续学习",
     "openings": "复习你的开局库",
-    "due": "{{count}} 步待复习",
-    "puzzleRating": "谜题"
+    "puzzleRating": "谜题",
+    "due_one": "{{count}} 步待复习",
+    "due_other": "{{count}} 步待复习"
   },
   "play": {
     "title": "对局",
@@ -257,16 +258,18 @@
     "repertoireBlack": "黑方开局库",
     "emptyRepertoire": "你的开局库是空的。打开开局浏览器，走出想学的着法，然后点击“加入开局库”。",
     "train": "训练",
-    "dueCount": "{{count}} 个待复习",
     "allDone": "今天没有需要复习的内容。干得好！",
     "yourMove": "这里你会怎么走？",
     "wrongRep": "你的开局库走的是 {{san}}",
     "rightRep": "正确！",
-    "positions": "{{count}} 个局面",
     "search": "搜索开局",
     "known": "已命名的后续",
     "remove": "移除",
-    "needToken": "Lichess 统计需要一个免费的个人令牌。请在此添加："
+    "needToken": "Lichess 统计需要一个免费的个人令牌。请在此添加：",
+    "dueCount_one": "{{count}} 个待复习",
+    "dueCount_other": "{{count}} 个待复习",
+    "positions_one": "{{count}} 个局面",
+    "positions_other": "{{count}} 个局面"
   },
   "lessons": {
     "title": "课程",
@@ -344,14 +347,18 @@
     "pastePgn": "粘贴一局或多局的 PGN",
     "importPgn": "导入 PGN",
     "file": "或上传 .pgn 文件",
-    "imported": "已导入 {{count}} 局",
     "notFound": "未找到用户",
     "none": "该时间段内没有棋局",
     "importReview": "导入并复盘",
     "importAll": "全部导入",
     "loadMore": "加载更早的对局",
     "already": "已导入",
-    "remember": "记住此用户"
+    "remember": "记住此用户",
+    "imported_one": "已导入 {{count}} 局",
+    "imported_other": "已导入 {{count}} 局",
+    "failed_one": "{{count}} 局无法读取",
+    "failed_other": "{{count}} 局无法读取",
+    "rateLimited": "请求过于频繁，请等待一分钟后重试。"
   },
   "profile": {
     "title": "个人资料",

@@ -51,8 +51,9 @@
     "noGames": "Aún no hay partidas. Juega contra un bot o importa las tuyas para empezar a revisarlas.",
     "lessons": "Continúa aprendiendo",
     "openings": "Repasa tu repertorio",
-    "due": "{{count}} jugadas pendientes de repaso",
-    "puzzleRating": "Puzzles"
+    "puzzleRating": "Puzzles",
+    "due_one": "{{count}} jugada pendiente de repaso",
+    "due_other": "{{count}} jugadas pendientes de repaso"
   },
   "play": {
     "title": "Jugar",
@@ -257,16 +258,18 @@
     "repertoireBlack": "Repertorio con negras",
     "emptyRepertoire": "Tu repertorio está vacío. Ve al explorador, juega las jugadas que quieres aprender y pulsa «Añadir al repertorio».",
     "train": "Entrenar",
-    "dueCount": "{{count}} pendientes",
     "allDone": "Nada pendiente por hoy. ¡Buen trabajo!",
     "yourMove": "¿Qué jugarías aquí?",
     "wrongRep": "En tu repertorio juegas {{san}}",
     "rightRep": "¡Correcto!",
-    "positions": "{{count}} posiciones",
     "search": "Buscar apertura",
     "known": "Continuaciones con nombre",
     "remove": "Quitar",
-    "needToken": "Las estadísticas de Lichess necesitan un token personal gratuito. Añádelo en"
+    "needToken": "Las estadísticas de Lichess necesitan un token personal gratuito. Añádelo en",
+    "dueCount_one": "{{count}} pendiente",
+    "dueCount_other": "{{count}} pendientes",
+    "positions_one": "{{count}} posición",
+    "positions_other": "{{count}} posiciones"
   },
   "lessons": {
     "title": "Lecciones",
@@ -344,14 +347,18 @@
     "pastePgn": "Pega aquí el PGN de una o varias partidas",
     "importPgn": "Importar PGN",
     "file": "o sube un archivo .pgn",
-    "imported": "{{count}} partidas importadas",
     "notFound": "No se encontró ese usuario",
     "none": "No hay partidas en ese periodo",
     "importReview": "Importar y revisar",
     "importAll": "Importar todas",
     "loadMore": "Cargar partidas anteriores",
     "already": "Ya importada",
-    "remember": "Recordar este usuario"
+    "remember": "Recordar este usuario",
+    "imported_one": "{{count}} partida importada",
+    "imported_other": "{{count}} partidas importadas",
+    "failed_one": "{{count}} partida no se pudo leer",
+    "failed_other": "{{count}} partidas no se pudieron leer",
+    "rateLimited": "Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo."
   },
   "profile": {
     "title": "Perfil",

@@ -4,16 +4,27 @@ export interface Glicko {
   rating: number
   rd: number
   vol: number
+  /** when it was last updated (ms); older ratings are less certain */
+  at?: number
 }
 
 export const DEFAULT_GLICKO: Glicko = { rating: 1200, rd: 350, vol: 0.06 }
 
 const SCALE = 173.7178
 const TAU = 0.5
+const DAY = 86_400_000
 
-export function updateGlicko(player: Glicko, oppRating: number, oppRd: number, score: 0 | 1): Glicko {
+/** RD after `days` without play: one rating period per day (Glicko-2 step 6 for idle periods). */
+export function idleRd(g: Glicko, now = Date.now()): number {
+  if (!g.at) return g.rd
+  const days = Math.max(0, (now - g.at) / DAY)
+  const phi = g.rd / SCALE
+  return Math.min(350, Math.sqrt(phi * phi + g.vol * g.vol * days) * SCALE)
+}
+
+export function updateGlicko(player: Glicko, oppRating: number, oppRd: number, score: 0 | 1, now = Date.now()): Glicko {
   const mu = (player.rating - 1500) / SCALE
-  const phi = player.rd / SCALE
+  const phi = idleRd(player, now) / SCALE
   const muJ = (oppRating - 1500) / SCALE
   const phiJ = oppRd / SCALE
   const g = 1 / Math.sqrt(1 + (3 * phiJ * phiJ) / (Math.PI * Math.PI))
@@ -53,5 +64,6 @@ export function updateGlicko(player: Glicko, oppRating: number, oppRd: number, s
     rating: Math.round(muNew * SCALE + 1500),
     rd: Math.max(45, Math.min(350, phiNew * SCALE)),
     vol,
+    at: now,
   }
 }
