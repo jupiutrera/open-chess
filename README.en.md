@@ -257,7 +257,7 @@ scripts/       data, portraits, sounds and screenshots
 Contributions are welcome: new lessons, more bots, **translations into other languages**, better classification… Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
 
 - Lessons are data in `src/features/lessons/lessonData.ts`, and a test checks that every move in them is legal.
-- To add a language, copy `src/i18n/en.json` and `src/i18n/content/fr.json`. A test checks that no key is missing.
+- To add a language, copy `src/i18n/en.json` and `src/i18n/content/fr.json` and register it as CONTRIBUTING describes. A test checks that no key is missing.
 
 ## 📜 Credits and licences
 

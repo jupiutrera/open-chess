@@ -257,7 +257,7 @@ scripts/       generación de datos, avatares, sonidos y capturas
 Las contribuciones son bienvenidas: nuevas lecciones, más bots, **traducciones a otros idiomas**, mejoras de la clasificación… Lee [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir un PR.
 
 - Las lecciones son datos en `src/features/lessons/lessonData.ts`, y un test comprueba que todas sus jugadas son legales.
-- Para añadir un idioma, copia `src/i18n/en.json` y `src/i18n/content/fr.json`. Un test comprueba que no falte ninguna clave.
+- Para añadir un idioma, copia `src/i18n/en.json` y `src/i18n/content/fr.json` y regístralo como explica CONTRIBUTING. Un test comprueba que no falte ninguna clave.
 
 ## 📜 Créditos y licencias
 
