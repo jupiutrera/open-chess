@@ -161,7 +161,7 @@ export default function PlayBot() {
   }, [liveFen, turn, userColor])
 
   const userTurn = turn === userColor && game.atLive && !end
-  const help = useAssist({ assist, fen: game.fen, moves: game.moves, userColor, userTurn })
+  const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
 
   const shapes = useMemo(() => {
     const out: DrawShape[] = [...hint]
@@ -172,10 +172,11 @@ export default function PlayBot() {
   }, [hint, assist.suggest, assist.threats, userTurn, help.lines, help.threat])
 
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
-  const badge = assist.feedback && viewedMove && help.feedback[game.ply] ? { square: viewedMove.to, quality: help.feedback[game.ply] } : null
-  const qualities = useMemo(() => game.moves.map((_, i) => help.feedback[i + 1]), [game.moves, help.feedback])
+  const viewedQuality = assist.feedback ? help.quality(viewedMove) : undefined
+  const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
+  const qualities = game.moves.map((m) => help.quality(m))
 
-  const lastFeedback = help.feedback[moveCount]
+  const lastFeedback = help.quality(game.moves[moveCount - 1])
   useEffect(() => {
     if (lastFeedback === 'blunder' && !endRef.current) {
       say('blunder', 0.7)
@@ -233,7 +234,6 @@ export default function PlayBot() {
     setDialog(false)
     setSavedId(null)
     setHint([])
-    help.reset()
     lastChatPly.current = -10
     setTimeout(() => say('greet'), 500)
     game.reset()

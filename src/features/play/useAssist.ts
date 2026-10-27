@@ -30,6 +30,8 @@ function nullMoveFen(fen: string): string | null {
   }
 }
 
+const moveKey = (m: Move) => `${m.before}|${m.from}${m.to}${m.promotion ?? ''}`
+
 /**
  * In-game assistance against bots: evaluation, engine lines, suggestion and
  * threat arrows, and live move feedback. Uses its own engine so the bot's
@@ -39,16 +41,23 @@ export function useAssist({
   assist,
   fen,
   moves,
-  userColor,
+  ply,
+  rate,
+  rateAll = false,
   userTurn,
 }: {
   assist: AssistSettings
   /** position being viewed */
   fen: string
-  /** full live history */
+  /** full history */
   moves: Move[]
-  userColor: 'w' | 'b'
-  /** it's the user's move at the live position */
+  /** ply being viewed; its move and the last move get rated */
+  ply: number
+  /** which side's moves get feedback */
+  rate: 'w' | 'b' | 'both'
+  /** rate the whole history too (after the viewed and last moves) */
+  rateAll?: boolean
+  /** it's the user's move at the live position (threat arrows) */
   userTurn: boolean
 }) {
   const enabled = assist.eval || assist.engine || assist.suggest || assist.threats || assist.feedback
@@ -58,7 +67,8 @@ export function useAssist({
   const threatCache = useRef(new Map<string, Promise<string | null>>())
   const [current, setCurrent] = useState<{ fen: string; lines: PvLine[]; score: Score } | null>(null)
   const [threat, setThreat] = useState<{ fen: string; uci: string } | null>(null)
-  const [feedback, setFeedback] = useState<Record<number, Quality>>({})
+  // keyed by move (position before + uci) so it survives takebacks and new branches
+  const [feedback, setFeedback] = useState<Record<string, Quality>>({})
   const multipv = assist.engine ? 3 : 2
 
   useEffect(() => {
@@ -132,34 +142,28 @@ export function useAssist({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen, assist.threats, userTurn])
 
-  // classify each of the user's moves as it's played
-  const lastLen = moves.length
+  // rate the last move and the one being viewed, as they appear
+  const targets = [...new Set([ply, moves.length, ...(rateAll ? moves.map((_, i) => i + 1) : [])])].filter((p) => p > 0 && p <= moves.length)
+  const targetKey = targets.map((p) => moveKey(moves[p - 1])).join(';')
   useEffect(() => {
-    if (!assist.feedback || !lastLen) return
-    const i = lastLen - 1
-    const m = moves[i]
-    if (m.color !== userColor || feedback[i + 1]) return
+    if (!assist.feedback) return
     let alive = true
-    void (async () => {
-      const [before, after, isBook] = await Promise.all([evaluate(m.before), evaluate(m.after), bookChecker()])
-      if (!alive) return
-      const [r] = classifyMoves([before, after], [{ san: m.san, uci: m.from + m.to + (m.promotion ?? '') }], (f) => i < 30 && isBook(f))
-      setFeedback((fb) => ({ ...fb, [i + 1]: r.quality }))
-    })().catch(() => {})
+    for (const p of targets) {
+      const m = moves[p - 1]
+      const key = moveKey(m)
+      if ((rate !== 'both' && m.color !== rate) || feedback[key]) continue
+      void (async () => {
+        const [before, after, isBook] = await Promise.all([evaluate(m.before), evaluate(m.after), bookChecker()])
+        if (!alive) return
+        const [r] = classifyMoves([before, after], [{ san: m.san, uci: m.from + m.to + (m.promotion ?? '') }], (f) => p <= 30 && isBook(f))
+        setFeedback((fb) => ({ ...fb, [key]: r.quality }))
+      })().catch(() => {})
+    }
     return () => {
       alive = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastLen, assist.feedback, userColor])
-
-  // drop feedback for moves taken back
-  useEffect(() => {
-    setFeedback((fb) => {
-      const keys = Object.keys(fb).map(Number)
-      if (!keys.some((k) => k > lastLen)) return fb
-      return Object.fromEntries(Object.entries(fb).filter(([k]) => Number(k) <= lastLen))
-    })
-  }, [lastLen])
+  }, [targetKey, assist.feedback, rate])
 
   const fresh = current?.fen === fen ? current : null
   return {
@@ -167,7 +171,7 @@ export function useAssist({
     score: fresh?.score,
     lines: fresh?.lines ?? [],
     threat: threat?.fen === fen ? threat.uci : null,
-    feedback,
-    reset: () => setFeedback({}),
+    /** feedback for a move, once rated */
+    quality: (m: Move | undefined): Quality | undefined => (m ? feedback[moveKey(m)] : undefined),
   }
 }

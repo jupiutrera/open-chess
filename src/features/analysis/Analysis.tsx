@@ -19,13 +19,17 @@ import { BoardLayout } from '../../board/BoardLayout'
 import { MoveList } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
-import { parseUci, uciLineToSan } from '../../chess/util'
+import { gameResultText, parseUci, uciLineToSan } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import { formatScore } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
 import { lookupOpening, type Opening } from '../openings/openingsData'
 import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
 import { BoardEditor } from './BoardEditor'
+import { useAssist } from '../play/useAssist'
+
+const RATE_ONLY = { eval: false, threats: false, suggest: false, feedback: true, engine: false }
+const RATE_OFF = { ...RATE_ONLY, feedback: false }
 
 export default function Analysis() {
   const { t } = useTranslation()
@@ -37,6 +41,7 @@ export default function Analysis() {
   const [editing, setEditing] = useState(false)
   const [loader, setLoader] = useState(false)
   const [opening, setOpening] = useState<Opening | undefined>()
+  const [rateMoves, setRateMoves] = useState(true)
 
   useEffect(() => {
     const fen = params.get('fen')
@@ -59,6 +64,21 @@ export default function Analysis() {
   }, [game.fen])
 
   const { lines, depth } = useAnalysis(game.fen, engineOn, multipv)
+
+  // move quality for both sides, as in game review
+  const rating = useAssist({ assist: rateMoves ? RATE_ONLY : RATE_OFF, fen: game.fen, moves: game.moves, ply: game.ply, rate: 'both', rateAll: true, userTurn: false })
+  const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
+  const viewedQuality = rateMoves ? rating.quality(viewedMove) : undefined
+  const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
+  const outcome = useMemo(() => {
+    try {
+      return gameResultText(new Chess(game.fen))
+    } catch {
+      return null
+    }
+  }, [game.fen])
+  // a finished position has no engine lines; show the result instead
+  const evalScore = outcome ? (outcome.reason === 'checkmate' ? { mate: 0, cp: outcome.result === '1-0' ? 1 : -1 } : { cp: 0 }) : lines[0]?.score
   const best = lines[0]
   const shapes: DrawShape[] = useMemo(
     () =>
@@ -94,8 +114,8 @@ export default function Analysis() {
   return (
     <>
       <BoardLayout
-        above={engineOn ? <EvalStrip score={best?.score} orientation={orientation} /> : undefined}
-        evalBar={engineOn ? <EvalBar score={best?.score} orientation={orientation} /> : undefined}
+        above={engineOn ? <EvalStrip score={evalScore} orientation={orientation} /> : undefined}
+        evalBar={engineOn ? <EvalBar score={evalScore} orientation={orientation} /> : undefined}
         board={
           <Board
             fen={game.fen}
@@ -103,6 +123,8 @@ export default function Analysis() {
             movable="both"
             lastMove={game.lastMove}
             shapes={shapes}
+            badge={badge}
+            outcome={outcome}
             onMove={(f, to, p) => game.move(f, to, p, true, true)}
           />
         }
@@ -115,7 +137,10 @@ export default function Analysis() {
             <div className="border-b border-line px-4">
               <Toggle checked={engineOn} onChange={setEngineOn} label={`Stockfish${engineOn && depth ? ` · ${t('review.depth', { d: depth })}` : ''}`} />
             </div>
-            {engineOn && (
+            <div className="border-b border-line px-4">
+              <Toggle checked={rateMoves} onChange={setRateMoves} label={t('play.assistOpt.feedback')} />
+            </div>
+            {engineOn && !outcome && (
               <div className="border-b border-line">
                 {[0, 1, 2].slice(0, multipv).map((i) => {
                   const l = lines[i]
@@ -166,6 +191,7 @@ export default function Analysis() {
               sans={game.sans}
               ply={game.ply}
               onSelect={game.goto}
+              qualities={rateMoves ? game.moves.map((m) => rating.quality(m)) : undefined}
               blackFirst={blackFirst}
               startNumber={startNumber}
               className="min-h-[120px] flex-1 py-1"
