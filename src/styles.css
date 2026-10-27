@@ -242,14 +242,24 @@ cg-board square.selected {
 cg-board square.check {
   background: radial-gradient(ellipse at center, var(--sq-check) 0%, rgba(231, 0, 0, 0.5) 30%, transparent 75%);
 }
+/* Move hints sit above the pieces (z-index 2) so they stay visible on occupied
+   squares: a dot on empty squares, a ring around a piece you can capture.
+   chessground marks occupied destinations with .oc. */
+cg-board square.move-dest,
+cg-board square.premove-dest {
+  z-index: 3;
+}
 cg-board square.move-dest {
   background: radial-gradient(rgba(0, 0, 0, 0.16) 21%, transparent 23%);
 }
-cg-board square.oc-dest {
+cg-board square.move-dest.oc {
   background: radial-gradient(transparent 0%, transparent 77%, rgba(0, 0, 0, 0.16) 79%);
 }
 cg-board square.premove-dest {
   background: radial-gradient(rgba(20, 30, 85, 0.25) 21%, transparent 23%);
+}
+cg-board square.premove-dest.oc {
+  background: radial-gradient(transparent 0%, transparent 77%, rgba(20, 30, 85, 0.25) 79%);
 }
 cg-board square.move-dest:hover {
   background: rgba(0, 0, 0, 0.12);
