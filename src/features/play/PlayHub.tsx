@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Users, Shuffle } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, type Bot } from './bots'
 import { BotAvatar } from './BotAvatar'
+import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
 import { PageHeader, Panel, Segmented } from '../../ui/kit'
 import { AssistToggles } from './AssistToggles'
@@ -44,6 +45,7 @@ export default function PlayHub() {
   const [color, setColor] = useState<'w' | 'b' | 'r'>('w')
   const [tc, setTc] = useState('none')
   const record = useBotRecord(selected.id)
+  const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
 
   const start = () => {
     const q = new URLSearchParams({ color, tc })
@@ -56,11 +58,14 @@ export default function PlayHub() {
       <div className="grid gap-5 px-4 pb-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-6">
         <div className="hidden lg:block">
           <div className="mx-auto max-w-[min(100%,calc(100dvh-180px))]">
-            <div className="mb-2 flex items-center gap-2.5">
+            <div className="relative mb-2 flex h-12 items-center gap-2.5">
               <BotAvatar bot={selected} size={40} />
               <span className="font-bold">
                 {selected.name} <span className="font-normal text-fg-3">({selected.elo})</span>
               </span>
+              <div key={selected.id} className="speech">
+                {greeting}
+              </div>
             </div>
             <Board fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" orientation={color === 'b' ? 'black' : 'white'} />
           </div>
