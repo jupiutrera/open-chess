@@ -196,7 +196,16 @@ cd android && ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Para publicar una versión firmada, crea un keystore, configúralo en `android/app/build.gradle` y ejecuta `./gradlew assembleRelease`.
+Para una versión firmada, crea una keystore y apunta a ella desde `android/keystore.properties` (está en `.gitignore`):
+
+```properties
+storeFile=/ruta/a/open-chess.jks
+storePassword=…
+keyAlias=open-chess
+keyPassword=…
+```
+
+y ejecuta `./gradlew assembleRelease`. Guarda una copia de la keystore: si la pierdes, nadie podrá actualizar la app instalada. Al subir un tag `v*`, el workflow `android-release.yml` compila el APK firmado y lo adjunta a la release; para eso necesita los secretos `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD`.
 
 </details>
 

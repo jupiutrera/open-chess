@@ -8,6 +8,8 @@ android/app/build
 android/.gradle
 android/local.properties
 *.keystore
+*.jks
+android/keystore.properties
 .impeccable/live
 data-cache
 test-results

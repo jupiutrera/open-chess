@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Release signing: android/keystore.properties (git-ignored) or OC_KEYSTORE_* env vars in CI.
+// Without either, release builds stay unsigned. Keep the keystore backed up: losing it means
+// users can't update the installed app.
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file('keystore.properties')
+if (keystorePropsFile.exists()) keystorePropsFile.withInputStream { keystoreProps.load(it) }
+def signingValue = { String key, String env -> keystoreProps.getProperty(key) ?: System.getenv(env) }
+def releaseStoreFile = signingValue('storeFile', 'OC_KEYSTORE_FILE')
+
 android {
     namespace = "com.openchess.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +25,19 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (releaseStoreFile) {
+                storeFile file(releaseStoreFile)
+                storePassword signingValue('storePassword', 'OC_KEYSTORE_PASSWORD')
+                keyAlias signingValue('keyAlias', 'OC_KEY_ALIAS')
+                keyPassword signingValue('keyPassword', 'OC_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (releaseStoreFile) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
