@@ -41,7 +41,9 @@
       "queen": "クイーン",
       "rook": "ルーク",
       "bishop": "ビショップ",
-      "knight": "ナイト"
+      "knight": "ナイト",
+      "pawn": "ポーン",
+      "king": "キング"
     }
   },
   "home": {
@@ -184,6 +186,16 @@
       "miss": "{{san}} は相手がくれたチャンスを逃しました。",
       "blunder": "{{san}} は大悪手です。",
       "forced": "{{san}} は唯一の合法手でした。"
+    },
+    "prevKey": "前の重要局面",
+    "nextKey": "次の重要局面",
+    "exportPgn": "PGNを書き出す",
+    "why": {
+      "hangs": "{{square}}の{{piece}}がただ取りになります。",
+      "allowsMate_one": "{{count}}手詰めを許します。",
+      "allowsMate_other": "{{count}}手詰めを許します。",
+      "missedMate_one": "{{san}}で{{count}}手詰めがありました。",
+      "missedMate_other": "{{san}}から{{count}}手詰めがありました。"
     }
   },
   "puzzles": {

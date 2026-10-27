@@ -41,7 +41,9 @@
       "queen": "Donna",
       "rook": "Torre",
       "bishop": "Alfiere",
-      "knight": "Cavallo"
+      "knight": "Cavallo",
+      "pawn": "Pedone",
+      "king": "Re"
     }
   },
   "home": {
@@ -184,6 +186,16 @@
       "miss": "{{san}} spreca l'occasione che ti ha dato l'avversario.",
       "blunder": "{{san}} è una svista.",
       "forced": "{{san}} era l'unica mossa legale."
+    },
+    "prevKey": "Momento chiave precedente",
+    "nextKey": "Momento chiave successivo",
+    "exportPgn": "Esporta PGN",
+    "why": {
+      "hangs": "Lascia il pezzo ({{piece}}) in {{square}} indifeso.",
+      "allowsMate_one": "Concede matto in {{count}}.",
+      "allowsMate_other": "Concede matto in {{count}}.",
+      "missedMate_one": "C'era matto in {{count}} con {{san}}.",
+      "missedMate_other": "C'era matto in {{count}} a partire da {{san}}."
     }
   },
   "puzzles": {

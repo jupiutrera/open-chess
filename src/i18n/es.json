@@ -41,7 +41,9 @@
       "queen": "Dama",
       "rook": "Torre",
       "bishop": "Alfil",
-      "knight": "Caballo"
+      "knight": "Caballo",
+      "pawn": "Peón",
+      "king": "Rey"
     }
   },
   "home": {
@@ -184,6 +186,16 @@
       "miss": "{{san}} deja escapar la oportunidad que te dio el rival.",
       "blunder": "{{san}} es un error grave.",
       "forced": "{{san}} era la única jugada legal."
+    },
+    "prevKey": "Momento clave anterior",
+    "nextKey": "Siguiente momento clave",
+    "exportPgn": "Exportar PGN",
+    "why": {
+      "hangs": "Deja el {{piece}} de {{square}} sin defensa.",
+      "allowsMate_one": "Permite mate en {{count}}.",
+      "allowsMate_other": "Permite mate en {{count}}.",
+      "missedMate_one": "Había mate en {{count}} con {{san}}.",
+      "missedMate_other": "Había mate en {{count}} empezando por {{san}}."
     }
   },
   "puzzles": {

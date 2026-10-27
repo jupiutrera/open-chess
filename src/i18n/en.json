@@ -41,7 +41,9 @@
       "queen": "Queen",
       "rook": "Rook",
       "bishop": "Bishop",
-      "knight": "Knight"
+      "knight": "Knight",
+      "pawn": "Pawn",
+      "king": "King"
     }
   },
   "home": {
@@ -184,6 +186,16 @@
       "miss": "{{san}} misses the chance your opponent gave you.",
       "blunder": "{{san}} is a blunder.",
       "forced": "{{san}} was the only legal move."
+    },
+    "prevKey": "Previous key moment",
+    "nextKey": "Next key moment",
+    "exportPgn": "Export PGN",
+    "why": {
+      "hangs": "It leaves the {{piece}} on {{square}} hanging.",
+      "allowsMate_one": "It allows mate in {{count}}.",
+      "allowsMate_other": "It allows mate in {{count}}.",
+      "missedMate_one": "There was mate in {{count}} with {{san}}.",
+      "missedMate_other": "There was mate in {{count}} starting with {{san}}."
     }
   },
   "puzzles": {

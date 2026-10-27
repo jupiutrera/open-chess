@@ -41,7 +41,9 @@
       "queen": "后",
       "rook": "车",
       "bishop": "象",
-      "knight": "马"
+      "knight": "马",
+      "pawn": "兵",
+      "king": "王"
     }
   },
   "home": {
@@ -184,6 +186,16 @@
       "miss": "{{san}} 错过了对手留给你的机会。",
       "blunder": "{{san}} 是大错。",
       "forced": "{{san}} 是唯一合法的着法。"
+    },
+    "prevKey": "上一个关键时刻",
+    "nextKey": "下一个关键时刻",
+    "exportPgn": "导出 PGN",
+    "why": {
+      "hangs": "{{square}} 的{{piece}}无人保护。",
+      "allowsMate_one": "让对方 {{count}} 步杀。",
+      "allowsMate_other": "让对方 {{count}} 步杀。",
+      "missedMate_one": "{{san}} 可以 {{count}} 步杀。",
+      "missedMate_other": "从 {{san}} 开始可以 {{count}} 步杀。"
     }
   },
   "puzzles": {
