@@ -1,79 +1,138 @@
 <div align="center">
 
-<img src="public/icon-512.png" width="96" alt="Open Chess" />
+<img src="public/icon-512.png" width="112" alt="Open Chess" />
 
 # Open Chess
 
-**Everything chess.com charges for when it comes to training, free and unlimited, on your own device.**
+### Everything chess.com charges for to train, free and on your own device.
 
-Play bots, review your games with Stockfish, solve puzzles, learn openings and endgames.<br/>
-In the browser or as an Android app. No ads, no subscriptions, no account required.
+Stockfish game review, 13 bots with personality, 104,000 puzzles, an opening trainer and lessons.<br/>
+In the browser or as an Android app. **No ads, no subscription and no account.**
 
-[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-81b64c?style=flat-square)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-81b64c?style=for-the-badge)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/jupiutrera/open-chess?style=for-the-badge&color=f2b43c&label=%E2%AD%90%20stars)](https://github.com/jupiutrera/open-chess/stargazers)
+[![Deploy](https://img.shields.io/github/actions/workflow/status/jupiutrera/open-chess/pages.yml?style=for-the-badge&label=web)](https://jupiutrera.github.io/open-chess/)
+
 ![Stockfish 19](https://img.shields.io/badge/engine-Stockfish%2019%20WASM-262421?style=flat-square)
-![PWA](https://img.shields.io/badge/web-PWA%20offline-5a0fc8?style=flat-square)
+![6 languages](https://img.shields.io/badge/languages-6-f2b43c?style=flat-square)
+![Offline PWA](https://img.shields.io/badge/PWA-works%20offline-5a0fc8?style=flat-square)
 ![Android](https://img.shields.io/badge/Android-Capacitor%208-3ddc84?style=flat-square&logo=android&logoColor=white)
-![React](https://img.shields.io/badge/React%2019-TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)
-![Languages](https://img.shields.io/badge/languages-ES%20%C2%B7%20EN-f2b43c?style=flat-square)
+![React 19](https://img.shields.io/badge/React%2019-TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)
 
-**[Try it in your browser](https://jupiutrera.github.io/open-chess/)** · **[Download the APK](https://github.com/jupiutrera/open-chess/releases/latest)**
+<h3>
+  <a href="https://jupiutrera.github.io/open-chess/">▶ Try it now</a> ·
+  <a href="https://github.com/jupiutrera/open-chess/releases/latest">📱 Download the APK</a>
+</h3>
 
-[Español](README.md) · [Features](#features) · [How it works](#how-it-works) · [Getting started](#getting-started) · [Android APK](#android-apk)
+[Español](README.md) · [Features](#-features) · [Screenshots](#-screenshots) · [How it works](#-how-it-works) · [Getting started](#-getting-started) · [Contributing](#-contributing)
 
-<img src="docs/screenshots/review-brilliant.png" alt="Game review: Morphy's Opera Game, with 13.Rxd7 marked as brilliant" width="100%" />
+<br/>
+
+<img src="docs/screenshots/review.gif" alt="Reviewing Morphy's Opera Game move by move, with every move classified" width="100%" />
 
 </div>
 
-## Why
+<br/>
 
-On chess.com, full game review, unlimited puzzles, lessons and the opening trainer sit behind a paywall. But the engine doing the real work, Stockfish, is free software and already runs in any browser, and Lichess publishes its puzzles and openings into the public domain.
+<table align="center">
+  <tr>
+    <td align="center"><b>13</b><br/><sub>bots, 250 to 3200</sub></td>
+    <td align="center"><b>104,000</b><br/><sub>Lichess puzzles</sub></td>
+    <td align="center"><b>3,865</b><br/><sub>named openings</sub></td>
+    <td align="center"><b>11</b><br/><sub>interactive lessons</sub></td>
+    <td align="center"><b>6</b><br/><sub>languages</sub></td>
+    <td align="center"><b>$0</b><br/><sub>forever</sub></td>
+  </tr>
+</table>
 
-Open Chess puts those pieces together into an app with the chess.com experience you already know. Everything happens on your device: analysis, bots and your data. The one thing it doesn't do is play online against other people.
+## 💡 Why
 
-## Features
+On chess.com, the things that actually make you better are paid: unlimited game reviews, unlimited puzzles, lessons and the opening trainer. But the engine doing that work, **Stockfish**, is free software and already runs in any browser, and **Lichess** publishes its puzzles and openings as public domain.
 
-- **Game review**: every move is analysed by Stockfish and classified the chess.com way (brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss, blunder). You also get:
-  - Accuracy for each player (Lichess formula) and an estimated performance rating.
-  - An evaluation graph with the key moments.
-  - The best move, and the option to **retry** your mistakes on the board.
-- **Play bots**: 13 opponents from **250 to 3200**, each with a personality and favourite openings. Play with or without a clock, with hints, takebacks, draw offers, an optional eval bar and premoves. There's also pass-and-play for two players on one device.
-- **Puzzles**: **104,000** puzzles from the Lichess database:
-  - Rated with **Glicko-2**.
-  - **21 themes**.
-  - Daily puzzle.
-  - **Puzzle Rush**: 3 min, 5 min or survival, with personal bests.
-- **Openings**: an explorer with **3,865 named openings**, masters and Lichess stats, name search, and a **repertoire trainer** that drills your lines with spaced repetition (SM-2).
-- **Analysis board**: live multi-PV Stockfish, arrows, a position editor and FEN/PGN in and out.
-- **Lessons**: tactics, basic mates, and endgames you practise **against the engine**.
-- **Import** your games from **chess.com** or **Lichess** by username, or paste a PGN.
-- Profile and stats, 5 boards, 9 piece sets, dark and light themes, Spanish and English.
-- **Works offline**. Sync between web and phone through Supabase is **optional**, and JSON backups are available.
+Open Chess puts those pieces together in an app with the chess.com experience you already know. Everything happens on your device: the analysis, the bots and your data. The one thing it doesn't do is play online against other people.
+
+| | chess.com free | **Open Chess** |
+|---|:---:|:---:|
+| Full game review (brilliants, mistakes, accuracy…) | Limited | ✅ **Unlimited** |
+| Puzzles and Puzzle Rush | Limited | ✅ **104,000, no limits** |
+| Bot assistance (eval, threats, suggestions, engine) | Limited | ✅ **All of it** |
+| Repertoire trainer | Premium | ✅ |
+| Lessons | Mostly Premium | ✅ |
+| Works offline | ❌ | ✅ |
+| Ads | Yes | ❌ **Never** |
+| Your data | On their servers | ✅ **On your device** |
+
+<sub>A rough comparison with chess.com's free plan; its limits change over time.</sub>
+
+## ✨ Features
+
+**🔍 Game review.** Stockfish analyses every move and classifies it the way chess.com does: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss and blunder. You get each player's accuracy, an estimated performance and the evaluation graph. You can see the best move and **retry your mistakes** to learn from them.
+
+**🤖 13 bots with personality.** Pip, the kid who just discovered the knight; Iván, who will sacrifice whatever it takes; Boris, the old-school FIDE master… Each one has a portrait, favourite openings and their own voice: they greet you, react to your captures and blunders, and celebrate (or regret) the result. They play like people, not like a broken engine.
+
+**🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.
+
+**🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 21 themes, a daily puzzle and **Puzzle Rush** (3 min, 5 min and survival).
+
+**📖 Openings.** An explorer with 3,865 named openings, masters and Lichess stats, and a **repertoire trainer** with spaced repetition (SM-2).
+
+**🧠 Analysis.** Live Stockfish with up to three lines, move-by-move ratings, a position editor, and FEN and PGN import and export.
+
+**🎓 Lessons.** Tactics, basic mates and endgames that you practise against the engine until they stick.
+
+**📥 Import your games** from chess.com or Lichess by username, or by pasting a PGN.
+
+**🎨 Your way.** 9 piece sets, 5 boards, light and dark themes, 5 recorded sound sets, L-shaped knight arrows and haptics on Android.
+
+**🌍 In your language.** Español, English, Français, Italiano, 中文 and 日本語, including the lessons and everything the bots say.
+
+## 📸 Screenshots
 
 <div align="center">
-<img src="docs/screenshots/play-bots.png" width="49%" alt="Choosing a bot" />
-<img src="docs/screenshots/puzzle.png" width="49%" alt="Puzzle" />
-<img src="docs/screenshots/analysis.png" width="49%" alt="Analysis board" />
-<img src="docs/screenshots/mobile-review.png" width="24%" alt="Review on mobile" />
+<img src="docs/screenshots/play-game.png" width="49%" alt="Game against Kira with the eval bar, a suggestion arrow and engine lines" />
+<img src="docs/screenshots/play-bots.png" width="49%" alt="Choosing a bot: 13 opponents with portraits and personality" />
+<img src="docs/screenshots/review-brilliant.png" width="49%" alt="Review: 13.Rxd7 marked as brilliant" />
+<img src="docs/screenshots/puzzle.png" width="49%" alt="Rated puzzle" />
+<img src="docs/screenshots/openings.png" width="49%" alt="Opening explorer" />
+<img src="docs/screenshots/lessons.png" width="49%" alt="Lessons" />
+<br/>
+<img src="docs/screenshots/mobile-review.png" width="24%" alt="Review on a phone" />
+<img src="docs/screenshots/mobile-home.png" width="24%" alt="Home on a phone" />
+<img src="docs/screenshots/mobile-puzzle.png" width="24%" alt="Puzzle on a phone" />
 <img src="docs/screenshots/android-analysis.png" width="24%" alt="Analysis in the Android app" />
 </div>
 
-## How it works
+## ⚙️ How it works
 
 ```mermaid
 flowchart LR
   UI["React + chessground<br/>(UI and board)"] --> CJ["chess.js<br/>rules, PGN, FEN"]
-  UI --> SF["Stockfish 19 WASM<br/>in a Web Worker"]
+  UI --> SF["Stockfish 19 WASM<br/>in Web Workers"]
   UI --> DB[("IndexedDB · Dexie<br/>games, puzzles, repertoire")]
   DB <-.->|optional| SB[("Supabase<br/>sync")]
   UI --> DATA["public/data<br/>puzzles + openings (CC0)"]
   UI -.->|when online| API["Public APIs<br/>chess.com · Lichess"]
 ```
 
-**Engine.** Stockfish 19 lite (single-threaded, 1.8 MB) runs in a Web Worker, so the UI never freezes. It works the same in the browser and inside Android's WebView, with no server. A small UCI client (`src/engine/engine.ts`) queues searches, cancels stale ones and converts scores to White's point of view.
+<details>
+<summary><b>The engine</b></summary>
 
-**Move classification** (`src/features/review/classify.ts`). Each evaluation becomes a win probability using Lichess's curve, `win% = 50 + 50 · (2 / (1 + e^(-0.00368208 · cp)) − 1)`. A move is graded by how much win% the mover loses:
+Stockfish 19 (the single-threaded 1.8 MB *lite* build) runs in a Web Worker, so the UI never blocks. It works the same in the browser and inside the Android WebView, with no server. A small UCI client (`src/engine/engine.ts`) queues searches, cancels stale ones and converts scores to White's point of view. In-game helps use their own worker with a per-position cache, so they never slow the bot down.
 
-| Win% lost | Grade |
+</details>
+
+<details>
+<summary><b>Move classification</b></summary>
+
+Each position's evaluation becomes a win probability with Lichess's curve:
+
+```
+win% = 50 + 50 · (2 / (1 + e^(-0.00368208 · cp)) − 1)
+```
+
+A move's quality depends on how much win probability the mover gives up:
+
+| win% lost | Classification |
 |---|---|
 | engine's move, or < 0.5 | Best |
 | < 2 | Excellent |
@@ -82,27 +141,32 @@ flowchart LR
 | < 20 | Mistake |
 | ≥ 20 | Blunder |
 
-Special cases are layered on top:
-- **Book**: the position is in the opening book.
-- **Forced**: it was the only legal move.
-- **Brilliant**: a real sacrifice that keeps a good position.
-- **Great**: the only move that holds, more than 15 points ahead of the second best.
-- **Miss**: the opponent blundered and you didn't punish it.
+Special cases are detected too: **book** (the position is in the opening book), **forced** (only one legal move), **brilliant** (you give up material and the position stays good), **great** (the only move that keeps the advantage) and **miss** (your opponent erred and you didn't take advantage). **Accuracy** uses Lichess's formula. It all lives in `src/features/review/classify.ts`.
 
-**Accuracy** follows Lichess: each player's volatility-weighted mean, averaged with their harmonic mean.
+</details>
 
-**Bots** (`src/features/play/bots.ts`). From 1400 up they use Stockfish's `UCI_Elo`. Stockfish won't go below 1320, so weaker bots run a shallow multi-PV search and sample a move through a temperature softmax, with an occasional random move. They make human-looking mistakes rather than broken ones.
+<details>
+<summary><b>The bots</b></summary>
 
-**Puzzles.** `scripts/build-puzzles.mjs` streams the Lichess database (about 300 MB of zstd), keeps the popular puzzles and splits them into 100-point JSON buckets that load on demand. Your rating uses **Glicko-2**.
+From 1400 Elo up, Stockfish's `UCI_Elo` does the work. Below that Stockfish won't go under 1320, so weaker bots search a few candidate moves at low depth and pick one with a temperature softmax and some randomness. They make human mistakes, not broken-engine ones. Each bot has favourite openings, a conversation style and a portrait whose expression follows the game (`src/features/play/`).
 
-**Data** lives in IndexedDB. Every row carries `updatedAt` and a soft-delete flag, so syncing with Supabase is a plain last-write-wins: one table with per-user RLS and a server-side cursor. Without Supabase configured, nothing leaves your device.
+</details>
 
-## Getting started
+<details>
+<summary><b>Puzzles, data and sync</b></summary>
+
+`scripts/build-puzzles.mjs` streams the Lichess puzzle database (about 300 MB of zstd), keeps the popular puzzles and splits them into files per 100-point band that load on demand. Your rating uses **Glicko-2**.
+
+Your data lives in IndexedDB. Every row carries `updatedAt` and a soft delete, so the optional Supabase sync is a simple last-write-wins with per-user RLS. Without Supabase configured, nothing is sent anywhere.
+
+</details>
+
+## 🚀 Getting started
 
 You need Node 22 or later.
 
 ```bash
-git clone <this-repo-url> open-chess
+git clone https://github.com/jupiutrera/open-chess.git
 cd open-chess
 npm install          # also copies Stockfish into public/stockfish
 npm run dev          # http://localhost:5173
@@ -111,60 +175,111 @@ npm run dev          # http://localhost:5173
 | Command | What it does |
 |---|---|
 | `npm run dev` | Dev server |
-| `npm run build` | Production PWA build in `dist/` |
-| `npm test` | Unit tests: classification, accuracy, Glicko, SM-2, lessons |
-| `npm run e2e` | Playwright browser tests: a bot game and a full review |
-| `npm run data:puzzles` | Rebuild puzzles from Lichess |
-| `npm run data:openings` | Rebuild openings from lichess-org/chess-openings |
-| `node scripts/build-pieces.mjs` | Download the piece sets |
-| `node scripts/screenshots.mjs` | Regenerate the README screenshots |
+| `npm run build` | Production (PWA) build into `dist/` |
+| `npm test` | Unit tests: classification, accuracy, Glicko, lessons, translations |
+| `npm run e2e` | Browser tests with Playwright |
+| `npm run data:puzzles` | Rebuild the puzzles from Lichess |
+| `npm run data:openings` | Rebuild the openings from lichess-org/chess-openings |
+| `npm run data:avatars` | Generate the bot portraits |
+| `npm run data:sounds` | Download and convert the sound sets (needs ffmpeg) |
+| `node scripts/screenshots.mjs --gif` | Regenerate this README's screenshots and GIF |
 
-## Android APK
+<details>
+<summary><b>📱 Android APK</b></summary>
 
 You also need JDK 21 and the Android SDK.
 
 ```bash
-npm run android                      # web build + Capacitor sync
+npm run android                      # web build + sync into the Android project
 cd android && ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-For a signed release, create a keystore, set it up in `android/app/build.gradle` and run `./gradlew assembleRelease`.
+For a signed release, create a keystore, configure it in `android/app/build.gradle` and run `./gradlew assembleRelease`.
 
-## Optional setup
+</details>
 
 <details>
-<summary><b>Cross-device sync (Supabase)</b></summary>
+<summary><b>🔄 Sync across devices (Supabase)</b></summary>
 
 1. Create a free project at [supabase.com](https://supabase.com).
 2. Run [`supabase/migrations/0001_records.sql`](supabase/migrations/0001_records.sql) in the SQL editor.
-3. Under *Authentication*, enable Email (magic link) and optionally Google, then add the app URL to *Redirect URLs*.
+3. Under *Authentication*, enable Email (magic link) and optionally Google. Add the app URL to *Redirect URLs*.
 4. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 
 </details>
 
 <details>
-<summary><b>Lichess explorer stats</b></summary>
+<summary><b>📊 Lichess explorer stats</b></summary>
 
-The Lichess opening explorer API requires a personal token. Create one with no scopes at <https://lichess.org/account/oauth/token> and paste it into **Settings**. Without a token, the explorer still works from the local opening book.
+The Lichess opening explorer API needs a personal token. Create one with no scopes at <https://lichess.org/account/oauth/token> and paste it in **Settings**. Without a token the explorer still works from the local opening book.
 
 </details>
 
-## Contributing
+<details>
+<summary><b>🗂️ Code layout</b></summary>
 
-Contributions are welcome: new lessons, more characterful bots, translations, classification tweaks… See [CONTRIBUTING.md](CONTRIBUTING.md).
+```
+src/
+  engine/      Stockfish UCI client
+  chess/       helpers, sounds, clock, game state
+  board/       board, eval bar, move list, result marks
+  features/
+    play/      bots, portraits, chat, helps, games
+    review/    analysis, classification, accuracy, review UI
+    puzzles/   data, Glicko-2, puzzles, Rush
+    openings/  book, explorer, repertoire (SM-2)
+    lessons/   lessons and player
+    analysis/  analysis board and editor
+    import/    chess.com, Lichess, PGN
+    profile/   profile, games, settings
+  db/          Dexie (IndexedDB)
+  sync/        Supabase and backups
+  i18n/        6 languages + lesson and bot translations
+android/       Capacitor project
+scripts/       data, portraits, sounds and screenshots
+```
 
-## Credits and licences
+</details>
 
-Open Chess is **GPL-3.0-or-later**. It builds on:
-- Stockfish and stockfish.js (GPL-3.0).
-- chessground (GPL-3.0) and chess.js (BSD-2).
-- Lichess puzzle and opening data (CC0).
-- Piece sets from lichess-org/lila: Staunty, Fresca, Tatiana, Maestro, Cardinal and Gioco by sadsnake1, and California by Jerry S. (all CC BY-NC-SA 4.0); Chessnut (Apache-2.0); cburnett (GPL-2.0+).
-- Bot portraits: DiceBear's [Toon Head](https://www.dicebear.com/styles/toon-head/) by Johan Melin (CC BY 4.0), and [Bottts](https://www.dicebear.com/styles/bottts/) by Pablo Stanley for Stockfish (free for personal and commercial use).
-- Microsoft Fluent Emoji (MIT), Phosphor icons (MIT) and the Geist font (OFL-1.1).
+## 🤝 Contributing
+
+Contributions are welcome: new lessons, more bots, **translations into other languages**, better classification… Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
+
+- Lessons are data in `src/features/lessons/lessonData.ts`, and a test checks that every move in them is legal.
+- To add a language, copy `src/i18n/en.json` and `src/i18n/content/fr.json`. A test checks that no key is missing.
+
+## 📜 Credits and licences
+
+Open Chess is **GPL-3.0-or-later** and builds on:
+
+| Resource | Author | Licence |
+|---|---|---|
+| [Stockfish](https://stockfishchess.org) / [stockfish.js](https://github.com/nmrugg/stockfish.js) | Stockfish team, Nathan Rugg | GPL-3.0 |
+| [chessground](https://github.com/lichess-org/chessground) | Lichess | GPL-3.0 |
+| [chess.js](https://github.com/jhlywa/chess.js) | Jeff Hlywa | BSD-2 |
+| [Puzzle database](https://database.lichess.org/#puzzles) and [chess-openings](https://github.com/lichess-org/chess-openings) | Lichess | CC0 |
+| Staunty, Fresca, Tatiana, Maestro, Cardinal, Gioco pieces | sadsnake1 | CC BY-NC-SA 4.0 |
+| California pieces | Jerry S. | CC BY-NC-SA 4.0 |
+| Chessnut pieces | Alexis Luengas | Apache-2.0 |
+| cburnett pieces | Colin M.L. Burnett | GPL-2.0+ |
+| Bot portraits, [Toon Head](https://www.dicebear.com/styles/toon-head/) style via [DiceBear](https://www.dicebear.com) | Johan Melin | CC BY 4.0 |
+| Stockfish portrait, [Bottts](https://www.dicebear.com/styles/bottts/) style | Pablo Stanley | Free for personal and commercial use |
+| "Wood" sounds | [pychess](https://github.com/pychess/pychess) | GPL-3.0 |
+| SFX, Piano, NES and Futuristic sounds | Enigmahack, via [Lichess](https://github.com/lichess-org/lila) | AGPL-3.0+ |
+| [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) icons | Microsoft | MIT |
+| [Phosphor](https://phosphoricons.com) icons | Phosphor | MIT |
+| [Geist](https://vercel.com/font) font | Vercel | OFL-1.1 |
 
 > [!NOTE]
 > Several piece sets are licensed **non-commercial** (CC BY-NC-SA). Open Chess is and will stay free. If you fork it for commercial use, remove or replace those sets.
 
 Open Chess is not affiliated with chess.com or Lichess.
+
+<div align="center">
+<br/>
+
+**If Open Chess saves you a subscription, give the repo a ⭐.**<br/>
+<sub>It helps more people find a way to train without paying.</sub>
+
+</div>
