@@ -161,6 +161,7 @@ Open Chess is **GPL-3.0-or-later**. It builds on:
 - chessground (GPL-3.0) and chess.js (BSD-2).
 - Lichess puzzle and opening data (CC0).
 - Piece sets from lichess-org/lila: Staunty, Fresca, Tatiana, Maestro, Cardinal and Gioco by sadsnake1, and California by Jerry S. (all CC BY-NC-SA 4.0); Chessnut (Apache-2.0); cburnett (GPL-2.0+).
+- Bot portraits: DiceBear's [Toon Head](https://www.dicebear.com/styles/toon-head/) by Johan Melin (CC BY 4.0), and [Bottts](https://www.dicebear.com/styles/bottts/) by Pablo Stanley for Stockfish (free for personal and commercial use).
 - Microsoft Fluent Emoji (MIT), Phosphor icons (MIT) and the Geist font (OFL-1.1).
 
 > [!NOTE]

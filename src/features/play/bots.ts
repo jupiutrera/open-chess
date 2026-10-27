@@ -1,7 +1,6 @@
 import { Chess } from 'chess.js'
 import type { Engine, PvLine } from '../../engine/engine'
 import { winPercent } from '../review/classify'
-import type { Look } from './BotAvatar'
 import type { ChatEvent, ChatStyle } from './botChat'
 
 export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine'
@@ -15,8 +14,6 @@ export interface Bot {
   group: BotGroup
   hue: number
   bio: { es: string; en: string }
-  /** portrait; Stockfish has none and is drawn as a robot fish */
-  look?: Look
   /** voice for the in-game chat */
   style: ChatStyle
   /** lines of their own; the rest come from the style */
@@ -25,7 +22,6 @@ export interface Bot {
   book?: { white?: string[]; vsE4?: string[]; vsD4?: string[] }
 }
 
-const SKIN = { light: '#f6d2b8', fair: '#eec1a0', tan: '#d9a27a', brown: '#b07850', dark: '#7a4e32' }
 
 export const BOTS: Bot[] = [
   {
@@ -36,7 +32,6 @@ export const BOTS: Bot[] = [
     hue: 95,
     style: 'kid',
     bio: { es: 'Acaba de aprender cómo se mueve el caballo y le encanta usarlo.', en: 'Just learned how the knight moves and loves using it.' },
-    look: { skin: SKIN.fair, hair: 'messy', hairColor: '#7a4a24', shirt: '#f2994a', hat: 'propeller', hatColor: '#4b8de3', blush: true },
     says: {
       greet: {
         es: ['¡Hola! ¿Sabías que el caballo salta en forma de L? ¡Es mi favorito!', '¡Vamos a jugar! Yo saco el caballito.'],
@@ -55,7 +50,6 @@ export const BOTS: Bot[] = [
     hue: 340,
     style: 'bold',
     bio: { es: 'Saca la dama muy pronto. A veces funciona.', en: 'Brings the queen out early. Sometimes it works.' },
-    look: { skin: SKIN.light, hair: 'long', hairColor: '#c2552b', shirt: '#7b61ff', hat: 'bow', hatColor: '#ff5c8a', blush: true },
     says: {
       greet: {
         es: ['Te aviso: mi dama sale en la jugada dos.', '¡Hola! Prepárate, que voy a por todas.'],
@@ -74,7 +68,6 @@ export const BOTS: Bot[] = [
     hue: 200,
     style: 'friendly',
     bio: { es: 'Juega en el club del barrio los sábados por la mañana.', en: 'Plays at the local club on Saturday mornings.' },
-    look: { skin: SKIN.tan, hair: 'short', hairColor: '#e0b94f', shirt: '#2d9cdb', hat: 'cap', hatColor: '#e35d4b' },
     says: {
       greet: { es: ['¡Buenas! Esto es como el club, pero sin el café de la máquina.'], en: ['Hey! Just like the club, minus the vending-machine coffee.'] },
     },
@@ -88,7 +81,6 @@ export const BOTS: Bot[] = [
     hue: 30,
     style: 'calm',
     bio: { es: 'Le gustan las posiciones cerradas y no tiene ninguna prisa.', en: 'Likes closed positions and is never in a hurry.' },
-    look: { skin: SKIN.light, hair: 'bun', hairColor: '#c9c6c1', shirt: '#6fa37a', glasses: 'round', eyes: 'sleepy', earrings: true },
     says: {
       greet: { es: ['Siéntate, cielo. Sin prisas, que esto va despacito.'], en: ['Have a seat, dear. No rush, we take it slow here.'] },
       win: { es: ['Ay, lo siento, cariño. La paciencia es mi truco.'], en: ['Oh, sorry, dear. Patience is my trick.'] },
@@ -103,7 +95,6 @@ export const BOTS: Bot[] = [
     hue: 260,
     style: 'bold',
     bio: { es: 'Atacante nato: si hay un sacrificio, lo intentará.', en: 'Born attacker: if there is a sacrifice, he will try it.' },
-    look: { skin: SKIN.fair, hair: 'spiky', hairColor: '#2b2b2b', shirt: '#e35d4b', hat: 'headband', hatColor: '#f2f2f2', brows: 'bold' },
     says: {
       greet: {
         es: ['¿Defenderse? Eso es para los que no saben atacar.', 'Hoy sacrifico algo. Aún no sé qué.'],
@@ -122,7 +113,6 @@ export const BOTS: Bot[] = [
     hue: 160,
     style: 'studious',
     bio: { es: 'Estudia aperturas cada noche y se las sabe bastante bien.', en: 'Studies openings every night and knows them quite well.' },
-    look: { skin: SKIN.brown, hair: 'bob', hairColor: '#1f1a17', shirt: '#f2c94c', glasses: 'round' },
     says: {
       greet: { es: ['Anoche me repasé doce variantes. Sorpréndeme.'], en: ['I reviewed twelve lines last night. Surprise me.'] },
       lose: { es: ['Eso no venía en mis apuntes. Lo anoto.'], en: ['That wasn’t in my notes. Writing it down.'] },
@@ -137,7 +127,6 @@ export const BOTS: Bot[] = [
     hue: 10,
     style: 'serious',
     bio: { es: 'Jugador de torneo sólido. Castiga los errores tácticos.', en: 'Solid tournament player. Punishes tactical mistakes.' },
-    look: { skin: SKIN.tan, hair: 'short', hairColor: '#3b2a20', shirt: '#33475b', beard: 'stubble', brows: 'bold' },
     says: {
       greet: { es: ['Buena suerte. Juega con cuidado.'], en: ['Good luck. Play carefully.'] },
     },
@@ -151,7 +140,6 @@ export const BOTS: Bot[] = [
     hue: 300,
     style: 'cool',
     bio: { es: 'Rápida y precisa. Le encantan los finales.', en: 'Fast and precise. Loves endgames.' },
-    look: { skin: SKIN.light, hair: 'ponytail', hairColor: '#2a1f3d', shirt: '#1f1d2b', eyes: 'sharp', earrings: true },
     says: {
       greet: { es: ['Cambiamos damas y nos vemos en el final.'], en: ['Let’s trade queens and meet in the endgame.'] },
       win: { es: ['Los finales no perdonan.'], en: ['Endgames don’t forgive.'] },
@@ -166,7 +154,6 @@ export const BOTS: Bot[] = [
     hue: 220,
     style: 'cool',
     bio: { es: 'Experto de club con un repertorio muy afilado.', en: 'Club expert with a sharp repertoire.' },
-    look: { skin: SKIN.fair, hair: 'slick', hairColor: '#4a3426', shirt: '#2f3c4f', glasses: 'square', beard: 'mustache' },
     says: {
       greet: { es: ['Siciliana, como siempre. Tú eliges el sufrimiento.'], en: ['Sicilian, as always. You pick the pain.'] },
     },
@@ -180,7 +167,6 @@ export const BOTS: Bot[] = [
     hue: 120,
     style: 'calm',
     bio: { es: 'Candidata a maestra. Juega posicional y no regala nada.', en: 'Candidate master. Positional and gives nothing away.' },
-    look: { skin: SKIN.dark, hair: 'curly', hairColor: '#1b1411', shirt: '#9b6b43', earrings: true },
     says: {
       greet: { es: ['Una casilla débil es todo lo que necesito.'], en: ['One weak square is all I need.'] },
     },
@@ -194,7 +180,6 @@ export const BOTS: Bot[] = [
     hue: 0,
     style: 'old',
     bio: { es: 'Maestro FIDE de la vieja escuela. Cálculo profundo.', en: 'Old-school FIDE master. Deep calculation.' },
-    look: { skin: SKIN.light, hair: 'bald', hairColor: '#b9b5ae', shirt: '#5a4636', beard: 'full', brows: 'bold' },
     says: {
       greet: { es: ['En mis tiempos no había motores. Solo café y cálculo.'], en: ['In my day there were no engines. Just coffee and calculation.'] },
       win: { es: ['Hm. Bien jugado hasta la jugada veinte.'], en: ['Hm. Well played until move twenty.'] },
@@ -210,7 +195,6 @@ export const BOTS: Bot[] = [
     hue: 45,
     style: 'gm',
     bio: { es: 'Gran maestra. Prepárate para sufrir.', en: 'Grandmaster. Get ready to suffer.' },
-    look: { skin: SKIN.fair, hair: 'bun', hairColor: '#3a2418', shirt: '#1d1d1f', eyes: 'sharp', earrings: true },
     says: {
       greet: { es: ['Adelante. Enséñame lo que sabes.'], en: ['Go ahead. Show me what you know.'] },
       lose: { es: ['Impresionante. De verdad.'], en: ['Impressive. Truly.'] },

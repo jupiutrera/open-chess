@@ -12,6 +12,7 @@
     "typecheck": "tsc -b",
     "data:openings": "node scripts/build-openings.mjs",
     "data:puzzles": "node scripts/build-puzzles.mjs",
+    "data:avatars": "node scripts/build-avatars.mjs",
     "android": "npm run build && npx cap sync android",
     "postinstall": "node scripts/copy-engine.mjs",
     "e2e": "playwright test"
@@ -41,6 +42,9 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
+    "@dicebear/bottts": "^9.4.2",
+    "@dicebear/core": "^9.4.3",
+    "@dicebear/toon-head": "^9.4.2",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.5",

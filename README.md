@@ -189,6 +189,8 @@ Open Chess se distribuye bajo **GPL-3.0-or-later** y se apoya en:
 | Piezas California | Jerry S. | CC BY-NC-SA 4.0 |
 | Piezas Chessnut | Alexis Luengas | Apache-2.0 |
 | Piezas cburnett | Colin M.L. Burnett | GPL-2.0+ |
+| Avatares de los bots, estilo [Toon Head](https://www.dicebear.com/styles/toon-head/) vía [DiceBear](https://www.dicebear.com) | Johan Melin | CC BY 4.0 |
+| Avatar de Stockfish, estilo [Bottts](https://www.dicebear.com/styles/bottts/) | Pablo Stanley | Libre para uso personal y comercial |
 | Iconos [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) | Microsoft | MIT |
 | Iconos [Phosphor](https://phosphoricons.com) | Phosphor | MIT |
 | Fuente [Geist](https://vercel.com/font) | Vercel | OFL-1.1 |
