@@ -9,6 +9,7 @@
 Revisión de partidas con Stockfish, 13 bots con personalidad, 104.000 puzzles, entrenador de aperturas y lecciones.<br/>
 En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cuenta.**
 
+[![Release](https://img.shields.io/github/v/release/jupiutrera/open-chess?style=for-the-badge&label=versi%C3%B3n&color=81b64c)](https://github.com/jupiutrera/open-chess/releases/latest)
 [![Licencia: GPL v3](https://img.shields.io/badge/licencia-GPL--3.0-81b64c?style=for-the-badge)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/jupiutrera/open-chess?style=for-the-badge&color=f2b43c&label=%E2%AD%90%20stars)](https://github.com/jupiutrera/open-chess/stargazers)
 [![Deploy](https://img.shields.io/github/actions/workflow/status/jupiutrera/open-chess/pages.yml?style=for-the-badge&label=web)](https://jupiutrera.github.io/open-chess/)

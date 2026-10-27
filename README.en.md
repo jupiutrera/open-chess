@@ -9,6 +9,7 @@
 Stockfish game review, 13 bots with personality, 104,000 puzzles, an opening trainer and lessons.<br/>
 In the browser or as an Android app. **No ads, no subscription and no account.**
 
+[![Release](https://img.shields.io/github/v/release/jupiutrera/open-chess?style=for-the-badge&label=version&color=81b64c)](https://github.com/jupiutrera/open-chess/releases/latest)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-81b64c?style=for-the-badge)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/jupiutrera/open-chess?style=for-the-badge&color=f2b43c&label=%E2%AD%90%20stars)](https://github.com/jupiutrera/open-chess/stargazers)
 [![Deploy](https://img.shields.io/github/actions/workflow/status/jupiutrera/open-chess/pages.yml?style=for-the-badge&label=web)](https://jupiutrera.github.io/open-chess/)
