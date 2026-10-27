@@ -5,6 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Users, Shuffle } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, type Bot } from './bots'
 import { clearLiveGame, loadLiveGame } from './liveGame'
+import { TimeControlPicker } from './TimeControlPicker'
 import { BotAvatar } from './BotAvatar'
 import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
@@ -15,15 +16,6 @@ import { db } from '../../db/db'
 import { useSettings } from '../../settings'
 import { localize } from '../../i18n/content'
 
-export const TIME_CONTROLS = [
-  { id: 'none', label: '∞', base: 0, inc: 0 },
-  { id: '1+0', label: '1 min', base: 60, inc: 0 },
-  { id: '3+2', label: '3 | 2', base: 180, inc: 2 },
-  { id: '5+0', label: '5 min', base: 300, inc: 0 },
-  { id: '10+0', label: '10 min', base: 600, inc: 0 },
-  { id: '15+10', label: '15 | 10', base: 900, inc: 10 },
-  { id: '30+0', label: '30 min', base: 1800, inc: 0 },
-]
 
 export function useBotRecord(botId: string) {
   return useLiveQuery(async () => {
@@ -154,20 +146,7 @@ export default function PlayHub() {
             </div>
             <div>
               <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.time')}</div>
-              <div className="grid grid-cols-4 gap-1.5">
-                {TIME_CONTROLS.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setTc(c.id)}
-                    className={`tabular min-h-10 rounded-md text-[14px] font-bold transition-colors duration-150 ${
-                      tc === c.id ? 'bg-raise-2 text-fg ring-2 ring-accent' : 'bg-panel-2 text-fg-2 hover:bg-raise'
-                    }`}
-                    aria-label={c.id === 'none' ? t('play.noTime') : c.label}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
+              <TimeControlPicker value={tc} onChange={setTc} />
             </div>
             <details className="group">
               <summary className="cursor-pointer list-none text-[13px] font-bold text-fg-3 hover:text-fg">{t('play.assist')} ›</summary>

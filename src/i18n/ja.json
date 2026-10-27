@@ -125,7 +125,10 @@
     "continue": "続ける",
     "discard": "破棄",
     "saved": "対局を保存しました。「対局」から再開できます。",
-    "localInProgress": "未完了の2人対局"
+    "localInProgress": "未完了の2人対局",
+    "custom": "カスタム",
+    "minutes": "持ち時間（分）",
+    "increment": "加算（秒）"
   },
   "bots": {
     "group": {

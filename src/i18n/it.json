@@ -125,7 +125,10 @@
     "continue": "Riprendi",
     "discard": "Scarta",
     "saved": "Partita salvata. Puoi riprenderla da Gioca.",
-    "localInProgress": "Partita a due giocatori non finita"
+    "localInProgress": "Partita a due giocatori non finita",
+    "custom": "Altro",
+    "minutes": "Minuti",
+    "increment": "Incremento (s)"
   },
   "bots": {
     "group": {

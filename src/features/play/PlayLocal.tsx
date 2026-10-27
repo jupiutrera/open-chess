@@ -13,7 +13,8 @@ import { capturedPieces, gameResultText, timeoutResult } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { saveGame } from '../../db/games'
 import { GameOverDialog, type GameEnd } from './GameOver'
-import { TIME_CONTROLS } from './PlayHub'
+import { timeControl } from './timeControl'
+import { TimeControlPicker } from './TimeControlPicker'
 import { Panel, Toggle } from '../../ui/kit'
 import { cloneWithHistory } from './PlayBot'
 import { clearLiveGame, loadLiveGame, saveLiveGame, type LiveGame } from './liveGame'
@@ -24,7 +25,7 @@ export default function PlayLocal() {
   const [tcId, setTcId] = useState('none')
   const [started, setStarted] = useState(false)
   const [autoFlip, setAutoFlip] = useState(false)
-  const tc = TIME_CONTROLS.find((c) => c.id === tcId)!
+  const tc = timeControl(tcId)
   const game = useGame()
   const [flip, setFlip] = useState(false)
   const [end, setEnd] = useState<GameEnd | null>(null)
@@ -69,7 +70,7 @@ export default function PlayLocal() {
 
   const resume = (g: LiveGame) => {
     pendingResume.current = g
-    setTcId(TIME_CONTROLS.some((c) => c.id === g.tc) ? g.tc : 'none')
+    setTcId(timeControl(g.tc).id)
     setAutoFlip(!!g.autoFlip)
     setStarted(true)
     play('start')
@@ -150,17 +151,7 @@ export default function PlayLocal() {
         <Panel className="space-y-4 p-4">
           <div>
             <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.time')}</div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {TIME_CONTROLS.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setTcId(c.id)}
-                  className={`tabular min-h-10 rounded-md text-[14px] font-bold ${tcId === c.id ? 'bg-raise-2 ring-2 ring-accent' : 'bg-panel-2 text-fg-2'}`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
+            <TimeControlPicker value={tcId} onChange={setTcId} />
           </div>
           <Toggle checked={autoFlip} onChange={setAutoFlip} label={t('play.autoFlip')} />
           <button

@@ -125,7 +125,10 @@
     "continue": "继续",
     "discard": "放弃",
     "saved": "对局已保存，可在“对弈”中继续。",
-    "localInProgress": "未完成的双人对局"
+    "localInProgress": "未完成的双人对局",
+    "custom": "自定义",
+    "minutes": "分钟",
+    "increment": "加秒"
   },
   "bots": {
     "group": {

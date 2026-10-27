@@ -125,7 +125,10 @@
     "continue": "Continuar",
     "discard": "Descartar",
     "saved": "Partida guardada. Puedes continuarla desde Jugar.",
-    "localInProgress": "Partida de dos jugadores sin terminar"
+    "localInProgress": "Partida de dos jugadores sin terminar",
+    "custom": "Otro",
+    "minutes": "Minutos",
+    "increment": "Incremento (s)"
   },
   "bots": {
     "group": {

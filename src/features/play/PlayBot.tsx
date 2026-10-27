@@ -17,7 +17,7 @@ import { capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan }
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
-import { TIME_CONTROLS } from './PlayHub'
+import { timeControl } from './timeControl'
 import { GameOverDialog, type GameEnd } from './GameOver'
 import { saveGame } from '../../db/games'
 import { clearLiveGame, loadLiveGame, saveLiveGame } from './liveGame'
@@ -35,7 +35,7 @@ export default function PlayBot() {
   const { botId = 'ivan' } = useParams()
   const [params] = useSearchParams()
   const bot = botById(botId) ?? botById('ivan')!
-  const tc = TIME_CONTROLS.find((c) => c.id === params.get('tc')) ?? TIME_CONTROLS[0]
+  const tc = timeControl(params.get('tc'))
   const assist = useSettings((s) => s.assist)
   const lang = useSettings((s) => s.lang)
 

@@ -125,7 +125,10 @@
     "continue": "Reprendre",
     "discard": "Abandonner",
     "saved": "Partie enregistrée. Reprenez-la depuis Jouer.",
-    "localInProgress": "Partie à deux joueurs non terminée"
+    "localInProgress": "Partie à deux joueurs non terminée",
+    "custom": "Perso",
+    "minutes": "Minutes",
+    "increment": "Incrément (s)"
   },
   "bots": {
     "group": {

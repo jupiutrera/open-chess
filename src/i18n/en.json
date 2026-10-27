@@ -125,7 +125,10 @@
     "continue": "Continue",
     "discard": "Discard",
     "saved": "Game saved. You can continue it from Play.",
-    "localInProgress": "Unfinished two-player game"
+    "localInProgress": "Unfinished two-player game",
+    "custom": "Custom",
+    "minutes": "Minutes",
+    "increment": "Increment (s)"
   },
   "bots": {
     "group": {
