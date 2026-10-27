@@ -6,7 +6,8 @@ import { Users, Shuffle } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, type Bot } from './bots'
 import { Avatar } from '../../board/PlayerBar'
 import { PieceIcon } from '../../board/QualityIcon'
-import { PageHeader, Panel, Segmented, Toggle } from '../../ui/kit'
+import { PageHeader, Panel, Segmented } from '../../ui/kit'
+import { AssistToggles } from './AssistToggles'
 import { Board } from '../../board/Board'
 import { db } from '../../db/db'
 import { useSettings } from '../../settings'
@@ -42,13 +43,10 @@ export default function PlayHub() {
   const [selected, setSelected] = useState<Bot>(BOTS[4])
   const [color, setColor] = useState<'w' | 'b' | 'r'>('w')
   const [tc, setTc] = useState('none')
-  const [hints, setHints] = useState(true)
-  const [undo, setUndo] = useState(true)
-  const [evalBar, setEvalBar] = useState(false)
   const record = useBotRecord(selected.id)
 
   const start = () => {
-    const q = new URLSearchParams({ color, tc, hints: hints ? '1' : '0', undo: undo ? '1' : '0', eval: evalBar ? '1' : '0' })
+    const q = new URLSearchParams({ color, tc })
     nav(`/play/bot/${selected.id}?${q}`)
   }
 
@@ -138,11 +136,7 @@ export default function PlayHub() {
             </div>
             <details className="group">
               <summary className="cursor-pointer list-none text-[13px] font-bold text-fg-3 hover:text-fg">{t('play.assist')} ›</summary>
-              <div className="divide-y divide-line">
-                <Toggle checked={hints} onChange={setHints} label={t('play.hints')} />
-                <Toggle checked={undo} onChange={setUndo} label={t('play.takebacks')} />
-                <Toggle checked={evalBar} onChange={setEvalBar} label={t('play.evalBar')} />
-              </div>
+              <AssistToggles />
             </details>
             <button className="btn btn-primary btn-lg w-full" onClick={start}>
               {t('play.play')}
