@@ -53,10 +53,16 @@ function loadBucket(b: number): Promise<Puzzle[]> {
 
 /** Warms the service worker cache with the buckets around `b`, so nearby puzzles work offline later. */
 function prefetchAround(idx: Index, b: number) {
-  if (!navigator.onLine) return
-  for (const n of [b - idx.step, b + idx.step]) {
-    if (n >= idx.min && n < idx.max && !bucketCache.has(n)) void loadBucket(n)
+  // neighbouring buckets (~200 KB each) only when the connection allows and the page is idle
+  const conn = (navigator as { connection?: { saveData?: boolean } }).connection
+  if (!navigator.onLine || conn?.saveData) return
+  const go = () => {
+    for (const n of [b - idx.step, b + idx.step]) {
+      if (n >= idx.min && n < idx.max && !bucketCache.has(n)) void loadBucket(n)
+    }
   }
+  if (typeof requestIdleCallback === 'function') requestIdleCallback(go, { timeout: 5000 })
+  else setTimeout(go, 1500)
 }
 
 function bucketOf(idx: Index, rating: number) {
