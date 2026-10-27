@@ -330,6 +330,7 @@
     "none": "No hay partidas en ese periodo",
     "importReview": "Importar y revisar",
     "importAll": "Importar todas",
+    "loadMore": "Cargar partidas anteriores",
     "already": "Ya importada",
     "remember": "Recordar este usuario"
   },

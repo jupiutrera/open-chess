@@ -330,6 +330,7 @@
     "none": "该时间段内没有棋局",
     "importReview": "导入并复盘",
     "importAll": "全部导入",
+    "loadMore": "加载更早的对局",
     "already": "已导入",
     "remember": "记住此用户"
   },

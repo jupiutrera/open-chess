@@ -330,6 +330,7 @@
     "none": "Aucune partie sur cette période",
     "importReview": "Importer et analyser",
     "importAll": "Tout importer",
+    "loadMore": "Charger des parties plus anciennes",
     "already": "Déjà importée",
     "remember": "Se souvenir de cet utilisateur"
   },

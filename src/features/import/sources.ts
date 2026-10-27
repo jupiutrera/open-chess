@@ -80,18 +80,16 @@ interface LichessGame {
   pgn: string
 }
 
-export async function lichessGames(user: string, max = 50): Promise<RemoteGame[]> {
-  const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?max=${max}&pgnInJson=true&clocks=false&evals=false&opening=true`, {
-    headers: { Accept: 'application/x-ndjson' },
-  })
-  if (res.status === 404) throw new NotFoundError()
-  if (!res.ok) throw new Error(`lichess ${res.status}`)
-  const text = await res.text()
-  return text
+/** Lichess statuses for games that never finished; they have no real result. */
+const UNFINISHED = new Set(['created', 'started', 'aborted', 'noStart', 'unknownFinish'])
+
+/** Parses the Lichess NDJSON export, keeping finished standard games. */
+export function parseLichessGames(ndjson: string): RemoteGame[] {
+  return ndjson
     .split('\n')
     .filter(Boolean)
     .map((l) => JSON.parse(l) as LichessGame)
-    .filter((g) => g.variant === 'standard' && g.pgn)
+    .filter((g) => g.variant === 'standard' && g.pgn && !UNFINISHED.has(g.status))
     .map((g) => ({
       externalId: `lichess:${g.id}`,
       source: 'lichess' as const,
@@ -105,6 +103,27 @@ export async function lichessGames(user: string, max = 50): Promise<RemoteGame[]
       timeControl: g.clock ? `${g.clock.initial}+${g.clock.increment}` : undefined,
       url: `https://lichess.org/${g.id}`,
     }))
+}
+
+export interface LichessPage {
+  games: RemoteGame[]
+  /** pass as `until` to fetch the next, older page; absent on the last page */
+  next?: number
+}
+
+/** One page of a user's games, newest first, created before `until` (ms) when given. */
+export async function lichessGames(user: string, until?: number, max = 50): Promise<LichessPage> {
+  const params = new URLSearchParams({ max: String(max), pgnInJson: 'true', clocks: 'false', evals: 'false', opening: 'true' })
+  if (until) params.set('until', String(until))
+  const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?${params}`, {
+    headers: { Accept: 'application/x-ndjson' },
+  })
+  if (res.status === 404) throw new NotFoundError()
+  if (!res.ok) throw new Error(`lichess ${res.status}`)
+  const text = await res.text()
+  const raw = text.split('\n').filter(Boolean)
+  const oldest = raw.length ? (JSON.parse(raw[raw.length - 1]) as LichessGame).createdAt : undefined
+  return { games: parseLichessGames(text), next: raw.length === max && oldest ? oldest - 1 : undefined }
 }
 
 export async function importedIds(): Promise<Set<string>> {
