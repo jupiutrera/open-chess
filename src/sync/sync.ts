@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { create } from 'zustand'
 import type { EntityTable } from 'dexie'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
@@ -6,8 +6,14 @@ import { db, SYNC_TABLES, type SyncRow } from '../db/db'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-export const supabase: SupabaseClient | null = url && key ? createClient(url, key) : null
-export const syncConfigured = !!supabase
+export const syncConfigured = !!(url && key)
+
+let client: Promise<SupabaseClient> | null = null
+/** The Supabase SDK is only downloaded when sync is configured. */
+function supabase(): Promise<SupabaseClient> {
+  client ??= import('@supabase/supabase-js').then(({ createClient }) => createClient(url!, key!))
+  return client
+}
 
 interface SyncState {
   user: User | null
@@ -38,13 +44,13 @@ let running: Promise<void> | null = null
 
 /** Pushes local changes, then pulls remote ones. Last write (updatedAt) wins. */
 export function syncNow(): Promise<void> {
-  if (!supabase || !useSync.getState().user) return Promise.resolve()
+  if (!syncConfigured || !useSync.getState().user) return Promise.resolve()
   running ??= doSync().finally(() => (running = null))
   return running
 }
 
 async function doSync() {
-  const sb = supabase!
+  const sb = await supabase()
   useSync.setState({ syncing: true, error: null })
   try {
     const lastPush = Number(localStorage.getItem(PUSH_KEY)) || 0
@@ -103,12 +109,18 @@ async function doSync() {
 
 /** Wires auth state and periodic sync; returns a cleanup. */
 export function startSync(): () => void {
-  if (!supabase) return () => {}
-  const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-    const user = session?.user ?? null
-    const prev = useSync.getState().user
-    useSync.setState({ user })
-    if (user && user.id !== prev?.id) void syncNow()
+  if (!syncConfigured) return () => {}
+  let stopped = false
+  let unsubscribe = () => {}
+  void supabase().then((sb) => {
+    if (stopped) return
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
+      const user = session?.user ?? null
+      const prev = useSync.getState().user
+      useSync.setState({ user })
+      if (user && user.id !== prev?.id) void syncNow()
+    })
+    unsubscribe = () => sub.subscription.unsubscribe()
   })
   const onOnline = () => void syncNow()
   const onHide = () => document.visibilityState === 'hidden' && void syncNow()
@@ -116,7 +128,8 @@ export function startSync(): () => void {
   document.addEventListener('visibilitychange', onHide)
   const timer = setInterval(() => void syncNow(), 3 * 60_000)
   return () => {
-    sub.subscription.unsubscribe()
+    stopped = true
+    unsubscribe()
     window.removeEventListener('online', onOnline)
     document.removeEventListener('visibilitychange', onHide)
     clearInterval(timer)
@@ -124,19 +137,19 @@ export function startSync(): () => void {
 }
 
 export async function signInWithEmail(email: string) {
-  if (!supabase) throw new Error('sync not configured')
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } })
+  if (!syncConfigured) throw new Error('sync not configured')
+  const { error } = await (await supabase()).auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } })
   if (error) throw error
 }
 
 export async function signInWithGoogle() {
-  if (!supabase) throw new Error('sync not configured')
-  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } })
+  if (!syncConfigured) throw new Error('sync not configured')
+  const { error } = await (await supabase()).auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } })
   if (error) throw error
 }
 
 export async function signOut() {
-  await supabase?.auth.signOut()
+  if (syncConfigured) await (await supabase()).auth.signOut()
   localStorage.removeItem(PUSH_KEY)
   localStorage.removeItem(PULL_SEQ_KEY)
   localStorage.removeItem(PULL_TS_KEY)
