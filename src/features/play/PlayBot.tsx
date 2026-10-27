@@ -231,6 +231,7 @@ export default function PlayBot() {
             onMove={onUserMove}
             shapes={hint}
             premoves
+            outcome={end && game.atLive ? end : null}
           />
         }
         side={

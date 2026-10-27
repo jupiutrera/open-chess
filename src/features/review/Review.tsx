@@ -130,9 +130,12 @@ export default function Review() {
         : current && { square: parsed.moves[ply - 1].to, quality: current.quality }
       : null
 
+  const h = parsed.headers
+  const result = (h.Result ?? game.result) as '1-0' | '0-1' | '1/2-1/2' | '*'
+  const outcome = ply === total && !variation && !retry && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
+
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
-  const h = parsed.headers
   const whiteName = h.White ?? game.white
   const blackName = h.Black ?? game.black
   const bar = (c: 'w' | 'b') => (
@@ -210,6 +213,7 @@ export default function Review() {
           lastMove={lastMove}
           shapes={shapes}
           badge={badge || null}
+          outcome={outcome}
           movable={retry === 'waiting' && current ? (current.color === 'w' ? 'white' : 'black') : 'none'}
           onMove={onRetryMove}
         />
@@ -304,6 +308,15 @@ export default function Review() {
       }
     />
   )
+}
+
+/** Normalises our own, Lichess and chess.com termination headers. */
+function endReason(termination: string | undefined, fen: string): string {
+  const t = (termination ?? '').toLowerCase()
+  if (new Chess(fen).isCheckmate() || t.includes('checkmate')) return 'checkmate'
+  if (t.includes('resign')) return 'resign'
+  if (t.includes('time')) return 'timeout'
+  return t || 'other'
 }
 
 function NavBtn({ children, onClick, label }: { children: React.ReactNode; onClick: () => void; label: string }) {

@@ -431,3 +431,41 @@ cg-board square.right {
     transition: background-color 150ms ease;
   }
 }
+
+/* Game outcome badge on each king (crown, mate, flag, clock, ½) */
+.outcome-mark {
+  position: absolute;
+  z-index: 4;
+  width: 5.2%;
+  min-width: 18px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  font-size: clamp(11px, 2.1vmin, 20px);
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.9),
+    0 2px 5px rgb(0 0 0 / 0.4);
+  pointer-events: none;
+  animation: outcome-in 380ms var(--ease-out) both;
+}
+@keyframes outcome-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .outcome-mark {
+    animation: none;
+  }
+}

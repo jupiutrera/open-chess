@@ -9,6 +9,7 @@ import { toDests, isPromotion } from '../chess/util'
 import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
 import { QualityBadge, PieceSprite } from './QualityIcon'
+import { OutcomeMarks } from './OutcomeMarks'
 
 export interface BoardProps {
   fen: string
@@ -22,6 +23,8 @@ export interface BoardProps {
   /** extra square classes, e.g. hints or wrong-move flashes */
   highlights?: Map<string, string>
   premoves?: boolean
+  /** finished game: marks both kings with the outcome, chess.com style */
+  outcome?: { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null
   className?: string
 }
 
@@ -37,6 +40,7 @@ export function Board({
   badge,
   highlights,
   premoves = false,
+  outcome,
   className = '',
 }: BoardProps) {
   const el = useRef<HTMLDivElement>(null)
@@ -124,6 +128,7 @@ export function Board({
     <div className={`relative aspect-square w-full select-none ${className}`}>
       <div ref={el} style={{ position: 'absolute', inset: 0 }} />
       {badge && badgePos && <QualityBadge quality={badge.quality} style={badgePos} />}
+      {outcome && chess && <OutcomeMarks chess={chess} outcome={outcome} orientation={orientation} />}
       {promo && (
         <PromotionPicker
           color={promoColor}

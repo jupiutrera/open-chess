@@ -118,6 +118,7 @@ export default function PlayLocal() {
             fen={game.fen}
             orientation={orientation}
             movable={end || !game.atLive ? 'none' : 'both'}
+            outcome={end && game.atLive ? end : null}
             lastMove={game.lastMove}
             onMove={(f, to, p) => {
               const before = game.chess.turn()
