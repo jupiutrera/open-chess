@@ -235,7 +235,12 @@
     "newRecord": "Nuovo record!",
     "playAgain": "Gioca ancora",
     "allThemes": "Tutti i temi",
-    "history": "Cronologia"
+    "history": "Cronologia",
+    "mistakes": "I tuoi errori",
+    "mistakesSub": "Rigioca le posizioni sbagliate nelle tue partite analizzate",
+    "mistakesEmpty": "Ancora nessun errore da ripassare. Gioca o importa partite, analizzale e qui compariranno le posizioni sbagliate.",
+    "mistakeContext": "Contro {{opponent}} hai giocato {{san}} ({{quality}}). Trova la mossa migliore.",
+    "seeGame": "Vedi partita"
   },
   "themes": {
     "mateIn1": "Matto in 1",

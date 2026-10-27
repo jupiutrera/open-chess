@@ -38,7 +38,7 @@ export interface PuzzleAttemptRow extends SyncRow {
   puzzleId: string
   rating: number
   solved: boolean
-  mode: 'rated' | 'rush' | 'daily' | 'theme'
+  mode: 'rated' | 'rush' | 'daily' | 'theme' | 'mistakes'
   date: number
   ratingAfter?: number
 }

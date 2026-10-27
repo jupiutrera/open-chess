@@ -19,6 +19,7 @@ const Review = lazy(() => import('./features/review/Review'))
 const PuzzlesHub = lazy(() => import('./features/puzzles/PuzzlesHub'))
 const PuzzleRated = lazy(() => import('./features/puzzles/PuzzleRated'))
 const PuzzleRush = lazy(() => import('./features/puzzles/PuzzleRush'))
+const PuzzleMistakes = lazy(() => import('./features/puzzles/PuzzleMistakes'))
 const Openings = lazy(() => import('./features/openings/Openings'))
 const OpeningTrainer = lazy(() => import('./features/openings/OpeningTrainer'))
 const Lessons = lazy(() => import('./features/lessons/Lessons'))
@@ -85,6 +86,7 @@ export function App() {
             <Route path="puzzles/rated" element={<PuzzleRated />} />
             <Route path="puzzles/daily" element={<PuzzleRated daily />} />
             <Route path="puzzles/rush/:mode" element={<PuzzleRush />} />
+            <Route path="puzzles/mistakes" element={<PuzzleMistakes />} />
             <Route path="openings" element={<Openings />} />
             <Route path="openings/trainer/:color" element={<OpeningTrainer />} />
             <Route path="lessons" element={<Lessons />} />

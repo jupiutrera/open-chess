@@ -235,7 +235,12 @@
     "newRecord": "New record!",
     "playAgain": "Play again",
     "allThemes": "All themes",
-    "history": "History"
+    "history": "History",
+    "mistakes": "Your mistakes",
+    "mistakesSub": "Replay the positions you got wrong in your reviewed games",
+    "mistakesEmpty": "No mistakes to practise yet. Play or import games, review them, and the positions you got wrong will show up here.",
+    "mistakeContext": "Against {{opponent}} you played {{san}} ({{quality}}). Find the best move.",
+    "seeGame": "See game"
   },
   "themes": {
     "mateIn1": "Mate in 1",

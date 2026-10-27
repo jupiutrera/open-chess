@@ -235,7 +235,12 @@
     "newRecord": "Nouveau record !",
     "playAgain": "Rejouer",
     "allThemes": "Tous les thèmes",
-    "history": "Historique"
+    "history": "Historique",
+    "mistakes": "Vos erreurs",
+    "mistakesSub": "Rejouez les positions ratées de vos parties analysées",
+    "mistakesEmpty": "Pas encore d'erreurs à travailler. Jouez ou importez des parties, analysez-les et les positions ratées apparaîtront ici.",
+    "mistakeContext": "Contre {{opponent}} vous avez joué {{san}} ({{quality}}). Trouvez le meilleur coup.",
+    "seeGame": "Voir la partie"
   },
   "themes": {
     "mateIn1": "Mat en 1",

@@ -7,7 +7,7 @@ import { AppIcon, type AppIconName } from './AppIcon'
 import { BoardScreenSkeleton, HubSkeleton, useDismiss } from './kit'
 
 /** Board screens get a board-shaped placeholder while their code loads; hubs and lists get cards. */
-const BOARD_ROUTES = /^\/(play\/(bot|local)|review\/|puzzles\/(rated|daily|rush)|openings|lessons\/|analysis)/
+const BOARD_ROUTES = /^\/(play\/(bot|local)|review\/|puzzles\/(rated|daily|rush|mistakes)|openings|lessons\/|analysis)/
 
 interface Item {
   to: string

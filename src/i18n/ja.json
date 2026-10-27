@@ -235,7 +235,12 @@
     "newRecord": "新記録！",
     "playAgain": "もう一度",
     "allThemes": "すべてのテーマ",
-    "history": "履歴"
+    "history": "履歴",
+    "mistakes": "自分のミス",
+    "mistakesSub": "解析済みの対局で間違えた局面をもう一度",
+    "mistakesEmpty": "まだ練習するミスがありません。対局をプレイまたはインポートして解析すると、間違えた局面がここに表示されます。",
+    "mistakeContext": "{{opponent}}戦で{{san}}（{{quality}}）を指しました。最善手を見つけましょう。",
+    "seeGame": "対局を見る"
   },
   "themes": {
     "mateIn1": "1手詰め",

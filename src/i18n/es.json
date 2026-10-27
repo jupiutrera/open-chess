@@ -235,7 +235,12 @@
     "newRecord": "¡Nuevo récord!",
     "playAgain": "Jugar otra vez",
     "allThemes": "Todos los temas",
-    "history": "Historial"
+    "history": "Historial",
+    "mistakes": "Tus errores",
+    "mistakesSub": "Repite las posiciones en las que fallaste en tus partidas revisadas",
+    "mistakesEmpty": "Aún no hay errores que repasar. Juega o importa partidas, revísalas y aquí aparecerán las posiciones en las que fallaste.",
+    "mistakeContext": "Contra {{opponent}} jugaste {{san}} ({{quality}}). Encuentra la mejor jugada.",
+    "seeGame": "Ver partida"
   },
   "themes": {
     "mateIn1": "Mate en 1",
