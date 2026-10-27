@@ -234,7 +234,7 @@ export default function PlayBot() {
           />
         }
         side={
-          <Panel className="flex flex-col lg:h-[min(calc(100dvh-140px),720px)]">
+          <Panel className="flex flex-col lg:h-full">
             <div className="flex items-center gap-3 border-b border-line p-3">
               <Avatar label={bot.name} hue={bot.hue} size={36} />
               <div className="font-bold">

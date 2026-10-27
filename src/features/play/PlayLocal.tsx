@@ -126,7 +126,7 @@ export default function PlayLocal() {
           />
         }
         side={
-          <Panel className="flex flex-col lg:h-[min(calc(100dvh-140px),720px)]">
+          <Panel className="flex flex-col lg:h-full">
             <MoveList sans={game.sans} ply={game.ply} onSelect={game.goto} className="min-h-[120px] flex-1 py-1" />
             <div className="flex items-center justify-center gap-1 border-t border-line p-2">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>

@@ -80,7 +80,7 @@ export default function Openings() {
           />
         }
         side={
-          <Panel className="flex flex-col overflow-hidden lg:h-[min(calc(100dvh-140px),760px)]">
+          <Panel className="flex flex-col overflow-hidden lg:h-full">
             <div className="border-b border-line p-3">
               <Segmented
                 value={tab}

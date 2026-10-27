@@ -215,7 +215,7 @@ export default function Review() {
         />
       }
       side={
-        <Panel className="flex flex-col overflow-hidden lg:h-[min(calc(100dvh-140px),760px)]">
+        <Panel className="flex flex-col overflow-hidden lg:h-full">
           <div className="flex items-center gap-2 border-b border-line px-4 py-3">
             <Star size={20} weight="fill" className="text-accent" />
             <h1 className="text-[17px] font-extrabold">{t('review.title')}</h1>

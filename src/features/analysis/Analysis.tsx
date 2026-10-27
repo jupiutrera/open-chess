@@ -107,7 +107,7 @@ export default function Analysis() {
           />
         }
         side={
-          <Panel className="flex flex-col overflow-hidden lg:h-[min(calc(100dvh-140px),760px)]">
+          <Panel className="flex flex-col overflow-hidden lg:h-full">
             <div className="flex items-center gap-2 border-b border-line px-4 py-3">
               <Cpu size={20} weight="bold" className="text-fg-2" />
               <h1 className="text-[17px] font-extrabold">{t('analysis.title')}</h1>
