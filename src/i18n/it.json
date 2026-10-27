@@ -351,6 +351,21 @@
       "pawns": "Non ci possono essere pedoni sulla prima o sull'ultima traversa",
       "count": "Troppi pezzi per un lato",
       "check": "Il lato che non muove non può essere sotto scacco"
+    },
+    "tb": {
+      "title": "Tablebase",
+      "win": "Vince chi muove",
+      "loss": "Perde chi muove",
+      "draw": "Patta",
+      "cursed-win": "Vinta, ma patta per la regola delle 50 mosse",
+      "blessed-loss": "Persa, ma salvata dalla regola delle 50 mosse",
+      "maybe-win": "Probabilmente vinta",
+      "maybe-loss": "Probabilmente persa",
+      "unknown": "Sconosciuto",
+      "mateIn_one": "· matto in {{count}}",
+      "mateIn_other": "· matto in {{count}}",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
     }
   },
   "games": {

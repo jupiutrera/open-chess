@@ -351,6 +351,21 @@
       "pawns": "Aucun pion ne peut se trouver sur la première ou la dernière rangée",
       "count": "Trop de pièces pour un camp",
       "check": "Le camp qui ne joue pas ne peut pas être en échec"
+    },
+    "tb": {
+      "title": "Tablebase",
+      "win": "Le camp au trait gagne",
+      "loss": "Le camp au trait perd",
+      "draw": "Nulle",
+      "cursed-win": "Gain, mais nulle par la règle des 50 coups",
+      "blessed-loss": "Perte, mais sauvée par la règle des 50 coups",
+      "maybe-win": "Probablement gagnant",
+      "maybe-loss": "Probablement perdant",
+      "unknown": "Inconnu",
+      "mateIn_one": "· mat en {{count}}",
+      "mateIn_other": "· mat en {{count}}",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
     }
   },
   "games": {

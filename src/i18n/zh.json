@@ -351,6 +351,21 @@
       "pawns": "兵不能位于第一或最后一横排",
       "count": "一方棋子过多",
       "check": "非行棋方不能处于被将军状态"
+    },
+    "tb": {
+      "title": "残局库",
+      "win": "行棋方胜",
+      "loss": "行棋方负",
+      "draw": "和棋",
+      "cursed-win": "必胜，但按50回合规则为和",
+      "blessed-loss": "必败，但按50回合规则可保和",
+      "maybe-win": "可能胜",
+      "maybe-loss": "可能负",
+      "unknown": "未知",
+      "mateIn_one": "· {{count}} 步杀",
+      "mateIn_other": "· {{count}} 步杀",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
     }
   },
   "games": {

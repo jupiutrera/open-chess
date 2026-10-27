@@ -27,6 +27,7 @@ import { useAnalysis } from './useAnalysis'
 import { lookupOpening, type Opening } from '../openings/openingsData'
 import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
 import { BoardEditor } from './BoardEditor'
+import { TablebasePanel } from './TablebasePanel'
 import { useAssist } from '../play/useAssist'
 
 const RATE_ONLY = { eval: false, threats: false, suggest: false, feedback: true, engine: false }
@@ -178,6 +179,13 @@ export default function Analysis() {
                 </div>
               </div>
             )}
+            <TablebasePanel
+              fen={game.fen}
+              onPlay={(uci) => {
+                const { from, to, promotion } = parseUci(uci)
+                game.move(from, to, promotion, true, true)
+              }}
+            />
             {opening && (
               <div className="truncate border-b border-line px-4 py-2 text-[13px] text-fg-2">
                 <span className="tabular font-bold text-fg-3">{opening.eco}</span> {opening.name}

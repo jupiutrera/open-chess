@@ -351,6 +351,21 @@
       "pawns": "No puede haber peones en la primera ni en la última fila",
       "count": "Demasiadas piezas para un bando",
       "check": "El bando que no mueve no puede estar en jaque"
+    },
+    "tb": {
+      "title": "Tablebase",
+      "win": "Gana el bando que mueve",
+      "loss": "Pierde el bando que mueve",
+      "draw": "Tablas",
+      "cursed-win": "Gana, pero tablas por la regla de 50",
+      "blessed-loss": "Pierde, pero salva tablas por la regla de 50",
+      "maybe-win": "Probablemente gana",
+      "maybe-loss": "Probablemente pierde",
+      "unknown": "Desconocido",
+      "mateIn_one": "· mate en {{count}}",
+      "mateIn_other": "· mate en {{count}}",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
     }
   },
   "games": {

@@ -351,6 +351,21 @@
       "pawns": "1段目と8段目にポーンは置けません",
       "count": "片方の駒が多すぎます",
       "check": "手番でない側がチェックされている局面は不正です"
+    },
+    "tb": {
+      "title": "テーブルベース",
+      "win": "手番側の勝ち",
+      "loss": "手番側の負け",
+      "draw": "引き分け",
+      "cursed-win": "勝ちだが50手ルールで引き分け",
+      "blessed-loss": "負けだが50手ルールで引き分け",
+      "maybe-win": "おそらく勝ち",
+      "maybe-loss": "おそらく負け",
+      "unknown": "不明",
+      "mateIn_one": "· {{count}}手詰め",
+      "mateIn_other": "· {{count}}手詰め",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
     }
   },
   "games": {

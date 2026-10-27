@@ -24,6 +24,7 @@ export default function PuzzleMistakes() {
   }, [])
 
   // a fresh object per attempt: usePuzzle restarts when the puzzle changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` is the retry counter
   const puzzle = useMemo(() => (list?.[i] ? { ...list[i] } : null), [list, i, key])
   const pz = usePuzzle(puzzle, {
     onDone: (solved) => {

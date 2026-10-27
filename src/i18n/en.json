@@ -351,6 +351,21 @@
       "pawns": "Pawns can't stand on the first or last rank",
       "count": "Too many pieces for one side",
       "check": "The side not to move can't be in check"
+    },
+    "tb": {
+      "title": "Tablebase",
+      "win": "Side to move wins",
+      "loss": "Side to move loses",
+      "draw": "Draw",
+      "cursed-win": "Win, but drawn by the 50-move rule",
+      "blessed-loss": "Loss, but saved by the 50-move rule",
+      "maybe-win": "Probably winning",
+      "maybe-loss": "Probably losing",
+      "unknown": "Unknown",
+      "mateIn_one": "· mate in {{count}}",
+      "mateIn_other": "· mate in {{count}}",
+      "dtz_one": "· DTZ {{count}}",
+      "dtz_other": "· DTZ {{count}}"
     }
   },
   "games": {
