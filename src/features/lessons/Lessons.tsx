@@ -7,6 +7,7 @@ import { CATEGORIES, LESSONS } from './lessonData'
 import { db } from '../../db/db'
 import { useSettings } from '../../settings'
 import { Board } from '../../board/Board'
+import { localize } from '../../i18n/content'
 
 export default function Lessons() {
   const { t } = useTranslation()
@@ -29,8 +30,8 @@ export default function Lessons() {
               </div>
               <div>
                 <div className="text-[13px] font-bold text-fg-3">{t(`lessons.category.${next.category}`)}</div>
-                <div className="text-[22px] font-extrabold">{next.title[lang]}</div>
-                <p className="mt-1 max-w-[60ch] text-fg-2">{next.intro[lang]}</p>
+                <div className="text-[22px] font-extrabold">{localize(next.title, lang, `lessons.${next.id}.title`)}</div>
+                <p className="mt-1 max-w-[60ch] text-fg-2">{localize(next.intro, lang, `lessons.${next.id}.intro`)}</p>
                 <span className="btn btn-primary mt-3">{completed ? t('lessons.continue') : t('lessons.start')}</span>
               </div>
             </Panel>
@@ -48,8 +49,8 @@ export default function Lessons() {
                     <span className="h-6 w-6 shrink-0 rounded-full border-2 border-raise-2" />
                   )}
                   <div className="min-w-0 flex-1">
-                    <div className="font-bold">{l.title[lang]}</div>
-                    <div className="truncate text-[13px] text-fg-3">{l.intro[lang]}</div>
+                    <div className="font-bold">{localize(l.title, lang, `lessons.${l.id}.title`)}</div>
+                    <div className="truncate text-[13px] text-fg-3">{localize(l.intro, lang, `lessons.${l.id}.intro`)}</div>
                   </div>
                   <span className="tabular text-[12px] text-fg-3">{l.steps.length}</span>
                   <CaretRight size={18} className="text-fg-3" />

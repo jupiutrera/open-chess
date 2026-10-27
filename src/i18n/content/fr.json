@@ -1,0 +1,240 @@
+{
+  "lessons": {
+    "hanging-pieces": {
+      "title": "Prenez les pièces non défendues",
+      "intro": "Avant chaque coup, cherchez les pièces adverses qui ne sont pas défendues. Les prendre gratuitement est le moyen le plus simple de gagner.",
+      "steps": ["La dame noire est sur votre colonne et rien ne la défend. Prenez-la.", "Votre cavalier peut atteindre une tour non défendue."]
+    },
+    "mate-in-one": {
+      "title": "Mat en un coup",
+      "intro": "Échec et mat : le roi est attaqué et ne peut ni s’échapper, ni parer l’échec, ni prendre l’attaquant.",
+      "steps": ["Le roi noir est enfermé par ses propres pions. C’est le mat du couloir.", "Seul le roi défend f7. La dame et le fou l’attaquent ensemble."]
+    },
+    "smothered-mate": {
+      "title": "Mat étouffé",
+      "intro": "Quand le roi est entouré de ses propres pièces, un cavalier seul peut donner mat.",
+      "steps": ["Le roi n’a aucune case libre. Trouvez le saut du cavalier."]
+    },
+    "arabian-mate": {
+      "title": "Mat arabe",
+      "intro": "Tour et cavalier coopèrent : le cavalier protège la tour et couvre la fuite du roi dans le coin.",
+      "steps": ["Amenez la tour à côté du roi. Le cavalier la protège."]
+    },
+    "forks": {
+      "title": "Fourchettes",
+      "intro": "Une pièce qui attaque deux cibles à la fois ne laisse l’adversaire en sauver qu’une. Le cavalier est le roi des fourchettes.",
+      "steps": ["Faites échec tout en attaquant la tour.", "Un autre échec du cavalier gagne la dame."]
+    },
+    "skewer": {
+      "title": "Enfilade",
+      "intro": "Attaquez une pièce de valeur pour que, lorsqu’elle s’écarte, une autre pièce derrière elle sur la même ligne soit exposée.",
+      "steps": ["Faites échec sur la colonne du roi et la dame restera derrière lui."]
+    },
+    "discovered-attack": {
+      "title": "Attaque à la découverte",
+      "intro": "Déplacer une pièce ouvre la ligne d’une autre derrière elle. Si la pièce déplacée attaque aussi, l’adversaire ne peut parer les deux menaces.",
+      "steps": ["Déplacez le fou pour découvrir l’échec de la tour et gagner la dame."]
+    },
+    "kq-vs-k": {
+      "title": "Roi et dame contre roi",
+      "intro": "Utilisez la dame pour enfermer le roi adverse dans une zone de plus en plus petite, rapprochez votre roi et matez sur le bord. Attention au pat.",
+      "steps": ["Matez le roi noir."]
+    },
+    "kr-vs-k": {
+      "title": "Roi et tour contre roi",
+      "intro": "La tour coupe le roi rangée après rangée. Placez votre roi en opposition et faites échec avec la tour pour le pousser vers le bord.",
+      "steps": ["Matez le roi noir."]
+    },
+    "two-rooks": {
+      "title": "Mat de l’escalier",
+      "intro": "Deux tours donnent échec et coupent le roi à tour de rôle, comme si l’on montait un escalier jusqu’au bord.",
+      "steps": ["Matez avec les deux tours."]
+    },
+    "promote-pawn": {
+      "title": "Promouvoir le pion",
+      "intro": "Avec votre roi sur la sixième rangée devant le pion, la victoire est assurée. Prenez l’opposition et escortez le pion jusqu’à la promotion.",
+      "steps": ["Promouvez le pion et gagnez la partie."]
+    }
+  },
+  "bots": {
+    "pip": {
+      "bio": "Vient d’apprendre comment se déplace le cavalier et adore s’en servir.",
+      "says": {
+        "greet": ["Salut ! Tu savais que le cavalier saute en L ? C’est mon préféré !", "On joue ! Je sors le petit cheval."],
+        "win": ["J’AI GAGNÉ !! Je vais le dire à ma maman."],
+        "lose": ["Ooh… on en refait une ? Cette fois je gagne."]
+      }
+    },
+    "lola": {
+      "bio": "Sort sa dame très tôt. Parfois, ça marche.",
+      "says": {
+        "greet": ["Je te préviens : ma dame sort au deuxième coup.", "Salut ! Prépare-toi, je mets le paquet."],
+        "win": ["Je te l’avais dit ! La dame gagne toujours."],
+        "lose": ["Bon, d’accord… j’ai peut-être sorti la dame un peu tôt."]
+      }
+    },
+    "teo": {
+      "bio": "Joue au club du quartier le samedi matin.",
+      "says": { "greet": ["Salut ! C’est comme au club, sans le café du distributeur."] }
+    },
+    "marga": {
+      "bio": "Aime les positions fermées et n’est jamais pressée.",
+      "says": {
+        "greet": ["Assieds-toi, mon petit. Pas de hâte, ici on prend notre temps."],
+        "win": ["Oh, désolée, mon petit. La patience, c’est mon secret."]
+      }
+    },
+    "ivan": {
+      "bio": "Attaquant né : s’il y a un sacrifice, il le tentera.",
+      "says": {
+        "greet": ["Se défendre ? C’est pour ceux qui ne savent pas attaquer.", "Aujourd’hui je sacrifie quelque chose. Je ne sais pas encore quoi."],
+        "win": ["Toujours attaquer ! T’as vu cette fin ?"],
+        "lose": ["Le sacrifice était correct. Presque sûr."]
+      }
+    },
+    "noa": {
+      "bio": "Étudie les ouvertures tous les soirs et les connaît plutôt bien.",
+      "says": {
+        "greet": ["Hier soir j’ai révisé douze variantes. Surprends-moi."],
+        "lose": ["Ce n’était pas dans mes notes. Je le note."]
+      }
+    },
+    "rafa": {
+      "bio": "Joueur de tournoi solide. Punit les erreurs tactiques.",
+      "says": { "greet": ["Bonne chance. Joue prudemment."] }
+    },
+    "kira": {
+      "bio": "Rapide et précise. Adore les finales.",
+      "says": {
+        "greet": ["On échange les dames et on se retrouve en finale."],
+        "win": ["Les finales ne pardonnent pas."]
+      }
+    },
+    "oscar": {
+      "bio": "Expert de club au répertoire très affûté.",
+      "says": { "greet": ["Sicilienne, comme toujours. À toi de choisir ta souffrance."] }
+    },
+    "vera": {
+      "bio": "Candidate maître. Jeu positionnel, elle ne lâche rien.",
+      "says": { "greet": ["Une case faible, c’est tout ce qu’il me faut."] }
+    },
+    "boris": {
+      "bio": "Maître FIDE de la vieille école. Calcul profond.",
+      "says": {
+        "greet": ["De mon temps, il n’y avait pas de moteurs. Juste du café et du calcul."],
+        "win": ["Hm. Bien joué jusqu’au vingtième coup."],
+        "lose": ["Hm. Bien. Très bien. Encore une."]
+      }
+    },
+    "elena": {
+      "bio": "Grand maître. Prépare-toi à souffrir.",
+      "says": {
+        "greet": ["Vas-y. Montre-moi ce que tu sais faire."],
+        "lose": ["Impressionnant. Vraiment."]
+      }
+    },
+    "stockfish": { "bio": "Le moteur à pleine puissance. Personne ne le bat." }
+  },
+  "chat": {
+    "kid": {
+      "greet": ["Salut ! On joue ?"],
+      "capture": ["Miam ! Je la garde.", "Je t’ai eu !"],
+      "lostPiece": ["Hé ! C’était à moi !", "Oups… je ne l’avais pas vue."],
+      "check": ["Échec ! Échec ! Échec !"],
+      "blunder": ["Euh, t’es sûr de vouloir faire ça ?"],
+      "win": ["J’ai gagné, j’ai gagné !"],
+      "lose": ["Oh non, encore…"],
+      "draw": ["Nulle ? Tape-m’en cinq !"]
+    },
+    "bold": {
+      "greet": ["Que la bataille commence !"],
+      "capture": ["Encore du matériel pour la marmite !", "Merci pour le cadeau."],
+      "lostPiece": ["Bah, c’était un sacrifice. Évidemment.", "Calculé. À peu près."],
+      "check": ["Échec ! Tu sens la chaleur ?", "Sus au roi !"],
+      "blunder": ["Ha ! Même moi je l’avais vu."],
+      "win": ["Victoire ! Voilà comment on attaque."],
+      "lose": ["Trop courageux pour mon propre bien. Revanche."],
+      "draw": ["Nulle ? Quel ennui… mais d’accord."]
+    },
+    "friendly": {
+      "greet": ["Que le meilleur gagne !"],
+      "capture": ["Pardon, je n’ai pas pu résister."],
+      "lostPiece": ["Bien vu !", "Waouh, joli coup."],
+      "check": ["Échec, attention à ton roi !"],
+      "blunder": ["Hmm, tu veux y réfléchir encore ?"],
+      "win": ["Belle partie ! Tu m’as presque eu."],
+      "lose": ["Bravo ! Tu as super bien joué."],
+      "draw": ["Une nulle méritée. Belle partie !"]
+    },
+    "calm": {
+      "greet": ["Doucement. Les échecs ne sont jamais pressés."],
+      "capture": ["Merci.", "Celle-ci est à moi maintenant."],
+      "lostPiece": ["Bien. Très bien."],
+      "check": ["Échec, tranquillement."],
+      "blunder": ["Doucement. Regarde bien l’échiquier."],
+      "win": ["Pas à pas, on va loin."],
+      "lose": ["Très bien joué. Je l’ai mérité."],
+      "draw": ["Une nulle équilibrée."]
+    },
+    "studious": {
+      "greet": ["Voyons quelle ouverture tu choisis."],
+      "capture": ["D’après mes notes, c’était gratuit."],
+      "lostPiece": ["Intéressant. Je n’avais pas préparé ça."],
+      "check": ["Échec. Pure théorie."],
+      "blunder": ["C’est une imprécision de manuel."],
+      "win": ["La préparation paie toujours."],
+      "lose": ["Je dois réviser cette ligne."],
+      "draw": ["Une nulle théorique, comme prévu."]
+    },
+    "serious": {
+      "greet": ["Commençons."],
+      "capture": ["Erreur punie."],
+      "lostPiece": ["Bien joué."],
+      "check": ["Échec."],
+      "blunder": ["Ça va te coûter cher."],
+      "win": ["Belle partie."],
+      "lose": ["Mérité. Félicitations."],
+      "draw": ["Nulle. Juste."]
+    },
+    "cool": {
+      "greet": ["Voyons ce que tu vaux."],
+      "capture": ["Merci.", "Trop facile."],
+      "lostPiece": ["Tiens. Pas mal."],
+      "check": ["Échec.", "Tu le vois venir ?"],
+      "blunder": ["C’était un cadeau."],
+      "win": ["GG."],
+      "lose": ["Bien joué. Sérieusement."],
+      "draw": ["Nulle. À plus."]
+    },
+    "old": {
+      "greet": ["Ah, la jeunesse. Voyons voir."],
+      "capture": ["Hm. Gratuit.", "De mon temps, on ne donnait pas ça."],
+      "lostPiece": ["Hm. Bien vu, petit."],
+      "check": ["Échec. Regarde bien."],
+      "blunder": ["Hm. Aucun livre n’enseigne ça."],
+      "win": ["L’expérience, ça compte."],
+      "lose": ["Hm. Tu me fais me sentir jeune à nouveau."],
+      "draw": ["Nulle. Comme au bon vieux temps."]
+    },
+    "gm": {
+      "greet": ["Joue tes meilleurs échecs."],
+      "capture": ["Merci."],
+      "lostPiece": ["Précis."],
+      "check": ["Échec."],
+      "blunder": ["Ça ne se rattrape plus."],
+      "win": ["Belle partie. Continue à t’entraîner."],
+      "lose": ["Excellent. Tu m’as surpassée."],
+      "draw": ["Une nulle méritée."]
+    },
+    "machine": {
+      "greet": ["Recherche lancée. Profondeur : suffisante."],
+      "capture": ["Matériel +1. Évaluation mise à jour."],
+      "lostPiece": ["Sacrifice calculé il y a 23 coups."],
+      "check": ["Échec. Mat en approche."],
+      "blunder": ["Erreur détectée. Évaluation : −4,2."],
+      "win": ["Résultat conforme aux prévisions. Fin du processus."],
+      "lose": ["ERREUR : résultat impossible."],
+      "draw": ["Nulle. Inhabituel."]
+    }
+  }
+}

@@ -12,6 +12,7 @@ import { AssistToggles } from './AssistToggles'
 import { Board } from '../../board/Board'
 import { db } from '../../db/db'
 import { useSettings } from '../../settings'
+import { localize } from '../../i18n/content'
 
 export const TIME_CONTROLS = [
   { id: 'none', label: '∞', base: 0, inc: 0 },
@@ -78,7 +79,7 @@ export default function PlayHub() {
               <div className="text-[20px] font-extrabold">
                 {selected.name} <span className="tabular font-semibold text-fg-3">{selected.elo}</span>
               </div>
-              <p className="text-[14px] text-fg-2">{selected.bio[lang]}</p>
+              <p className="text-[14px] text-fg-2">{localize(selected.bio, lang, `bots.${selected.id}.bio`)}</p>
               {record && record.w + record.d + record.l > 0 && (
                 <p className="tabular mt-1 text-[13px] text-fg-3">{t('play.record', record)}</p>
               )}

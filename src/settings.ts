@@ -4,6 +4,20 @@ import { persist } from 'zustand/middleware'
 export const PIECE_SETS = ['staunty', 'fresca', 'tatiana', 'maestro', 'california', 'cardinal', 'gioco', 'chessnut', 'cburnett'] as const
 export type PieceSet = (typeof PIECE_SETS)[number]
 
+export const SOUND_SETS = ['wood', 'sfx', 'piano', 'nes', 'futuristic'] as const
+export type SoundSet = (typeof SOUND_SETS)[number]
+
+export const LANGS = ['es', 'en', 'fr', 'it', 'zh', 'ja'] as const
+export type Lang = (typeof LANGS)[number]
+
+/** Native name of each language, for the picker. */
+export const LANG_NAMES: Record<Lang, string> = { es: 'Español', en: 'English', fr: 'Français', it: 'Italiano', zh: '中文', ja: '日本語' }
+
+function detectLang(): Lang {
+  const nav = (navigator.language ?? 'es').slice(0, 2).toLowerCase()
+  return (LANGS as readonly string[]).includes(nav) ? (nav as Lang) : 'es'
+}
+
 export type BoardTheme = 'green' | 'brown' | 'blue' | 'gray' | 'purple'
 
 /** In-game help against bots */
@@ -16,11 +30,12 @@ export interface AssistSettings {
 }
 
 export interface Settings {
-  lang: 'es' | 'en'
+  lang: Lang
   theme: 'dark' | 'light'
   board: BoardTheme
   pieces: PieceSet
   sound: boolean
+  soundSet: SoundSet
   coords: boolean
   showDests: boolean
   autoQueen: boolean
@@ -36,11 +51,12 @@ export interface Settings {
 export const useSettings = create<Settings>()(
   persist(
     (set) => ({
-      lang: navigator.language?.startsWith('en') ? 'en' : 'es',
+      lang: detectLang(),
       theme: 'dark',
       board: 'green',
       pieces: 'staunty',
       sound: true,
+      soundSet: 'wood',
       coords: true,
       showDests: true,
       autoQueen: false,

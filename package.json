@@ -13,6 +13,7 @@
     "data:openings": "node scripts/build-openings.mjs",
     "data:puzzles": "node scripts/build-puzzles.mjs",
     "data:avatars": "node scripts/build-avatars.mjs",
+    "data:sounds": "node scripts/build-sounds.mjs",
     "android": "npm run build && npx cap sync android",
     "postinstall": "node scripts/copy-engine.mjs",
     "e2e": "playwright test"

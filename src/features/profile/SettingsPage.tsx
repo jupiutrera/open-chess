@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PageHeader, Panel, Segmented, Toggle } from '../../ui/kit'
-import { useSettings, PIECE_SETS, type BoardTheme } from '../../settings'
+import { useSettings, PIECE_SETS, SOUND_SETS, LANGS, LANG_NAMES, type BoardTheme } from '../../settings'
+import { play, preloadSounds } from '../../chess/sounds'
 
 const KNIGHTS = import.meta.glob('../../assets/pieces/*/wN.svg', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 const KINGS = import.meta.glob('../../assets/pieces/*/bK.svg', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
@@ -24,14 +25,21 @@ export default function SettingsPage() {
         <Panel className="grid gap-4 p-4">
           <div>
             <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('settings.language')}</div>
-            <Segmented
-              value={s.lang}
-              onChange={(lang) => s.set({ lang })}
-              options={[
-                { value: 'es', label: 'Español' },
-                { value: 'en', label: 'English' },
-              ]}
-            />
+            <div className="grid grid-cols-3 gap-1.5">
+              {LANGS.map((l) => (
+                <button
+                  key={l}
+                  lang={l}
+                  onClick={() => s.set({ lang: l })}
+                  aria-pressed={s.lang === l}
+                  className={`min-h-10 rounded-md text-[14px] font-bold transition-colors duration-150 ${
+                    s.lang === l ? 'bg-raise-2 text-fg ring-2 ring-accent' : 'bg-panel-2 text-fg-2 hover:bg-raise'
+                  }`}
+                >
+                  {LANG_NAMES[l]}
+                </button>
+              ))}
+            </div>
           </div>
           <div>
             <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('settings.theme')}</div>
@@ -90,6 +98,31 @@ export default function SettingsPage() {
 
         <Panel className="divide-y divide-line px-4">
           <Toggle checked={s.sound} onChange={(v) => s.set({ sound: v })} label={t('settings.sound')} />
+          {s.sound && (
+            <div className="py-3">
+              <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('settings.soundSet')}</div>
+              <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-5">
+                {SOUND_SETS.map((set) => (
+                  <button
+                    key={set}
+                    onClick={() => {
+                      s.set({ soundSet: set })
+                      preloadSounds(set)
+                      // let the user hear it: a move, then a capture
+                      play('move')
+                      setTimeout(() => play('capture'), 380)
+                    }}
+                    aria-pressed={s.soundSet === set}
+                    className={`min-h-10 rounded-md text-[14px] font-bold transition-colors duration-150 ${
+                      s.soundSet === set ? 'bg-raise-2 text-fg ring-2 ring-accent' : 'bg-panel-2 text-fg-2 hover:bg-raise'
+                    }`}
+                  >
+                    {t(`settings.soundSets.${set}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <Toggle checked={s.haptics} onChange={(v) => s.set({ haptics: v })} label={t('settings.haptics')} />
           <Toggle checked={s.coords} onChange={(v) => s.set({ coords: v })} label={t('settings.coords')} />
           <Toggle checked={s.showDests} onChange={(v) => s.set({ showDests: v })} label={t('settings.showDests')} />

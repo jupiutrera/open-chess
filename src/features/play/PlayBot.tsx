@@ -25,6 +25,7 @@ import { useSettings } from '../../settings'
 import { useAssist } from './useAssist'
 import { AssistToggles } from './AssistToggles'
 import type { DrawShape } from '@lichess-org/chessground/draw'
+import { localize } from '../../i18n/content'
 
 export default function PlayBot() {
   const { t } = useTranslation()
@@ -311,7 +312,7 @@ export default function PlayBot() {
                   {bot.name} <span className="tabular font-normal text-fg-3">{bot.elo}</span>
                 </div>
                 <p key={chat?.key} className="enter truncate text-[13px] text-fg-2" title={chat?.text}>
-                  {chat?.text ?? bot.bio[lang]}
+                  {chat?.text ?? localize(bot.bio, lang, `bots.${bot.id}.bio`)}
                 </p>
               </div>
               {tc.base > 0 && <span className="tabular shrink-0 text-[13px] text-fg-3">{tc.label}</span>}
