@@ -16,6 +16,8 @@ En el navegador o como app de Android. Sin anuncios, sin suscripciones y sin cue
 ![React](https://img.shields.io/badge/React%2019-TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Idiomas](https://img.shields.io/badge/idiomas-ES%20%C2%B7%20EN-f2b43c?style=flat-square)
 
+**[Pruébala en el navegador](https://jupiutrera.github.io/open-chess/)** · **[Descarga el APK](https://github.com/jupiutrera/open-chess/releases/latest)**
+
 [English](README.en.md) · [Funcionalidades](#funcionalidades) · [Cómo funciona](#cómo-funciona) · [Empezar](#empezar) · [APK de Android](#apk-de-android)
 
 <img src="docs/screenshots/review-brilliant.png" alt="Revisión de partida: la Ópera de Morphy, con 13.Txd7 marcada como jugada brillante" width="100%" />

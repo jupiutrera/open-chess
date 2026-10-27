@@ -16,6 +16,8 @@ In the browser or as an Android app. No ads, no subscriptions, no account requir
 ![React](https://img.shields.io/badge/React%2019-TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Languages](https://img.shields.io/badge/languages-ES%20%C2%B7%20EN-f2b43c?style=flat-square)
 
+**[Try it in your browser](https://jupiutrera.github.io/open-chess/)** · **[Download the APK](https://github.com/jupiutrera/open-chess/releases/latest)**
+
 [Español](README.md) · [Features](#features) · [How it works](#how-it-works) · [Getting started](#getting-started) · [Android APK](#android-apk)
 
 <img src="docs/screenshots/review-brilliant.png" alt="Game review: Morphy's Opera Game, with 13.Rxd7 marked as brilliant" width="100%" />
