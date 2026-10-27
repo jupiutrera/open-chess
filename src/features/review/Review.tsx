@@ -18,7 +18,7 @@ import { playMoveSound, play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type Score } from '../../engine/engine'
 import type { GameRow } from '../../db/db'
 import { useSettings } from '../../settings'
-import { Panel } from '../../ui/kit'
+import { BoardScreenSkeleton, Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
 
@@ -95,7 +95,7 @@ export default function Review() {
     return () => window.removeEventListener('keydown', onKey)
   }, [goto, ply, total])
 
-  if (game === undefined) return null
+  if (game === undefined) return <BoardScreenSkeleton />
   if (game === null || !parsed)
     return (
       <div className="p-6 text-fg-2">

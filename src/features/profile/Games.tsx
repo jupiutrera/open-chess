@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Trash, CaretRight, Robot, Users, Globe, FileText } from '@phosphor-icons/react'
 import { db, softDelete, type GameRow } from '../../db/db'
-import { PageHeader, Panel, Segmented, timeAgo } from '../../ui/kit'
+import { PageHeader, Panel, Segmented, SkeletonRows, timeAgo } from '../../ui/kit'
 import { useSettings } from '../../settings'
 
 const SOURCE_ICON = { bot: Robot, local: Users, chesscom: Globe, lichess: Globe, pgn: FileText }
@@ -94,7 +94,7 @@ export default function Games() {
             </div>
           )}
           <div className="divide-y divide-line">
-            {games?.map((g) => <GameRowItem key={g.id} game={g} onDelete={() => void softDelete('games', g.id)} />)}
+            {games ? games.map((g) => <GameRowItem key={g.id} game={g} onDelete={() => void softDelete('games', g.id)} />) : <SkeletonRows count={6} />}
           </div>
         </Panel>
       </div>

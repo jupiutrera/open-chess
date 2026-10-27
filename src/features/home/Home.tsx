@@ -7,7 +7,7 @@ import { AppIcon, type AppIconName } from '../../ui/AppIcon'
 import { PieceIcon } from '../../board/QualityIcon'
 import { Chess } from 'chess.js'
 import { Board } from '../../board/Board'
-import { Panel } from '../../ui/kit'
+import { Panel, Skeleton, SkeletonRows } from '../../ui/kit'
 import { Logo } from '../../ui/Logo'
 import { db } from '../../db/db'
 import { recentGames } from '../../db/games'
@@ -100,7 +100,7 @@ export function Home() {
                 </Link>
               </div>
             ) : (
-              <div className="divide-y divide-line">{games?.map((g) => <GameRowItem key={g.id} game={g} />)}</div>
+              <div className="divide-y divide-line">{games ? games.map((g) => <GameRowItem key={g.id} game={g} />) : <SkeletonRows count={3} />}</div>
             )}
           </Panel>
         </div>
@@ -115,7 +115,7 @@ export function Home() {
                 {daily && <span className="tabular text-[13px] text-fg-3">{daily.p.rating}</span>}
               </div>
               <div className="px-3 pb-3">
-                {daily ? <Board fen={daily.fen} orientation={daily.color} /> : <div className="aspect-square w-full rounded bg-raise/60" />}
+                {daily ? <Board fen={daily.fen} orientation={daily.color} /> : <Skeleton className="aspect-square w-full rounded" />}
               </div>
             </Panel>
           </Link>

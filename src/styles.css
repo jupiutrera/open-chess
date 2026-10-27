@@ -509,3 +509,31 @@ cg-board square.right {
   opacity: 0;
   transform: scale(0.96);
 }
+
+/* Skeleton shimmer: a soft highlight sweeping across the placeholder */
+.skeleton {
+  background-color: color-mix(in srgb, var(--raise) 75%, transparent);
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--text) 7%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 130% 0;
+  }
+  to {
+    background-position: -90% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background-image: none;
+  }
+}

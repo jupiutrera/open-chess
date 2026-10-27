@@ -1,10 +1,10 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, useEffect } from 'react'
 import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import { App as CapApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { Layout } from './ui/Layout'
-import { Toaster, Skeleton } from './ui/kit'
+import { Toaster } from './ui/kit'
 import { applyDocumentSettings, useSettings } from './settings'
 import { startSync } from './sync/sync'
 import { Home } from './features/home/Home'
@@ -25,15 +25,6 @@ const Games = lazy(() => import('./features/profile/Games'))
 const Import = lazy(() => import('./features/import/Import'))
 const Profile = lazy(() => import('./features/profile/Profile'))
 const SettingsPage = lazy(() => import('./features/profile/SettingsPage'))
-
-function Loading() {
-  return (
-    <div className="mx-auto grid max-w-6xl gap-4 p-4 lg:grid-cols-[1fr_340px] lg:p-6">
-      <Skeleton className="aspect-square w-full" />
-      <Skeleton className="h-64" />
-    </div>
-  )
-}
 
 /** Android hardware back button follows router history. */
 function BackButton() {
@@ -65,7 +56,6 @@ export function App() {
   return (
     <HashRouter>
       <BackButton />
-      <Suspense fallback={<Loading />}>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Home />} />
@@ -88,7 +78,6 @@ export function App() {
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>
-      </Suspense>
       <Toaster />
     </HashRouter>
   )

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Timer, Infinity as InfinityIcon, CaretRight } from '@phosphor-icons/react'
 import { AppIcon } from '../../ui/AppIcon'
-import { PageHeader, Panel } from '../../ui/kit'
+import { PageHeader, Panel, SkeletonText } from '../../ui/kit'
 import { db, kvGet } from '../../db/db'
 import { getPuzzleRating, THEMES } from './puzzlesData'
 
@@ -23,7 +23,7 @@ export default function PuzzlesHub() {
             <div className="flex-1">
               <div className="text-[20px] font-extrabold">{t('puzzles.rated')}</div>
               <div className="tabular text-fg-2">
-                {t('common.rating')}: <b className="text-fg">{rating?.rating ?? '…'}</b>
+                {t('common.rating')}: <b className="text-fg">{rating?.rating ?? <SkeletonText width="4ch" />}</b>
                 {solved !== undefined && (
                   <span className="text-fg-3">
                     {' '}

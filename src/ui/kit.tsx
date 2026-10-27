@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { create } from 'zustand'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, X } from '@phosphor-icons/react'
@@ -143,8 +143,91 @@ export function Toaster() {
   )
 }
 
-export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-raise/70 ${className}`} />
+/* Skeletons: shapes that match the content they stand in for, with a soft shimmer */
+export function Skeleton({ className = '', style }: { className?: string; style?: CSSProperties }) {
+  return <div className={`skeleton rounded-md ${className}`} style={style} aria-hidden />
+}
+
+/** An inline bar the height of a line of text. */
+export function SkeletonText({ width = '6ch', className = '' }: { width?: string | number; className?: string }) {
+  return <span className={`skeleton inline-block h-[0.8em] translate-y-[0.1em] rounded ${className}`} style={{ width }} aria-hidden />
+}
+
+/** Placeholder rows shaped like the game list. */
+export function SkeletonRows({ count = 4 }: { count?: number }) {
+  return (
+    <div className="divide-y divide-line" aria-busy>
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="flex items-center gap-3 px-4 py-3">
+          <Skeleton className="h-5 w-5 rounded-full" />
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <Skeleton className="h-4" style={{ width: `${62 - ((i * 17) % 24)}%` }} />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <Skeleton className="h-6 w-14" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Board screen placeholder: player bars, board and side panel in the real layout. */
+export function BoardScreenSkeleton({ side = true }: { side?: boolean }) {
+  const bar = (
+    <div className="flex h-12 items-center gap-2.5 px-2 lg:px-0.5">
+      <Skeleton className="h-10 w-10" />
+      <Skeleton className="h-4 w-28" />
+      <Skeleton className="ml-auto h-9 w-24" />
+    </div>
+  )
+  return (
+    <div className="board-layout" style={{ '--bars': 2, '--evalw': '0px' } as CSSProperties} aria-busy>
+      <div className="bl-board">
+        {bar}
+        <Skeleton className="aspect-square w-full rounded" />
+        {bar}
+      </div>
+      {side && (
+        <aside className="bl-side">
+          <div className="flex flex-col gap-3 rounded-[10px] bg-panel p-4 lg:h-full">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-11 w-11" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-48" />
+              </div>
+            </div>
+            {Array.from({ length: 6 }, (_, i) => (
+              <Skeleton key={i} className="h-5" style={{ width: `${88 - ((i * 13) % 30)}%` }} />
+            ))}
+            <div className="mt-auto grid grid-cols-4 gap-2">
+              {Array.from({ length: 4 }, (_, i) => (
+                <Skeleton key={i} className="h-14 rounded-[10px]" />
+              ))}
+            </div>
+          </div>
+        </aside>
+      )}
+    </div>
+  )
+}
+
+/** Hub page placeholder: title, a hero card and a grid of tiles. */
+export function HubSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 pb-8 pt-4 lg:px-6 lg:pt-6" aria-busy>
+      <Skeleton className="mb-5 h-8 w-48" />
+      <Skeleton className="mb-3 h-24 rounded-[10px]" />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {Array.from({ length: 4 }, (_, i) => (
+          <Skeleton key={i} className="h-32 rounded-[10px]" />
+        ))}
+      </div>
+      <div className="mt-4 overflow-hidden rounded-[10px] bg-panel">
+        <SkeletonRows count={4} />
+      </div>
+    </div>
+  )
 }
 
 export function useOnline() {
