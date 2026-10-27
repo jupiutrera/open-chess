@@ -55,7 +55,7 @@ export default function PlayBot() {
       endRef.current = e
       setEnd(e)
       clock.stop()
-      play('end')
+      play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
       const row = await saveGame({
         source: 'bot',
         chess: cloneWithHistory(game.chess),
