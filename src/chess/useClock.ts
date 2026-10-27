@@ -64,6 +64,16 @@ export function useClock(baseSec: number, incSec: number, onFlag: (side: 'w' | '
     [enabled, incSec, tick, start],
   )
 
+  /** Takes back the increment `side` received for a move that was undone. */
+  const unpress = useCallback(
+    (side: 'w' | 'b') => {
+      if (!enabled || !incSec) return
+      timeRef.current = { ...timeRef.current, [side]: Math.max(0, timeRef.current[side] - incSec * 1000) }
+      setTime(timeRef.current)
+    },
+    [enabled, incSec],
+  )
+
   /** Hands the clock to `side` without increment (after a takeback). */
   const setTurn = useCallback(
     (side: 'w' | 'b') => {
@@ -105,5 +115,5 @@ export function useClock(baseSec: number, incSec: number, onFlag: (side: 'w' | '
     return activeRef.current === side ? Math.max(0, t - (performance.now() - last.current)) : t
   }, [])
 
-  return { enabled, time, active, press, stop, reset, setTurn, restore, left }
+  return { enabled, time, active, press, unpress, stop, reset, setTurn, restore, left }
 }

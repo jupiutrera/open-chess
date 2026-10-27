@@ -128,7 +128,8 @@
     "localInProgress": "未完了の2人対局",
     "custom": "カスタム",
     "minutes": "持ち時間（分）",
-    "increment": "加算（秒）"
+    "increment": "加算（秒）",
+    "replaceSaved": "{{name}}との対局が途中です。新しく始めると破棄されます。"
   },
   "bots": {
     "group": {

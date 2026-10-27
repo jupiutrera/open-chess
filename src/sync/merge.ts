@@ -14,5 +14,12 @@ export function mergeRow(tbl: string, local: SyncRow | undefined, remote: SyncRo
     // a merge that differs from the server must be pushed back, so it gets a fresh timestamp
     return { ...remote, value, updatedAt: sameAsRemote ? remote.updatedAt : Date.now() } as SyncRow
   }
+  if (tbl === 'games' && local && !local.deleted && !remote.deleted) {
+    // the same game imported on two devices shares its id: keep a review either side has
+    const l = local as SyncRow & { review?: unknown; pgn?: string }
+    const r = remote as SyncRow & { review?: unknown; pgn?: string }
+    if (l.updatedAt < r.updatedAt && !r.review && l.review && l.pgn === r.pgn) return { ...r, review: l.review, updatedAt: Date.now() } as SyncRow
+    if (l.updatedAt >= r.updatedAt && !l.review && r.review && l.pgn === r.pgn) return { ...l, review: r.review, updatedAt: Date.now() } as SyncRow
+  }
   return !local || local.updatedAt < remote.updatedAt ? remote : null
 }

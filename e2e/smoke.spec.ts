@@ -50,3 +50,22 @@ test('every page renders without errors', async ({ page }) => {
   }
   expect(errors).toEqual([])
 })
+
+test('a game left in the middle can be continued, clock included', async ({ page }) => {
+  // as Black against Pip: the bot opens, then it's our move
+  await page.goto('/#/play/bot/pip?color=b&tc=5%2B0')
+  await expect(page.locator('cg-board')).toBeVisible()
+  const moves = page.locator('.tabular button:visible')
+  await expect(moves).toHaveCount(1, { timeout: 20_000 })
+  await clickSquare(page, 'e7', 'black')
+  await clickSquare(page, 'e5', 'black')
+  await expect(moves).toHaveCount(3, { timeout: 20_000 })
+
+  await page.goto('/#/play')
+  await page.getByRole('button', { name: /Continuar|Continue/ }).click()
+  await expect(page).toHaveURL(/resume=1/)
+  await expect(moves).toHaveCount(3)
+  // Black (us) is to move, so Black's clock is the one running
+  await expect(page.locator('[data-clock="b"][data-running]')).toBeVisible()
+  await expect(page.locator('[data-clock="w"][data-running]')).toHaveCount(0)
+})

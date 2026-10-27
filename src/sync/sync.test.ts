@@ -16,3 +16,16 @@ describe('mergeRow', () => {
     expect(merged.value).toEqual({ '3': 30, '5': 10, survival: 8 })
   })
 })
+
+describe('mergeRow for games', () => {
+  const g = (updatedAt: number, review?: object) => ({ id: 'x-1', pgn: '1. e4 *', updatedAt, ...(review ? { review } : {}) }) as unknown as SyncRow
+  it('keeps a local review when the same game is re-imported elsewhere', () => {
+    const kept = mergeRow('games', g(1, { depth: 14 }), g(5)) as unknown as { review?: object; updatedAt: number }
+    expect(kept.review).toEqual({ depth: 14 })
+    expect(kept.updatedAt).toBeGreaterThan(5)
+  })
+  it('takes a remote review onto a newer local copy without one', () => {
+    const kept = mergeRow('games', g(9), g(5, { depth: 14 })) as unknown as { review?: object }
+    expect(kept.review).toEqual({ depth: 14 })
+  })
+})

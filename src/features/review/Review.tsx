@@ -81,6 +81,8 @@ export default function Review() {
   }, [game, depth])
 
   const parsed = useMemo(() => (game ? parseGame(game.pgn) : null), [game])
+  const sans = useMemo(() => parsed?.moves.map((m) => m.san) ?? [], [parsed])
+  const qualities = useMemo(() => game?.review?.moves.map((m) => m.quality), [game?.review])
   const review = game?.review
   const total = parsed?.moves.length ?? 0
   // the turning points: great finds and errors, the user's own when we know their colour
@@ -327,10 +329,10 @@ export default function Review() {
                 </div>
               )}
               <MoveList
-                sans={parsed.moves.map((m) => m.san)}
+                sans={sans}
                 ply={ply}
                 onSelect={goto}
-                qualities={review.moves.map((m) => m.quality)}
+                qualities={qualities}
                 blackFirst={parsed.startFen.split(' ')[1] === 'b'}
                 startNumber={Number(parsed.startFen.split(' ')[5] ?? 1)}
                 className="min-h-[140px] flex-1 py-2"

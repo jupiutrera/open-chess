@@ -128,7 +128,8 @@
     "localInProgress": "Unfinished two-player game",
     "custom": "Custom",
     "minutes": "Minutes",
-    "increment": "Increment (s)"
+    "increment": "Increment (s)",
+    "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it."
   },
   "bots": {
     "group": {

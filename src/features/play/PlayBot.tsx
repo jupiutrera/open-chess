@@ -266,6 +266,7 @@ export default function PlayBot() {
     const n = turn === userColor ? 2 : 1
     if (game.moves.length < n) return
     sharedEngine().stop()
+    for (const m of game.moves.slice(-n)) clock.unpress(m.color)
     game.undo(n)
     clock.setTurn(game.chess.turn())
     setHint([])

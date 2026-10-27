@@ -128,7 +128,8 @@
     "localInProgress": "Partida de dos jugadores sin terminar",
     "custom": "Otro",
     "minutes": "Minutos",
-    "increment": "Incremento (s)"
+    "increment": "Incremento (s)",
+    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará."
   },
   "bots": {
     "group": {

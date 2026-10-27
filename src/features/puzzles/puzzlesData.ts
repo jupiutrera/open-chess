@@ -72,10 +72,14 @@ function bucketOf(idx: Index, rating: number) {
 /** Ids of puzzles already tried, read once from the index and kept up to date by recordAttempt. */
 let seenIds: Promise<Set<string>> | null = null
 function seenPuzzles(): Promise<Set<string>> {
-  seenIds ??= db.puzzleAttempts
-    .orderBy('puzzleId')
-    .uniqueKeys()
-    .then((keys) => new Set(keys as string[]))
+  if (!seenIds) {
+    seenIds = db.puzzleAttempts
+      .orderBy('puzzleId')
+      .uniqueKeys()
+      .then((keys) => new Set(keys as string[]))
+    // rows written by sync pulls and backup restores, not only by recordAttempt
+    db.puzzleAttempts.hook('creating', (_key, row) => void seenIds?.then((s) => s.add(row.puzzleId)))
+  }
   return seenIds
 }
 
@@ -128,7 +132,6 @@ export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAtte
     await kvSet('puzzleRating', next)
     ratingAfter = next.rating
   }
-  void seenPuzzles().then((s) => s.add(p.id))
   await put<PuzzleAttemptRow>('puzzleAttempts', {
     id: uid(),
     puzzleId: p.id,

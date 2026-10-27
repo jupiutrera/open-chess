@@ -78,6 +78,8 @@ export function PlayerBar({
       </div>
       {clock !== undefined && (
         <div
+          data-clock={color}
+          data-running={clockActive ? '' : undefined}
           className={`tabular min-w-[96px] rounded-md px-3 py-1.5 text-right font-mono text-[22px] font-bold transition-colors duration-150 ${
             clockActive ? (low ? 'bg-danger text-white' : 'bg-[#f1f1f1] text-[#262421]') : 'bg-panel-2 text-fg-3'
           }`}

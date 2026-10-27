@@ -128,7 +128,8 @@
     "localInProgress": "Partie à deux joueurs non terminée",
     "custom": "Perso",
     "minutes": "Minutes",
-    "increment": "Incrément (s)"
+    "increment": "Incrément (s)",
+    "replaceSaved": "Vous avez une partie non terminée contre {{name}}. En commencer une autre l'abandonnera."
   },
   "bots": {
     "group": {

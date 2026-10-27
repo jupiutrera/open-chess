@@ -11,6 +11,22 @@ export function TimeControlPicker({ value, onChange }: { value: string; onChange
   const [min, setMin] = useState(isPreset ? 10 : current.base / 60)
   const [inc, setInc] = useState(isPreset ? 5 : current.inc)
   const pick = (m: number, i: number) => onChange(timeControl(`${m}+${i}`).id)
+  // the fields keep what is typed (even empty); only valid numbers change the clock
+  const [minText, setMinText] = useState(String(min))
+  const [incText, setIncText] = useState(String(inc))
+  const field = (text: string, setText: (s: string) => void, lo: number, hi: number, apply: (v: number) => void) => ({
+    value: text,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      setText(e.target.value)
+      const v = Number(e.target.value)
+      if (e.target.value !== '' && Number.isInteger(v) && v >= lo && v <= hi) apply(v)
+    },
+    onBlur: () => {
+      const v = Math.min(hi, Math.max(lo, Math.round(Number(text)) || lo))
+      setText(String(v))
+      apply(v)
+    },
+  })
   const chip = (active: boolean) =>
     `tabular min-h-10 rounded-md text-[14px] font-bold transition-colors duration-150 ${
       active ? 'bg-raise-2 text-fg ring-2 ring-accent' : 'bg-panel-2 text-fg-2 hover:bg-raise'
@@ -53,12 +69,10 @@ export function TimeControlPicker({ value, onChange }: { value: string; onChange
               min={1}
               max={180}
               className="field mt-1"
-              value={min}
-              onChange={(e) => {
-                const v = Math.min(180, Math.max(1, Number(e.target.value) || 1))
+              {...field(minText, setMinText, 1, 180, (v) => {
                 setMin(v)
                 pick(v, inc)
-              }}
+              })}
             />
           </label>
           <label className="text-[13px] font-semibold text-fg-3">
@@ -69,12 +83,10 @@ export function TimeControlPicker({ value, onChange }: { value: string; onChange
               min={0}
               max={60}
               className="field mt-1"
-              value={inc}
-              onChange={(e) => {
-                const v = Math.min(60, Math.max(0, Number(e.target.value) || 0))
+              {...field(incText, setIncText, 0, 60, (v) => {
                 setInc(v)
                 pick(min, v)
-              }}
+              })}
             />
           </label>
         </div>

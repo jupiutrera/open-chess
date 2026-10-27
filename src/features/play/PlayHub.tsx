@@ -9,7 +9,7 @@ import { TimeControlPicker } from './TimeControlPicker'
 import { BotAvatar } from './BotAvatar'
 import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
-import { PageHeader, Panel, Segmented } from '../../ui/kit'
+import { PageHeader, Panel, Segmented, Sheet } from '../../ui/kit'
 import { AssistToggles } from './AssistToggles'
 import { Board } from '../../board/Board'
 import { db } from '../../db/db'
@@ -43,10 +43,14 @@ export default function PlayHub() {
   const [live, setLive] = useState(() => loadLiveGame('bot'))
   const liveBot = live?.botId ? botById(live.botId) : undefined
 
-  const start = () => {
+  // a new game would replace the saved one: ask first
+  const [confirmNew, setConfirmNew] = useState(false)
+  const begin = () => {
+    clearLiveGame('bot')
     const q = new URLSearchParams({ color, tc })
     nav(`/play/bot/${selected.id}?${q}`)
   }
+  const start = () => (live && liveBot ? setConfirmNew(true) : begin())
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -161,6 +165,17 @@ export default function PlayHub() {
           </div>
         </Panel>
       </div>
+      <Sheet open={confirmNew} onClose={() => setConfirmNew(false)} title={t('play.newGame')}>
+        <p className="mb-4 text-fg-2">{t('play.replaceSaved', { name: liveBot?.name ?? '' })}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button className="btn" onClick={() => setConfirmNew(false)}>
+            {t('common.cancel')}
+          </button>
+          <button className="btn btn-primary" onClick={begin}>
+            {t('play.discard')}
+          </button>
+        </div>
+      </Sheet>
     </div>
   )
 }

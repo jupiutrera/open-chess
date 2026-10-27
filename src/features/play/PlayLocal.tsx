@@ -212,6 +212,8 @@ export default function PlayLocal() {
                   <button
                     className="btn"
                     onClick={() => {
+                      const last = game.moves[game.moves.length - 1]
+                      if (last) clock.unpress(last.color)
                       game.undo(1)
                       clock.setTurn(game.chess.turn())
                     }}

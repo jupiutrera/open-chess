@@ -99,7 +99,10 @@ export function useGame(initialFen: string = START_FEN) {
   )
 
   return {
-    chess: live.current,
+    /** the live game; a getter, so it is current even right after replay/reset/loadPgn */
+    get chess() {
+      return live.current
+    },
     startFen,
     moves,
     sans,

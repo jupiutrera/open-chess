@@ -128,7 +128,8 @@
     "localInProgress": "未完成的双人对局",
     "custom": "自定义",
     "minutes": "分钟",
-    "increment": "加秒"
+    "increment": "加秒",
+    "replaceSaved": "你与 {{name}} 的对局尚未结束。开始新对局将放弃它。"
   },
   "bots": {
     "group": {
