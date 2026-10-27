@@ -158,7 +158,7 @@ Desde 1400 de ELO se usa el `UCI_Elo` de Stockfish. Por debajo, Stockfish no baj
 
 `scripts/build-puzzles.mjs` descarga en streaming la base de datos de Lichess (unos 300 MB en zstd), se queda con los puzzles populares y los reparte en archivos por tramos de 100 puntos que se cargan bajo demanda. Tu puntuación usa **Glicko-2**.
 
-Tus datos viven en IndexedDB. Cada fila lleva `updatedAt` y borrado lógico, así que la sincronización opcional con Supabase es un *last-write-wins* sencillo con RLS por usuario. Si no configuras Supabase, no se envía nada a ningún sitio.
+Tus datos viven en IndexedDB. Cada fila lleva `updatedAt` y borrado lógico, así que la sincronización opcional con Supabase es un *last-write-wins* sencillo con RLS por usuario: el servidor ignora cualquier escritura más antigua que la que ya tiene, y los cambios se descargan siguiendo una secuencia del servidor. Gana la hora de modificación del dispositivo, así que un reloj muy desajustado puede hacer que gane el cambio equivocado. Si no configuras Supabase, no se envía nada a ningún sitio.
 
 </details>
 
@@ -204,7 +204,7 @@ Para publicar una versión firmada, crea un keystore, configúralo en `android/a
 <summary><b>🔄 Sincronización entre dispositivos (Supabase)</b></summary>
 
 1. Crea un proyecto gratuito en [supabase.com](https://supabase.com).
-2. Ejecuta [`supabase/migrations/0001_records.sql`](supabase/migrations/0001_records.sql) en el editor SQL.
+2. Ejecuta en orden las migraciones de [`supabase/migrations/`](supabase/migrations/) en el editor SQL. Si ya usabas la sincronización, ejecuta solo las nuevas.
 3. En *Authentication*, activa Email (magic link) y, si quieres, Google. Añade la URL de la app en *Redirect URLs*.
 4. Copia `.env.example` a `.env` y rellena `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
 

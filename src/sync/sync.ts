@@ -24,7 +24,11 @@ export const useSync = create<SyncState>(() => ({
 }))
 
 const PUSH_KEY = 'oc-sync-push'
-const PULL_KEY = 'oc-sync-pull'
+/** last pulled seq, and the server_ts of that row */
+const PULL_SEQ_KEY = 'oc-sync-pull-seq'
+const PULL_TS_KEY = 'oc-sync-pull-ts'
+/** rows committed late can carry a seq below the cursor; re-read this window to catch them */
+const PULL_OVERLAP_MS = 2 * 60_000
 
 function table(name: string) {
   return db[name as (typeof SYNC_TABLES)[number]] as unknown as EntityTable<SyncRow, 'id'>
@@ -61,24 +65,30 @@ async function doSync() {
     }
     localStorage.setItem(PUSH_KEY, String(pushStart))
 
-    let cursor = localStorage.getItem(PULL_KEY) ?? '1970-01-01T00:00:00Z'
+    let cursor = Number(localStorage.getItem(PULL_SEQ_KEY)) || 0
+    let lastTs = localStorage.getItem(PULL_TS_KEY)
+    let first = true
     for (;;) {
-      const { data, error } = await sb
-        .from('records')
-        .select('tbl,id,data,updated_at,server_ts')
-        .gt('server_ts', cursor)
-        .order('server_ts', { ascending: true })
-        .limit(500)
+      let q = sb.from('records').select('tbl,id,data,updated_at,server_ts,seq')
+      // the first page also re-reads recent rows, in case one committed behind the cursor
+      q = first && lastTs ? q.or(`seq.gt.${cursor},server_ts.gt.${new Date(Date.parse(lastTs) - PULL_OVERLAP_MS).toISOString()}`) : q.gt('seq', cursor)
+      first = false
+      const { data, error } = await q.order('seq', { ascending: true }).limit(500)
       if (error) throw error
       if (!data?.length) break
-      for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string }[]) {
-        if (!SYNC_TABLES.includes(r.tbl as never)) continue
-        const t = table(r.tbl)
-        const local = await t.get(r.id)
-        if (!local || local.updatedAt < r.updated_at) await t.put({ ...r.data, updatedAt: r.updated_at })
-        cursor = r.server_ts
+      for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]) {
+        if (SYNC_TABLES.includes(r.tbl as never)) {
+          const t = table(r.tbl)
+          const local = await t.get(r.id)
+          if (!local || local.updatedAt < r.updated_at) await t.put({ ...r.data, updatedAt: r.updated_at })
+        }
+        if (r.seq > cursor) {
+          cursor = r.seq
+          lastTs = r.server_ts
+        }
       }
-      localStorage.setItem(PULL_KEY, cursor)
+      localStorage.setItem(PULL_SEQ_KEY, String(cursor))
+      if (lastTs) localStorage.setItem(PULL_TS_KEY, lastTs)
       if (data.length < 500) break
     }
     const now = Date.now()
@@ -128,7 +138,8 @@ export async function signInWithGoogle() {
 export async function signOut() {
   await supabase?.auth.signOut()
   localStorage.removeItem(PUSH_KEY)
-  localStorage.removeItem(PULL_KEY)
+  localStorage.removeItem(PULL_SEQ_KEY)
+  localStorage.removeItem(PULL_TS_KEY)
 }
 
 /** Full local backup as JSON (works without an account). */
