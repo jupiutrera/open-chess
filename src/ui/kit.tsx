@@ -91,7 +91,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
       <div
         role="dialog"
         aria-modal
-        className="pop max-h-[85dvh] w-full overflow-y-auto rounded-t-2xl bg-panel p-5 sm:max-w-md sm:rounded-2xl"
+        className="pop max-h-[85dvh] w-full overflow-y-auto rounded-t-2xl bg-panel p-5 pb-[calc(1.25rem+var(--inset-bottom))] sm:max-w-md sm:rounded-2xl sm:pb-5"
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
@@ -127,7 +127,7 @@ export const toast = (text: string, tone?: 'info' | 'error' | 'success') => useT
 export function Toaster() {
   const items = useToasts((s) => s.items)
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(76px+var(--inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6">
       {items.map((i) => (
         <div
           key={i.id}

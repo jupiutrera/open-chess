@@ -35,7 +35,7 @@ export function Layout() {
   const inMore = mobileMore.some((i) => location.pathname.startsWith(i.to))
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full pt-[var(--inset-top)]">
       {/* Desktop rail */}
       <nav className="hidden w-[168px] shrink-0 flex-col bg-rail py-3 lg:flex" aria-label="Principal">
         <NavLink to="/" className="mb-3 flex items-center gap-2 px-3 py-2">
@@ -52,13 +52,13 @@ export function Layout() {
         </div>
       </nav>
 
-      <main className="min-w-0 flex-1 overflow-y-auto pb-[calc(64px+env(safe-area-inset-bottom))] lg:pb-0">
+      <main className="min-w-0 flex-1 overflow-y-auto pb-[calc(64px+var(--inset-bottom))] lg:pb-0">
         <Outlet />
       </main>
 
       {/* Mobile bottom bar */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-rail pb-[env(safe-area-inset-bottom)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-rail pb-[var(--inset-bottom)] lg:hidden"
         aria-label="Principal"
       >
         {mobileMain.map((i) => (
@@ -94,7 +94,7 @@ export function Layout() {
       {moreOpen && (
         <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setMoreOpen(false)}>
           <div
-            className="enter absolute inset-x-0 bottom-[calc(64px+env(safe-area-inset-bottom))] rounded-t-2xl bg-panel p-2"
+            className="enter absolute inset-x-0 bottom-[calc(64px+var(--inset-bottom))] rounded-t-2xl bg-panel p-2"
             onClick={(e) => e.stopPropagation()}
           >
             {mobileMore.map((i) => (
