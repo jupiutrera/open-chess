@@ -428,7 +428,10 @@
     "backup": "备份",
     "export": "导出数据",
     "importBackup": "恢复备份",
-    "restored": "备份已恢复"
+    "restored": "备份已恢复",
+    "byOpening": "按开局",
+    "gamesShort_one": "{{count}}局",
+    "gamesShort_other": "{{count}}局"
   },
   "settings": {
     "title": "设置",

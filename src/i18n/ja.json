@@ -428,7 +428,10 @@
     "backup": "バックアップ",
     "export": "データをエクスポート",
     "importBackup": "バックアップを復元",
-    "restored": "バックアップを復元しました"
+    "restored": "バックアップを復元しました",
+    "byOpening": "オープニング別",
+    "gamesShort_one": "{{count}}局",
+    "gamesShort_other": "{{count}}局"
   },
   "settings": {
     "title": "設定",

@@ -428,7 +428,10 @@
     "backup": "Copia de seguridad",
     "export": "Exportar datos",
     "importBackup": "Restaurar copia",
-    "restored": "Copia restaurada"
+    "restored": "Copia restaurada",
+    "byOpening": "Por apertura",
+    "gamesShort_one": "{{count}} p.",
+    "gamesShort_other": "{{count}} p."
   },
   "settings": {
     "title": "Ajustes",

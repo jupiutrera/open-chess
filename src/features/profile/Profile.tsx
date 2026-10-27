@@ -12,6 +12,7 @@ import { useSettings } from '../../settings'
 import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut, syncConfigured, syncNow, useSync } from '../../sync/sync'
 import { saveTextFile } from '../../ui/files'
 import { fmtDecimal } from '../../i18n/format'
+import { PieceIcon } from '../../board/QualityIcon'
 
 export default function Profile() {
   const { t } = useTranslation()
@@ -37,6 +38,22 @@ export default function Profile() {
       }
       return { bot: b, ...r }
     }).filter((r) => r.w + r.d + r.l > 0)
+    // results by opening (family name before the colon), for games where we know the user's side
+    const byOpening = new Map<string, { n: number; points: number; acc: number[]; color: 'w' | 'b' }>()
+    for (const g of games) {
+      if (!g.userColor || !g.opening || g.result === '*') continue
+      const name = g.opening.split(':')[0].trim()
+      const key = `${g.userColor}|${name}`
+      const row = byOpening.get(key) ?? { n: 0, points: 0, acc: [], color: g.userColor }
+      row.n++
+      row.points += g.result === '1/2-1/2' ? 0.5 : (g.result === '1-0') === (g.userColor === 'w') ? 1 : 0
+      if (g.review) row.acc.push(g.userColor === 'w' ? g.review.accuracy.white : g.review.accuracy.black)
+      byOpening.set(key, row)
+    }
+    const openings = [...byOpening.entries()]
+      .map(([key, r]) => ({ name: key.slice(2), ...r, score: (r.points / r.n) * 100, avgAcc: r.acc.length ? r.acc.reduce((a, b) => a + b, 0) / r.acc.length : null }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 10)
     return {
       rating: rating.rating,
       solved: attempts.filter((a) => a.solved).length,
@@ -45,6 +62,7 @@ export default function Profile() {
       rushBest: Math.max(0, ...Object.values(rush)),
       history,
       vsBots,
+      openings,
     }
   }, [])
 
@@ -84,6 +102,23 @@ export default function Profile() {
                   <span className="tabular text-[14px]">
                     <b className="text-accent">{r.w}</b> / <span className="text-fg-2">{r.d}</span> / <b className="text-danger">{r.l}</b>
                   </span>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        )}
+
+        {data && data.openings.length > 0 && (
+          <Panel className="overflow-hidden">
+            <h2 className="border-b border-line px-4 py-3 font-extrabold">{t('profile.byOpening')}</h2>
+            <ul className="divide-y divide-line">
+              {data.openings.map((o) => (
+                <li key={o.color + o.name} className="flex items-center gap-3 px-4 py-2.5">
+                  <PieceIcon piece="k" color={o.color} size={22} />
+                  <span className="min-w-0 flex-1 truncate font-semibold">{o.name}</span>
+                  <span className="tabular w-12 text-right text-[13px] text-fg-3">{t('profile.gamesShort', { count: o.n })}</span>
+                  <span className={`tabular w-14 text-right font-bold ${o.score >= 50 ? 'text-accent' : 'text-danger'}`}>{Math.round(o.score)}%</span>
+                  <span className="tabular hidden w-16 text-right text-[13px] text-fg-2 sm:block">{o.avgAcc !== null ? fmtDecimal(o.avgAcc) : '–'}</span>
                 </li>
               ))}
             </ul>

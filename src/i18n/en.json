@@ -428,7 +428,10 @@
     "backup": "Backup",
     "export": "Export data",
     "importBackup": "Restore backup",
-    "restored": "Backup restored"
+    "restored": "Backup restored",
+    "byOpening": "By opening",
+    "gamesShort_one": "{{count}} g.",
+    "gamesShort_other": "{{count}} g."
   },
   "settings": {
     "title": "Settings",
