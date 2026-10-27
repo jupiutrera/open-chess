@@ -156,7 +156,7 @@ Desde 1400 de ELO se usa el `UCI_Elo` de Stockfish. Por debajo, Stockfish no baj
 <details>
 <summary><b>Puzzles, datos y sincronización</b></summary>
 
-`scripts/build-puzzles.mjs` descarga en streaming la base de datos de Lichess (unos 300 MB en zstd), se queda con los puzzles populares y los reparte en archivos por tramos de 100 puntos que se cargan bajo demanda. Tu puntuación usa **Glicko-2**.
+`scripts/build-puzzles.mjs` descarga en streaming la base de datos de Lichess (unos 300 MB en zstd), se queda con los puzzles populares y los reparte en archivos por tramos de 100 puntos que se cargan bajo demanda. La app guarda sin conexión el libro de aperturas desde el principio, y cada tramo de puzzles (junto con los dos vecinos) en cuanto lo usas, así que sin red tienes los puzzles de tu nivel. Tu puntuación usa **Glicko-2**.
 
 Tus datos viven en IndexedDB. Cada fila lleva `updatedAt` y borrado lógico, así que la sincronización opcional con Supabase es un *last-write-wins* sencillo con RLS por usuario: el servidor ignora cualquier escritura más antigua que la que ya tiene, y los cambios se descargan siguiendo una secuencia del servidor. Gana la hora de modificación del dispositivo, así que un reloj muy desajustado puede hacer que gane el cambio equivocado. Si no configuras Supabase, no se envía nada a ningún sitio.
 

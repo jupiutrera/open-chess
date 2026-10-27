@@ -156,7 +156,7 @@ From 1400 Elo up, Stockfish's `UCI_Elo` does the work. Below that Stockfish won'
 <details>
 <summary><b>Puzzles, data and sync</b></summary>
 
-`scripts/build-puzzles.mjs` streams the Lichess puzzle database (about 300 MB of zstd), keeps the popular puzzles and splits them into files per 100-point band that load on demand. Your rating uses **Glicko-2**.
+`scripts/build-puzzles.mjs` streams the Lichess puzzle database (about 300 MB of zstd), keeps the popular puzzles and splits them into files per 100-point band that load on demand. The opening book is available offline from the start, and each puzzle band (plus its two neighbours) is cached as soon as you use it, so you keep puzzles at your level without a connection. Your rating uses **Glicko-2**.
 
 Your data lives in IndexedDB. Every row carries `updatedAt` and a soft delete, so the optional Supabase sync is a simple last-write-wins with per-user RLS: the server ignores any write older than the one it holds, and changes are pulled by a server-side sequence. The device's modification time wins, so a badly skewed clock can let the wrong change win. Without Supabase configured, nothing is sent anywhere.
 
