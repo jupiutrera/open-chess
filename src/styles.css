@@ -90,7 +90,7 @@
   --color-accent-lo: var(--accent-lo);
   --color-danger: var(--danger);
   --color-warn: var(--warn);
-  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, 'PingFang SC', 'Hiragino Sans', 'Noto Sans CJK SC', 'Noto Sans JP', 'Microsoft YaHei', 'Yu Gothic UI', sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
   --radius-ui: var(--radius);
   --radius-ui-lg: var(--radius-lg);
@@ -536,4 +536,9 @@ cg-board square.right {
     animation: none;
     background-image: none;
   }
+}
+
+/* Japanese shares code points with Chinese; prefer Japanese glyph shapes */
+:root:lang(ja) {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', 'Meiryo', sans-serif;
 }

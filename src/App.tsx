@@ -7,6 +7,7 @@ import { Layout } from './ui/Layout'
 import { Toaster } from './ui/kit'
 import { applyDocumentSettings, useSettings } from './settings'
 import { startSync } from './sync/sync'
+import { preloadSounds } from './chess/sounds'
 import { Home } from './features/home/Home'
 
 const PlayHub = lazy(() => import('./features/play/PlayHub'))
@@ -47,6 +48,8 @@ export function App() {
   const pieces = useSettings((s) => s.pieces)
   useEffect(() => applyDocumentSettings({ theme, board, lang, pieces }), [theme, board, lang, pieces])
   useEffect(() => startSync(), [])
+  const soundSet = useSettings((s) => s.soundSet)
+  useEffect(() => preloadSounds(soundSet), [soundSet])
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
     void StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light })

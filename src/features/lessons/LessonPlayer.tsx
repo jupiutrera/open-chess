@@ -12,6 +12,7 @@ import { parseUci, playUci } from '../../chess/util'
 import { play, playMoveSound } from '../../chess/sounds'
 import { sharedEngine } from '../../engine/engine'
 import { db, put, type LessonProgressRow } from '../../db/db'
+import { localize } from '../../i18n/content'
 
 type State = 'playing' | 'wrong' | 'stepDone' | 'failed' | 'thinking'
 
@@ -178,7 +179,7 @@ export default function LessonPlayer() {
         <Panel className="overflow-hidden">
           <div className="flex items-center gap-2 border-b border-line p-4">
             <GraduationCap size={22} weight="fill" className="text-[#3d8fd1]" />
-            <h1 className="min-w-0 flex-1 truncate text-[17px] font-extrabold">{lesson.title[lang]}</h1>
+            <h1 className="min-w-0 flex-1 truncate text-[17px] font-extrabold">{localize(lesson.title, lang, `lessons.${lesson.id}.title`)}</h1>
             <span className="tabular text-[13px] text-fg-3">{t('lessons.step', { n: stepIdx + 1, total: lesson.steps.length })}</span>
           </div>
           <div className="flex gap-1 px-4 pt-3" aria-hidden>
@@ -211,8 +212,8 @@ export default function LessonPlayer() {
               </div>
             ) : (
               <>
-                {stepIdx === 0 && <p className="mb-3 max-w-[60ch] text-[14px] text-fg-2">{lesson.intro[lang]}</p>}
-                <p className="text-[17px] font-bold">{step.text[lang]}</p>
+                {stepIdx === 0 && <p className="mb-3 max-w-[60ch] text-[14px] text-fg-2">{localize(lesson.intro, lang, `lessons.${lesson.id}.intro`)}</p>}
+                <p className="text-[17px] font-bold">{localize(step.text, lang, `lessons.${lesson.id}.steps.${stepIdx}`)}</p>
                 {step.kind === 'practice' && (
                   <p className="mt-1 text-[13px] text-fg-3">
                     {t('lessons.practice')} · {t('lessons.practiceGoal', { goal: t(`lessons.goal.${step.goal}`) })}

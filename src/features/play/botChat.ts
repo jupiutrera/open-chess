@@ -1,4 +1,6 @@
 import type { Bot } from './bots'
+import type { Lang } from '../../settings'
+import { localizeList } from '../../i18n/content'
 
 export type ChatStyle = 'kid' | 'bold' | 'friendly' | 'calm' | 'studious' | 'serious' | 'cool' | 'old' | 'gm' | 'machine'
 
@@ -20,7 +22,7 @@ export type ChatEvent =
 type Pool = Record<ChatEvent, { es: string[]; en: string[] }>
 
 /** Shared lines per personality; each bot can override any event with its own. */
-const POOLS: Record<ChatStyle, Pool> = {
+export const POOLS: Record<ChatStyle, Pool> = {
   kid: {
     greet: { es: ['¡Hola! ¿Jugamos?'], en: ['Hi! Wanna play?'] },
     capture: { es: ['¡Ñam! Me la quedo.', '¡Te pillé!'], en: ['Yum! I’m keeping that.', 'Gotcha!'] },
@@ -123,8 +125,8 @@ const POOLS: Record<ChatStyle, Pool> = {
   },
 }
 
-export function botLine(bot: Bot, event: ChatEvent, lang: 'es' | 'en'): string {
-  const own = bot.says?.[event]?.[lang]
-  const list = own?.length ? own : POOLS[bot.style][event][lang]
+export function botLine(bot: Bot, event: ChatEvent, lang: Lang): string {
+  const own = bot.says?.[event]
+  const list = own ? localizeList(own, lang, `bots.${bot.id}.says.${event}`) : localizeList(POOLS[bot.style][event], lang, `chat.${bot.style}.${event}`)
   return list[Math.floor(Math.random() * list.length)]
 }

@@ -377,6 +377,14 @@
     "about": "Open Chess is free software (GPL-3.0). Stockfish engine, puzzles and openings from Lichess (CC0).",
     "lichessToken": "Lichess token (optional)",
     "lichessTokenHelp": "Only used for opening explorer stats. Create one with no scopes at",
-    "pieces": "Pieces"
+    "pieces": "Pieces",
+    "soundSet": "Sounds",
+    "soundSets": {
+      "wood": "Wood",
+      "sfx": "SFX",
+      "piano": "Piano",
+      "nes": "NES",
+      "futuristic": "Futuristic"
+    }
   }
 }

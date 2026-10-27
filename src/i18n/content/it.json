@@ -1,0 +1,240 @@
+{
+  "lessons": {
+    "hanging-pieces": {
+      "title": "Cattura i pezzi indifesi",
+      "intro": "Prima di ogni mossa, cerca i pezzi avversari che non sono difesi. Catturarli gratis è il modo più semplice per vincere.",
+      "steps": ["La donna nera è sulla tua colonna e niente la difende. Prendila.", "Il tuo cavallo può raggiungere una torre indifesa."]
+    },
+    "mate-in-one": {
+      "title": "Matto in una mossa",
+      "intro": "Scacco matto: il re è attaccato e non può fuggire, parare lo scacco o catturare l'attaccante.",
+      "steps": ["Il re nero è chiuso dai suoi stessi pedoni. È il matto del corridoio.", "Solo il re difende f7. Donna e alfiere lo attaccano insieme."]
+    },
+    "smothered-mate": {
+      "title": "Matto affogato",
+      "intro": "Quando il re è circondato dai suoi stessi pezzi, un cavallo da solo può dare matto.",
+      "steps": ["Il re non ha case libere. Trova il salto del cavallo."]
+    },
+    "arabian-mate": {
+      "title": "Matto arabo",
+      "intro": "Torre e cavallo collaborano: il cavallo protegge la torre e copre la fuga del re nell'angolo.",
+      "steps": ["Porta la torre accanto al re. Il cavallo la protegge."]
+    },
+    "forks": {
+      "title": "Forchette",
+      "intro": "Un pezzo che attacca due bersagli insieme lascia all'avversario la possibilità di salvarne solo uno. Il cavallo è il re delle forchette.",
+      "steps": ["Dai scacco attaccando anche la torre.", "Un altro scacco di cavallo vince la donna."]
+    },
+    "skewer": {
+      "title": "Infilata",
+      "intro": "Attacca un pezzo di valore in modo che, quando si sposta, resti esposto un altro pezzo dietro di lui sulla stessa linea.",
+      "steps": ["Dai scacco sulla colonna del re e la donna resterà dietro."]
+    },
+    "discovered-attack": {
+      "title": "Attacco di scoperta",
+      "intro": "Muovere un pezzo apre la linea di un altro dietro di lui. Se anche il pezzo mosso attacca, l'avversario non può parare entrambe le minacce.",
+      "steps": ["Muovi l'alfiere per scoprire lo scacco della torre e vincere la donna."]
+    },
+    "kq-vs-k": {
+      "title": "Re e donna contro re",
+      "intro": "Usa la donna per chiudere il re avversario in uno spazio sempre più piccolo, avvicina il tuo re e dai matto sul bordo. Attento allo stallo.",
+      "steps": ["Dai scacco matto al re nero."]
+    },
+    "kr-vs-k": {
+      "title": "Re e torre contro re",
+      "intro": "La torre taglia il re traversa dopo traversa. Metti il tuo re in opposizione e dai scacco con la torre per spingerlo verso il bordo.",
+      "steps": ["Dai scacco matto al re nero."]
+    },
+    "two-rooks": {
+      "title": "Matto a scala",
+      "intro": "Due torri danno scacco e tagliano il re a turno, come se salissero una scala fino al bordo.",
+      "steps": ["Dai matto con le due torri."]
+    },
+    "promote-pawn": {
+      "title": "Promuovi il pedone",
+      "intro": "Con il tuo re sulla sesta traversa davanti al pedone, la vittoria è assicurata. Prendi l'opposizione e accompagna il pedone fino alla promozione.",
+      "steps": ["Promuovi il pedone e vinci la partita."]
+    }
+  },
+  "bots": {
+    "pip": {
+      "bio": "Ha appena imparato come si muove il cavallo e adora usarlo.",
+      "says": {
+        "greet": ["Ciao! Lo sapevi che il cavallo salta a L? È il mio preferito!", "Giochiamo! Faccio uscire il cavallino."],
+        "win": ["HO VINTO!! Lo dico alla mamma."],
+        "lose": ["Uffa… un'altra? Stavolta vinco io."]
+      }
+    },
+    "lola": {
+      "bio": "Fa uscire la donna prestissimo. A volte funziona.",
+      "says": {
+        "greet": ["Ti avviso: la mia donna esce alla seconda mossa.", "Ciao! Preparati, vado all'attacco."],
+        "win": ["Te l'avevo detto! La donna vince sempre."],
+        "lose": ["Va bene, va bene… forse ho fatto uscire la donna un po' presto."]
+      }
+    },
+    "teo": {
+      "bio": "Gioca al circolo del quartiere il sabato mattina.",
+      "says": { "greet": ["Ciao! È come al circolo, ma senza il caffè della macchinetta."] }
+    },
+    "marga": {
+      "bio": "Ama le posizioni chiuse e non ha mai fretta.",
+      "says": {
+        "greet": ["Siediti, tesoro. Senza fretta, qui si va piano."],
+        "win": ["Oh, scusa, tesoro. La pazienza è il mio trucco."]
+      }
+    },
+    "ivan": {
+      "bio": "Attaccante nato: se c'è un sacrificio, lo tenterà.",
+      "says": {
+        "greet": ["Difendersi? È roba per chi non sa attaccare.", "Oggi sacrifico qualcosa. Non so ancora cosa."],
+        "win": ["Attaccare sempre! Hai visto che finale?"],
+        "lose": ["Il sacrificio era corretto. Quasi sicuro."]
+      }
+    },
+    "noa": {
+      "bio": "Studia le aperture ogni sera e le conosce piuttosto bene.",
+      "says": {
+        "greet": ["Ieri sera ho ripassato dodici varianti. Sorprendimi."],
+        "lose": ["Questo non c'era nei miei appunti. Me lo segno."]
+      }
+    },
+    "rafa": {
+      "bio": "Solido giocatore da torneo. Punisce gli errori tattici.",
+      "says": { "greet": ["Buona fortuna. Gioca con attenzione."] }
+    },
+    "kira": {
+      "bio": "Veloce e precisa. Adora i finali.",
+      "says": {
+        "greet": ["Cambiamo le donne e ci vediamo nel finale."],
+        "win": ["I finali non perdonano."]
+      }
+    },
+    "oscar": {
+      "bio": "Esperto di circolo con un repertorio molto affilato.",
+      "says": { "greet": ["Siciliana, come sempre. Scegli tu come soffrire."] }
+    },
+    "vera": {
+      "bio": "Candidata maestro. Gioco posizionale, non regala niente.",
+      "says": { "greet": ["Mi basta una casa debole."] }
+    },
+    "boris": {
+      "bio": "Maestro FIDE della vecchia scuola. Calcolo profondo.",
+      "says": {
+        "greet": ["Ai miei tempi non c'erano i motori. Solo caffè e calcolo."],
+        "win": ["Hm. Ben giocato fino alla ventesima mossa."],
+        "lose": ["Hm. Bene. Molto bene. Un'altra."]
+      }
+    },
+    "elena": {
+      "bio": "Grande maestro. Preparati a soffrire.",
+      "says": {
+        "greet": ["Avanti. Fammi vedere cosa sai fare."],
+        "lose": ["Impressionante. Davvero."]
+      }
+    },
+    "stockfish": { "bio": "Il motore alla massima potenza. Nessuno lo batte." }
+  },
+  "chat": {
+    "kid": {
+      "greet": ["Ciao! Giochiamo?"],
+      "capture": ["Gnam! Questa me la tengo.", "Preso!"],
+      "lostPiece": ["Ehi! Quella era mia!", "Ops… non l'avevo vista."],
+      "check": ["Scacco! Scacco! Scacco!"],
+      "blunder": ["Ehm, sei sicuro di volerlo fare?"],
+      "win": ["Ho vinto, ho vinto!"],
+      "lose": ["Uffa, di nuovo…"],
+      "draw": ["Patta? Dammi il cinque!"]
+    },
+    "bold": {
+      "greet": ["Che la battaglia abbia inizio!"],
+      "capture": ["Altro materiale in pentola!", "Grazie del regalo."],
+      "lostPiece": ["Bah, era un sacrificio. Ovviamente.", "Calcolato. Più o meno."],
+      "check": ["Scacco! Senti il caldo?", "All'attacco del re!"],
+      "blunder": ["Ah! Questa l'ho vista perfino io."],
+      "win": ["Vittoria! Così si attacca."],
+      "lose": ["Troppo coraggioso per il mio bene. Rivincita."],
+      "draw": ["Patta? Che noia… ma va bene."]
+    },
+    "friendly": {
+      "greet": ["Che vinca il migliore!"],
+      "capture": ["Scusa, non ho resistito."],
+      "lostPiece": ["Ben visto!", "Caspita, bella mossa."],
+      "check": ["Scacco, attento al re!"],
+      "blunder": ["Mmm, vuoi pensarci ancora?"],
+      "win": ["Bella partita! C'eri quasi."],
+      "lose": ["Complimenti! Hai giocato benissimo."],
+      "draw": ["Una patta giusta. Bella partita!"]
+    },
+    "calm": {
+      "greet": ["Con calma. Gli scacchi non hanno mai fretta."],
+      "capture": ["Grazie.", "Questo ora è mio."],
+      "lostPiece": ["Bene. Molto bene."],
+      "check": ["Scacco, con calma."],
+      "blunder": ["Piano. Guarda bene la scacchiera."],
+      "win": ["Passo dopo passo si va lontano."],
+      "lose": ["Molto ben giocato. Me lo sono meritato."],
+      "draw": ["Una patta equilibrata."]
+    },
+    "studious": {
+      "greet": ["Vediamo che apertura scegli."],
+      "capture": ["Secondo i miei appunti, questo era gratis."],
+      "lostPiece": ["Interessante. Questo non l'avevo preparato."],
+      "check": ["Scacco. Pura teoria."],
+      "blunder": ["Questa è un'imprecisione da manuale."],
+      "win": ["La preparazione paga sempre."],
+      "lose": ["Devo ripassare questa linea."],
+      "draw": ["Una patta teorica, come previsto."]
+    },
+    "serious": {
+      "greet": ["Cominciamo."],
+      "capture": ["Errore punito."],
+      "lostPiece": ["Ben giocato."],
+      "check": ["Scacco."],
+      "blunder": ["Questa la paghi."],
+      "win": ["Bella partita."],
+      "lose": ["Meritato. Complimenti."],
+      "draw": ["Patta. Giusto."]
+    },
+    "cool": {
+      "greet": ["Vediamo cosa sai fare."],
+      "capture": ["Grazie.", "Troppo facile."],
+      "lostPiece": ["Però. Niente male."],
+      "check": ["Scacco.", "Lo vedi arrivare?"],
+      "blunder": ["Quello era un regalo."],
+      "win": ["GG."],
+      "lose": ["Ben giocato. Sul serio."],
+      "draw": ["Patta. Ci vediamo."]
+    },
+    "old": {
+      "greet": ["Ah, la gioventù. Vediamo."],
+      "capture": ["Hm. Gratis.", "Ai miei tempi queste cose non si regalavano."],
+      "lostPiece": ["Hm. Ben visto, ragazzo."],
+      "check": ["Scacco. Guarda bene."],
+      "blunder": ["Hm. Nessun libro insegna questo."],
+      "win": ["L'esperienza conta."],
+      "lose": ["Hm. Mi fai sentire di nuovo giovane."],
+      "draw": ["Patta. Come ai vecchi tempi."]
+    },
+    "gm": {
+      "greet": ["Gioca i tuoi migliori scacchi."],
+      "capture": ["Grazie."],
+      "lostPiece": ["Precisa."],
+      "check": ["Scacco."],
+      "blunder": ["Questo non si recupera."],
+      "win": ["Bella partita. Continua ad allenarti."],
+      "lose": ["Eccellente. Mi hai superata."],
+      "draw": ["Una patta meritata."]
+    },
+    "machine": {
+      "greet": ["Ricerca avviata. Profondità: sufficiente."],
+      "capture": ["Materiale +1. Valutazione aggiornata."],
+      "lostPiece": ["Sacrificio calcolato 23 mosse fa."],
+      "check": ["Scacco. Matto in arrivo."],
+      "blunder": ["Errore rilevato. Valutazione: −4,2."],
+      "win": ["Risultato come previsto. Processo terminato."],
+      "lose": ["ERRORE: risultato impossibile."],
+      "draw": ["Patta. Insolito."]
+    }
+  }
+}

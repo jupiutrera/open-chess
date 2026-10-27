@@ -377,6 +377,14 @@
     "about": "Open Chess es libre (GPL-3.0). Motor Stockfish, puzzles y aperturas de Lichess (CC0).",
     "lichessToken": "Token de Lichess (opcional)",
     "lichessTokenHelp": "Solo se usa para las estadísticas del explorador de aperturas. Créalo sin permisos en",
-    "pieces": "Piezas"
+    "pieces": "Piezas",
+    "soundSet": "Sonidos",
+    "soundSets": {
+      "wood": "Madera",
+      "sfx": "SFX",
+      "piano": "Piano",
+      "nes": "NES",
+      "futuristic": "Futurista"
+    }
   }
 }

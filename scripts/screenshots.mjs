@@ -58,6 +58,11 @@ const gifOnly = process.argv.includes('--gif-only')
 /* Desktop */
 if (!gifOnly) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1.5, locale: 'es-ES' })
+  // show off the in-game helps in the bot game shot
+  await ctx.addInitScript(() => {
+    if (!localStorage.getItem('oc-settings'))
+      localStorage.setItem('oc-settings', JSON.stringify({ state: { lang: 'es', assist: { eval: true, threats: false, suggest: true, feedback: true, engine: true } }, version: 0 }))
+  })
   const page = await ctx.newPage()
   const shot = (name) => page.screenshot({ path: `${OUT}/${name}.png` })
 
@@ -76,7 +81,7 @@ if (!gifOnly) {
   await page.waitForTimeout(500)
   await shot('play-bots')
 
-  await page.goto(`${BASE}/play/bot/kira?color=w&tc=10%2B0&hints=1&undo=1&eval=1`)
+  await page.goto(`${BASE}/play/bot/kira?color=w&tc=10%2B0`)
   await page.waitForTimeout(800)
   const moves = page.locator('.tabular button')
   for (const [a, b, n] of [['e2', 'e4', 2], ['g1', 'f3', 4], ['f1', 'c4', 6], ['b1', 'c3', 8], ['e1', 'g1', 10]]) {
