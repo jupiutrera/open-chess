@@ -8,7 +8,7 @@ import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { BotAvatar, type Mood } from './BotAvatar'
 import { botLine, type ChatEvent } from './botChat'
-import { MoveList } from '../../board/MoveList'
+import { MoveList, MoveStrip } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
@@ -343,7 +343,14 @@ export default function PlayBot() {
                 })}
               </div>
             )}
-            <MoveList sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} className="min-h-[120px] flex-1 py-1" />
+            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} className="border-b border-line lg:hidden" />
+            <MoveList
+              sans={game.sans}
+              ply={game.ply}
+              onSelect={game.goto}
+              qualities={assist.feedback ? qualities : undefined}
+              className="hidden min-h-[120px] flex-1 py-1 lg:block"
+            />
             <div className="flex items-center justify-center gap-1 border-t border-line p-2">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />

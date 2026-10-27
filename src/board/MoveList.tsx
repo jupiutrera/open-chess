@@ -71,3 +71,37 @@ export function MoveList({ sans, ply, onSelect, qualities, startNumber = 1, blac
     </div>
   )
 }
+
+/** One-line, horizontally scrolling move list for phones. */
+export function MoveStrip({ sans, ply, onSelect, qualities, className = '' }: Omit<MoveListProps, 'startNumber' | 'blackFirst'>) {
+  const box = useRef<HTMLDivElement>(null)
+  const active = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    const el = active.current
+    const c = box.current
+    if (!el || !c) return
+    c.scrollTo({ left: el.offsetLeft - c.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' })
+  }, [ply, sans.length])
+  if (!sans.length) return null
+  return (
+    <div ref={box} className={`tabular flex items-center gap-0.5 overflow-x-auto whitespace-nowrap px-2 py-1.5 text-[14px] [scrollbar-width:none] ${className}`}>
+      {sans.map((san, i) => {
+        const q = qualities?.[i]
+        const current = ply === i + 1
+        return (
+          <span key={i} className="flex items-center">
+            {i % 2 === 0 && <span className="ml-1.5 mr-1 text-fg-3">{i / 2 + 1}.</span>}
+            <button
+              ref={current ? active : undefined}
+              onClick={() => onSelect?.(i + 1)}
+              className={`flex items-center gap-1 rounded px-1.5 py-0.5 font-semibold ${current ? 'bg-raise-2 text-fg' : 'text-fg-2'}`}
+            >
+              {q && q !== 'best' && q !== 'excellent' && q !== 'good' && q !== 'forced' && <QualityIcon quality={q} size={14} />}
+              {san}
+            </button>
+          </span>
+        )
+      })}
+    </div>
+  )
+}
