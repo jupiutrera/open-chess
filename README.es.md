@@ -6,7 +6,7 @@
 
 ### Todo lo que chess.com cobra para entrenar, gratis y en tu dispositivo.
 
-Revisión de partidas con Stockfish, 13 bots con personalidad, 104.000 puzzles, entrenador de aperturas y lecciones.<br/>
+Revisión de partidas con Stockfish, 13 bots con personalidad, 14 retos, 104.000 puzzles, entrenador de aperturas y lecciones.<br/>
 En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cuenta.**
 
 [![Release](https://img.shields.io/github/v/release/jupiutrera/open-chess?style=for-the-badge&label=versi%C3%B3n&color=81b64c)](https://github.com/jupiutrera/open-chess/releases/latest)
@@ -37,7 +37,7 @@ En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cu
 
 <table align="center">
   <tr>
-    <td align="center"><b>13</b><br/><sub>bots, de 250 a 3200</sub></td>
+    <td align="center"><b>13 + 14</b><br/><sub>bots y retos</sub></td>
     <td align="center"><b>104.000</b><br/><sub>puzzles de Lichess</sub></td>
     <td align="center"><b>3.865</b><br/><sub>aperturas con nombre</sub></td>
     <td align="center"><b>11</b><br/><sub>lecciones interactivas</sub></td>
@@ -70,6 +70,8 @@ Open Chess junta esas piezas en una app con la experiencia de chess.com que ya c
 **🔍 Revisión de partidas.** Stockfish analiza cada jugada y la clasifica como chess.com: brillante, gran jugada, mejor, excelente, buena, teoría, imprecisión, error, oportunidad perdida y error grave. Ves la precisión de cada jugador, un rendimiento estimado y la gráfica de evaluación. Puedes ver la mejor jugada y **reintentar tus errores** para aprender de ellos.
 
 **🤖 13 bots con personalidad.** Pip, el niño que acaba de descubrir el caballo; Iván, que sacrifica lo que haga falta; Boris, el maestro FIDE de la vieja escuela… Cada uno tiene avatar, aperturas favoritas y su propia forma de hablar: te saluda, reacciona a tus capturas y errores y celebra (o lamenta) el resultado. Juegan como personas, no como un motor roto.
+
+**🐟 14 retos.** Stockfish, pero con una regla absurda: **Meltfish** pierde 50 de Elo por jugada, **Growfish** empieza en 0 y va subiendo, **Envyfish** baja 300 cada vez que encuentras la mejor jugada, **Drawfish** juega a por el 0.00, **Checkfish** da jaque siempre que puede, **Greedfish** se lo come todo, **Coinfish** elige su n-ésima mejor jugada con probabilidad ½ⁿ, **Yoyofish** salta entre 250 y 3200 en cada captura, **Copyfish** copia la calidad de tu última jugada… El Elo del bot cambia en directo mientras juegas.
 
 **🎯 Cinco ayudas opcionales.** Barra de evaluación, flechas de amenaza, flechas de sugerencia, valoración de cada jugada en directo y líneas del motor. Actívalas antes o durante la partida.
 
