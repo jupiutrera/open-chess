@@ -26,7 +26,7 @@ export interface BoardProps {
   /** extra square classes, e.g. hints or wrong-move flashes */
   highlights?: Map<string, string>
   premoves?: boolean
-  /** finished game: marks both kings with the outcome, chess.com style */
+  /** finished game: marks both kings with the outcome */
   outcome?: { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null
   className?: string
 }

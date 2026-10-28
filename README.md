@@ -4,7 +4,7 @@
 
 # Open Chess
 
-### Everything chess.com charges for to train, free and on your own device.
+### Serious chess training, free and on your own device.
 
 Stockfish game review, 13 bots with personality, 14 challenge bots, 104,000 puzzles, an opening trainer and lessons.<br/>
 In the browser or as an Android app. **No ads, no subscription and no account.**
@@ -48,26 +48,26 @@ In the browser or as an Android app. **No ads, no subscription and no account.**
 
 ## 💡 Why
 
-On chess.com, the things that actually make you better are paid: unlimited game reviews, unlimited puzzles, lessons and the opening trainer. But the engine doing that work, **Stockfish**, is free software and already runs in any browser, and **Lichess** publishes its puzzles and openings as public domain.
+On most chess sites, the tools that actually make you better sit behind a subscription: unlimited game reviews, unlimited puzzles, lessons and an opening trainer. But the engine doing that work, **Stockfish**, is free software and already runs in any browser, and **Lichess** publishes its puzzles and openings as public domain.
 
-Open Chess puts those pieces together in an app with the chess.com experience you already know. Everything happens on your device: the analysis, the bots and your data. The one thing it doesn't do is play online against other people.
+Open Chess puts those pieces together in one app with a clean, familiar interface. Everything happens on your device: the analysis, the bots and your data. The one thing it doesn't do is play online against other people.
 
-| | chess.com free | **Open Chess** |
+| | Typical free plan | **Open Chess** |
 |---|:---:|:---:|
 | Full game review (brilliants, mistakes, accuracy…) | Limited | ✅ **Unlimited** |
-| Puzzles and Puzzle Rush | Limited | ✅ **104,000, no limits** |
+| Puzzles and timed puzzle runs | Limited | ✅ **104,000, no limits** |
 | Bot assistance (eval, threats, suggestions, engine) | Limited | ✅ **All of it** |
-| Repertoire trainer | Premium | ✅ |
-| Lessons | Mostly Premium | ✅ |
+| Repertoire trainer | Paid | ✅ |
+| Lessons | Mostly paid | ✅ |
 | Works offline | ❌ | ✅ |
 | Ads | Yes | ❌ **Never** |
 | Your data | On their servers | ✅ **On your device** |
 
-<sub>A rough comparison with chess.com's free plan; its limits change over time.</sub>
+<sub>A rough comparison with the free plans of popular chess sites; their limits change over time.</sub>
 
 ## ✨ Features
 
-**🔍 Game review.** Stockfish analyses every move and classifies it the way chess.com does: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss and blunder. You get each player's accuracy, an estimated performance and the evaluation graph. You can see the best move and **retry your mistakes** to learn from them.
+**🔍 Game review.** Stockfish analyses every move and gives it one of ten labels: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss and blunder. You get each player's accuracy, an estimated performance and the evaluation graph. You can see the best move and **retry your mistakes** to learn from them.
 
 **🤖 13 bots with personality.** Pip, the kid who just discovered the knight; Iván, who will sacrifice whatever it takes; Boris, the old-school FIDE master… Each one has a portrait, favourite openings and their own voice: they greet you, react to your captures and blunders, and celebrate (or regret) the result. They play like people, not like a broken engine.
 
@@ -75,7 +75,7 @@ Open Chess puts those pieces together in an app with the chess.com experience yo
 
 **🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.
 
-**🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 47 themes, a daily puzzle, **Puzzle Rush** (3 min, 5 min and survival), **Puzzle Streak** (no clock, each one harder, one miss ends it) and **mistake puzzles** taken from your own reviewed games.
+**🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 47 themes, a daily puzzle, **Puzzle Sprint** (3 min, 5 min and survival), **Puzzle Streak** (no clock, each one harder, one miss ends it) and **mistake puzzles** taken from your own reviewed games.
 
 **📖 Openings.** An explorer with 3,865 named openings, masters and Lichess stats, and a **repertoire trainer** with spaced repetition (SM-2).
 
@@ -219,6 +219,9 @@ then run `./gradlew assembleRelease`. Back the keystore up: if it's lost, nobody
 3. Under *Authentication*, enable Email (magic link) and optionally Google. Add the app URL to *Redirect URLs*.
 4. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 
+> [!IMPORTANT]
+> The public build has no sync and collects no personal data. If you deploy sync for other people, their email addresses and games are stored in your Supabase project and you are the data controller: publish a privacy policy and meet the GDPR (or your local law).
+
 </details>
 
 <details>
@@ -284,9 +287,9 @@ Open Chess is **GPL-3.0-or-later** and builds on:
 | [Geist](https://vercel.com/font) font | Vercel | OFL-1.1 |
 
 > [!NOTE]
-> Several piece sets are licensed **non-commercial** (CC BY-NC-SA). Open Chess is and will stay free. If you fork it for commercial use, remove or replace those sets.
+> The GPL-3.0 covers the code. The assets above keep their own licences, and each set's folder carries its licence file (`src/assets/pieces/*/LICENSE.md`, `public/sounds/*/LICENSE.md`). Several piece sets are **non-commercial** (CC BY-NC-SA) and are not under the GPL: Open Chess is and will stay free, but if you fork it for commercial use, remove or replace them.
 
-Open Chess is not affiliated with chess.com or Lichess.
+Open Chess is an independent project, not affiliated with or endorsed by chess.com or Lichess. Their names are used only to describe compatibility (importing your games) and the open data the app relies on.
 
 <div align="center">
 <br/>

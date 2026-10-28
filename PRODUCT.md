@@ -14,15 +14,15 @@ Delegated: Vite + React + TypeScript + Tailwind v4, chessground (board), chess.j
 
 ## Users
 
-The owner and their circle of friends: chess players tired of chess.com paywalls. They train alone, often in long sessions (puzzles, reviewing their own games, drilling openings), on a laptop at a desk or on a phone. Inferred: club/intermediate level, Spanish-speaking first.
+The owner and their circle of friends: chess players tired of training features behind paywalls. They train alone, often in long sessions (puzzles, reviewing their own games, drilling openings), on a laptop at a desk or on a phone. Inferred: club/intermediate level, Spanish-speaking first.
 
 ## Product Purpose
 
-A free, self-owned replacement for chess.com's training features: play bots, full game review with move classification and accuracy, rated puzzles and Puzzle Rush, opening explorer and repertoire trainer, lessons (including basic endgames), analysis board with endgame tablebase, import of games from chess.com/Lichess. Success: nobody in the group needs a paid chess.com plan again.
+A free, self-owned chess training app: play bots, full game review with move classification and accuracy, rated puzzles and Puzzle Sprint, opening explorer and repertoire trainer, lessons (including basic endgames), analysis board with endgame tablebase, import of games from chess.com/Lichess. Success: nobody in the group needs a paid chess.com plan again.
 
 ## Positioning
 
-Everything chess.com locks behind Diamond (unlimited game review, unlimited puzzles, lessons, opening trainer) is free, offline-capable, and runs on the player's own device with Stockfish. No ads, no online play against people.
+Everything chess sites usually put behind a subscription (unlimited game review, unlimited puzzles, lessons, opening trainer) is free, offline-capable, and runs on the player's own device with Stockfish. No ads, no online play against people.
 
 ## Operating Context
 
@@ -40,7 +40,7 @@ Long, focused sessions; frequent context switches between playing a bot and imme
 
 Name: Open Chess. No other assets exist yet.
 
-Standing preference (chosen 2026-10-27): the category standard, played straight. The interface should sit alongside chess.com (primary reference: layout, dark grey chrome, green/cream board, icon sidebar, move-quality vocabulary) and Lichess (analysis board clarity). Execute the convention at full fidelity, no ironic quirks; do not copy chess.com logos, trademarks or proprietary assets.
+Standing preference: the category standard, played straight. Players should feel at home coming from any mainstream chess app (familiar layout, dark chrome, green/cream board, icon sidebar, standard move-quality vocabulary) with Lichess-level analysis clarity. Open Chess keeps its own identity: never copy another product's logos, trademarks, feature names, icons or distinctive trade dress (for example, the move-quality badges use our own shapes, glyphs and colours), and never describe the app as a clone of another product. Competitors are named only for factual compatibility (game import).
 
 ## Evidence on Hand
 

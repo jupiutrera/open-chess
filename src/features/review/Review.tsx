@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
-import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, Star, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, ArrowsClockwise } from '@phosphor-icons/react'
+import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, ChartLineUp, Crown, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, ArrowsClockwise } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
 import { useBoardKeys } from '../../board/useBoardKeys'
@@ -326,7 +326,7 @@ export default function Review() {
       side={
         <Panel className="flex flex-col overflow-hidden lg:h-full">
           <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-            <Star size={20} weight="fill" className="text-accent" />
+            <ChartLineUp size={20} weight="bold" className="text-accent" />
             <h1 className="text-[17px] font-extrabold">{t('review.title')}</h1>
             <button
               className="btn btn-ghost btn-icon ml-auto -mr-2"
@@ -695,7 +695,7 @@ function Coach({
       {showBestLine && (
         <div className="mt-3 grid grid-cols-2 gap-2">
           <button className={`btn ${variation ? 'ring-2 ring-accent' : ''}`} onClick={onBest}>
-            <Star size={18} weight="fill" style={{ color: 'var(--q-best)' }} /> {t('review.showBest')}
+            <Crown size={18} weight="fill" style={{ color: 'var(--q-best)' }} /> {t('review.showBest')}
           </button>
           {onRetry && (
             <button className="btn" onClick={onRetry}>

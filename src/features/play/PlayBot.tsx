@@ -401,7 +401,7 @@ export default function PlayBot() {
     void finish({ result: userColor === 'w' ? '0-1' : '1-0', reason: 'resign' })
   }
 
-  // chess.com style: before both sides have moved the game can be dropped without a result
+  // before both sides have moved, the game can be dropped without a result
   const canAbort = game.moves.length < 2
   const abort = () => {
     aborted.current = true

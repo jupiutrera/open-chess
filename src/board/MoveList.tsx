@@ -36,7 +36,7 @@ function sameProps(a: MoveListProps, b: MoveListProps) {
   return true
 }
 
-/** Two-column numbered move list in the chess.com style. */
+/** Two-column numbered move list. */
 export const MoveList = memo(MoveListView, sameProps)
 export const MoveStrip = memo(MoveStripView, sameProps)
 
