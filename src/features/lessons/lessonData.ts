@@ -130,6 +130,35 @@ export const LESSONS: Lesson[] = [
     ],
   },
   {
+    id: 'pin',
+    category: 'tactics',
+    title: { es: 'Clavada', en: 'Pin' },
+    intro: {
+      es: 'Una pieza clavada no puede moverse sin dejar expuesta a otra más valiosa que está detrás. Si detrás está el rey, moverla ni siquiera es legal.',
+      en: 'A pinned piece cannot move without exposing a more valuable piece behind it. If the king is behind it, moving it is not even legal.',
+    },
+    steps: [
+      {
+        kind: 'puzzle',
+        fen: '4k3/5ppp/8/4q3/8/N7/5PPP/R4K2 w - - 0 1',
+        text: { es: 'Pon la torre en la columna del rey: la dama queda clavada y tu rey defiende la torre.', en: 'Put your rook on the king’s file: the queen is pinned and your king guards the rook.' },
+        moves: ['a1e1', 'e5e1', 'f1e1'],
+      },
+      {
+        kind: 'puzzle',
+        fen: '6k1/6pp/8/3q4/8/1P6/5PPP/5BK1 w - - 0 1',
+        text: { es: 'Clava la dama en la diagonal del rey. El peón de b3 defiende a tu alfil.', en: 'Pin the queen on the king’s diagonal. The b3 pawn guards your bishop.' },
+        moves: ['f1c4', 'd5c4', 'b3c4'],
+      },
+      {
+        kind: 'puzzle',
+        fen: '4k3/1p3ppp/2n5/1B6/3P4/8/5PPP/6K1 w - - 0 1',
+        text: { es: 'El caballo está clavado y no puede moverse. Atácalo con un peón y luego captúralo.', en: 'The knight is pinned and cannot move. Attack it with a pawn, then take it.' },
+        moves: ['d4d5', 'e8d7', 'd5c6'],
+      },
+    ],
+  },
+  {
     id: 'skewer',
     category: 'tactics',
     title: { es: 'Enfilada', en: 'Skewer' },
