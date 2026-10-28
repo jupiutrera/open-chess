@@ -13,7 +13,7 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { QualityIcon, qualityColor } from '../../board/QualityIcon'
 import { EvalGraph } from './EvalGraph'
 import { analyzeGame, getGame, parseGame } from './analyze'
-import { QUALITY_ORDER, countQualities, estimateRating, winPercent, type MoveReview, type Quality } from './classify'
+import { QUALITY_ORDER, countQualities, estimateRating, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
 import { capturedPieces, playUci } from '../../chess/util'
 import { playMoveSound, play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type Score } from '../../engine/engine'
@@ -209,8 +209,8 @@ export default function Review() {
     const uci = m.from + m.to + (m.promotion ?? '')
     let good = uci === current.bestUci
     if (!good) {
-      const r = await sharedEngine().search(c.fen(), { depth: 12 })
-      const after = r.lines[0]?.score ?? { cp: 0 }
+      // a mating or stalemating retry ends the game, so the engine has no lines to score it
+      const after = terminalScore(c.fen()) ?? (await sharedEngine().search(c.fen(), { depth: 12 })).lines[0]?.score ?? { cp: 0 }
       const mover = current.color
       const w = winPercent(after)
       const prevBest = review!.curve[ply - 1]
