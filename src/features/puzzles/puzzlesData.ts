@@ -144,26 +144,58 @@ export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAtte
   return ratingAfter
 }
 
+/** Lichess theme tags offered in the hub: the ones present in the bundled puzzles often enough to play a session. */
 export const THEMES = [
+  // mates
+  'mate',
   'mateIn1',
   'mateIn2',
   'mateIn3',
+  'mateIn4',
+  'backRankMate',
+  'smotheredMate',
+  // tactics
   'fork',
   'pin',
   'skewer',
   'discoveredAttack',
+  'discoveredCheck',
+  'doubleCheck',
   'hangingPiece',
   'sacrifice',
-  'backRankMate',
-  'smotheredMate',
   'deflection',
   'attraction',
+  'clearance',
+  'intermezzo',
+  'capturingDefender',
+  'interference',
+  'xRayAttack',
   'trappedPiece',
   'promotion',
+  'advancedPawn',
   'zugzwang',
   'quietMove',
   'defensiveMove',
+  // attack
+  'kingsideAttack',
+  'queensideAttack',
+  'exposedKing',
+  'attackingF2F7',
+  // phase
   'opening',
   'middlegame',
   'endgame',
+  'pawnEndgame',
+  'rookEndgame',
+  'bishopEndgame',
+  'knightEndgame',
+  'queenEndgame',
+  'queenRookEndgame',
+  // goal and length
+  'crushing',
+  'advantage',
+  'oneMove',
+  'short',
+  'long',
+  'veryLong',
 ]
