@@ -133,7 +133,21 @@
         "lose": ["見事ね。本当に。"]
       }
     },
-    "stockfish": { "bio": "全力のエンジン。誰も勝てない。" }
+    "stockfish": { "bio": "全力のエンジン。誰も勝てない。" },
+    "sf-fading": { "name": "衰えるStockfish", "bio": "3200から始まり、1手ごとにElo 50ずつ下がる。" },
+    "sf-rising": { "name": "成長するStockfish", "bio": "Elo 0から始まり、1手ごとに50ずつ上がって3200まで。" },
+    "sf-jealous": { "name": "嫉妬するStockfish", "bio": "あなたが最善手を指すたびにElo 300下がる。" },
+    "sf-kind": { "name": "情け深いStockfish", "bio": "あなたが最悪手を指すたびにElo 500下がる。" },
+    "sf-ticklish": { "name": "くすぐったがりのStockfish", "bio": "王手をかけられるたびにElo 300下がる。" },
+    "drawfish": { "name": "Drawfish", "bio": "常に評価値0.00に最も近い手を指し、引き分けの提案は必ず受け入れる。" },
+    "checkfish": { "name": "Checkfish", "bio": "王手をかけられるなら王手。そうでなければ最善手。" },
+    "sf-glutton": { "name": "食いしん坊Stockfish", "bio": "駒を取れるなら必ず取る。いつも一番価値の高い駒を。" },
+    "sf-clumsy": { "name": "うっかりStockfish", "bio": "全力だが、毎手5%の確率で最悪手を指す。" },
+    "sf-indecisive": { "name": "優柔不断なStockfish", "bio": "上位3つの手からランダムに選ぶ。" },
+    "sf-halfhearted": { "name": "半分本気のStockfish", "bio": "最善手は2回に1回、次善手は4回に1回、という具合に指す。" },
+    "sf-rollercoaster": { "name": "ジェットコースターStockfish", "bio": "どちらが駒を取っても、取るたびにElo 3200と250が入れ替わる。" },
+    "sf-mirror": { "name": "鏡のStockfish", "bio": "あなたの直前の手の質をまねる。悪手には悪手、好手には好手。" },
+    "sf-queenless": { "name": "クイーン抜きStockfish", "bio": "全力のStockfishだが、クイーンなしで始まる。あなたは白番。" }
   },
   "chat": {
     "kid": {

@@ -133,7 +133,21 @@
         "lose": ["Impressionante. Davvero."]
       }
     },
-    "stockfish": { "bio": "Il motore alla massima potenza. Nessuno lo batte." }
+    "stockfish": { "bio": "Il motore alla massima potenza. Nessuno lo batte." },
+    "sf-fading": { "name": "Stockfish calante", "bio": "Parte da 3200 e perde 50 Elo a ogni mossa." },
+    "sf-rising": { "name": "Stockfish in crescita", "bio": "Parte da 0 Elo e ne guadagna 50 a ogni mossa, fino a 3200." },
+    "sf-jealous": { "name": "Stockfish geloso", "bio": "Perde 300 Elo ogni volta che giochi la mossa migliore." },
+    "sf-kind": { "name": "Stockfish compassionevole", "bio": "Perde 500 Elo ogni volta che giochi la mossa peggiore." },
+    "sf-ticklish": { "name": "Stockfish permaloso", "bio": "Perde 300 Elo ogni volta che gli dai scacco." },
+    "drawfish": { "name": "Drawfish", "bio": "Gioca sempre la mossa più vicina a 0.00 e accetta qualsiasi proposta di patta." },
+    "checkfish": { "name": "Checkfish", "bio": "Se può dare scacco, dà scacco. Altrimenti gioca la mossa migliore." },
+    "sf-glutton": { "name": "Stockfish ingordo", "bio": "Se può catturare, cattura: sempre il pezzo di maggior valore." },
+    "sf-clumsy": { "name": "Stockfish distratto", "bio": "Al massimo, ma ogni mossa ha il 5% di probabilità di essere la peggiore." },
+    "sf-indecisive": { "name": "Stockfish indeciso", "bio": "Sceglie a caso una delle sue tre mosse migliori." },
+    "sf-halfhearted": { "name": "Stockfish a metà", "bio": "Gioca la mossa migliore metà delle volte, la seconda una volta su quattro, e così via." },
+    "sf-rollercoaster": { "name": "Stockfish montagne russe", "bio": "Passa da 3200 a 250 Elo e viceversa a ogni cattura, di chiunque sia." },
+    "sf-mirror": { "name": "Stockfish specchio", "bio": "Copia la qualità della tua ultima mossa: se sbagli sbaglia, se giochi bene anche lui." },
+    "sf-queenless": { "name": "Stockfish senza donna", "bio": "Stockfish al massimo, ma parte senza donna. Tu giochi con il Bianco." }
   },
   "chat": {
     "kid": {

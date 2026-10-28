@@ -150,7 +150,11 @@
     "aborted": "Partie annulée",
     "confirmDraw": "Les deux joueurs sont-ils d'accord pour une nulle ?",
     "acceptDraw": "Accepter la nulle",
-    "confirmResignSide": "Voulez-vous vraiment abandonner avec les {{side}} ?"
+    "confirmResignSide": "Voulez-vous vraiment abandonner avec les {{side}} ?",
+    "challenge_best": "{{delta}} Elo : vous avez joué le meilleur coup",
+    "challenge_worst": "{{delta}} Elo : vous avez joué le pire coup",
+    "challenge_check": "{{delta}} Elo : vous lui avez fait échec",
+    "challengeCapture": "Prise : il joue maintenant à {{elo}} Elo"
   },
   "bots": {
     "group": {
@@ -158,7 +162,8 @@
       "intermediate": "Intermédiaires",
       "advanced": "Avancés",
       "master": "Maîtres",
-      "engine": "Moteur"
+      "engine": "Moteur",
+      "challenge": "Défis"
     }
   },
   "review": {

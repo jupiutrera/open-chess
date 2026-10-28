@@ -43,6 +43,7 @@ describe('content translations', () => {
   }
   for (const b of BOTS) {
     expected.set(`bots.${b.id}.bio`, 'string')
+    if (b.title) expected.set(`bots.${b.id}.name`, 'string')
     for (const [ev, lines] of Object.entries(b.says ?? {})) expected.set(`bots.${b.id}.says.${ev}`, lines!.en.length)
   }
   for (const [style, pool] of Object.entries(POOLS)) for (const [ev, lines] of Object.entries(pool)) expected.set(`chat.${style}.${ev}`, lines.en.length)

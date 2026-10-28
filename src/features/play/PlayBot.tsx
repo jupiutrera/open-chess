@@ -16,7 +16,8 @@ import { useClock } from '../../chess/useClock'
 import { START_FEN, capturedPieces, gameResultText, moveNumbering, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
-import { botAcceptsDraw, botById, botMove } from './bots'
+import { botAcceptsDraw, botById, botMove, botName } from './bots'
+import { CHALLENGES, challengeMove, useChallenge, validPlies, type EloChange } from './challenges'
 import { timeControl } from './timeControl'
 import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
 import { GameAnnouncer } from '../../board/GameAnnouncer'
@@ -42,6 +43,9 @@ export default function PlayBot() {
   const tc = timeControl(params.get('tc'))
   const assist = useSettings((s) => s.assist)
   const lang = useSettings((s) => s.lang)
+  const name = botName(bot, lang)
+  // a challenge may fix the start position and the user's side
+  const rules = bot.challenge ? CHALLENGES[bot.challenge] : undefined
 
   // a saved game in progress against this bot, when coming from "Continue" or reloading
   const [resumed] = useState(() => {
@@ -49,15 +53,16 @@ export default function PlayBot() {
     return g && g.botId === bot.id ? g : null
   })
   // a game from a given position ("play this position" from analysis); kept for rematches
-  const [startFen] = useState(() => customStartFen(resumed ? resumed.fen : params.get('fen')) ?? START_FEN)
+  const [startFen] = useState(() => customStartFen(rules?.startFen ?? (resumed ? resumed.fen : params.get('fen'))) ?? START_FEN)
   const pickColor = useCallback(() => {
+    if (rules?.userColor) return rules.userColor
     const c = params.get('color')
     if (c === 'w' || c === 'b') return c
     // from a given position the user takes the side to move, as on the analysis board,
     // unless they chose random
     if (c !== 'r' && startFen !== START_FEN) return new Chess(startFen).turn()
     return Math.random() < 0.5 ? 'w' : 'b'
-  }, [params, startFen])
+  }, [params, startFen, rules])
   const [userColor, setUserColor] = useState<'w' | 'b'>(() => resumed?.userColor ?? pickColor())
   const [orientation, setOrientation] = useState<'white' | 'black'>(userColor === 'w' ? 'white' : 'black')
   const game = useGame(startFen)
@@ -90,6 +95,15 @@ export default function PlayBot() {
   // aborted games aren't saved, not even as a game in progress
   const aborted = useRef(false)
 
+  // challenge bots: their Elo (and the like) after every ply
+  const challenge = useChallenge(bot, validPlies(resumed?.challenge))
+  const announce = (c: EloChange) => {
+    // the per-move drift shows on the rating alone
+    if (c.reason === 'move') return
+    const delta = `${c.to > c.from ? '+' : '−'}${Math.abs(c.to - c.from)}`
+    toast(c.reason === 'capture' ? t('play.challengeCapture', { elo: c.to }) : t(`play.challenge_${c.reason}`, { delta }))
+  }
+
   const finish = useCallback(
     async (e: GameEnd) => {
       if (endRef.current) return
@@ -99,13 +113,15 @@ export default function PlayBot() {
       clock.stop()
       play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
       const token = gameToken.current
+      // a challenge bot is saved at the Elo it ended on
+      const botElo = challenge.plies.current.at(-1)?.elo ?? bot.elo
       const pending = saveGame({
         source: 'bot',
         chess: cloneWithHistory(game.chess),
-        white: userColor === 'w' ? PLAYER.you : bot.name,
-        black: userColor === 'b' ? PLAYER.you : bot.name,
-        whiteElo: userColor === 'w' ? undefined : bot.elo,
-        blackElo: userColor === 'b' ? undefined : bot.elo,
+        white: userColor === 'w' ? PLAYER.you : name,
+        black: userColor === 'b' ? PLAYER.you : name,
+        whiteElo: userColor === 'w' ? undefined : botElo,
+        blackElo: userColor === 'b' ? undefined : botElo,
         result: e.result,
         userColor,
         botId: bot.id,
@@ -122,7 +138,7 @@ export default function PlayBot() {
       dialogTimer.current = setTimeout(() => setDialog(true), 450)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [bot, userColor, tc, game.chess, say, t],
+    [bot, name, userColor, tc, game.chess, say, t],
   )
 
   const clock = useClock(tc.base, tc.inc, (side) => void finish(timeoutResult(game.chess, side)))
@@ -188,6 +204,7 @@ export default function PlayBot() {
       fen: startFen !== START_FEN ? startFen : undefined,
       sans: game.chess.history(),
       clock: clock.enabled ? { w: clock.left('w'), b: clock.left('b') } : undefined,
+      challenge: challenge.kind ? challenge.plies.current : undefined,
     })
   }
   // read at unmount: the live game object is replaced on resume and rematch
@@ -236,7 +253,14 @@ export default function PlayBot() {
     setThinking(true)
     const started = performance.now()
     const botClock = clock.enabled ? { left: clock.left(turn), inc: tc.inc * 1000 } : undefined
-    botMove(bot, sharedEngine(), liveFen, game.chess.history(), botClock)
+    const history = { startFen: game.startFen, moves: game.moves }
+    const think = async () => {
+      if (!challenge.kind) return botMove(bot, sharedEngine(), liveFen, history, botClock)
+      // count the user's move first (rating it when the rules need it), then play by the new state
+      const state = await challenge.catchUp(sharedEngine(), history, userColor, announce, () => !cancelled, botClock)
+      return state && challengeMove(challenge.kind, sharedEngine(), liveFen, state, history, botClock)
+    }
+    think()
       .then(async (uci) => {
         const minThink = Math.min(350 + Math.random() * 500, botClock ? botClock.left / 60 : Infinity)
         const wait = Math.max(0, minThink - (performance.now() - started))
@@ -249,7 +273,11 @@ export default function PlayBot() {
           return
         }
         const { from, to, promotion } = parseUci(uci)
-        if (game.move(from, to, promotion)) clock.press(turn)
+        const m = game.move(from, to, promotion)
+        if (!m) return
+        clock.press(turn)
+        // the bot's own move never needs the engine: this counts it at once
+        void challenge.catchUp(sharedEngine(), { startFen: game.startFen, moves: [...game.moves, m] }, userColor, announce)
       })
       .catch(() => {
         if (cancelled) return
@@ -273,7 +301,7 @@ export default function PlayBot() {
   useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   const userTurn = turn === userColor && game.atLive && !end
-  const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
+  const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn, paused: thinking })
 
   // the clock re-renders this screen every 100ms: keep the board's props stable so its memo holds
   // (help.lines is a new empty array on every render while the position is unevaluated)
@@ -333,12 +361,19 @@ export default function PlayBot() {
     sharedEngine().stop()
     for (const m of game.moves.slice(-n)) clock.unpress(m.color)
     game.undo(n)
+    challenge.truncate(game.moves.length - n)
     clock.setTurn(game.chess.turn())
     setHint([])
   }
 
   const offerDraw = async () => {
     if (endRef.current || thinking || offering) return
+    // Drawfish takes any draw
+    if (rules?.acceptsDraws) {
+      toast(t('play.drawAccepted'))
+      void finish({ result: '1/2-1/2', reason: 'agreement' })
+      return
+    }
     setOffering(true)
     const fen = game.chess.fen()
     const depth = 10
@@ -356,7 +391,7 @@ export default function PlayBot() {
     if (game.moves.length >= 20 && botAcceptsDraw(w, botColor)) {
       toast(t('play.drawAccepted'))
       void finish({ result: '1/2-1/2', reason: 'agreement' })
-    } else toast(t('play.drawDeclined', { name: bot.name }))
+    } else toast(t('play.drawDeclined', { name }))
   }
 
   const resign = () => {
@@ -376,7 +411,7 @@ export default function PlayBot() {
   }
 
   const restart = (sameColor: boolean) => {
-    const c = sameColor ? (userColor === 'w' ? 'b' : 'w') : pickColor()
+    const c = rules?.userColor ?? (sameColor ? (userColor === 'w' ? 'b' : 'w') : pickColor())
     gameToken.current++
     clearTimeout(dialogTimer.current)
     hadMoves.current = false
@@ -391,6 +426,7 @@ export default function PlayBot() {
     clearLiveGame('bot')
     setTimeout(() => say('greet'), 500)
     game.reset(startFen)
+    challenge.reset()
     clock.reset()
     setUserColor(c)
     setOrientation(c === 'w' ? 'white' : 'black')
@@ -415,8 +451,8 @@ export default function PlayBot() {
         : 'neutral'
   const botBar = (
     <PlayerBar
-      name={bot.name}
-      rating={bot.elo}
+      name={name}
+      rating={challenge.elo}
       color={userColor === 'w' ? 'b' : 'w'}
       captured={userColor === 'w' ? cap.byBlack : cap.byWhite}
       advantage={userColor === 'w' ? -cap.diff : cap.diff}
@@ -467,7 +503,10 @@ export default function PlayBot() {
               <BotAvatar bot={bot} mood={mood} size={44} />
               <div className="min-w-0 flex-1">
                 <div className="font-bold">
-                  {bot.name} <span className="tabular font-normal text-fg-3">{bot.elo}</span>
+                  {name}{' '}
+                  <span key={challenge.elo} className={`tabular font-normal text-fg-3 ${rules?.dynamic ? 'enter inline-block' : ''}`}>
+                    {challenge.elo}
+                  </span>
                 </div>
                 <p key={chat?.key} className="enter truncate text-[13px] text-fg-2" title={chat?.text}>
                   {chat?.text ?? localize(bot.bio, lang, `bots.${bot.id}.bio`)}
