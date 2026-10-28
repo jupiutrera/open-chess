@@ -122,7 +122,7 @@ export function Toggle({ checked, onChange, label, hint }: { checked: boolean; o
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
 
 /** Keeps Tab inside `box` while mounted, focuses it, and gives focus back on unmount. */
-function useFocusTrap(box: React.RefObject<HTMLElement | null>, active: boolean) {
+export function useFocusTrap(box: React.RefObject<HTMLElement | null>, active: boolean) {
   useEffect(() => {
     if (!active || !box.current) return
     const el = box.current

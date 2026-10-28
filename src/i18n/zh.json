@@ -44,7 +44,8 @@
       "knight": "马",
       "pawn": "兵",
       "king": "王"
-    }
+    },
+    "promotion": "选择升变的棋子"
   },
   "home": {
     "greeting": "今天练什么？",

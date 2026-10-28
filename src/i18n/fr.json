@@ -44,7 +44,8 @@
       "knight": "Cavalier",
       "pawn": "Pion",
       "king": "Roi"
-    }
+    },
+    "promotion": "Choisissez la pièce de promotion"
   },
   "home": {
     "greeting": "On s’entraîne à quoi aujourd’hui ?",

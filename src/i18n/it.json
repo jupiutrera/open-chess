@@ -44,7 +44,8 @@
       "knight": "Cavallo",
       "pawn": "Pedone",
       "king": "Re"
-    }
+    },
+    "promotion": "Scegli il pezzo di promozione"
   },
   "home": {
     "greeting": "Cosa alleniamo oggi?",
