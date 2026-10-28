@@ -308,6 +308,7 @@
     "review": "复习",
     "completed": "已完成",
     "step": "第 {{n}} 步，共 {{total}} 步",
+    "notFound": "未找到该课程",
     "tryAgain": "不是这步，再试一次",
     "wellDone": "做得好！",
     "finished": "课程完成！",

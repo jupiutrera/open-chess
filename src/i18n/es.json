@@ -308,6 +308,7 @@
     "review": "Repasar",
     "completed": "Completada",
     "step": "Paso {{n}} de {{total}}",
+    "notFound": "Lección no encontrada",
     "tryAgain": "No es esa. Inténtalo de nuevo",
     "wellDone": "¡Muy bien!",
     "finished": "¡Lección completada!",

@@ -308,6 +308,7 @@
     "review": "復習",
     "completed": "完了",
     "step": "ステップ {{n}} / {{total}}",
+    "notFound": "レッスンが見つかりません",
     "tryAgain": "その手ではありません。もう一度",
     "wellDone": "よくできました！",
     "finished": "レッスン完了！",

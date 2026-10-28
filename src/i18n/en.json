@@ -308,6 +308,7 @@
     "review": "Review",
     "completed": "Completed",
     "step": "Step {{n}} of {{total}}",
+    "notFound": "Lesson not found",
     "tryAgain": "Not that one. Try again",
     "wellDone": "Well done!",
     "finished": "Lesson complete!",

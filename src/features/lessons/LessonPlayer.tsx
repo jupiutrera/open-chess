@@ -26,20 +26,23 @@ export default function LessonPlayer() {
   const [stepIdx, setStepIdx] = useState(0)
   const [finished, setFinished] = useState(false)
   const step: LessonStep | undefined = lesson?.steps[stepIdx]
-  // delayed replies belong to one step: moving on (or leaving) cancels them
+  const [attempt, setAttempt] = useState(0)
+  // delayed replies belong to one try of a step: moving on, retrying (or leaving) cancels them
   const pending = useRef<ReturnType<typeof setTimeout>[]>([])
   const later = (fn: () => void, ms: number) => pending.current.push(setTimeout(fn, ms))
+  /** bumped with each try, so an engine reply still on its way is dropped */
+  const round = useRef(0)
   useEffect(() => () => {
     pending.current.forEach(clearTimeout)
     pending.current = []
-  }, [stepIdx])
+    round.current++
+  }, [stepIdx, attempt])
   const chess = useRef(new Chess())
   const [fen, setFen] = useState(step?.fen ?? '')
   const [lastMove, setLastMove] = useState<[string, string] | null>(null)
   const [state, setState] = useState<State>('playing')
   const [highlights, setHighlights] = useState<Map<string, string> | undefined>()
   const ply = useRef(0)
-  const [attempt, setAttempt] = useState(0)
 
   const solver: 'w' | 'b' = step ? (new Chess(step.fen).turn() as 'w' | 'b') : 'w'
 
@@ -78,8 +81,9 @@ export default function LessonPlayer() {
   const engineReply = async () => {
     if (!step || step.kind !== 'practice') return
     setState('thinking')
+    const mine = round.current
     const r = await sharedEngine().search(chess.current.fen(), { movetime: 350, elo: step.elo })
-    if (!r.bestmove) return
+    if (!r.bestmove || mine !== round.current) return
     const m = playUci(chess.current, r.bestmove)
     if (m) {
       playMoveSound(m)
@@ -159,7 +163,7 @@ export default function LessonPlayer() {
   }
 
   if (!lesson || !step) {
-    return <div className="p-6 text-fg-2">404</div>
+    return <div className="p-6 text-fg-2">{t('lessons.notFound')}</div>
   }
 
   const next = () => {
