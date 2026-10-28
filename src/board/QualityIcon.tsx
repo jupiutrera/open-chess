@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { Star, ThumbsUp, Check, BookOpen, X, ArrowRight } from '@phosphor-icons/react'
+import { Crown, Sparkle, Check, BookOpen, Crosshair, ArrowRight } from '@phosphor-icons/react'
 import { QUALITY_SYMBOL, type Quality } from '../features/review/classify'
 
 export const qualityColor = (q: Quality) => `var(--q-${q})`
@@ -10,15 +10,15 @@ function Glyph({ quality, size }: { quality: Quality; size: number }) {
   const props = { size, weight: 'bold' as const }
   switch (quality) {
     case 'best':
-      return <Star {...props} weight="fill" />
+      return <Crown {...props} weight="fill" />
     case 'excellent':
-      return <ThumbsUp {...props} weight="fill" />
+      return <Sparkle {...props} weight="fill" />
     case 'good':
       return <Check {...props} />
     case 'book':
       return <BookOpen {...props} weight="fill" />
     case 'miss':
-      return <X {...props} />
+      return <Crosshair {...props} />
     default:
       return <ArrowRight {...props} />
   }
@@ -27,7 +27,7 @@ function Glyph({ quality, size }: { quality: Quality; size: number }) {
 export function QualityIcon({ quality, size = 20, className = '' }: { quality: Quality; size?: number; className?: string }) {
   return (
     <span
-      className={`inline-grid shrink-0 place-items-center rounded-full font-extrabold text-white ${className}`}
+      className={`inline-grid shrink-0 place-items-center rounded-[30%] font-extrabold text-white ${className}`}
       style={{ width: size, height: size, background: qualityColor(quality), fontSize: size * 0.5 }}
       aria-hidden
     >

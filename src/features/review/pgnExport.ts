@@ -3,7 +3,7 @@ import { formatScore } from '../../engine/engine'
 import type { GameRow } from '../../db/db'
 import type { Quality } from './classify'
 
-/** chess.com-style NAGs for the qualities that have one. */
+/** Standard NAGs for the qualities that have one. */
 const NAG: Partial<Record<Quality, string>> = { brilliant: '!!', great: '!', inaccuracy: '?!', mistake: '?', miss: '?', blunder: '??' }
 
 /**

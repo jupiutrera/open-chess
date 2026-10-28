@@ -4,7 +4,7 @@
 
 # Open Chess
 
-### Todo lo que chess.com cobra para entrenar, gratis y en tu dispositivo.
+### Entrenamiento de ajedrez en serio, gratis y en tu dispositivo.
 
 Revisión de partidas con Stockfish, 13 bots con personalidad, 14 retos, 104.000 puzzles, entrenador de aperturas y lecciones.<br/>
 En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cuenta.**
@@ -48,26 +48,26 @@ En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cu
 
 ## 💡 Por qué existe
 
-En chess.com, lo que de verdad te hace mejorar es de pago: revisar partidas sin límite, puzzles ilimitados, las lecciones y el entrenador de aperturas. Pero el motor que hace ese trabajo, **Stockfish**, es software libre y ya corre en cualquier navegador, y **Lichess** publica sus puzzles y aperturas como dominio público.
+En la mayoría de webs de ajedrez, lo que de verdad te hace mejorar va con suscripción: revisar partidas sin límite, puzzles ilimitados, lecciones y un entrenador de aperturas. Pero el motor que hace ese trabajo, **Stockfish**, es software libre y ya corre en cualquier navegador, y **Lichess** publica sus puzzles y aperturas como dominio público.
 
-Open Chess junta esas piezas en una app con la experiencia de chess.com que ya conoces. Todo ocurre en tu dispositivo: el análisis, los bots y tus datos. Lo único que no hace es jugar online contra otras personas.
+Open Chess junta esas piezas en una sola app, con una interfaz limpia y familiar. Todo ocurre en tu dispositivo: el análisis, los bots y tus datos. Lo único que no hace es jugar online contra otras personas.
 
-| | chess.com gratis | **Open Chess** |
+| | Plan gratuito habitual | **Open Chess** |
 |---|:---:|:---:|
 | Revisión de partida completa (brillantes, errores, precisión…) | Limitada | ✅ **Ilimitada** |
-| Puzzles y Puzzle Rush | Limitados | ✅ **104.000, sin límite** |
+| Puzzles y rondas contrarreloj | Limitados | ✅ **104.000, sin límite** |
 | Ayudas contra bots (evaluación, amenazas, sugerencias, motor) | Limitadas | ✅ **Todas** |
-| Entrenador de repertorio | Premium | ✅ |
-| Lecciones | Mayoría Premium | ✅ |
+| Entrenador de repertorio | De pago | ✅ |
+| Lecciones | Casi todas de pago | ✅ |
 | Funciona sin conexión | ❌ | ✅ |
 | Anuncios | Sí | ❌ **Nunca** |
 | Tus datos | En sus servidores | ✅ **En tu dispositivo** |
 
-<sub>Comparativa orientativa con el plan gratuito de chess.com; sus límites cambian con el tiempo.</sub>
+<sub>Comparativa orientativa con los planes gratuitos de las webs de ajedrez más conocidas; sus límites cambian con el tiempo.</sub>
 
 ## ✨ Funcionalidades
 
-**🔍 Revisión de partidas.** Stockfish analiza cada jugada y la clasifica como chess.com: brillante, gran jugada, mejor, excelente, buena, teoría, imprecisión, error, oportunidad perdida y error grave. Ves la precisión de cada jugador, un rendimiento estimado y la gráfica de evaluación. Puedes ver la mejor jugada y **reintentar tus errores** para aprender de ellos.
+**🔍 Revisión de partidas.** Stockfish analiza cada jugada y le pone una de diez etiquetas: brillante, gran jugada, mejor, excelente, buena, teoría, imprecisión, error, oportunidad perdida y error grave. Ves la precisión de cada jugador, un rendimiento estimado y la gráfica de evaluación. Puedes ver la mejor jugada y **reintentar tus errores** para aprender de ellos.
 
 **🤖 13 bots con personalidad.** Pip, el niño que acaba de descubrir el caballo; Iván, que sacrifica lo que haga falta; Boris, el maestro FIDE de la vieja escuela… Cada uno tiene avatar, aperturas favoritas y su propia forma de hablar: te saluda, reacciona a tus capturas y errores y celebra (o lamenta) el resultado. Juegan como personas, no como un motor roto.
 
@@ -75,7 +75,7 @@ Open Chess junta esas piezas en una app con la experiencia de chess.com que ya c
 
 **🎯 Cinco ayudas opcionales.** Barra de evaluación, flechas de amenaza, flechas de sugerencia, valoración de cada jugada en directo y líneas del motor. Actívalas antes o durante la partida.
 
-**🧩 Puzzles.** 104.000 puzzles de Lichess con puntuación Glicko-2, 47 temas, puzzle del día, **Puzzle Rush** (3 min, 5 min y supervivencia), **Racha de problemas** (sin reloj, cada vez más difíciles, un fallo y se acaba) y **puzzles de tus errores**, sacados de tus propias partidas revisadas.
+**🧩 Puzzles.** 104.000 puzzles de Lichess con puntuación Glicko-2, 47 temas, puzzle del día, **Sprint de puzzles** (3 min, 5 min y supervivencia), **Racha de problemas** (sin reloj, cada vez más difíciles, un fallo y se acaba) y **puzzles de tus errores**, sacados de tus propias partidas revisadas.
 
 **📖 Aperturas.** Explorador con 3.865 aperturas con nombre, estadísticas de maestros y Lichess, y un **entrenador de repertorio** con repetición espaciada (SM-2).
 
@@ -219,6 +219,9 @@ y ejecuta `./gradlew assembleRelease`. Guarda una copia de la keystore: si la pi
 3. En *Authentication*, activa Email (magic link) y, si quieres, Google. Añade la URL de la app en *Redirect URLs*.
 4. Copia `.env.example` a `.env` y rellena `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
 
+> [!IMPORTANT]
+> La versión pública no tiene sincronización ni recoge datos personales. Si despliegas la sincronización para otras personas, sus correos y partidas se guardan en tu proyecto de Supabase y el responsable del tratamiento eres tú: publica una política de privacidad y cumple el RGPD (o la ley que te aplique).
+
 </details>
 
 <details>
@@ -284,9 +287,9 @@ Open Chess se distribuye bajo **GPL-3.0-or-later** y se apoya en:
 | Fuente [Geist](https://vercel.com/font) | Vercel | OFL-1.1 |
 
 > [!NOTE]
-> Varios juegos de piezas tienen licencia **no comercial** (CC BY-NC-SA). Open Chess es y será gratuito. Si haces un fork con fines comerciales, quita esos juegos o sustitúyelos por otros.
+> La GPL-3.0 cubre el código. Los recursos de arriba mantienen su propia licencia, y la carpeta de cada juego lleva su archivo de licencia (`src/assets/pieces/*/LICENSE.md`, `public/sounds/*/LICENSE.md`). Varios juegos de piezas son **no comerciales** (CC BY-NC-SA) y no están bajo la GPL: Open Chess es y será gratuito, pero si haces un fork con fines comerciales, quítalos o sustitúyelos.
 
-Open Chess no tiene ninguna relación con chess.com ni con Lichess.
+Open Chess es un proyecto independiente, sin relación con chess.com ni con Lichess y sin su respaldo. Sus nombres solo aparecen para describir la compatibilidad (importar tus partidas) y los datos abiertos que usa la app.
 
 <div align="center">
 <br/>

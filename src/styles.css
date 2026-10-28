@@ -28,17 +28,17 @@
   --warn: #f2b43c;
 
   /* Move-quality vocabulary */
-  --q-brilliant: #26c2a3;
-  --q-great: #749bbf;
-  --q-best: #81b64c;
-  --q-excellent: #96bc4b;
-  --q-good: #95b776;
-  --q-book: #a88865;
-  --q-inaccuracy: #f7c631;
-  --q-mistake: #ffa459;
-  --q-miss: #ff7769;
-  --q-blunder: #fa412d;
-  --q-forced: #96af8b;
+  --q-brilliant: #9b5cf6;
+  --q-great: #2f80ed;
+  --q-best: #14a05a;
+  --q-excellent: #4db33d;
+  --q-good: #7c9a82;
+  --q-book: #a9825c;
+  --q-inaccuracy: #e5a50a;
+  --q-mistake: #ea6c15;
+  --q-miss: #db2a62;
+  --q-blunder: #c4231e;
+  --q-forced: #8a96a8;
 
   /* Board (overridden per theme via data-board) */
   --sq-light: #ebecd0;
@@ -155,7 +155,7 @@ h1[tabindex='-1']:focus {
 }
 
 @layer components {
-/* Buttons: chess.com-style raised action with a lip, press sinks into it. */
+/* Buttons: a raised action with a lip; pressing sinks into it. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -408,7 +408,7 @@ cg-board square.right {
   max-width: 30px;
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border-radius: 999px;
+  border-radius: 30%;
   display: grid;
   place-items: center;
   color: #fff;

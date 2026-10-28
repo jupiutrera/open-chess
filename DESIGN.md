@@ -1,6 +1,6 @@
 # Design
 
-The interface follows the category standard (see PRODUCT.md, Brand Commitments): chess.com's layout and conventions, played straight, with Lichess-level analysis clarity. The board is the product and chrome stays quiet around it.
+The interface follows the category standard (see PRODUCT.md, Brand Commitments): the familiar layout and conventions of mainstream chess apps, with Lichess-level analysis clarity and an identity of its own. The board is the product and chrome stays quiet around it.
 
 ## Color
 
@@ -29,7 +29,7 @@ There is one family: Geist Variable for the UI and Geist Mono for clocks and eva
 ## Shape and depth
 
 - Radius scale: 6px for fields and small controls, 10px for panels and buttons, 12px for large buttons. Avatars are rounded squares (6px).
-- Buttons carry chess.com's lip: `box-shadow: 0 3-4px 0` in a darker shade. Pressing translates 2px down and shrinks the lip. Primary buttons are green with the `--accent-lo` lip.
+- Buttons carry a lip: `box-shadow: 0 3-4px 0` in a darker shade. Pressing translates 2px down and shrinks the lip. Primary buttons are green with the `--accent-lo` lip.
 - Panels are flat (no shadow). Separation comes from tone steps and 1px `--line` dividers.
 
 ## Components
