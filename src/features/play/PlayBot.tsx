@@ -33,7 +33,7 @@ export default function PlayBot() {
   const { t } = useTranslation()
   const nav = useNavigate()
   const { botId = 'ivan' } = useParams()
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const bot = botById(botId) ?? botById('ivan')!
   const tc = timeControl(params.get('tc'))
   const assist = useSettings((s) => s.assist)
@@ -164,6 +164,19 @@ export default function PlayBot() {
     if (!endRef.current && game.chess.history().length) toast(t('play.saved'))
   }
   useEffect(() => persist.current(), [liveFen])
+  // once there is a saved game, mark the URL so a reload picks it up instead of starting over it
+  const hasMoves = game.moves.length > 0
+  useEffect(() => {
+    if (!hasMoves || endRef.current || (params.get('resume') && params.get('color') === userColor)) return
+    setParams(
+      (p) => {
+        p.set('resume', '1')
+        p.set('color', userColor)
+        return p
+      },
+      { replace: true },
+    )
+  }, [hasMoves, userColor, params, setParams])
   useEffect(() => {
     const save = () => persist.current()
     window.addEventListener('pagehide', save)
