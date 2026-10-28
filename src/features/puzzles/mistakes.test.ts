@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mistakesFromGame } from './mistakes'
+import { cpFor, goodEnough, mistakesFromGame } from './mistakes'
 import type { GameRow } from '../../db/db'
 import type { MoveReview } from '../review/classify'
 
@@ -24,5 +24,21 @@ describe('mistakesFromGame', () => {
   })
   it('ignores games without a review or a known side', () => {
     expect(mistakesFromGame({ pgn: '1. e4 *' } as GameRow)).toEqual([])
+  })
+})
+
+describe('alternative answers', () => {
+  it('reads scores from the solver’s side, mates above any material', () => {
+    expect(cpFor({ cp: 120 }, 'w')).toBe(120)
+    expect(cpFor({ cp: 120 }, 'b')).toBe(-120)
+    expect(cpFor({ mate: 3 }, 'w')).toBeGreaterThan(cpFor({ mate: 5 }, 'w'))
+    expect(cpFor({ mate: -2 }, 'b')).toBeGreaterThan(10_000)
+    expect(cpFor({ mate: -2 }, 'w')).toBeLessThan(-10_000)
+  })
+  it('accepts moves close to the best or still clearly winning', () => {
+    expect(goodEnough(80, 40)).toBe(true)
+    expect(goodEnough(80, 20)).toBe(false)
+    expect(goodEnough(99_997, 450)).toBe(true)
+    expect(goodEnough(600, 150)).toBe(false)
   })
 })

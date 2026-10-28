@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chesscomTimeControl, hash64, parseLichessGames, pgnDate, pgnIdentity, rowIdFor, splitPgn } from './sources'
+import { chesscomTimeControl, hash64, parseLichessGames, pgnDate, pgnIdentity, rowIdFor, splitPgn, userColorFor } from './sources'
 
 const game = (id: string, status: string, extra: object = {}) =>
   JSON.stringify({
@@ -101,5 +101,17 @@ describe('PGN identity', () => {
     const seen = new Set<string>()
     for (let i = 0; i < 20000; i++) seen.add(hash64(pgnIdentity({ White: 'p', Black: 'q', Round: String(i) }, ['e4'])))
     expect(seen.size).toBe(20000)
+  })
+})
+
+describe('userColorFor', () => {
+  it('finds the side of a remembered username, ignoring case', () => {
+    expect(userColorFor('Hikaru', 'Magnus', ['hikaru', ''])).toBe('w')
+    expect(userColorFor('Hikaru', 'DrNykterstein', ['hikaru_x', 'drnykterstein'])).toBe('b')
+    expect(userColorFor('Ana', 'Martín', ['hikaru'])).toBeUndefined()
+    expect(userColorFor('Ana', 'Martín', [])).toBeUndefined()
+  })
+  it('stays unknown when both sides match', () => {
+    expect(userColorFor('ana', 'ANA', ['ana'])).toBeUndefined()
   })
 })

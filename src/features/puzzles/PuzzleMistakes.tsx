@@ -8,7 +8,7 @@ import { Panel, Skeleton } from '../../ui/kit'
 import { recordAttempt } from './puzzlesData'
 import { usePuzzle } from './usePuzzle'
 import { StatusBlock } from './PuzzleRated'
-import { mistakePuzzles, type MistakePuzzle } from './mistakes'
+import { isGoodAlternative, mistakePuzzles, type MistakePuzzle } from './mistakes'
 
 /** Replays the positions where the user went wrong in their reviewed games. */
 export default function PuzzleMistakes() {
@@ -27,6 +27,8 @@ export default function PuzzleMistakes() {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` is the retry counter
   const puzzle = useMemo(() => (list?.[i] ? { ...list[i] } : null), [list, i, key])
   const pz = usePuzzle(puzzle, {
+    // the stored answer is one engine move; another one about as strong is right too
+    acceptAlternative: (fen, uci) => (puzzle ? isGoodAlternative(fen, uci, puzzle.moves[1]) : Promise.resolve(false)),
     onDone: (solved) => {
       if (!puzzle || recorded.current === puzzle.id + key) return
       recorded.current = puzzle.id + key

@@ -104,8 +104,12 @@ export async function put<T extends SyncRow>(table: SyncTable, row: Omit<T, 'upd
   return stamped as T
 }
 
+/** Replaces the row with a bare tombstone: the deletion still syncs, the content (a game's PGN, its review) goes. */
 export async function softDelete(table: SyncTable, id: string) {
-  await (db[table] as unknown as EntityTable<SyncRow, 'id'>).update(id, { deleted: true, updatedAt: Date.now() })
+  const t = db[table] as unknown as EntityTable<SyncRow, 'id'>
+  await db.transaction('rw', t, async () => {
+    if (await t.get(id)) await t.put({ id, updatedAt: Date.now(), deleted: true })
+  })
 }
 
 export async function kvGet<T>(id: string, fallback: T): Promise<T> {

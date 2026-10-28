@@ -6,7 +6,7 @@ import { Chess } from 'chess.js'
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
 import { Panel, Skeleton } from '../../ui/kit'
-import { dailyPuzzle, getPuzzleRating, nextPuzzle, recordAttempt, type Puzzle } from './puzzlesData'
+import { dailyPuzzle, getPuzzleRating, nextPuzzle, noPuzzleReason, recordAttempt, triedIn, type NoPuzzleReason, type Puzzle } from './puzzlesData'
 import { usePuzzle } from './usePuzzle'
 import { PieceIcon } from '../../board/QualityIcon'
 import { playUci } from '../../chess/util'
@@ -17,20 +17,24 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
   const [params] = useSearchParams()
   const theme = params.get('theme') ?? undefined
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null)
-  const [empty, setEmpty] = useState(false)
+  const [empty, setEmpty] = useState<NoPuzzleReason | null>(null)
   const [rating, setRating] = useState<number | null>(null)
   const [delta, setDelta] = useState<number | null>(null)
   const [key, setKey] = useState(0)
+  /** the theme ('' for none) whose unplayed puzzles ran out and the user asked for played ones again */
+  const [seenOk, setSeenOk] = useState<string | null>(null)
+  const includeSeen = seenOk === (theme ?? '')
+  const setIncludeSeen = () => setSeenOk(theme ?? '')
 
   const load = useCallback(async () => {
     setDelta(null)
     const r = await getPuzzleRating()
     setRating(r.rating)
-    const p = daily ? await dailyPuzzle() : await nextPuzzle(r.rating, { theme })
-    setEmpty(!p)
+    const p = daily ? await dailyPuzzle() : await nextPuzzle(r.rating, { theme, includeSeen })
+    setEmpty(p ? null : await noPuzzleReason())
     setPuzzle(p)
     setKey((k) => k + 1)
-  }, [daily, theme])
+  }, [daily, theme, includeSeen])
 
   useEffect(() => {
     void load()
@@ -46,6 +50,8 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
     onDone: async (solved) => {
       if (!puzzle || recorded.current === puzzle.id) return
       recorded.current = puzzle.id
+      // the daily puzzle counts once: coming back to it later is practice
+      if (daily && (await triedIn(puzzle.id, 'daily'))) return
       const before = rating ?? 0
       const after = await recordAttempt(puzzle, solved, daily ? 'daily' : theme ? 'theme' : 'rated', !daily)
       if (after !== undefined) {
@@ -61,7 +67,26 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
   if (empty)
     return (
       <div className="mx-auto max-w-md p-6">
-        <Panel className="p-5 text-fg-2">{t('puzzles.noData')}</Panel>
+        <Panel className="space-y-4 p-5">
+          <p className="text-fg-2">
+            {empty === 'offline' ? t('puzzles.offline') : empty === 'missing' ? t('puzzles.noData') : theme ? t('puzzles.themeExhausted') : t('puzzles.exhausted')}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {empty === 'exhausted' && !daily && (
+              <button className="btn btn-primary" onClick={setIncludeSeen}>
+                {t('puzzles.includePlayed')}
+              </button>
+            )}
+            {empty === 'offline' && (
+              <button className="btn btn-primary" onClick={() => void load()}>
+                <ArrowCounterClockwise size={20} weight="bold" /> {t('common.retry')}
+              </button>
+            )}
+            <button className="btn" onClick={() => nav('/puzzles')}>
+              {t('common.back')}
+            </button>
+          </div>
+        </Panel>
       </div>
     )
 
@@ -178,6 +203,13 @@ export function StatusBlock({ status, color }: { status: string; color: 'w' | 'b
       <div key="w" className="shake flex items-center gap-3">
         <XCircle size={40} weight="fill" className="text-danger" />
         <span className="text-[18px] font-bold">{t('puzzles.incorrect')}</span>
+      </div>
+    )
+  if (status === 'checking')
+    return (
+      <div className="flex items-center gap-3" aria-live="polite">
+        <span className="h-10 w-10 animate-spin rounded-full border-4 border-raise border-t-accent motion-reduce:animate-none" aria-hidden />
+        <span className="text-[18px] font-bold">{t('puzzles.checking')}</span>
       </div>
     )
   if (status === 'correct')

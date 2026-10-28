@@ -25,6 +25,8 @@ export default function Import() {
   const online = useOnline()
   const [source, setSource] = useState<Source>('chesscom')
   const [user, setUser] = useState(remembered('chesscom'))
+  /** the username the list was fetched for: editing the field afterwards must not change whose games these are */
+  const [fetchedUser, setFetchedUser] = useState('')
   const [archives, setArchives] = useState<string[]>([])
   const [month, setMonth] = useState<string>('')
   const [games, setGames] = useState<RemoteGame[] | null>(null)
@@ -37,6 +39,22 @@ export default function Import() {
   const [loadingMore, setLoadingMore] = useState(false)
   /** the request in flight; a newer one aborts it so a stale response can't overwrite the list */
   const request = useRef<AbortController | null>(null)
+  /** an import running (games stored / to store); the ref stops a second one starting before React re-renders */
+  const [busy, setBusy] = useState<{ done: number; total: number } | null>(null)
+  const busyRef = useRef(false)
+
+  /** Runs one import at a time; a second tap while one runs is ignored. */
+  const exclusive = async (job: () => Promise<void>) => {
+    if (busyRef.current) return
+    busyRef.current = true
+    setBusy({ done: 0, total: 0 })
+    try {
+      await job()
+    } finally {
+      busyRef.current = false
+      setBusy(null)
+    }
+  }
 
   const begin = () => {
     request.current?.abort()
@@ -59,6 +77,7 @@ export default function Import() {
   useEffect(() => {
     request.current?.abort()
     setUser(remembered(source))
+    setFetchedUser('')
     setGames(null)
     setArchives([])
     setLichessNext(undefined)
@@ -78,6 +97,7 @@ export default function Import() {
       /* private mode */
     }
     const ctrl = begin()
+    setFetchedUser(u)
     setLoading(true)
     setLoadingMore(false)
     setError(null)
@@ -129,7 +149,7 @@ export default function Import() {
     const ctrl = begin()
     setLoadingMore(true)
     try {
-      const page = await lichessGames(user.trim(), lichessNext, ctrl.signal)
+      const page = await lichessGames(fetchedUser, lichessNext, ctrl.signal)
       if (ctrl.signal.aborted) return
       setGames((gs) => [...(gs ?? []), ...page.games])
       setLichessNext(page.next)
@@ -142,7 +162,7 @@ export default function Import() {
 
   const review = async (g: RemoteGame) => {
     try {
-      const row = await importRemote(g, user.trim())
+      const row = await importRemote(g, fetchedUser)
       nav(`/review/${row.id}`)
     } catch {
       // its PGN didn't load
@@ -150,43 +170,58 @@ export default function Import() {
     }
   }
 
-  const importAll = async () => {
-    if (!games) return
-    let n = 0
-    let failed = 0
-    let already = 0
-    for (const g of games) {
-      if (have.has(g.externalId)) {
-        already++
-        continue
+  const importAll = () =>
+    exclusive(async () => {
+      if (!games) return
+      const list = games
+      const username = fetchedUser
+      let n = 0
+      let failed = 0
+      let already = 0
+      for (const [i, g] of list.entries()) {
+        if (i % 10 === 0) setBusy({ done: i, total: list.length })
+        if (have.has(g.externalId)) {
+          already++
+          continue
+        }
+        // one unreadable game must not stop the rest
+        try {
+          await importRemote(g, username)
+          n++
+        } catch {
+          failed++
+        }
       }
-      // one unreadable game must not stop the rest
-      try {
-        await importRemote(g, user.trim())
-        n++
-      } catch {
-        failed++
-      }
-    }
-    setHave(await importedIds(games.map((g) => g.externalId)))
-    if (n || !already) toast(t('import.imported', { count: n }), 'success')
-    if (already) toast(t('import.alreadyHad', { count: already }))
-    if (failed) toast(t('import.failed', { count: failed }), 'error')
-  }
+      setHave(await importedIds(list.map((g) => g.externalId)))
+      if (n || !already) toast(t('import.imported', { count: n }), 'success')
+      if (already) toast(t('import.alreadyHad', { count: already }))
+      if (failed) toast(t('import.failed', { count: failed }), 'error')
+    })
 
-  const importPgn = async (text: string) => {
-    const { rows, existing, failed } = await importPgnText(text)
-    if (failed && rows.length) toast(t('import.failed', { count: failed }), 'error')
-    if (!rows.length) {
-      toast(t('analysis.invalidPgn'), 'error')
-      return
-    }
-    if (rows.length > existing) toast(t('import.imported', { count: rows.length - existing }), 'success')
-    if (existing) toast(t('import.alreadyHad', { count: existing }))
-    setPgn('')
-    if (rows.length === 1) nav(`/review/${rows[0].id}`)
-    else nav('/games')
-  }
+  const importPgn = (text: string) =>
+    exclusive(async () => {
+      // the names remembered from chess.com and Lichess tell which side is the user's
+      const { rows, existing, failed } = await importPgnText(text, {
+        usernames: [remembered('chesscom'), remembered('lichess')],
+        onProgress: (done, total) => setBusy({ done, total }),
+      })
+      if (failed && rows.length) toast(t('import.failed', { count: failed }), 'error')
+      if (!rows.length) {
+        toast(t('analysis.invalidPgn'), 'error')
+        return
+      }
+      if (rows.length > existing) toast(t('import.imported', { count: rows.length - existing }), 'success')
+      if (existing) toast(t('import.alreadyHad', { count: existing }))
+      setPgn('')
+      if (rows.length === 1) nav(`/review/${rows[0].id}`)
+      else nav('/games')
+    })
+
+  const progress = busy && busy.total > 1 && (
+    <span className="tabular text-[13px] font-semibold text-fg-3" role="status">
+      {t('import.importing', { done: busy.done, total: busy.total })}
+    </span>
+  )
 
   const monthLabel = (url: string) => {
     const [y, m] = url.split('/').slice(-2)
@@ -265,15 +300,18 @@ export default function Import() {
                 <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
                   <span className="tabular text-[14px] font-semibold text-fg-2">{games.length}</span>
                   {games.length > 0 && (
-                    <button className="btn btn-ghost -mr-2 min-h-9 text-[14px]" onClick={() => void importAll()}>
-                      <DownloadSimple size={18} weight="bold" /> {t('import.importAll')}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      {progress}
+                      <button className="btn btn-ghost -mr-2 min-h-9 text-[14px]" disabled={!!busy} onClick={() => void importAll()}>
+                        <DownloadSimple size={18} weight="bold" /> {t('import.importAll')}
+                      </button>
+                    </div>
                   )}
                 </div>
                 {games.length === 0 && <p className="p-4 text-fg-2">{t('import.none')}</p>}
                 <ul className="divide-y divide-line">
                   {games.map((g) => {
-                    const u = user.trim().toLowerCase()
+                    const u = fetchedUser.toLowerCase()
                     const mine = g.white.toLowerCase() === u ? 'w' : g.black.toLowerCase() === u ? 'b' : null
                     const won = mine && g.result !== '1/2-1/2' && (g.result === '1-0') === (mine === 'w')
                     const lost = mine && g.result !== '1/2-1/2' && !won
@@ -296,7 +334,7 @@ export default function Import() {
                         >
                           {g.result.replace('1/2-1/2', '½-½')}
                         </span>
-                        <button className="btn min-h-10 px-3 text-[14px]" onClick={() => void review(g)}>
+                        <button className="btn min-h-10 px-3 text-[14px]" disabled={!!busy} onClick={() => void review(g)}>
                           {have.has(g.externalId) && <CheckCircle size={18} weight="fill" className="text-accent" />}
                           {t('games.review')}
                         </button>
@@ -327,22 +365,25 @@ export default function Import() {
               placeholder={'[Event "?"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6'}
             />
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button className="btn btn-primary" disabled={!pgn.trim()} onClick={() => void importPgn(pgn)}>
+              <button className="btn btn-primary" disabled={!pgn.trim() || !!busy} onClick={() => void importPgn(pgn)}>
                 {t('import.importPgn')}
               </button>
-              <label className="btn cursor-pointer">
+              <label className={`btn ${busy ? 'pointer-events-none opacity-50' : 'cursor-pointer'}`} aria-disabled={!!busy}>
                 <FileArrowUp size={20} weight="bold" /> {t('import.file')}
                 <input
                   type="file"
                   accept=".pgn,text/plain"
                   className="sr-only"
+                  disabled={!!busy}
                   onChange={async (e) => {
                     const f = e.target.files?.[0]
-                    if (f) await importPgn(await f.text())
+                    // cleared first: picking the same file again must fire onChange
                     e.target.value = ''
+                    if (f) await importPgn(await f.text())
                   }}
                 />
               </label>
+              {progress}
             </div>
           </Panel>
         )}

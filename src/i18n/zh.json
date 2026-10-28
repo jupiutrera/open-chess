@@ -5,7 +5,6 @@
     "puzzles": "谜题",
     "learn": "学习",
     "openings": "开局",
-    "lessons": "课程",
     "analysis": "分析",
     "games": "棋局",
     "import": "导入",
@@ -53,7 +52,13 @@
       "promotion": "升变为{{piece}}",
       "check": "将军",
       "checkmate": "将死"
-    }
+    },
+    "notFoundTitle": "找不到页面",
+    "notFoundBody": "这个链接在 Open Chess 中没有对应的页面。",
+    "goHome": "返回首页",
+    "errorTitle": "出了点问题",
+    "errorBody": "此页面出现错误。重新加载通常可以解决；你的对局和进度都已保存。",
+    "reload": "重新加载"
   },
   "home": {
     "greeting": "今天练什么？",
@@ -63,7 +68,6 @@
     "puzzles": "解谜题",
     "rush": "谜题冲刺",
     "review": "复盘我的上一局",
-    "reviewSub": "用 Stockfish 找出你的失误",
     "import": "从 chess.com 或 Lichess 导入",
     "recent": "最近的棋局",
     "noGames": "还没有棋局。与机器人对弈或导入你的棋局来开始复盘。",
@@ -75,10 +79,7 @@
   },
   "play": {
     "title": "对局",
-    "chooseBot": "选择对手",
-    "botsTitle": "机器人",
     "local": "双人对局",
-    "localSub": "在同一设备上",
     "color": "你执",
     "time": "时间",
     "noTime": "不计时",
@@ -111,7 +112,6 @@
       "timeoutVsInsufficient": "超时（对方子力不足）"
     },
     "confirmResign": "确定要认输吗？",
-    "level": "级别",
     "record": "你的战绩：{{w}} 胜 · {{d}} 和 · {{l}} 负",
     "autoFlip": "每回合翻转棋盘",
     "assistOpt": {
@@ -228,7 +228,13 @@
       "allowsMate_other": "让对方 {{count}} 步杀。",
       "missedMate_one": "{{san}} 可以 {{count}} 步杀。",
       "missedMate_other": "从 {{san}} 开始可以 {{count}} 步杀。"
-    }
+    },
+    "retryFailed": "无法检查这步棋，请重试。",
+    "graphStart": "初始局面",
+    "graphValue": "{{move}} {{san}}，{{score}}，{{quality}}",
+    "linePrev": "变化中的上一步",
+    "lineNext": "变化中的下一步",
+    "lineStep": "后续 {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "谜题",
@@ -239,7 +245,6 @@
     "yourTurn": "白方走棋",
     "yourTurnBlack": "黑方走棋",
     "findBest": "找出最佳着法",
-    "correct": "正确！",
     "keepGoing": "很好，继续",
     "incorrect": "错误",
     "solved": "已解出！",
@@ -249,9 +254,8 @@
     "solution": "显示答案",
     "analyze": "分析",
     "hint": "提示",
-    "ratingChange": "{{delta}} 分",
     "puzzleRating": "谜题 {{rating}}",
-    "noData": "尚未下载谜题。运行 “npm run data:puzzles” 生成。",
+    "noData": "此版本的应用不包含谜题。",
     "streak": "连胜",
     "best": "最佳",
     "rush3": "3 分钟",
@@ -263,7 +267,6 @@
     "rushOver": "冲刺结束",
     "newRecord": "新纪录！",
     "playAgain": "再玩一次",
-    "allThemes": "所有主题",
     "history": "历史",
     "mistakes": "你的失误",
     "mistakesSub": "重练你在已复盘对局中走错的局面",
@@ -275,7 +278,14 @@
     "results": "结果",
     "streakMode": "谜题连胜",
     "streakSub": "不计时。谜题逐渐变难，错一题即结束。",
-    "streakOver": "连胜结束"
+    "streakOver": "连胜结束",
+    "checking": "正在检查你的着法…",
+    "offline": "无法加载谜题。请检查网络连接后重试；在线打开过的谜题离线时仍可使用。",
+    "exhausted": "你已经做完了接近你等级分的所有谜题。",
+    "themeExhausted": "你已经做完了此主题中接近你等级分的所有谜题。",
+    "includePlayed": "包含已做过的谜题",
+    "skip": "跳过此谜题（每轮一次）",
+    "skipUsed": "已使用跳过"
   },
   "themes": {
     "mateIn1": "一步杀",
@@ -354,7 +364,11 @@
     "dueCount_one": "{{count}} 个待复习",
     "dueCount_other": "{{count}} 个待复习",
     "positions_one": "{{count}} 个局面",
-    "positions_other": "{{count}} 个局面"
+    "positions_other": "{{count}} 个局面",
+    "badToken": "Lichess 未接受你的令牌。请在此检查：",
+    "rateLimited": "对 Lichess 的请求过多。请一分钟后再试；正在显示已知开局。",
+    "explorerError": "无法加载 Lichess 统计数据。正在显示已知开局。",
+    "playShown": "走出箭头所示的着法以继续。"
   },
   "lessons": {
     "title": "课程",
@@ -387,7 +401,6 @@
   },
   "analysis": {
     "title": "分析棋盘",
-    "engine": "引擎",
     "lines": "变化",
     "editor": "局面编辑器",
     "loadFen": "载入 FEN",
@@ -426,17 +439,16 @@
       "mateIn_other": "· {{count}} 步杀",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "显示威胁"
   },
   "games": {
     "title": "我的棋局",
     "empty": "还没有保存的棋局。",
     "review": "复盘",
-    "reviewed": "已复盘",
     "vs": "对",
     "delete": "删除棋局",
     "all": "全部",
-    "filter": "筛选",
     "search": "搜索棋手或开局",
     "result": "结果",
     "color": "执子",
@@ -447,7 +459,16 @@
     "anyColor": "黑白均可",
     "loadMore": "加载更多",
     "noMatch": "没有符合这些筛选条件的对局。",
-    "clearFilters": "清除筛选"
+    "clearFilters": "清除筛选",
+    "deleteConfirm": "删除这盘对局？此操作无法撤销。",
+    "speed": "时限",
+    "anySpeed": "所有时限",
+    "bullet": "子弹棋",
+    "blitz": "超快棋",
+    "rapid": "快棋",
+    "classical": "慢棋",
+    "daily": "每日棋",
+    "untimed": "无计时"
   },
   "import": {
     "title": "导入棋局",
@@ -462,22 +483,19 @@
     "file": "或上传 .pgn 文件",
     "notFound": "未找到用户",
     "none": "该时间段内没有棋局",
-    "importReview": "导入并复盘",
     "importAll": "全部导入",
     "loadMore": "加载更早的对局",
-    "already": "已导入",
-    "remember": "记住此用户",
     "imported_one": "已导入 {{count}} 局",
     "imported_other": "已导入 {{count}} 局",
     "failed_one": "{{count}} 局无法读取",
     "failed_other": "{{count}} 局无法读取",
     "rateLimited": "请求过于频繁，请等待一分钟后重试。",
     "alreadyHad_one": "{{count}} 局此前已导入",
-    "alreadyHad_other": "{{count}} 局此前已导入"
+    "alreadyHad_other": "{{count}} 局此前已导入",
+    "importing": "正在导入 {{done}} / {{total}}…"
   },
   "profile": {
     "title": "个人资料",
-    "stats": "统计",
     "puzzleRating": "谜题等级分",
     "puzzlesSolved": "已解谜题",
     "gamesPlayed": "已下棋局",
@@ -488,7 +506,6 @@
     "noData": "暂无数据",
     "sync": "同步",
     "syncOff": "尚未配置同步。请在 .env 中添加 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY。",
-    "signIn": "登录",
     "signOut": "退出登录",
     "signOutClear": "同时从此设备删除已同步的数据吗？数据仍保存在你的账户中。点击取消则保留在此设备上。",
     "signOutKept": "退出登录前同步失败，因此你的数据已保留在此设备上。",
@@ -507,7 +524,14 @@
     "restored": "备份已恢复",
     "byOpening": "按开局",
     "gamesShort_one": "{{count}}局",
-    "gamesShort_other": "{{count}}局"
+    "gamesShort_other": "{{count}}局",
+    "results": "战绩",
+    "overall": "总计",
+    "withWhite": "执白",
+    "withBlack": "执黑",
+    "won": "胜",
+    "drawn": "和",
+    "lost": "负"
   },
   "settings": {
     "title": "设置",
@@ -544,6 +568,7 @@
       "futuristic": "未来感"
     },
     "highContrast": "高对比度",
-    "highContrastHint": "按钮和次要文字更易读（WCAG AA）"
+    "highContrastHint": "按钮和次要文字更易读（WCAG AA）",
+    "system": "跟随系统"
   }
 }

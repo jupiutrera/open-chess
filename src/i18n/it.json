@@ -5,7 +5,6 @@
     "puzzles": "Problemi",
     "learn": "Impara",
     "openings": "Aperture",
-    "lessons": "Lezioni",
     "analysis": "Analisi",
     "games": "Partite",
     "import": "Importa",
@@ -53,7 +52,13 @@
       "promotion": "promuove a {{piece}}",
       "check": "scacco",
       "checkmate": "scacco matto"
-    }
+    },
+    "notFoundTitle": "Pagina non trovata",
+    "notFoundBody": "Questo link non porta da nessuna parte in Open Chess.",
+    "goHome": "Vai alla home",
+    "errorTitle": "Qualcosa è andato storto",
+    "errorBody": "Questa schermata ha avuto un errore. Ricaricare di solito risolve; le tue partite e i tuoi progressi sono salvati.",
+    "reload": "Ricarica"
   },
   "home": {
     "greeting": "Cosa alleniamo oggi?",
@@ -63,7 +68,6 @@
     "puzzles": "Risolvi problemi",
     "rush": "Puzzle Rush",
     "review": "Rivedi la mia ultima partita",
-    "reviewSub": "Trova i tuoi errori con Stockfish",
     "import": "Importa da chess.com o Lichess",
     "recent": "Partite recenti",
     "noGames": "Ancora nessuna partita. Gioca contro un bot o importa le tue partite per analizzarle.",
@@ -75,10 +79,7 @@
   },
   "play": {
     "title": "Gioca",
-    "chooseBot": "Scegli un avversario",
-    "botsTitle": "Bot",
     "local": "Due giocatori",
-    "localSub": "Sullo stesso dispositivo",
     "color": "Giochi con",
     "time": "Tempo",
     "noTime": "Senza orologio",
@@ -111,7 +112,6 @@
       "timeoutVsInsufficient": "per tempo contro materiale insufficiente"
     },
     "confirmResign": "Vuoi davvero abbandonare?",
-    "level": "Livello",
     "record": "Il tuo bilancio: {{w}} V · {{d}} P · {{l}} S",
     "autoFlip": "Ruota la scacchiera a ogni turno",
     "assistOpt": {
@@ -228,7 +228,13 @@
       "allowsMate_other": "Concede matto in {{count}}.",
       "missedMate_one": "C'era matto in {{count}} con {{san}}.",
       "missedMate_other": "C'era matto in {{count}} a partire da {{san}}."
-    }
+    },
+    "retryFailed": "Impossibile verificare la mossa. Riprova.",
+    "graphStart": "Posizione iniziale",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Mossa precedente della linea",
+    "lineNext": "Mossa successiva della linea",
+    "lineStep": "Seguito {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Problemi",
@@ -239,7 +245,6 @@
     "yourTurn": "Muove il Bianco",
     "yourTurnBlack": "Muove il Nero",
     "findBest": "Trova la mossa migliore",
-    "correct": "Corretto!",
     "keepGoing": "Bene, continua",
     "incorrect": "Sbagliato",
     "solved": "Risolto!",
@@ -249,9 +254,8 @@
     "solution": "Mostra soluzione",
     "analyze": "Analizza",
     "hint": "Suggerimento",
-    "ratingChange": "{{delta}} punti",
     "puzzleRating": "Problema {{rating}}",
-    "noData": "Nessun problema scaricato. Esegui “npm run data:puzzles” per generarli.",
+    "noData": "I puzzle non sono inclusi in questa versione dell'app.",
     "streak": "Serie",
     "best": "Record",
     "rush3": "3 minuti",
@@ -263,7 +267,6 @@
     "rushOver": "Rush finito",
     "newRecord": "Nuovo record!",
     "playAgain": "Gioca ancora",
-    "allThemes": "Tutti i temi",
     "history": "Cronologia",
     "mistakes": "I tuoi errori",
     "mistakesSub": "Rigioca le posizioni sbagliate nelle tue partite analizzate",
@@ -275,7 +278,14 @@
     "results": "Risultati",
     "streakMode": "Serie di problemi",
     "streakSub": "Senza orologio. Ogni problema è un po' più difficile e un solo errore chiude la serie.",
-    "streakOver": "Serie terminata"
+    "streakOver": "Serie terminata",
+    "checking": "Verifica della tua mossa…",
+    "offline": "Impossibile caricare i puzzle. Controlla la connessione e riprova; i puzzle aperti online restano disponibili offline.",
+    "exhausted": "Hai giocato tutti i puzzle vicini al tuo punteggio.",
+    "themeExhausted": "Hai giocato tutti i puzzle di questo tema vicini al tuo punteggio.",
+    "includePlayed": "Includi i puzzle già giocati",
+    "skip": "Salta questo puzzle (una volta per serie)",
+    "skipUsed": "Salto usato"
   },
   "themes": {
     "mateIn1": "Matto in 1",
@@ -354,7 +364,11 @@
     "dueCount_one": "{{count}} da ripassare",
     "dueCount_other": "{{count}} da ripassare",
     "positions_one": "{{count}} posizione",
-    "positions_other": "{{count}} posizioni"
+    "positions_other": "{{count}} posizioni",
+    "badToken": "Lichess non ha accettato il tuo token. Controllalo in",
+    "rateLimited": "Troppe richieste a Lichess. Riprova tra un minuto; vengono mostrate le aperture note.",
+    "explorerError": "Impossibile caricare le statistiche di Lichess. Vengono mostrate le aperture note.",
+    "playShown": "Gioca la mossa della freccia per continuare."
   },
   "lessons": {
     "title": "Lezioni",
@@ -387,7 +401,6 @@
   },
   "analysis": {
     "title": "Scacchiera di analisi",
-    "engine": "Motore",
     "lines": "Linee",
     "editor": "Editor di posizione",
     "loadFen": "Carica FEN",
@@ -426,17 +439,16 @@
       "mateIn_other": "· matto in {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Mostra minaccia"
   },
   "games": {
     "title": "Le mie partite",
     "empty": "Ancora nessuna partita salvata.",
     "review": "Analizza",
-    "reviewed": "Analizzata",
     "vs": "vs",
     "delete": "Elimina partita",
     "all": "Tutte",
-    "filter": "Filtra",
     "search": "Cerca giocatore o apertura",
     "result": "Risultato",
     "color": "Colore",
@@ -447,7 +459,16 @@
     "anyColor": "Entrambi i colori",
     "loadMore": "Carica altre",
     "noMatch": "Nessuna partita corrisponde a questi filtri.",
-    "clearFilters": "Rimuovi filtri"
+    "clearFilters": "Rimuovi filtri",
+    "deleteConfirm": "Eliminare questa partita? Non si può annullare.",
+    "speed": "Cadenza",
+    "anySpeed": "Tutte le cadenze",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapid",
+    "classical": "Classica",
+    "daily": "Giornaliera",
+    "untimed": "Senza orologio"
   },
   "import": {
     "title": "Importa partite",
@@ -462,22 +483,19 @@
     "file": "oppure carica un file .pgn",
     "notFound": "Utente non trovato",
     "none": "Nessuna partita in quel periodo",
-    "importReview": "Importa e analizza",
     "importAll": "Importa tutto",
     "loadMore": "Carica partite precedenti",
-    "already": "Già importata",
-    "remember": "Ricorda questo utente",
     "imported_one": "{{count}} partita importata",
     "imported_other": "{{count}} partite importate",
     "failed_one": "{{count}} partita non leggibile",
     "failed_other": "{{count}} partite non leggibili",
     "rateLimited": "Troppe richieste di seguito. Attendi un minuto e riprova.",
     "alreadyHad_one": "{{count}} partita era già importata",
-    "alreadyHad_other": "{{count}} partite erano già importate"
+    "alreadyHad_other": "{{count}} partite erano già importate",
+    "importing": "Importazione {{done}} di {{total}}…"
   },
   "profile": {
     "title": "Profilo",
-    "stats": "Statistiche",
     "puzzleRating": "Punteggio problemi",
     "puzzlesSolved": "Problemi risolti",
     "gamesPlayed": "Partite giocate",
@@ -488,7 +506,6 @@
     "noData": "Ancora nessun dato",
     "sync": "Sincronizzazione",
     "syncOff": "La sincronizzazione non è configurata. Aggiungi VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY a .env.",
-    "signIn": "Accedi",
     "signOut": "Esci",
     "signOutClear": "Rimuovere anche i dati sincronizzati da questo dispositivo? Restano salvati nel tuo account. Annulla li mantiene qui.",
     "signOutKept": "Impossibile sincronizzare prima di uscire, quindi i tuoi dati sono rimasti su questo dispositivo.",
@@ -507,7 +524,14 @@
     "restored": "Backup ripristinato",
     "byOpening": "Per apertura",
     "gamesShort_one": "{{count}} p.",
-    "gamesShort_other": "{{count}} p."
+    "gamesShort_other": "{{count}} p.",
+    "results": "Risultati",
+    "overall": "Totale",
+    "withWhite": "Con il Bianco",
+    "withBlack": "Con il Nero",
+    "won": "Vinte",
+    "drawn": "Patte",
+    "lost": "Perse"
   },
   "settings": {
     "title": "Impostazioni",
@@ -544,6 +568,7 @@
       "futuristic": "Futuristico"
     },
     "highContrast": "Contrasto elevato",
-    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)"
+    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)",
+    "system": "Sistema"
   }
 }

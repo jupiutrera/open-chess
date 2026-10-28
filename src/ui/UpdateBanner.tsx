@@ -8,10 +8,21 @@ export const useUpdate = create<{ apply: (() => void) | null }>(() => ({ apply: 
 export function UpdateBanner() {
   const { t } = useTranslation()
   const apply = useUpdate((s) => s.apply)
-  if (!apply) return null
+  return (
+    <>
+      {/* mounted from the start: screen readers only announce changes to a live region they already know */}
+      <div role="status" className="sr-only">
+        {apply ? t('common.updateReady') : ''}
+      </div>
+      {apply && <Banner apply={apply} />}
+    </>
+  )
+}
+
+function Banner({ apply }: { apply: () => void }) {
+  const { t } = useTranslation()
   return (
     <div
-      role="status"
       className="fixed inset-x-0 top-[calc(8px+var(--inset-top))] z-50 mx-auto flex w-[min(100%-32px,420px)] items-center gap-3 rounded-lg bg-raise-2 px-4 py-2.5 text-[14px] font-semibold shadow-lg"
     >
       <span className="flex-1">{t('common.updateReady')}</span>

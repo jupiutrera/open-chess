@@ -5,7 +5,6 @@
     "puzzles": "Puzzles",
     "learn": "Learn",
     "openings": "Openings",
-    "lessons": "Lessons",
     "analysis": "Analysis",
     "games": "Games",
     "import": "Import",
@@ -53,7 +52,13 @@
       "promotion": "promotes to {{piece}}",
       "check": "check",
       "checkmate": "checkmate"
-    }
+    },
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "This link doesn't lead anywhere in Open Chess.",
+    "goHome": "Go to home",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This screen hit an error. Reloading usually fixes it; your games and progress are saved.",
+    "reload": "Reload"
   },
   "home": {
     "greeting": "What are we training today?",
@@ -63,7 +68,6 @@
     "puzzles": "Solve puzzles",
     "rush": "Puzzle Rush",
     "review": "Review my last game",
-    "reviewSub": "Find your mistakes with Stockfish",
     "import": "Import from chess.com or Lichess",
     "recent": "Recent games",
     "noGames": "No games yet. Play a bot or import your games to start reviewing them.",
@@ -75,10 +79,7 @@
   },
   "play": {
     "title": "Play",
-    "chooseBot": "Choose an opponent",
-    "botsTitle": "Bots",
     "local": "Two players",
-    "localSub": "On the same device",
     "color": "You play",
     "time": "Time",
     "noTime": "No clock",
@@ -111,7 +112,6 @@
       "timeoutVsInsufficient": "by timeout vs insufficient material"
     },
     "confirmResign": "Are you sure you want to resign?",
-    "level": "Level",
     "record": "Your record: {{w}} W · {{d}} D · {{l}} L",
     "autoFlip": "Flip the board every turn",
     "assistOpt": {
@@ -228,7 +228,13 @@
       "allowsMate_other": "It allows mate in {{count}}.",
       "missedMate_one": "There was mate in {{count}} with {{san}}.",
       "missedMate_other": "There was mate in {{count}} starting with {{san}}."
-    }
+    },
+    "retryFailed": "Couldn't check that move. Try again.",
+    "graphStart": "Start position",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Previous move in the line",
+    "lineNext": "Next move in the line",
+    "lineStep": "Follow-up {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Puzzles",
@@ -239,7 +245,6 @@
     "yourTurn": "White to move",
     "yourTurnBlack": "Black to move",
     "findBest": "Find the best move",
-    "correct": "Correct!",
     "keepGoing": "Good, keep going",
     "incorrect": "Incorrect",
     "solved": "Solved!",
@@ -249,9 +254,8 @@
     "solution": "Show solution",
     "analyze": "Analyze",
     "hint": "Hint",
-    "ratingChange": "{{delta}} points",
     "puzzleRating": "Puzzle {{rating}}",
-    "noData": "No puzzles downloaded. Run “npm run data:puzzles” to generate them.",
+    "noData": "Puzzles aren't included in this version of the app.",
     "streak": "Streak",
     "best": "Best",
     "rush3": "3 minutes",
@@ -263,7 +267,6 @@
     "rushOver": "Rush over",
     "newRecord": "New record!",
     "playAgain": "Play again",
-    "allThemes": "All themes",
     "history": "History",
     "mistakes": "Your mistakes",
     "mistakesSub": "Replay the positions you got wrong in your reviewed games",
@@ -275,7 +278,14 @@
     "results": "Results",
     "streakMode": "Puzzle Streak",
     "streakSub": "No clock. Each puzzle is a little harder and one miss ends the run.",
-    "streakOver": "Streak over"
+    "streakOver": "Streak over",
+    "checking": "Checking your move…",
+    "offline": "Couldn't load puzzles. Check your connection and try again; puzzles you open online stay available offline.",
+    "exhausted": "You've played every puzzle around your rating.",
+    "themeExhausted": "You've played every puzzle of this theme around your rating.",
+    "includePlayed": "Include puzzles already played",
+    "skip": "Skip this puzzle (once per run)",
+    "skipUsed": "Skip used"
   },
   "themes": {
     "mateIn1": "Mate in 1",
@@ -354,7 +364,11 @@
     "dueCount_one": "{{count}} due",
     "dueCount_other": "{{count}} due",
     "positions_one": "{{count}} position",
-    "positions_other": "{{count}} positions"
+    "positions_other": "{{count}} positions",
+    "badToken": "Lichess didn't accept your token. Check it in",
+    "rateLimited": "Too many requests to Lichess. Try again in a minute; showing known openings.",
+    "explorerError": "Couldn't load Lichess stats. Showing known openings.",
+    "playShown": "Play the arrow's move to continue."
   },
   "lessons": {
     "title": "Lessons",
@@ -387,7 +401,6 @@
   },
   "analysis": {
     "title": "Analysis board",
-    "engine": "Engine",
     "lines": "Lines",
     "editor": "Board editor",
     "loadFen": "Load FEN",
@@ -426,17 +439,16 @@
       "mateIn_other": "· mate in {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Show threat"
   },
   "games": {
     "title": "My games",
     "empty": "No saved games yet.",
     "review": "Review",
-    "reviewed": "Reviewed",
     "vs": "vs",
     "delete": "Delete game",
     "all": "All",
-    "filter": "Filter",
     "search": "Search player or opening",
     "result": "Result",
     "color": "Color",
@@ -447,7 +459,16 @@
     "anyColor": "Both colors",
     "loadMore": "Load more",
     "noMatch": "No games match these filters.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "deleteConfirm": "Delete this game? This can’t be undone.",
+    "speed": "Time control",
+    "anySpeed": "Any time control",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapid",
+    "classical": "Classical",
+    "daily": "Daily",
+    "untimed": "No clock"
   },
   "import": {
     "title": "Import games",
@@ -462,22 +483,19 @@
     "file": "or upload a .pgn file",
     "notFound": "User not found",
     "none": "No games in that period",
-    "importReview": "Import and review",
     "importAll": "Import all",
     "loadMore": "Load older games",
-    "already": "Already imported",
-    "remember": "Remember this user",
     "imported_one": "{{count}} game imported",
     "imported_other": "{{count}} games imported",
     "failed_one": "{{count}} game couldn't be read",
     "failed_other": "{{count}} games couldn't be read",
     "rateLimited": "Too many requests in a row. Wait a minute and try again.",
     "alreadyHad_one": "{{count}} game was already imported",
-    "alreadyHad_other": "{{count}} games were already imported"
+    "alreadyHad_other": "{{count}} games were already imported",
+    "importing": "Importing {{done}} of {{total}}…"
   },
   "profile": {
     "title": "Profile",
-    "stats": "Stats",
     "puzzleRating": "Puzzle rating",
     "puzzlesSolved": "Puzzles solved",
     "gamesPlayed": "Games played",
@@ -488,7 +506,6 @@
     "noData": "No data yet",
     "sync": "Sync",
     "syncOff": "Sync is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.",
-    "signIn": "Sign in",
     "signOut": "Sign out",
     "signOutClear": "Also remove your synced data from this device? It stays saved in your account. Cancel keeps it here.",
     "signOutKept": "Could not sync before signing out, so your data was kept on this device.",
@@ -507,7 +524,14 @@
     "restored": "Backup restored",
     "byOpening": "By opening",
     "gamesShort_one": "{{count}} g.",
-    "gamesShort_other": "{{count}} g."
+    "gamesShort_other": "{{count}} g.",
+    "results": "Results",
+    "overall": "Overall",
+    "withWhite": "As White",
+    "withBlack": "As Black",
+    "won": "Won",
+    "drawn": "Drawn",
+    "lost": "Lost"
   },
   "settings": {
     "title": "Settings",
@@ -544,6 +568,7 @@
       "futuristic": "Futuristic"
     },
     "highContrast": "High contrast",
-    "highContrastHint": "More readable buttons and secondary text (WCAG AA)"
+    "highContrastHint": "More readable buttons and secondary text (WCAG AA)",
+    "system": "System"
   }
 }

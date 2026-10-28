@@ -5,7 +5,6 @@
     "puzzles": "パズル",
     "learn": "学ぶ",
     "openings": "オープニング",
-    "lessons": "レッスン",
     "analysis": "解析",
     "games": "棋譜",
     "import": "インポート",
@@ -53,7 +52,13 @@
       "promotion": "{{piece}}に成る",
       "check": "チェック",
       "checkmate": "チェックメイト"
-    }
+    },
+    "notFoundTitle": "ページが見つかりません",
+    "notFoundBody": "このリンクは Open Chess のどのページにもつながっていません。",
+    "goHome": "ホームへ",
+    "errorTitle": "問題が発生しました",
+    "errorBody": "この画面でエラーが発生しました。再読み込みすると通常は直ります。対局と進捗は保存されています。",
+    "reload": "再読み込み"
   },
   "home": {
     "greeting": "今日は何を練習しますか？",
@@ -63,7 +68,6 @@
     "puzzles": "パズルを解く",
     "rush": "パズルラッシュ",
     "review": "前回の対局を振り返る",
-    "reviewSub": "Stockfish でミスを見つける",
     "import": "chess.com や Lichess からインポート",
     "recent": "最近の対局",
     "noGames": "まだ対局がありません。ボットと対局するか、棋譜をインポートして振り返りを始めましょう。",
@@ -75,10 +79,7 @@
   },
   "play": {
     "title": "対局",
-    "chooseBot": "対戦相手を選ぶ",
-    "botsTitle": "ボット",
     "local": "2人で対局",
-    "localSub": "同じ端末で",
     "color": "あなたの色",
     "time": "持ち時間",
     "noTime": "時間無制限",
@@ -111,7 +112,6 @@
       "timeoutVsInsufficient": "時間切れ（相手の駒不足）"
     },
     "confirmResign": "本当に投了しますか？",
-    "level": "レベル",
     "record": "あなたの成績：{{w}} 勝 · {{d}} 分 · {{l}} 敗",
     "autoFlip": "毎手、盤を反転する",
     "assistOpt": {
@@ -228,7 +228,13 @@
       "allowsMate_other": "{{count}}手詰めを許します。",
       "missedMate_one": "{{san}}で{{count}}手詰めがありました。",
       "missedMate_other": "{{san}}から{{count}}手詰めがありました。"
-    }
+    },
+    "retryFailed": "その手を確認できませんでした。もう一度お試しください。",
+    "graphStart": "開始局面",
+    "graphValue": "{{move}} {{san}}、{{score}}、{{quality}}",
+    "linePrev": "ラインの前の手",
+    "lineNext": "ラインの次の手",
+    "lineStep": "続き {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "パズル",
@@ -239,7 +245,6 @@
     "yourTurn": "白番",
     "yourTurnBlack": "黒番",
     "findBest": "最善手を見つけよう",
-    "correct": "正解！",
     "keepGoing": "いいですね、続けて",
     "incorrect": "不正解",
     "solved": "解けました！",
@@ -249,9 +254,8 @@
     "solution": "解答を見る",
     "analyze": "解析",
     "hint": "ヒント",
-    "ratingChange": "{{delta}} ポイント",
     "puzzleRating": "パズル {{rating}}",
-    "noData": "パズルがダウンロードされていません。「npm run data:puzzles」を実行して生成してください。",
+    "noData": "このバージョンのアプリにはパズルが含まれていません。",
     "streak": "連続正解",
     "best": "ベスト",
     "rush3": "3分",
@@ -263,7 +267,6 @@
     "rushOver": "ラッシュ終了",
     "newRecord": "新記録！",
     "playAgain": "もう一度",
-    "allThemes": "すべてのテーマ",
     "history": "履歴",
     "mistakes": "自分のミス",
     "mistakesSub": "解析済みの対局で間違えた局面をもう一度",
@@ -275,7 +278,14 @@
     "results": "結果",
     "streakMode": "パズルストリーク",
     "streakSub": "時間制限なし。問題は少しずつ難しくなり、1問でも間違えると終了です。",
-    "streakOver": "ストリーク終了"
+    "streakOver": "ストリーク終了",
+    "checking": "手を確認しています…",
+    "offline": "パズルを読み込めませんでした。接続を確認してもう一度お試しください。オンラインで開いたパズルはオフラインでも使えます。",
+    "exhausted": "あなたのレーティング付近のパズルはすべてプレイしました。",
+    "themeExhausted": "このテーマで、あなたのレーティング付近のパズルはすべてプレイしました。",
+    "includePlayed": "プレイ済みのパズルも含める",
+    "skip": "このパズルをスキップ（1 回のみ）",
+    "skipUsed": "スキップ使用済み"
   },
   "themes": {
     "mateIn1": "1手詰め",
@@ -354,7 +364,11 @@
     "dueCount_one": "復習 {{count}} 件",
     "dueCount_other": "復習 {{count}} 件",
     "positions_one": "{{count}} 局面",
-    "positions_other": "{{count}} 局面"
+    "positions_other": "{{count}} 局面",
+    "badToken": "Lichess がトークンを受け付けませんでした。確認してください：",
+    "rateLimited": "Lichess へのリクエストが多すぎます。1 分後にもう一度お試しください。既知のオープニングを表示しています。",
+    "explorerError": "Lichess の統計を読み込めませんでした。既知のオープニングを表示しています。",
+    "playShown": "矢印の手を指して続けましょう。"
   },
   "lessons": {
     "title": "レッスン",
@@ -387,7 +401,6 @@
   },
   "analysis": {
     "title": "解析ボード",
-    "engine": "エンジン",
     "lines": "読み筋",
     "editor": "局面エディター",
     "loadFen": "FEN を読み込む",
@@ -426,17 +439,16 @@
       "mateIn_other": "· {{count}}手詰め",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "脅威を表示"
   },
   "games": {
     "title": "マイ棋譜",
     "empty": "保存された対局はまだありません。",
     "review": "振り返る",
-    "reviewed": "振り返り済み",
     "vs": "対",
     "delete": "対局を削除",
     "all": "すべて",
-    "filter": "絞り込み",
     "search": "プレイヤーまたはオープニングを検索",
     "result": "結果",
     "color": "手番の色",
@@ -447,7 +459,16 @@
     "anyColor": "両方の色",
     "loadMore": "さらに読み込む",
     "noMatch": "この条件に一致する対局はありません。",
-    "clearFilters": "フィルターを解除"
+    "clearFilters": "フィルターを解除",
+    "deleteConfirm": "この対局を削除しますか？元に戻せません。",
+    "speed": "持ち時間",
+    "anySpeed": "すべての持ち時間",
+    "bullet": "ブレット",
+    "blitz": "ブリッツ",
+    "rapid": "ラピッド",
+    "classical": "クラシカル",
+    "daily": "デイリー",
+    "untimed": "時計なし"
   },
   "import": {
     "title": "対局をインポート",
@@ -462,22 +483,19 @@
     "file": "または .pgn ファイルをアップロード",
     "notFound": "ユーザーが見つかりません",
     "none": "その期間の対局はありません",
-    "importReview": "インポートして振り返る",
     "importAll": "すべてインポート",
     "loadMore": "以前の対局を読み込む",
-    "already": "インポート済み",
-    "remember": "このユーザーを記憶する",
     "imported_one": "{{count}} 局をインポートしました",
     "imported_other": "{{count}} 局をインポートしました",
     "failed_one": "{{count}} 局を読み込めませんでした",
     "failed_other": "{{count}} 局を読み込めませんでした",
     "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。",
     "alreadyHad_one": "{{count}} 局はインポート済みです",
-    "alreadyHad_other": "{{count}} 局はインポート済みです"
+    "alreadyHad_other": "{{count}} 局はインポート済みです",
+    "importing": "{{total}} 局中 {{done}} 局をインポート中…"
   },
   "profile": {
     "title": "プロフィール",
-    "stats": "統計",
     "puzzleRating": "パズルレーティング",
     "puzzlesSolved": "解いたパズル",
     "gamesPlayed": "対局数",
@@ -488,7 +506,6 @@
     "noData": "まだデータがありません",
     "sync": "同期",
     "syncOff": "同期が設定されていません。.env に VITE_SUPABASE_URL と VITE_SUPABASE_ANON_KEY を追加してください。",
-    "signIn": "ログイン",
     "signOut": "ログアウト",
     "signOutClear": "同期済みのデータをこの端末からも削除しますか？データはアカウントに保存されたままです。キャンセルするとこの端末に残ります。",
     "signOutKept": "ログアウト前に同期できなかったため、データはこの端末に残してあります。",
@@ -507,7 +524,14 @@
     "restored": "バックアップを復元しました",
     "byOpening": "オープニング別",
     "gamesShort_one": "{{count}}局",
-    "gamesShort_other": "{{count}}局"
+    "gamesShort_other": "{{count}}局",
+    "results": "成績",
+    "overall": "合計",
+    "withWhite": "白番",
+    "withBlack": "黒番",
+    "won": "勝ち",
+    "drawn": "引き分け",
+    "lost": "負け"
   },
   "settings": {
     "title": "設定",
@@ -544,6 +568,7 @@
       "futuristic": "未来的"
     },
     "highContrast": "ハイコントラスト",
-    "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）"
+    "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）",
+    "system": "システム"
   }
 }
