@@ -435,7 +435,16 @@
     "anyColor": "黑白均可",
     "loadMore": "加载更多",
     "noMatch": "没有符合这些筛选条件的对局。",
-    "clearFilters": "清除筛选"
+    "clearFilters": "清除筛选",
+    "deleteConfirm": "删除这盘对局？此操作无法撤销。",
+    "speed": "时限",
+    "anySpeed": "所有时限",
+    "bullet": "子弹棋",
+    "blitz": "超快棋",
+    "rapid": "快棋",
+    "classical": "慢棋",
+    "daily": "每日棋",
+    "untimed": "无计时"
   },
   "import": {
     "title": "导入棋局",
@@ -461,7 +470,8 @@
     "failed_other": "{{count}} 局无法读取",
     "rateLimited": "请求过于频繁，请等待一分钟后重试。",
     "alreadyHad_one": "{{count}} 局此前已导入",
-    "alreadyHad_other": "{{count}} 局此前已导入"
+    "alreadyHad_other": "{{count}} 局此前已导入",
+    "importing": "正在导入 {{done}} / {{total}}…"
   },
   "profile": {
     "title": "个人资料",
@@ -495,7 +505,14 @@
     "restored": "备份已恢复",
     "byOpening": "按开局",
     "gamesShort_one": "{{count}}局",
-    "gamesShort_other": "{{count}}局"
+    "gamesShort_other": "{{count}}局",
+    "results": "战绩",
+    "overall": "总计",
+    "withWhite": "执白",
+    "withBlack": "执黑",
+    "won": "胜",
+    "drawn": "和",
+    "lost": "负"
   },
   "settings": {
     "title": "设置",
