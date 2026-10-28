@@ -6,8 +6,6 @@ Guía para trabajar en Open Chess: qué es, cómo se trabaja en el repo y cómo 
 
 App de entrenamiento de ajedrez gratuita y offline: bots, revisión de partidas, puzzles, aperturas, lecciones y análisis con Stockfish en el propio dispositivo. Es una PWA (GitHub Pages) y también un APK de Android con Capacitor, desde el mismo código. Contexto de producto en [PRODUCT.md](PRODUCT.md), diseño en [DESIGN.md](DESIGN.md), guía para colaboradores en [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Stack: Vite + React 19 + TypeScript estricto + Tailwind v4, chessground (tablero), chess.js (reglas), Stockfish WASM, Dexie (IndexedDB), zustand, i18next, Capacitor 8. Node 22 o superior.
-
 ## Comandos
 
 ```bash
@@ -24,15 +22,6 @@ npm run android      # build + cap sync android
 Antes de dar algo por terminado: `lint`, `test` y `typecheck` en verde, y `e2e` si el cambio afecta a pantallas.
 
 Los scripts `data:*` (aperturas, puzzles, avatares, sonidos) regeneran datos de `public/data` y `src/assets` descargando bases enteras. Solo se ejecutan si la tarea es justo esa.
-
-## Mapa del código
-
-- `src/features/<sección>/`: cada pantalla con su lógica y sus tests al lado (`play`, `review`, `analysis`, `puzzles`, `openings`, `lessons`, `import`, `profile`, `home`).
-- `src/board/`: tablero, lista de jugadas, barra de evaluación, iconos de calidad.
-- `src/engine/`: envoltorio de Stockfish. `src/chess/`: utilidades, reloj, sonidos.
-- `src/db/`: Dexie. `src/sync/` + `supabase/migrations/`: sincronización opcional.
-- `src/i18n/`: textos de la interfaz (`*.json`) y de contenido (`content/*.json`).
-- `scripts/`: generación de datos y capturas. `e2e/`: Playwright.
 
 ## Reglas del proyecto
 
