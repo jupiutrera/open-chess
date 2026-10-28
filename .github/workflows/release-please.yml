@@ -1,0 +1,48 @@
+name: Release
+
+# release-please keeps a release PR open with the next version and its CHANGELOG, worked out
+# from the Conventional Commit titles merged into main. Merging that PR tags the version,
+# publishes the GitHub release and builds the APK.
+#
+# With the default token, the release PR gets no CI run of its own and its tag doesn't trigger
+# other workflows, so the APK job below is chained here. Add a RELEASE_PLEASE_TOKEN secret
+# (fine-grained PAT: contents + pull requests, read and write) to have CI run on the release PR.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  apk:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/android-release.yml
+    with:
+      tag: ${{ needs.release-please.outputs.tag_name }}
+    secrets: inherit

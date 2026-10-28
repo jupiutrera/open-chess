@@ -1,17 +1,21 @@
 name: Android release
 
-# Builds a signed APK for every version tag and attaches it to the GitHub release.
+# Builds a signed APK for a release tag and attaches it to the GitHub release.
+# release-please.yml calls it right after creating a release; run it by hand to rebuild an older tag.
 # Needs these repository secrets:
 #   ANDROID_KEYSTORE_BASE64  base64 of the release keystore (.jks)
 #   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
 
 on:
-  push:
-    tags: ['v*']
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing tag to build, e.g. v0.2.0
+        description: Existing tag to build, e.g. v0.5.0
         required: true
 
 permissions:
@@ -23,7 +27,7 @@ jobs:
     permissions:
       contents: write
     env:
-      TAG: ${{ inputs.tag || github.ref_name }}
+      TAG: ${{ inputs.tag }}
     steps:
       - name: Check signing secrets
         env:
@@ -40,24 +44,14 @@ jobs:
           # keep the write token out of .git/config, where install scripts could read it
           persist-credentials: false
       - name: Check the version matches the tag
-        # Android refuses an update whose versionCode isn't higher than the installed one
+        # build.gradle reads versionName from package.json and derives versionCode from it
         run: |
-          name=$(sed -n 's/.*versionName "\(.*\)".*/\1/p' android/app/build.gradle)
-          code=$(sed -n 's/.*versionCode \([0-9]*\).*/\1/p' android/app/build.gradle)
           pkg=$(node -p "require('./package.json').version")
-          # npm needs semver: a letter follow-up tagged v0.2.0b is 0.2.0-b in package.json
+          # older letter follow-ups were tagged v0.2.0b with 0.2.0-b in package.json
           want=$(echo "${TAG#v}" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+)([a-z])$/\1-\2/')
-          if [ "v$name" != "$TAG" ] || [ "$pkg" != "$want" ]; then
-            echo "::error::Tag $TAG needs versionName ${TAG#v} and package.json $want, found $name and $pkg"
+          if [ "$pkg" != "$want" ]; then
+            echo "::error::Tag $TAG needs package.json $want, found $pkg"
             exit 1
-          fi
-          prev=$(git describe --tags --abbrev=0 --match 'v*' "$TAG^" 2>/dev/null || true)
-          if [ -n "$prev" ]; then
-            prevCode=$(git show "$prev:android/app/build.gradle" | sed -n 's/.*versionCode \([0-9]*\).*/\1/p')
-            if [ -n "$prevCode" ] && [ "$code" -le "$prevCode" ]; then
-              echo "::error::versionCode $code is not higher than $prevCode in $prev"
-              exit 1
-            fi
           fi
       - uses: actions/setup-node@v5
         with:

@@ -207,7 +207,7 @@ keyAlias=open-chess
 keyPassword=…
 ```
 
-y ejecuta `./gradlew assembleRelease`. Guarda una copia de la keystore: si la pierdes, nadie podrá actualizar la app instalada. Al subir un tag `v*`, el workflow `android-release.yml` compila el APK firmado y lo adjunta a la release; para eso necesita los secretos `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD`.
+y ejecuta `./gradlew assembleRelease`. Guarda una copia de la keystore: si la pierdes, nadie podrá actualizar la app instalada. Las releases las prepara release-please: al fusionar su PR de release se crea el tag, se publica la release y `android-release.yml` compila el APK firmado y lo adjunta; para eso necesita los secretos `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` y `ANDROID_KEY_PASSWORD`.
 
 </details>
 

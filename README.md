@@ -207,7 +207,7 @@ keyAlias=open-chess
 keyPassword=…
 ```
 
-then run `./gradlew assembleRelease`. Back the keystore up: if it's lost, nobody can update the installed app. Pushing a `v*` tag runs `android-release.yml`, which builds the signed APK and attaches it to the release; it needs the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` secrets.
+then run `./gradlew assembleRelease`. Back the keystore up: if it's lost, nobody can update the installed app. Releases are cut by release-please: merging its release PR tags the version, publishes the release and runs `android-release.yml`, which builds the signed APK and attaches it; it needs the `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` secrets.
 
 </details>
 
