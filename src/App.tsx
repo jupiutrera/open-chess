@@ -1,10 +1,11 @@
 import { lazy, useEffect } from 'react'
-import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom'
+import { HashRouter, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { App as CapApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { Layout } from './ui/Layout'
 import { UpdateBanner } from './ui/UpdateBanner'
+import { NotFound } from './ui/NotFound'
 import { requestPersistentStorage } from './ui/files'
 import { Toaster, closeTopOverlay } from './ui/kit'
 import { applyDocumentSettings, useResolvedTheme, useSettings } from './settings'
@@ -29,6 +30,12 @@ const Games = lazy(() => import('./features/profile/Games'))
 const Import = lazy(() => import('./features/import/Import'))
 const Profile = lazy(() => import('./features/profile/Profile'))
 const SettingsPage = lazy(() => import('./features/profile/SettingsPage'))
+
+/** A fresh player per lesson: going back/forward between lessons must not carry the last one's state. */
+function LessonRoute() {
+  const { id } = useParams()
+  return <LessonPlayer key={id} />
+}
 
 /** Android hardware back button closes the open sheet or menu first, then follows router history. */
 function BackButton() {
@@ -90,12 +97,13 @@ export function App() {
             <Route path="openings" element={<Openings />} />
             <Route path="openings/trainer/:color" element={<OpeningTrainer />} />
             <Route path="lessons" element={<Lessons />} />
-            <Route path="lessons/:id" element={<LessonPlayer />} />
+            <Route path="lessons/:id" element={<LessonRoute />} />
             <Route path="analysis" element={<Analysis />} />
             <Route path="games" element={<Games />} />
             <Route path="import" element={<Import />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       <Toaster />

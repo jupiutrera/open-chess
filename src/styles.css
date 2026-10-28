@@ -140,6 +140,11 @@ body {
   border-radius: 4px;
 }
 
+/* headings take focus on navigation for screen readers; they aren't controls, so no ring */
+h1[tabindex='-1']:focus {
+  outline: none;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--raise-2) transparent;
