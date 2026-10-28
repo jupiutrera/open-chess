@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
-import { cardId, dedupeCards, lineMoves, planLineRemoval, sm2 } from './repertoire'
+import { cardId, dedupeCards, lineMoves, nextInSession, planLineRemoval, sm2 } from './repertoire'
 import { epd } from '../../chess/util'
 import type { RepertoireRow } from '../../db/db'
 
@@ -85,5 +85,14 @@ describe('repertoire cards', () => {
     const { remove, update } = planLineRemoval(rows, 'd4 d5', 'w')
     expect(remove).toEqual([])
     expect(update[0]).toMatchObject({ id: 'a', san: 'e4', uci: 'e2e4', line: 'e4 e5 Nf3', reps: 0, interval: 0 })
+  })
+})
+
+describe('nextInSession', () => {
+  it('goes through the queue, then the missed cards once, then stops', () => {
+    expect(nextInSession(['b'], ['a'], false)).toEqual({ queue: ['b'], reasking: false })
+    expect(nextInSession([], ['a'], false)).toEqual({ queue: ['a'], reasking: true })
+    expect(nextInSession([], ['a'], true)).toBeNull()
+    expect(nextInSession([], [], false)).toBeNull()
   })
 })

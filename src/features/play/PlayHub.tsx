@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
 import { Users, Shuffle, PuzzlePiece } from '@phosphor-icons/react'
-import { BOTS, BOT_GROUPS, botById, type Bot } from './bots'
+import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
+import { CHALLENGES } from './challenges'
 import { clearLiveGame, loadLiveGame } from './liveGame'
 import { TimeControlPicker } from './TimeControlPicker'
 import { BotAvatar } from './BotAvatar'
@@ -50,12 +51,15 @@ export default function PlayHub() {
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
   const [live, setLive] = useState(() => loadLiveGame('bot'))
   const liveBot = live?.botId ? botById(live.botId) : undefined
+  // a challenge may fix the start position and the user's side
+  const rules = selected.challenge ? CHALLENGES[selected.challenge] : undefined
+  const side = rules?.userColor ?? color
 
   // a new game would replace the saved one: ask first
   const [confirmNew, setConfirmNew] = useState(false)
   const begin = () => {
     clearLiveGame('bot')
-    const q = new URLSearchParams({ color, tc })
+    const q = new URLSearchParams({ color: side, tc })
     if (startFen) q.set('fen', startFen)
     nav(`/play/bot/${selected.id}?${q}`)
   }
@@ -93,7 +97,7 @@ export default function PlayHub() {
           <Panel className="flex flex-wrap items-center gap-3 p-3">
             <BotAvatar bot={liveBot} size={40} />
             <div className="min-w-0 flex-1">
-              <div className="font-bold">{t('play.inProgress', { name: liveBot.name })}</div>
+              <div className="font-bold">{t('play.inProgress', { name: botName(liveBot, lang) })}</div>
               <div className="tabular text-[13px] text-fg-3">{t('play.movesPlayed', { count: Math.ceil(live.sans.length / 2) })}</div>
             </div>
             <button
@@ -120,13 +124,13 @@ export default function PlayHub() {
             <div className="relative mb-2 flex h-12 items-center gap-2.5">
               <BotAvatar bot={selected} size={40} />
               <span className="font-bold">
-                {selected.name} <span className="font-normal text-fg-3">({selected.elo})</span>
+                {botName(selected, lang)} <span className="font-normal text-fg-3">({selected.elo})</span>
               </span>
               <div key={selected.id} className="speech">
                 {greeting}
               </div>
             </div>
-            <Board fen={startFen ?? START_FEN} orientation={color === 'b' ? 'black' : 'white'} />
+            <Board fen={rules?.startFen ?? startFen ?? START_FEN} orientation={side === 'b' ? 'black' : 'white'} />
           </div>
         </div>
 
@@ -135,8 +139,9 @@ export default function PlayHub() {
             <BotAvatar bot={selected} size={64} />
             <div className="min-w-0">
               <div className="text-[20px] font-extrabold">
-                {selected.name} <span className="tabular font-semibold text-fg-3">{selected.elo}</span>
+                {botName(selected, lang)} <span className="tabular font-semibold text-fg-3">{selected.elo}</span>
               </div>
+              {selected.challenge && <div className="text-[12px] font-bold uppercase tracking-wide text-accent">{t('bots.group.challenge')}</div>}
               <p className="text-[14px] text-fg-2">{localize(selected.bio, lang, `bots.${selected.id}.bio`)}</p>
               {record && record.w + record.d + record.l > 0 && (
                 <p className="tabular mt-1 text-[13px] text-fg-3">{t('play.record', record)}</p>
@@ -159,7 +164,7 @@ export default function PlayHub() {
                       aria-pressed={b.id === selected.id}
                     >
                       <BotAvatar bot={b} size={48} />
-                      <span className="w-full truncate text-center text-[12px] font-semibold">{b.name}</span>
+                      <span className="w-full truncate text-center text-[12px] font-semibold">{botName(b, lang)}</span>
                       <span className="tabular -mt-1 text-[11px] text-fg-3">{b.elo}</span>
                     </button>
                   ))}
@@ -172,8 +177,8 @@ export default function PlayHub() {
             <div>
               <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.color')}</div>
               <Segmented
-                value={color}
-                onChange={setColor}
+                value={side}
+                onChange={(c) => !rules?.userColor && setColor(c)}
                 options={[
                   { value: 'w', label: <PieceIcon piece="k" color="w" size={26} /> },
                   { value: 'r', label: <Shuffle size={22} weight="bold" aria-label={t('common.random')} /> },
@@ -199,7 +204,7 @@ export default function PlayHub() {
         </Panel>
       </div>
       <Sheet open={confirmNew} onClose={() => setConfirmNew(false)} title={t('play.newGame')}>
-        <p className="mb-4 text-fg-2">{t('play.replaceSaved', { name: liveBot?.name ?? '' })}</p>
+        <p className="mb-4 text-fg-2">{t('play.replaceSaved', { name: liveBot ? botName(liveBot, lang) : '' })}</p>
         <div className="grid grid-cols-2 gap-2">
           <button className="btn" onClick={() => setConfirmNew(false)}>
             {t('common.cancel')}

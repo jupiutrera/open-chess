@@ -1,10 +1,13 @@
-import { Chess } from 'chess.js'
-import type { Engine, PvLine } from '../../engine/engine'
-import { epd } from '../../chess/util'
+import { Chess, type Move } from 'chess.js'
+import type { Engine, PvLine, Score } from '../../engine/engine'
+import { epd, uciOf } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import type { ChatEvent, ChatStyle } from './botChat'
+import type { ChallengeKind } from './challenges'
+import type { Lang } from '../../settings'
+import { localize } from '../../i18n/content'
 
-export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine'
+export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine' | 'challenge'
 
 type Lines = { es: string[]; en: string[] }
 
@@ -21,6 +24,17 @@ export interface Bot {
   says?: Partial<Record<ChatEvent, Lines>>
   /** preferred first moves (SAN) as White, and replies to 1.e4 / 1.d4 as Black */
   book?: { white?: string[]; vsE4?: string[]; vsD4?: string[] }
+  /** challenge bots: the rule they play by (see challenges.ts) */
+  challenge?: ChallengeKind
+  /** a name that changes with the language; `name` is the fallback */
+  title?: { es: string; en: string }
+  /** whose portrait to wear, when not its own */
+  avatar?: string
+}
+
+/** The bot's name in the given language. */
+export function botName(bot: Bot, lang: Lang): string {
+  return bot.title ? localize(bot.title, lang, `bots.${bot.id}.name`) : bot.name
 }
 
 
@@ -211,9 +225,41 @@ export const BOTS: Bot[] = [
     style: 'machine',
     bio: { es: 'El motor a máxima fuerza. Nadie le gana.', en: 'The engine at full strength. Nobody beats it.' },
   },
+  // challenges: Stockfish with a funny handicap; `elo` is where it starts
+  ...challengeBots([
+    ['sf-fading', 'drain', 3200, 200, 'Stockfish menguante', 'Fading Stockfish', 'Empieza a 3200 y pierde 50 de Elo en cada jugada.', 'Starts at 3200 and loses 50 Elo every move.'],
+    ['sf-rising', 'climb', 0, 90, 'Stockfish creciente', 'Rising Stockfish', 'Empieza a 0 de Elo y gana 50 en cada jugada, hasta 3200.', 'Starts at 0 Elo and gains 50 every move, up to 3200.'],
+    ['sf-jealous', 'punishBest', 3200, 280, 'Stockfish celoso', 'Jealous Stockfish', 'Pierde 300 de Elo cada vez que haces la mejor jugada.', 'Loses 300 Elo every time you play the best move.'],
+    ['sf-kind', 'punishWorst', 3200, 330, 'Stockfish compasivo', 'Kind Stockfish', 'Pierde 500 de Elo cada vez que haces la peor jugada.', 'Loses 500 Elo every time you play the worst move.'],
+    ['sf-ticklish', 'punishCheck', 3200, 20, 'Stockfish cosquillas', 'Ticklish Stockfish', 'Pierde 300 de Elo cada vez que le das jaque.', 'Loses 300 Elo every time you give check.'],
+    ['drawfish', 'drawfish', 3200, 50, 'Drawfish', 'Drawfish', 'Siempre busca la jugada más cercana al 0.00 y acepta cualquier oferta de tablas.', 'Always plays the move closest to 0.00 and accepts any draw offer.'],
+    ['checkfish', 'checkfish', 3200, 0, 'Checkfish', 'Checkfish', 'Si puede dar jaque, da jaque. Si no, juega la mejor.', 'If it can give check, it gives check. Otherwise it plays the best move.'],
+    ['sf-glutton', 'glutton', 3200, 30, 'Stockfish glotón', 'Glutton Stockfish', 'Si puede capturar, captura: siempre la pieza más valiosa.', 'If it can capture, it captures: always the most valuable piece.'],
+    ['sf-clumsy', 'clumsy', 3200, 180, 'Stockfish despistado', 'Clumsy Stockfish', 'Juega a tope, pero cada jugada tiene un 5 % de ser la peor posible.', 'Full strength, but every move has a 5% chance of being the worst one.'],
+    ['sf-indecisive', 'top3', 3200, 240, 'Stockfish indeciso', 'Indecisive Stockfish', 'Elige al azar una de sus tres mejores jugadas.', 'Picks one of its three best moves at random.'],
+    ['sf-halfhearted', 'halving', 3200, 160, 'Stockfish a medias', 'Halfhearted Stockfish', 'Juega su mejor jugada la mitad de las veces, la segunda una de cada cuatro, y así.', 'Plays its best move half the time, its second best a quarter of the time, and so on.'],
+    ['sf-rollercoaster', 'captureSwing', 3200, 300, 'Stockfish montaña rusa', 'Rollercoaster Stockfish', 'Cambia entre 3200 y 250 de Elo con cada captura, sea de quien sea.', 'Switches between 3200 and 250 Elo on every capture, by either side.'],
+    ['sf-mirror', 'mirror', 3200, 190, 'Stockfish espejo', 'Mirror Stockfish', 'Copia la calidad de tu última jugada: si fallas, falla; si aciertas, acierta.', 'Copies the quality of your last move: blunder and it blunders, play well and so does it.'],
+    ['sf-queenless', 'noQueen', 3200, 120, 'Stockfish sin dama', 'Queenless Stockfish', 'Stockfish a tope, pero empieza sin dama. Tú llevas blancas.', 'Full-strength Stockfish, but it starts without its queen. You play White.'],
+  ]),
 ]
 
-export const BOT_GROUPS: BotGroup[] = ['beginner', 'intermediate', 'advanced', 'master', 'engine']
+function challengeBots(rows: [string, ChallengeKind, number, number, string, string, string, string][]): Bot[] {
+  return rows.map(([id, challenge, elo, hue, es, en, bioEs, bioEn]) => ({
+    id,
+    name: en,
+    title: { es, en },
+    elo,
+    group: 'challenge',
+    hue,
+    style: 'machine',
+    avatar: 'stockfish',
+    challenge,
+    bio: { es: bioEs, en: bioEn },
+  }))
+}
+
+export const BOT_GROUPS: BotGroup[] = ['beginner', 'intermediate', 'advanced', 'master', 'engine', 'challenge']
 
 export function botById(id: string): Bot | undefined {
   return BOTS.find((b) => b.id === id)
@@ -221,6 +267,7 @@ export function botById(id: string): Bot | undefined {
 
 /** Weakness model for ratings below Stockfish's UCI_Elo floor. */
 function weakParams(elo: number) {
+  if (elo < 150) return { depth: 1, randomP: 0.5, temp: 400, topN: 10 }
   if (elo <= 300) return { depth: 2, randomP: 0.35, temp: 260, topN: 8 }
   if (elo <= 450) return { depth: 3, randomP: 0.22, temp: 180, topN: 6 }
   if (elo <= 650) return { depth: 4, randomP: 0.14, temp: 120, topN: 5 }
@@ -229,10 +276,53 @@ function weakParams(elo: number) {
   return { depth: 8, randomP: 0.025, temp: 30, topN: 3 }
 }
 
-function scoreForMover(line: PvLine, whiteToMove: boolean): number {
-  // convert to a centipawn-like number from the mover's side
-  const w = winPercent(line.score)
+/**
+ * A score as one number from the mover's side, on a centipawn scale: mates sit beyond any
+ * eval and a shorter mate is worth more, so decisive positions still rank their moves.
+ */
+export function moverValue(score: Score, whiteToMove: boolean): number {
+  const sign = whiteToMove ? 1 : -1
+  if (score.mate !== undefined) {
+    const m = score.mate * sign
+    if (m === 0) return (score.cp ?? 0) * sign > 0 ? 20000 : -20000
+    return m > 0 ? 20000 - 100 * m : -20000 - 100 * m
+  }
+  return Math.max(-10000, Math.min(10000, (score.cp ?? 0) * sign))
+}
+
+/** Win% (0-100) from the mover's side. */
+export function moverWin(score: Score, whiteToMove: boolean): number {
+  const w = winPercent(score)
   return whiteToMove ? w : 100 - w
+}
+
+/** A legal move that mates on the spot, if there is one. */
+export function mateInOne(fen: string): string | null {
+  for (const m of new Chess(fen).moves({ verbose: true })) {
+    if (m.san.endsWith('#')) return m.from + m.to + (m.promotion ?? '')
+  }
+  return null
+}
+
+/**
+ * Softmax choice among engine lines; `temp` sets how far it strays from the best. Level
+ * positions compare win% (a pawn matters less once winning), but win% saturates in decisive
+ * ones, so there raw centipawns and mate distance decide and a won game keeps being pushed.
+ */
+export function softPick(lines: PvLine[], whiteToMove: boolean, temp: number, rnd = Math.random): string | null {
+  if (!lines.length) return null
+  const wins = lines.map((l) => moverWin(l.score, whiteToMove))
+  const decisive = Math.max(...wins) >= 95
+  const values = decisive ? lines.map((l) => moverValue(l.score, whiteToMove)) : wins.map((w) => w * 10)
+  const best = Math.max(...values)
+  const weights = values.map((v) => Math.exp((v - best) / temp))
+  const total = weights.reduce((a, b) => a + b, 0)
+  let x = rnd() * total
+  for (let i = 0; i < weights.length; i++) {
+    x -= weights[i]
+    if (x <= 0) return lines[i].pv[0] ?? null
+  }
+  return lines[0].pv[0] ?? null
 }
 
 function bookMove(bot: Bot, chess: Chess, hist: string[]): string | null {
@@ -269,52 +359,104 @@ export function budgetMs(wanted: number, clock?: { left: number; inc: number }):
   return Math.max(50, Math.min(wanted, clock.left / 30 + clock.inc * 0.8))
 }
 
+/** How the game got to the position: the start and the moves played (chess.js moves fit). */
+export interface GameHistory {
+  startFen: string
+  moves: Pick<Move, 'san' | 'from' | 'to' | 'promotion'>[]
+}
+
+/** The history in the engine's form (UCI moves), so it sees repetitions. */
+export function engineHistory(h?: GameHistory): { startFen: string; moves: string[] } | undefined {
+  return h?.moves.length ? { startFen: h.startFen, moves: h.moves.map(uciOf) } : undefined
+}
+
+export interface RankedMove {
+  uci: string
+  score: Score
+  /** moverValue of the score */
+  value: number
+  /** win% for the mover */
+  win: number
+}
+
 /**
- * Picks the bot's move for the given position. `history` is the game's SAN list so far
- * (a FEN carries no history, so the opening book needs it); `clock` is the bot's time left in ms.
+ * Every legal move with its score, best first, from one shallow search with a line per move.
+ * A search cut short can miss moves (`complete` false); a superseded one returns none.
  */
-export async function botMove(
-  bot: Bot,
+export async function rankMoves(
   engine: Engine,
   fen: string,
-  history: string[] = [],
+  opts: { history?: GameHistory; depth?: number; movetime?: number } = {},
+): Promise<{ moves: RankedMove[]; complete: boolean }> {
+  const legal = new Chess(fen).moves().length
+  const r = await engine.search(fen, { depth: opts.depth ?? 8, movetime: opts.movetime, multipv: legal, history: engineHistory(opts.history) })
+  const whiteToMove = fen.split(' ')[1] !== 'b'
+  const seen = new Set<string>()
+  const moves: RankedMove[] = []
+  for (const l of r.lines) {
+    const uci = l.pv[0]
+    if (!uci || seen.has(uci)) continue
+    seen.add(uci)
+    moves.push({ uci, score: l.score, value: moverValue(l.score, whiteToMove), win: moverWin(l.score, whiteToMove) })
+  }
+  moves.sort((a, b) => b.value - a.value)
+  return { moves, complete: moves.length >= legal }
+}
+
+/**
+ * Plays at any rating from 0 to 3200: full strength from 3200, Stockfish's own UCI_Elo limiter
+ * from 1350, and below that a shallow search with a softmax over its best lines plus the odd
+ * random move. Weak bots still never miss a mate in one.
+ */
+export async function playAtElo(
+  engine: Engine,
+  fen: string,
+  elo: number,
+  history?: GameHistory,
   clock?: { left: number; inc: number },
 ): Promise<string | null> {
   const chess = new Chess(fen)
   const legal = chess.moves({ verbose: true })
   if (!legal.length) return null
-  const book = bookMove(bot, chess, history)
-  if (book) return book
-
-  if (bot.group === 'engine') {
-    const r = await engine.search(fen, { movetime: budgetMs(1200, clock) })
+  const hist = engineHistory(history)
+  if (elo >= 3200) {
+    const r = await engine.search(fen, { movetime: budgetMs(1200, clock), history: hist })
     return r.bestmove
   }
-  if (bot.elo >= 1350) {
-    const movetime = budgetMs(bot.elo >= 2000 ? 900 : 500, clock)
-    const r = await engine.search(fen, { movetime, elo: bot.elo })
+  if (elo >= 1350) {
+    const movetime = budgetMs(elo >= 2000 ? 900 : 500, clock)
+    const r = await engine.search(fen, { movetime, elo, history: hist })
     return r.bestmove
   }
 
-  const p = weakParams(bot.elo)
+  const mate = mateInOne(fen)
+  if (mate) return mate
+  const p = weakParams(elo)
   if (Math.random() < p.randomP) {
     const m = legal[Math.floor(Math.random() * legal.length)]
     return m.from + m.to + (m.promotion ?? '')
   }
-  const r = await engine.search(fen, { depth: p.depth, multipv: p.topN })
+  const r = await engine.search(fen, { depth: p.depth, multipv: p.topN, history: hist })
   if (!r.lines.length) return r.bestmove
-  const whiteToMove = chess.turn() === 'w'
-  const scores = r.lines.map((l) => scoreForMover(l, whiteToMove))
-  const best = Math.max(...scores)
-  // softmax over win% with a temperature: weaker bots spread their choices
-  const weights = scores.map((s) => Math.exp(((s - best) * 100) / p.temp / 10))
-  const total = weights.reduce((a, b) => a + b, 0)
-  let x = Math.random() * total
-  for (let i = 0; i < weights.length; i++) {
-    x -= weights[i]
-    if (x <= 0) return r.lines[i].pv[0] ?? r.bestmove
-  }
-  return r.bestmove
+  return softPick(r.lines, chess.turn() === 'w', p.temp) ?? r.bestmove
+}
+
+/**
+ * Picks the bot's move for the given position. `history` is how the game got there (the opening
+ * book reads its SAN, the engine sees repetitions); `clock` is the bot's time left in ms.
+ */
+export async function botMove(
+  bot: Bot,
+  engine: Engine,
+  fen: string,
+  history?: GameHistory,
+  clock?: { left: number; inc: number },
+): Promise<string | null> {
+  const chess = new Chess(fen)
+  if (!chess.moves().length) return null
+  const book = bookMove(bot, chess, history?.moves.map((m) => m.san) ?? [])
+  if (book) return book
+  return playAtElo(engine, fen, bot.group === 'engine' ? 3200 : bot.elo, history, clock)
 }
 
 /** Bots occasionally accept a draw when the position is level or worse for them. */

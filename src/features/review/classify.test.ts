@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { terminalScore, winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
+import { terminalScore, winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, repetitionDraws, retryAccepted, scoreFromWin, type PositionEval } from './classify'
 import { parseInfo } from '../../engine/engine'
 
 describe('winPercent', () => {
@@ -55,6 +55,47 @@ describe('terminalScore', () => {
   it('still searches positions past the 50-move mark', () => {
     expect(terminalScore('8/8/4k3/8/8/4K3/4Q3/8 w - - 120 90')).toBeNull()
     expect(terminalScore('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBeNull()
+  })
+})
+
+describe('repetitionDraws', () => {
+  it('marks the third occurrence of a position, ignoring the move counters', () => {
+    const a = 'r3k3/8/8/8/8/8/8/R3K3 w Qq - 0 1'
+    const b = 'r3k3/8/8/8/8/8/8/R3K3 b Qq - 1 1'
+    const fens = [a, b, a.replace(' 0 1', ' 2 2'), b.replace(' 1 1', ' 3 2'), a.replace(' 0 1', ' 4 3'), b]
+    expect(repetitionDraws(fens)).toEqual([false, false, false, false, true, true])
+  })
+  it('a lost castling right makes it a different position', () => {
+    const fens = ['8/8/8/8/8/8/8/R3K2k w Q - 0 1', '8/8/8/8/8/8/8/R3K2k w - - 0 1', '8/8/8/8/8/8/8/R3K2k w - - 0 1']
+    expect(repetitionDraws(fens)).toEqual([false, false, false])
+  })
+})
+
+describe('scoreFromWin', () => {
+  it('inverts winPercent', () => {
+    for (const cp of [-600, -35, 0, 20, 400]) expect(scoreFromWin(winPercent({ cp })).cp).toBeCloseTo(cp, -1)
+  })
+})
+
+describe('retryAccepted', () => {
+  // White mates with Qg7# (the engine's choice) or Qf8#
+  const fen = '7k/5Q2/6K1/8/8/8/8/8 w - - 0 1'
+  const before: PositionEval = { fen, score: { mate: 1 }, lines: [{ multipv: 1, depth: 12, score: { mate: 1 }, pv: ['f7g7'] }] }
+  const after = (score: PositionEval['score']): PositionEval => ({ fen: '', lines: [], score })
+  it('rejects a winning move that lets a forced mate go', () => {
+    expect(retryAccepted(before, after({ cp: 1200 }), 'f7e7', 'f7d5')).toBe(false)
+  })
+  it('accepts the engine move and another mate', () => {
+    expect(retryAccepted(before, after({ mate: 0, cp: 1 }), 'f7g7', 'f7d5')).toBe(true)
+    expect(retryAccepted(before, after({ mate: 0, cp: 1 }), 'f7f8', 'f7d5')).toBe(true)
+  })
+  it('never accepts the move played in the game', () => {
+    expect(retryAccepted(before, after({ mate: 0, cp: 1 }), 'f7f8', 'f7f8')).toBe(false)
+  })
+  it('uses the classification threshold: excellent passes, good does not', () => {
+    const eq: PositionEval = { fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', score: { cp: 30 }, lines: [{ multipv: 1, depth: 12, score: { cp: 30 }, pv: ['e2e4'] }] }
+    expect(retryAccepted(eq, after({ cp: 10 }), 'd2d4', 'a2a4')).toBe(true)
+    expect(retryAccepted(eq, after({ cp: -60 }), 'b1a3', 'a2a4')).toBe(false)
   })
 })
 

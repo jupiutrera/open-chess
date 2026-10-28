@@ -5,7 +5,7 @@ import { CloudArrowUp, SignOut, GoogleLogo, EnvelopeSimple, DownloadSimple, Uplo
 import { PageHeader, Panel, Skeleton, SkeletonText, toast, timeAgo } from '../../ui/kit'
 import { db, kvGet } from '../../db/db'
 import { getPuzzleRating } from '../puzzles/puzzlesData'
-import { BOTS } from '../play/bots'
+import { BOTS, botName } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
 import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
@@ -13,7 +13,10 @@ import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut,
 import { saveTextFile } from '../../ui/files'
 import { fmtDecimal } from '../../i18n/format'
 import { PieceIcon } from '../../board/QualityIcon'
-import { gameOutcome } from './gameFilter'
+import { gameOutcome, gameSpeed, SPEEDS, type Outcome } from './gameFilter'
+
+type Wdl = Record<Outcome, number>
+const wdl = (): Wdl => ({ win: 0, draw: 0, loss: 0 })
 
 export default function Profile() {
   const { t } = useTranslation()
@@ -32,6 +35,8 @@ export default function Profile() {
     let accSum = 0
     let accN = 0
     const botResults = new Map<string, { w: number; d: number; l: number }>()
+    // the user's results overall, by colour and by speed
+    const results = { all: wdl(), w: wdl(), b: wdl(), ...Object.fromEntries(SPEEDS.map((sp) => [sp, wdl()])) } as Record<string, Wdl>
     // results by opening (family name before the colon), for games where we know the user's side
     const byOpening = new Map<string, { n: number; points: number; accSum: number; accN: number; color: 'w' | 'b' }>()
     const gamesDone = db.games.each((g) => {
@@ -46,13 +51,18 @@ export default function Profile() {
       }
       const outcome = gameOutcome(g)
       if (!outcome) return
+      results.all[outcome]++
+      results[uc][outcome]++
+      const speed = gameSpeed(g.timeControl)
+      if (speed) results[speed][outcome]++
       if (g.botId) {
         const r = botResults.get(g.botId) ?? { w: 0, d: 0, l: 0 }
         r[outcome === 'win' ? 'w' : outcome === 'draw' ? 'd' : 'l']++
         botResults.set(g.botId, r)
       }
       if (!g.opening) return
-      const key = `${uc}|${g.opening.split(':')[0].trim()}`
+      // "B20 Sicilian Defense: …" and "B27 Sicilian Defense" are one family: the ECO code goes too
+      const key = `${uc}|${g.opening.split(':')[0].replace(/^[A-E]\d\d\s+/, '').trim()}`
       const row = byOpening.get(key) ?? { n: 0, points: 0, accSum: 0, accN: 0, color: uc }
       row.n++
       row.points += outcome === 'win' ? 1 : outcome === 'draw' ? 0.5 : 0
@@ -81,6 +91,7 @@ export default function Profile() {
       history,
       vsBots,
       openings,
+      results,
     }
   }, [])
 
@@ -107,6 +118,21 @@ export default function Profile() {
           )}
         </Panel>
 
+        {data && data.results.all.win + data.results.all.draw + data.results.all.loss > 0 && (
+          <Panel className="overflow-hidden">
+            <h2 className="border-b border-line px-4 py-3 font-extrabold">{t('profile.results')}</h2>
+            <ul className="divide-y divide-line">
+              {(['all', 'w', 'b', ...SPEEDS] as const).map((k) => (
+                <ResultRow
+                  key={k}
+                  label={k === 'all' ? t('profile.overall') : k === 'w' ? t('profile.withWhite') : k === 'b' ? t('profile.withBlack') : t(`games.${k}`)}
+                  r={data.results[k]}
+                />
+              ))}
+            </ul>
+          </Panel>
+        )}
+
         {data && data.vsBots.length > 0 && (
           <Panel className="overflow-hidden">
             <h2 className="border-b border-line px-4 py-3 font-extrabold">{t('profile.vsBots')}</h2>
@@ -115,7 +141,7 @@ export default function Profile() {
                 <li key={r.bot.id} className="flex items-center gap-3 px-4 py-2.5">
                   <BotAvatar bot={r.bot} size={32} />
                   <span className="flex-1 font-semibold">
-                    {r.bot.name} <span className="tabular font-normal text-fg-3">{r.bot.elo}</span>
+                    {botName(r.bot, lang)} <span className="tabular font-normal text-fg-3">{r.bot.elo}</span>
                   </span>
                   <span className="tabular text-[14px]">
                     <b className="text-accent">{r.w}</b> / <span className="text-fg-2">{r.d}</span> / <b className="text-danger">{r.l}</b>
@@ -147,6 +173,32 @@ export default function Profile() {
         <BackupPanel />
       </div>
     </div>
+  )
+}
+
+/** One line of the results table: games, a won/drawn/lost bar and the three counts. Empty speeds are skipped. */
+function ResultRow({ label, r }: { label: string; r: Wdl }) {
+  const { t } = useTranslation()
+  const n = r.win + r.draw + r.loss
+  if (!n) return null
+  const pct = (x: number) => `${(x / n) * 100}%`
+  return (
+    <li className="flex items-center gap-3 px-4 py-2.5">
+      <span className="w-28 shrink-0 truncate font-semibold sm:w-32">{label}</span>
+      <span className="tabular w-12 shrink-0 text-right text-[13px] text-fg-3">{t('profile.gamesShort', { count: n })}</span>
+      <span
+        className="flex h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-raise"
+        role="img"
+        aria-label={`${t('profile.won')} ${r.win}, ${t('profile.drawn')} ${r.draw}, ${t('profile.lost')} ${r.loss}`}
+      >
+        <span className="bg-accent" style={{ width: pct(r.win) }} />
+        <span className="bg-fg-3" style={{ width: pct(r.draw) }} />
+        <span className="bg-danger" style={{ width: pct(r.loss) }} />
+      </span>
+      <span className="tabular w-24 shrink-0 text-right text-[14px]" aria-hidden>
+        <b className="text-accent">{r.win}</b> / <span className="text-fg-2">{r.draw}</span> / <b className="text-danger">{r.loss}</b>
+      </span>
+    </li>
   )
 }
 

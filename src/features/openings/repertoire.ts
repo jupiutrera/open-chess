@@ -160,6 +160,17 @@ export async function dueCards(color: 'w' | 'b'): Promise<RepertoireRow[]> {
   return rows.sort((a, b) => Number(a.fen.split(' ')[5]) - Number(b.fen.split(' ')[5]) || a.due - b.due)
 }
 
-export async function grade(card: RepertoireRow, quality: number) {
-  await put<RepertoireRow>('repertoire', { ...card, ...sm2(card, quality) })
+/** Schedules the card after an answer; returns it as stored. */
+export async function grade(card: RepertoireRow, quality: number): Promise<RepertoireRow> {
+  return put<RepertoireRow>('repertoire', { ...card, ...sm2(card, quality) })
+}
+
+/**
+ * Session order of the trainer: after the due queue runs out, the cards missed in it come back once
+ * (missed again on that pass, they wait for their next due time).
+ */
+export function nextInSession<T>(rest: T[], missed: T[], reasking: boolean): { queue: T[]; reasking: boolean } | null {
+  if (rest.length) return { queue: rest, reasking }
+  if (!reasking && missed.length) return { queue: missed, reasking: true }
+  return null
 }

@@ -101,13 +101,27 @@ async function doSync(stale: () => boolean) {
       if (error) throw error
       if (stale()) return
       if (!data?.length) break
-      for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]) {
-        if (SYNC_TABLES.includes(r.tbl as never)) {
-          const t = table(r.tbl)
-          const keep = mergeRow(r.tbl, await t.get(r.id), { ...r.data, updatedAt: r.updated_at })
-          if (keep) await t.put(keep)
+      const page = data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]
+      const byTable = new Map<string, SyncRow[]>()
+      for (const r of page) {
+        if (!SYNC_TABLES.includes(r.tbl as never)) continue
+        let rows = byTable.get(r.tbl)
+        if (!rows) byTable.set(r.tbl, (rows = []))
+        rows.push({ ...r.data, id: r.id, updatedAt: r.updated_at })
+      }
+      // one transaction per page: a local write can't land between reading a row and merging over it
+      const applied = await db.transaction('rw', SYNC_TABLES.map(table), async () => {
+        if (stale()) return false
+        for (const [name, remote] of byTable) {
+          const t = table(name)
+          const local = await t.bulkGet(remote.map((r) => r.id))
+          const keep = remote.flatMap((r, i) => mergeRow(name, local[i], r) ?? [])
+          if (keep.length) await t.bulkPut(keep)
         }
-        if (stale()) return
+        return true
+      })
+      if (!applied || stale()) return
+      for (const r of page) {
         if (r.seq > cursor) {
           cursor = r.seq
           lastTs = r.server_ts
@@ -211,10 +225,25 @@ export async function signOut() {
   resetCursors()
   if (clear) {
     localStorage.removeItem(CURSOR_USER_KEY)
+    clearDeviceState()
     await db.transaction('rw', SYNC_TABLES.map(table), () => Promise.all(SYNC_TABLES.map((name) => table(name).clear())))
     // in-memory caches (seen puzzles, live queries) still hold the old data
     location.reload()
   }
+}
+
+/** Account data kept outside the synced tables: games in progress, saved analysis, a partial review, usernames, the Lichess token. */
+const DEVICE_KEYS = ['oc-analysis', 'oc-review-partial', 'oc-last-sync']
+const DEVICE_PREFIXES = ['oc-live-', 'oc-user-']
+
+function clearDeviceState() {
+  try {
+    const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i) ?? '')
+    for (const k of keys) if (DEVICE_KEYS.includes(k) || DEVICE_PREFIXES.some((p) => k.startsWith(p))) localStorage.removeItem(k)
+  } catch {
+    /* storage unavailable */
+  }
+  useSettings.getState().set({ lichessToken: '' })
 }
 
 /** Full local backup as JSON (works without an account): live rows plus settings, without the Lichess token. */
@@ -237,10 +266,15 @@ export async function importBackup(json: string) {
   }
   await db.transaction('rw', SYNC_TABLES.map(table), async () => {
     for (const [name, list] of rows) {
-      for (const row of list) {
-        const local = await table(name).get(row.id)
-        if (!local || local.updatedAt < row.updatedAt) await table(name).put(row)
-      }
+      const local = await table(name).bulkGet(list.map((r) => r.id))
+      const write = list.flatMap((row, i) => {
+        const l = local[i]
+        if (!l || l.updatedAt < row.updatedAt) return [row]
+        // deleted here after the backup was made: restoring means bringing it back, so it must beat the tombstone
+        if (l.deleted && !row.deleted) return [{ ...row, updatedAt: Date.now() }]
+        return []
+      })
+      await table(name).bulkPut(write)
     }
   })
   // older backups have no settings; the token, if any, never came from a file

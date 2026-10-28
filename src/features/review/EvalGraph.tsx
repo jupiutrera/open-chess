@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { MoveReview } from './classify'
 import { qualityColor } from '../../board/QualityIcon'
 import { formatScore } from '../../engine/engine'
+import { moveNumberLabel } from './moveNumber'
 
 const KEY: MoveReview['quality'][] = ['brilliant', 'great', 'miss', 'mistake', 'blunder']
 
@@ -15,12 +16,15 @@ export function EvalGraph({
   moves,
   ply,
   onSelect,
+  startFen,
   height = 84,
 }: {
   curve: number[]
   moves: MoveReview[]
   ply: number
   onSelect: (ply: number) => void
+  /** the game's first position, for move numbers of games set up from a FEN */
+  startFen: string
   height?: number
 }) {
   const { t } = useTranslation()
@@ -50,6 +54,38 @@ export function EvalGraph({
   const hv = hover ?? null
   const hoverMove = hv && hv > 0 ? moves[hv - 1] : null
 
+  // a slider over the plies for keyboards and screen readers; it handles its own arrows
+  // so the board's window-level keys don't step twice
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const to =
+      e.key === 'ArrowLeft' || e.key === 'ArrowDown'
+        ? ply - 1
+        : e.key === 'ArrowRight' || e.key === 'ArrowUp'
+          ? ply + 1
+          : e.key === 'PageDown'
+            ? ply - 10
+            : e.key === 'PageUp'
+              ? ply + 10
+              : e.key === 'Home'
+                ? 0
+                : e.key === 'End'
+                  ? n
+                  : null
+    if (to === null) return
+    e.preventDefault()
+    e.stopPropagation()
+    onSelect(Math.max(0, Math.min(n, to)))
+  }
+  const current = ply > 0 ? moves[ply - 1] : undefined
+  const valueText = current
+    ? t('review.graphValue', {
+        move: moveNumberLabel(ply, startFen, '...'),
+        san: current.san,
+        score: formatScore(current.scoreAfter),
+        quality: t(`review.q.${current.quality}`),
+      })
+    : t('review.graphStart')
+
   return (
     <div className="relative">
       <svg
@@ -58,8 +94,14 @@ export function EvalGraph({
         preserveAspectRatio="none"
         className="block w-full cursor-pointer touch-none rounded-md bg-[#403d39]"
         style={{ height: H }}
-        role="img"
+        role="slider"
+        tabIndex={0}
         aria-label={t('review.evalGraph')}
+        aria-valuemin={0}
+        aria-valuemax={n}
+        aria-valuenow={ply}
+        aria-valuetext={valueText}
+        onKeyDown={onKeyDown}
         onPointerMove={(e) => setHover(pick(e.clientX))}
         onPointerLeave={() => setHover(null)}
         onPointerDown={(e) => onSelect(pick(e.clientX))}
@@ -86,10 +128,7 @@ export function EvalGraph({
           className="pointer-events-none absolute -top-9 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-raise-2 px-2 py-1 text-[12px] font-semibold shadow-lg"
           style={{ left: `${Math.min(92, Math.max(8, (x(hv) / W) * 100))}%` }}
         >
-          <span className="tabular text-fg-3">
-            {Math.ceil(hv / 2)}
-            {hv % 2 ? '.' : '…'}
-          </span>{' '}
+          <span className="tabular text-fg-3">{moveNumberLabel(hv, startFen)}</span>{' '}
           {hoverMove.san} <span className="tabular text-fg-3">{formatScore(hoverMove.scoreAfter)}</span>{' '}
           <span style={{ color: qualityColor(hoverMove.quality) }}>{t(`review.q.${hoverMove.quality}`)}</span>
         </div>

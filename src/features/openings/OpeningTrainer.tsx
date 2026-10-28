@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
+import type { DrawShape } from '@lichess-org/chessground/draw'
 import { CheckCircle, XCircle, ArrowRight, Brain } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
 import { Panel } from '../../ui/kit'
-import { answerQuality, dueCards, grade } from './repertoire'
+import { answerQuality, dueCards, grade, nextInSession } from './repertoire'
 import type { RepertoireRow } from '../../db/db'
-import { playUci } from '../../chess/util'
+import { parseUci, playUci } from '../../chess/util'
 import { play, playMoveSound } from '../../chess/sounds'
+
+/** 'wrong': the right move is shown and has to be played; 'fixed': it was, Next is open. */
+type Result = null | 'right' | 'wrong' | 'fixed'
 
 export default function OpeningTrainer() {
   const { color = 'w' } = useParams()
@@ -20,11 +24,22 @@ export default function OpeningTrainer() {
   const [card, setCard] = useState<RepertoireRow | null>(null)
   const [fen, setFen] = useState<string>('')
   const [lastMove, setLastMove] = useState<[string, string] | null>(null)
-  const [result, setResult] = useState<null | 'right' | 'wrong'>(null)
+  const [result, setResult] = useState<Result>(null)
   const [highlights, setHighlights] = useState<Map<string, string> | undefined>()
+  /** cards missed this session, asked again once before "all done" */
+  const missed = useRef<RepertoireRow[]>([])
+  const grading = useRef<Promise<void>>(Promise.resolve())
+  const reasking = useRef(false)
+  /** a wrong move on show, before the position snaps back */
+  const [flashing, setFlashing] = useState(false)
+  const flash = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const cardLastMove = useRef<[string, string] | null>(null)
+  useEffect(() => () => clearTimeout(flash.current), [])
 
   const load = useCallback(async () => {
     const q = await dueCards(side)
+    missed.current = []
+    reasking.current = false
     setQueue(q)
     show(q[0] ?? null)
   }, [side])
@@ -34,6 +49,8 @@ export default function OpeningTrainer() {
 
   const show = (c: RepertoireRow | null) => {
     shownAt.current = performance.now()
+    clearTimeout(flash.current)
+    setFlashing(false)
     setCard(c)
     setResult(null)
     setHighlights(undefined)
@@ -52,6 +69,7 @@ export default function OpeningTrainer() {
         break
       }
     }
+    cardLastMove.current = prev
     setLastMove(prev)
   }
 
@@ -59,12 +77,39 @@ export default function OpeningTrainer() {
     void load()
   }, [load])
 
+  /** Shows a wrong move for a moment, then puts the card's position back. */
+  const rejectMove = (after: string, from: string, to: string) => {
+    if (!card) return
+    play('wrong')
+    clearTimeout(flash.current)
+    setFlashing(true)
+    setFen(after)
+    setLastMove([from, to])
+    setHighlights(new Map([[to, 'wrong']]))
+    flash.current = setTimeout(() => {
+      setFen(card.fen)
+      setLastMove(cardLastMove.current)
+      setHighlights(undefined)
+      setFlashing(false)
+    }, 650)
+  }
+
   const onMove = async (from: string, to: string, promotion?: string) => {
-    if (!card || result) return
+    if (!card || (result !== null && result !== 'wrong')) return
     const c = new Chess(card.fen)
     const m = playUci(c, from + to + (promotion ?? ''))
     if (!m) return
     const ok = m.from + m.to + (m.promotion ?? '') === card.uci
+    if (result === 'wrong') {
+      // after a miss the shown move has to be played before moving on; nothing is graded here
+      if (!ok) return rejectMove(c.fen(), m.from, m.to)
+      playMoveSound(m)
+      setFen(c.fen())
+      setLastMove([m.from, m.to])
+      setHighlights(new Map([[m.to, 'right']]))
+      setResult('fixed')
+      return
+    }
     if (ok) {
       playMoveSound(m)
       play('correct')
@@ -74,30 +119,50 @@ export default function OpeningTrainer() {
       setResult('right')
       await grade(card, answerQuality(true, performance.now() - shownAt.current))
     } else {
-      play('wrong')
       setResult('wrong')
-      const right = new Chess(card.fen)
-      const rm = playUci(right, card.uci)!
-      setFen(right.fen())
-      setLastMove([rm.from, rm.to])
-      setHighlights(new Map([[m.to, 'wrong'], [rm.to, 'right']]))
-      await grade(card, answerQuality(false, 0))
+      rejectMove(c.fen(), m.from, m.to)
+      const job = grade(card, answerQuality(false, 0)).then((graded) => {
+        if (!reasking.current) missed.current.push(graded)
+      })
+      grading.current = job
+      await job
     }
   }
 
-  const next = () => {
+  const next = async () => {
     if (!queue) return
-    const rest = queue.slice(1)
-    setQueue(rest)
-    if (rest.length) show(rest[0])
-    else void load()
+    // a miss is queued for its re-ask only once its grade is stored
+    await grading.current
+    const step = nextInSession(queue.slice(1), missed.current, reasking.current)
+    if (!step) return void load()
+    if (step.reasking !== reasking.current) missed.current = []
+    reasking.current = step.reasking
+    setQueue(step.queue)
+    show(step.queue[0])
   }
 
   const orientation = side === 'w' ? 'white' : 'black'
+  // the move to play after a miss, as an arrow
+  const shapes: DrawShape[] | undefined = useMemo(() => {
+    if (!card || result !== 'wrong' || flashing) return undefined
+    const { from, to } = parseUci(card.uci)
+    return [{ orig: from as never, dest: to as never, brush: 'green' }]
+  }, [card, result, flashing])
+  const canMove = card && !flashing && (result === null || result === 'wrong')
 
   return (
     <BoardLayout
-      board={<Board fen={fen || new Chess().fen()} orientation={orientation} lastMove={lastMove} highlights={highlights} movable={card && !result ? orientation : 'none'} onMove={onMove} />}
+      board={
+        <Board
+          fen={fen || new Chess().fen()}
+          orientation={orientation}
+          lastMove={lastMove}
+          highlights={highlights}
+          shapes={shapes}
+          movable={canMove ? orientation : 'none'}
+          onMove={onMove}
+        />
+      }
       side={
         <Panel className="overflow-hidden">
           <div className="flex items-center gap-2 border-b border-line p-4">
@@ -121,17 +186,20 @@ export default function OpeningTrainer() {
                 <span className="text-[18px] font-bold">{t('openings.rightRep')}</span>
               </div>
             )}
-            {card && result === 'wrong' && (
-              <div className="shake flex items-center gap-3">
+            {card && (result === 'wrong' || result === 'fixed') && (
+              <div className={`${result === 'wrong' ? 'shake' : ''} flex items-center gap-3`}>
                 <XCircle size={36} weight="fill" className="text-danger" />
-                <span className="text-[17px] font-bold">{t('openings.wrongRep', { san: card.san })}</span>
+                <div>
+                  <div className="text-[17px] font-bold">{t('openings.wrongRep', { san: card.san })}</div>
+                  {result === 'wrong' && <div className="text-[14px] text-fg-3">{t('openings.playShown')}</div>}
+                </div>
               </div>
             )}
             {card && <p className="mt-3 truncate text-[13px] text-fg-3">{card.line}</p>}
           </div>
-          {result && (
+          {(result === 'right' || result === 'fixed') && (
             <div className="border-t border-line p-3">
-              <button className="btn btn-primary btn-lg w-full" onClick={next}>
+              <button className="btn btn-primary btn-lg w-full" onClick={() => void next()}>
                 {t('common.next')} <ArrowRight size={20} weight="bold" />
               </button>
             </div>

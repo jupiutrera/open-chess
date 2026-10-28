@@ -101,7 +101,7 @@ function MoveListView({ sans, ply, onSelect, qualities, startNumber = 1, blackFi
 }
 
 /** One-line, horizontally scrolling move list for phones. */
-function MoveStripView({ sans, ply, onSelect, qualities, className = '' }: Omit<MoveListProps, 'startNumber' | 'blackFirst'>) {
+function MoveStripView({ sans, ply, onSelect, qualities, startNumber = 1, blackFirst = false, className = '' }: MoveListProps) {
   const { t } = useTranslation()
   const box = useRef<HTMLDivElement>(null)
   const active = useRef<HTMLButtonElement>(null)
@@ -117,14 +117,17 @@ function MoveStripView({ sans, ply, onSelect, qualities, className = '' }: Omit<
       {sans.map((san, i) => {
         const q = qualities?.[i]
         const current = ply === i + 1
+        const half = i + (blackFirst ? 1 : 0)
+        const n = startNumber + Math.floor(half / 2)
         return (
           <span key={i} className="flex items-center">
-            {i % 2 === 0 && <span className="ml-1.5 mr-1 text-fg-3">{i / 2 + 1}.</span>}
+            {half % 2 === 0 && <span className="ml-1.5 mr-1 text-fg-3">{n}.</span>}
+            {i === 0 && blackFirst && <span className="ml-1.5 mr-1 text-fg-3">{n}...</span>}
             <button
               ref={current ? active : undefined}
               onClick={() => onSelect?.(i + 1)}
               aria-current={current ? 'step' : undefined}
-              aria-label={moveLabel(t, i, san, q)}
+              aria-label={moveLabel(t, i, san, q, startNumber, blackFirst)}
               className={`flex items-center gap-1 rounded px-1.5 py-0.5 font-semibold ${current ? 'bg-raise-2 text-fg' : 'text-fg-2'}`}
             >
               {q && q !== 'best' && q !== 'excellent' && q !== 'good' && q !== 'forced' && <QualityIcon quality={q} size={14} />}

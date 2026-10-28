@@ -5,6 +5,8 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Logo } from './Logo'
 import { AppIcon, type AppIconName } from './AppIcon'
 import { BoardScreenSkeleton, HubSkeleton, useDismiss } from './kit'
+import { ErrorBoundary } from './ErrorBoundary'
+import { useRouteChange } from './useRouteChange'
 
 /** Board screens get a board-shaped placeholder while their code loads; hubs and lists get cards. */
 const BOARD_ROUTES = /^\/(play\/(bot|local)|review\/|puzzles\/(rated|daily|rush|mistakes)|openings|lessons\/|analysis)/
@@ -22,6 +24,8 @@ export function Layout() {
   useDismiss(moreOpen, () => setMoreOpen(false))
   const moreButton = useRef<HTMLButtonElement>(null)
   const moreMenu = useRef<HTMLDivElement>(null)
+  const main = useRef<HTMLElement>(null)
+  useRouteChange(main)
   // keyboard focus goes into the menu when it opens and back to its button when it closes
   useEffect(() => {
     if (!moreOpen) return
@@ -69,10 +73,12 @@ export function Layout() {
         </div>
       </nav>
 
-      <main className="min-w-0 flex-1 overflow-y-auto pb-[calc(64px+var(--inset-bottom))] lg:pb-0">
-        <Suspense fallback={BOARD_ROUTES.test(location.pathname) ? <BoardScreenSkeleton /> : <HubSkeleton />}>
-          <Outlet />
-        </Suspense>
+      <main ref={main} className="min-w-0 flex-1 overflow-y-auto pb-[calc(64px+var(--inset-bottom))] lg:pb-0">
+        <ErrorBoundary resetKey={location.pathname}>
+          <Suspense fallback={BOARD_ROUTES.test(location.pathname) ? <BoardScreenSkeleton /> : <HubSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       {/* Mobile bottom bar */}

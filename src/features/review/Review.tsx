@@ -13,13 +13,14 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { QualityIcon, qualityColor } from '../../board/QualityIcon'
 import { EvalGraph } from './EvalGraph'
 import { analyzeGame, getGame, parseGame } from './analyze'
-import { QUALITY_ORDER, countQualities, estimateRating, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { QUALITY_ORDER, countQualities, estimateRating, repetitionDraws, retryAccepted, scoreFromWin, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { moveNumberLabel } from './moveNumber'
 import { capturedPieces, playUci, uciLineToSan } from '../../chess/util'
 import { playMoveSound, play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type PvLine, type Score } from '../../engine/engine'
 import type { GameRow } from '../../db/db'
 import { useSettings } from '../../settings'
-import { BoardScreenSkeleton, Panel } from '../../ui/kit'
+import { BoardScreenSkeleton, Panel, toast } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
 import { playerName } from '../play/playerName'
@@ -28,6 +29,7 @@ import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
 import { annotatedPgn } from './pgnExport'
 import { explainMove } from './explain'
+import { playLine } from './line'
 
 type Mode = 'summary' | 'moves'
 
@@ -46,6 +48,10 @@ export default function Review() {
   const [retry, setRetry] = useState<null | 'waiting' | 'wrong' | 'right'>(null)
   // engine line whose first move is drawn on the board
   const [lineArrow, setLineArrow] = useState<number | null>(null)
+  // moves of that line played out on the board ("show follow-up")
+  const [lineStep, setLineStep] = useState(0)
+  // set each render while a line is picked: the board keys step through it instead of the game
+  const lineKeys = useRef<((p: number) => boolean) | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -125,6 +131,7 @@ export default function Review() {
       setVariation(null)
       setRetry(null)
       setLineArrow(null)
+      setLineStep(0)
       setPly((cur) => {
         if (next === cur + 1) {
           const c = new Chess(parsed.fens[cur])
@@ -137,7 +144,8 @@ export default function Review() {
     [parsed, total, cancelRetry],
   )
 
-  useBoardKeys({ ply, total, goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
+  const keyGoto = useCallback((p: number) => lineKeys.current?.(p) || goto(p), [goto])
+  useBoardKeys({ ply, total, goto: keyGoto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   if (game === undefined) return <BoardScreenSkeleton />
   if (game === null || !parsed)
@@ -151,22 +159,48 @@ export default function Review() {
     )
 
   const current: MoveReview | undefined = review && ply > 0 ? review.moves[ply - 1] : undefined
-  const fen = variation?.fen ?? (retry ? parsed.fens[ply - 1] : parsed.fens[ply])
+  const positionLines = mode === 'moves' && !variation && !retry ? review?.lines?.[ply] : undefined
+  const pickedLine = lineArrow !== null ? positionLines?.[lineArrow] : undefined
+  const lineView = pickedLine && lineStep > 0 ? playLine(parsed.fens[ply], pickedLine.pv, lineStep) : null
+  const lineLength = pickedLine ? playLine(parsed.fens[ply], pickedLine.pv, pickedLine.pv.length).played : 0
+  const stepLine = (d: number) => {
+    const next = Math.max(0, Math.min(lineLength, lineStep + d))
+    if (next === lineStep || !pickedLine) return
+    if (next > lineStep) {
+      const m = playLine(parsed.fens[ply], pickedLine.pv, next).last
+      if (m) playMoveSound(m)
+    }
+    setLineStep(next)
+  }
+  lineKeys.current = pickedLine
+    ? (p) => {
+        // ← → step the line (also at the game's ends, where the target ply is clamped); ← from its start leaves it
+        if (p === ply + 1 || (p === ply && ply === total)) stepLine(1)
+        else if (p === ply - 1 || (p === ply && ply === 0)) {
+          if (lineStep > 0) stepLine(-1)
+          else setLineArrow(null)
+        } else return false
+        return true
+      }
+    : null
+  const fen = variation?.fen ?? lineView?.fen ?? (retry ? parsed.fens[ply - 1] : parsed.fens[ply])
   const lastMove: [string, string] | null = variation
     ? variation.lastMove
-    : retry
+    : lineView?.last
+      ? [lineView.last.from, lineView.last.to]
+      : retry
       ? ply > 1
         ? [parsed.moves[ply - 2].from, parsed.moves[ply - 2].to]
         : null
       : ply > 0
         ? [parsed.moves[ply - 1].from, parsed.moves[ply - 1].to]
         : null
-  const score: Score | undefined = current ? current.scoreAfter : review ? { cp: 20 } : undefined
+  const score: Score | undefined = current ? current.scoreAfter : review ? positionScore(review, 0) : undefined
 
   const showArrow =
     mode === 'moves' && !variation && !retry && current?.bestUci && !['best', 'book', 'forced', 'brilliant', 'great'].includes(current.quality)
-  const positionLines = mode === 'moves' && !variation && !retry ? review?.lines?.[ply] : undefined
-  const pickedUci = lineArrow !== null ? positionLines?.[lineArrow]?.pv[0] : undefined
+  // the line's next move
+  const pickedUci = pickedLine?.pv[lineStep]
   const shapes: DrawShape[] = pickedUci
     ? [{ orig: pickedUci.slice(0, 2) as never, dest: pickedUci.slice(2, 4) as never, brush: 'paleBlue' }]
     : showArrow
@@ -176,12 +210,12 @@ export default function Review() {
     mode === 'moves' && !retry
       ? variation
         ? variation.quality && { square: variation.lastMove[1], quality: variation.quality }
-        : current && { square: parsed.moves[ply - 1].to, quality: current.quality }
+        : !lineView && current && { square: parsed.moves[ply - 1].to, quality: current.quality }
       : null
 
   const h = parsed.headers
   const result = (h.Result ?? game.result) as '1-0' | '0-1' | '1/2-1/2' | '*'
-  const outcome = ply === total && !variation && !retry && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
+  const outcome = ply === total && !variation && !retry && !lineView && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
 
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
@@ -208,12 +242,14 @@ export default function Review() {
     cancelRetry()
     setRetry(null)
     setLineArrow(null)
+    setLineStep(0)
     setVariation({ fen: c.fen(), lastMove: [m.from, m.to], quality: 'best' })
   }
 
   const startRetry = () => {
     cancelRetry()
     setLineArrow(null)
+    setLineStep(0)
     setVariation(null)
     setRetry('waiting')
   }
@@ -228,17 +264,28 @@ export default function Review() {
     cancelRetry()
     const gen = retryGen.current
     const uci = m.from + m.to + (m.promotion ?? '')
-    let good = uci === current.bestUci
-    if (!good) {
-      // a mating or stalemating retry ends the game, so the engine has no lines to score it
-      const after = terminalScore(c.fen()) ?? (await sharedEngine().search(c.fen(), { depth: 12 })).lines[0]?.score ?? { cp: 0 }
-      const mover = current.color
-      const w = winPercent(after)
-      const prevBest = review!.curve[ply - 1]
-      const loss = mover === 'w' ? prevBest - w : w - prevBest
-      good = loss < 3
+    let good = uci === current.bestUci && uci !== current.uci
+    if (!good && uci !== current.uci) {
+      const moves = [...parsed.moves.slice(0, ply - 1).map((x) => x.uci), uci]
+      let after: Score
+      try {
+        // a mating or stalemating retry ends the game, so the engine has no lines to score it;
+        // nor does a third repetition, which is a draw
+        after =
+          terminalScore(c.fen()) ??
+          (repetitionDraws([...parsed.fens.slice(0, ply), c.fen()])[ply] ? { cp: 0 } : null) ??
+          (await sharedEngine().search(c.fen(), { depth: 12, history: { startFen: parsed.startFen, moves } })).lines[0]?.score ?? { cp: 0 }
+      } catch {
+        if (gen !== retryGen.current) return
+        toast(t('review.retryFailed'), 'error')
+        setVariation(null)
+        setRetry(null)
+        return
+      }
       // the user moved on (or moved again) while the engine was thinking
       if (gen !== retryGen.current) return
+      const beforePos = { fen: before, score: positionScore(review!, ply - 1), lines: positionLinesFor(review!, ply - 1, current.bestUci) }
+      good = retryAccepted(beforePos, { fen: c.fen(), lines: [], score: after }, uci, current.uci)
     }
     if (good) {
       play('correct')
@@ -311,6 +358,7 @@ export default function Review() {
                 goto(p)
               }}
               keyMoments={keyMoments}
+              startFen={parsed.startFen}
               onExport={exportPgn}
               onReanalyze={reanalyze}
             />
@@ -319,7 +367,7 @@ export default function Review() {
               <Coach
                 move={current}
                 fenBefore={parsed.fens[ply - 1]}
-                scoreBefore={ply > 1 ? review.moves[ply - 2]?.scoreAfter : undefined}
+                scoreBefore={ply > 0 ? positionScore(review, ply - 1) : undefined}
                 retry={retry}
                 variation={!!variation && !retry}
                 onBest={showBest}
@@ -331,11 +379,16 @@ export default function Review() {
                   lines={positionLines}
                   missing={!review.lines}
                   picked={lineArrow}
-                  onPick={(i) => setLineArrow((cur) => (cur === i ? null : i))}
+                  step={lineStep}
+                  onPick={(i) => {
+                    setLineArrow((cur) => (cur === i ? null : i))
+                    setLineStep(0)
+                  }}
+                  onStep={stepLine}
                 />
               )}
               <div className="px-3 pt-3">
-                <EvalGraph curve={review.curve} moves={review.moves} ply={ply} onSelect={goto} height={64} />
+                <EvalGraph curve={review.curve} moves={review.moves} ply={ply} onSelect={goto} startFen={parsed.startFen} height={64} />
               </div>
               {keyMoments.length > 0 && (
                 <div className="flex items-center gap-2 px-3 pt-2 text-[13px]">
@@ -405,6 +458,21 @@ export default function Review() {
   )
 }
 
+type StoredReview = NonNullable<GameRow['review']>
+
+/** Score of the game's position `i`; the first one comes from its stored lines, or older reviews' win%. */
+function positionScore(review: StoredReview, i: number): Score {
+  if (i > 0) return review.moves[i - 1].scoreAfter
+  return review.lines?.[0]?.[0]?.score ?? scoreFromWin(review.curve[0] ?? 50)
+}
+
+/** Stored engine lines of position `i`, or just the best move for reviews made before lines were kept. */
+function positionLinesFor(review: StoredReview, i: number, bestUci: string | null): PvLine[] {
+  const stored = review.lines?.[i]
+  if (stored?.length) return stored
+  return bestUci ? [{ multipv: 1, depth: review.depth, score: positionScore(review, i), pv: [bestUci] }] : []
+}
+
 /** Normalises our own, Lichess and chess.com termination headers. */
 function endReason(termination: string | undefined, fen: string): string {
   const t = (termination ?? '').toLowerCase()
@@ -463,10 +531,12 @@ function Summary({
   ply,
   onSelect,
   keyMoments,
+  startFen,
   onExport,
   onReanalyze,
 }: {
   keyMoments: MoveReview[]
+  startFen: string
   onExport: () => void
   onReanalyze: () => void
   game: GameRow
@@ -485,7 +555,7 @@ function Summary({
   const b = countQualities(moves, 'b')
   return (
     <div className="enter flex-1 overflow-y-auto p-4">
-      <EvalGraph curve={curve} moves={moves} ply={ply} onSelect={onSelect} height={72} />
+      <EvalGraph curve={curve} moves={moves} ply={ply} onSelect={onSelect} startFen={startFen} height={72} />
       <div className="mt-4 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2">
         <span />
         <span className="w-[76px] truncate text-center text-[13px] font-bold">{whiteName}</span>
@@ -525,8 +595,7 @@ function Summary({
                 <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-raise" onClick={() => onSelect(m.ply)}>
                   <QualityIcon quality={m.quality} size={20} />
                   <span className="tabular w-10 text-[13px] text-fg-3">
-                    {Math.ceil(m.ply / 2)}
-                    {m.color === 'w' ? '.' : '...'}
+                    {moveNumberLabel(m.ply, startFen, '...')}
                   </span>
                   <span className="font-bold">{m.san}</span>
                   <span className="ml-auto truncate text-[13px]" style={{ color: qualityColor(m.quality) }}>
@@ -645,14 +714,19 @@ function EngineLines({
   lines,
   missing,
   picked,
+  step,
   onPick,
+  onStep,
 }: {
   fen: string
   lines?: PvLine[]
   /** review made before lines were stored */
   missing: boolean
   picked: number | null
+  /** moves of the picked line shown on the board */
+  step: number
   onPick: (i: number) => void
+  onStep: (d: number) => void
 }) {
   const { t } = useTranslation()
   if (missing) return <p className="border-b border-line px-4 py-2 text-[12px] text-fg-3">{t('review.engineLinesHint')}</p>
@@ -660,23 +734,63 @@ function EngineLines({
   if (!lines?.length) return null
   return (
     <div className="border-b border-line py-1" role="group" aria-label={t('review.engineLines')}>
-      {lines.slice(0, 2).map((l, i) => (
-        <button
-          key={i}
-          className={`flex w-full items-baseline gap-2 px-3 py-1.5 text-left text-[13px] transition-colors duration-100 hover:bg-raise ${picked === i ? 'bg-raise' : ''}`}
-          aria-pressed={picked === i}
-          onClick={() => onPick(i)}
-        >
-          <span
-            className={`tabular w-14 shrink-0 rounded px-1 py-0.5 text-center font-mono font-bold ${
-              winPercent(l.score) >= 50 ? 'bg-[#f1f1f1] text-[#262421]' : 'bg-[#1b1a18] text-[#f1f1f1]'
-            }`}
-          >
-            {formatScore(l.score)}
-          </span>
-          <span className="truncate text-fg-2">{uciLineToSan(fen, l.pv, 6).join(' ')}</span>
-        </button>
-      ))}
+      {lines.slice(0, 2).map((l, i) => {
+        const open = picked === i
+        // the picked line shows all its moves, the one on the board in bold
+        const sans = uciLineToSan(fen, l.pv, open ? undefined : 6)
+        return (
+          <div key={i} className={open ? 'bg-raise' : ''}>
+            <button
+              className="flex w-full items-baseline gap-2 px-3 py-1.5 text-left text-[13px] transition-colors duration-100 hover:bg-raise"
+              aria-pressed={open}
+              onClick={() => onPick(i)}
+            >
+              <span
+                className={`tabular w-14 shrink-0 rounded px-1 py-0.5 text-center font-mono font-bold ${
+                  winPercent(l.score) >= 50 ? 'bg-[#f1f1f1] text-[#262421]' : 'bg-[#1b1a18] text-[#f1f1f1]'
+                }`}
+              >
+                {formatScore(l.score)}
+              </span>
+              <span className={open ? 'min-w-0 text-fg-2' : 'truncate text-fg-2'}>
+                {open
+                  ? sans.map((san, j) => (
+                      <span key={j} className={j === step - 1 ? 'font-bold text-fg' : ''}>
+                        {j ? ' ' : ''}
+                        {san}
+                      </span>
+                    ))
+                  : sans.join(' ')}
+              </span>
+            </button>
+            {open && sans.length > 0 && (
+              <div className="flex items-center gap-1 pb-1 pl-[76px] pr-2 text-[12px] text-fg-3">
+                <span className="tabular" aria-live="polite">
+                  {t('review.lineStep', { n: step, total: sans.length })}
+                </span>
+                <button
+                  className="btn btn-ghost btn-icon ml-auto"
+                  aria-label={t('review.linePrev')}
+                  title={t('review.linePrev')}
+                  disabled={step === 0}
+                  onClick={() => onStep(-1)}
+                >
+                  <CaretLeft size={18} weight="bold" />
+                </button>
+                <button
+                  className="btn btn-ghost btn-icon"
+                  aria-label={t('review.lineNext')}
+                  title={t('review.lineNext')}
+                  disabled={step >= sans.length}
+                  onClick={() => onStep(1)}
+                >
+                  <CaretRight size={18} weight="bold" />
+                </button>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

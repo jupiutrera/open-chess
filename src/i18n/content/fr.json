@@ -133,7 +133,21 @@
         "lose": ["Impressionnant. Vraiment."]
       }
     },
-    "stockfish": { "bio": "Le moteur à pleine puissance. Personne ne le bat." }
+    "stockfish": { "bio": "Le moteur à pleine puissance. Personne ne le bat." },
+    "sf-fading": { "name": "Stockfish déclinant", "bio": "Commence à 3200 et perd 50 Elo à chaque coup." },
+    "sf-rising": { "name": "Stockfish montant", "bio": "Commence à 0 Elo et gagne 50 à chaque coup, jusqu’à 3200." },
+    "sf-jealous": { "name": "Stockfish jaloux", "bio": "Perd 300 Elo chaque fois que vous jouez le meilleur coup." },
+    "sf-kind": { "name": "Stockfish compatissant", "bio": "Perd 500 Elo chaque fois que vous jouez le pire coup." },
+    "sf-ticklish": { "name": "Stockfish chatouilleux", "bio": "Perd 300 Elo chaque fois que vous lui faites échec." },
+    "drawfish": { "name": "Drawfish", "bio": "Joue toujours le coup le plus proche de 0.00 et accepte toute proposition de nulle." },
+    "checkfish": { "name": "Checkfish", "bio": "S’il peut faire échec, il fait échec. Sinon, il joue le meilleur coup." },
+    "sf-glutton": { "name": "Stockfish glouton", "bio": "S’il peut prendre, il prend : toujours la pièce la plus précieuse." },
+    "sf-clumsy": { "name": "Stockfish distrait", "bio": "Pleine puissance, mais chaque coup a 5 % de chances d’être le pire." },
+    "sf-indecisive": { "name": "Stockfish indécis", "bio": "Choisit au hasard l’un de ses trois meilleurs coups." },
+    "sf-halfhearted": { "name": "Stockfish à moitié", "bio": "Joue son meilleur coup une fois sur deux, le deuxième une fois sur quatre, et ainsi de suite." },
+    "sf-rollercoaster": { "name": "Stockfish montagnes russes", "bio": "Passe de 3200 à 250 Elo et inversement à chaque prise, de n’importe quel camp." },
+    "sf-mirror": { "name": "Stockfish miroir", "bio": "Copie la qualité de votre dernier coup : gaffez et il gaffe, jouez bien et lui aussi." },
+    "sf-queenless": { "name": "Stockfish sans dame", "bio": "Stockfish à pleine puissance, mais il commence sans sa dame. Vous jouez les Blancs." }
   },
   "chat": {
     "kid": {

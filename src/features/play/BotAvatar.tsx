@@ -1,4 +1,4 @@
-import type { Bot } from './bots'
+import { botById, type Bot } from './bots'
 
 export type Mood = 'neutral' | 'happy' | 'sad'
 
@@ -11,7 +11,11 @@ function portrait(id: string, mood: Mood): string | undefined {
 
 /** Bot portrait on the bot's colour; the expression follows the game through `mood`. */
 export function BotAvatar({ bot, size = 40, mood = 'neutral', className = '' }: { bot: Bot; size?: number; mood?: Mood; className?: string }) {
-  const src = portrait(bot.id, mood) ?? portrait(bot.id, 'neutral')
+  const face = bot.avatar ?? bot.id
+  const src = portrait(face, mood) ?? portrait(face, 'neutral')
+  // a borrowed portrait (the challenge Stockfishes) is tinted towards the bot's own colour
+  const borrowed = bot.avatar ? botById(bot.avatar) : undefined
+  const tint = borrowed ? `hue-rotate(${bot.hue - borrowed.hue}deg)` : undefined
   return (
     <span
       className={`relative inline-block shrink-0 overflow-hidden ${className}`}
@@ -23,7 +27,7 @@ export function BotAvatar({ bot, size = 40, mood = 'neutral', className = '' }: 
       }}
       aria-hidden
     >
-      {src && <img src={src} alt="" width={size} height={size} draggable={false} className="absolute inset-0 h-full w-full" />}
+      {src && <img src={src} alt="" width={size} height={size} draggable={false} className="absolute inset-0 h-full w-full" style={tint ? { filter: tint } : undefined} />}
     </span>
   )
 }

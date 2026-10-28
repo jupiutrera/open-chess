@@ -31,6 +31,11 @@ export interface SearchOptions {
   elo?: number
   /** Skill Level 0-20 */
   skill?: number
+  /**
+   * How the game reached `fen` (UCI moves from `startFen`), sent so the engine sees repetitions.
+   * `fen` must be the position after those moves.
+   */
+  history?: { startFen: string; moves: string[] }
   onInfo?: (lines: PvLine[], depth: number) => void
 }
 
@@ -195,7 +200,8 @@ export class Engine {
       this.pending.add(reject)
     })
 
-    this.send(`position fen ${fen}`)
+    const h = opts.history
+    this.send(h?.moves.length ? `position fen ${h.startFen} moves ${h.moves.join(' ')}` : `position fen ${fen}`)
     if (opts.movetime) this.send(`go movetime ${opts.movetime}${opts.depth ? ` depth ${opts.depth}` : ''}`)
     else if (opts.depth) this.send(`go depth ${opts.depth}`)
     else this.send('go infinite')
@@ -246,7 +252,11 @@ export function parseInfo(line: string, whiteToMove: boolean): PvLine | null {
 let shared: Engine | null = null
 /** One engine instance for background work (bots, review). A crashed worker is replaced. */
 export function sharedEngine(): Engine {
-  if (!shared || shared.failed) shared = new Engine()
+  if (!shared || shared.failed) {
+    // a crashed worker may still be alive (e.g. a load error): don't leave it running
+    shared?.destroy()
+    shared = new Engine()
+  }
   return shared
 }
 
@@ -254,5 +264,10 @@ export function formatScore(s: Score | undefined): string {
   if (!s) return '0.0'
   if (s.mate !== undefined) return s.mate === 0 ? '#' : `${s.mate > 0 ? '' : '-'}M${Math.abs(s.mate)}`
   const v = (s.cp ?? 0) / 100
-  return `${v > 0 ? '+' : ''}${v.toFixed(Math.abs(v) >= 10 ? 0 : 1)}`
+  // decide the precision on the rounded value, so 9.96 prints "+10", not "+10.0"
+  const digits = Math.abs(v) >= 9.95 ? 0 : 1
+  const text = Math.abs(v).toFixed(digits)
+  // anything that rounds to zero is plain "0.0", never "-0.0" or "+0.0"
+  if (Number(text) === 0) return '0.0'
+  return `${v > 0 ? '+' : '-'}${text}`
 }

@@ -5,7 +5,6 @@
     "puzzles": "Problèmes",
     "learn": "Apprendre",
     "openings": "Ouvertures",
-    "lessons": "Leçons",
     "analysis": "Analyse",
     "games": "Parties",
     "import": "Importer",
@@ -53,7 +52,13 @@
       "promotion": "promotion en {{piece}}",
       "check": "échec",
       "checkmate": "échec et mat"
-    }
+    },
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "Ce lien ne mène nulle part dans Open Chess.",
+    "goHome": "Aller à l'accueil",
+    "errorTitle": "Un problème est survenu",
+    "errorBody": "Cet écran a rencontré une erreur. Recharger règle généralement le problème ; vos parties et votre progression sont enregistrées.",
+    "reload": "Recharger"
   },
   "home": {
     "greeting": "On s’entraîne à quoi aujourd’hui ?",
@@ -63,7 +68,6 @@
     "puzzles": "Résoudre des problèmes",
     "rush": "Puzzle Rush",
     "review": "Revoir ma dernière partie",
-    "reviewSub": "Trouvez vos erreurs avec Stockfish",
     "import": "Importer depuis chess.com ou Lichess",
     "recent": "Parties récentes",
     "noGames": "Aucune partie pour l’instant. Jouez contre un bot ou importez vos parties pour les analyser.",
@@ -75,10 +79,7 @@
   },
   "play": {
     "title": "Jouer",
-    "chooseBot": "Choisissez un adversaire",
-    "botsTitle": "Bots",
     "local": "Deux joueurs",
-    "localSub": "Sur le même appareil",
     "color": "Vous jouez",
     "time": "Temps",
     "noTime": "Sans pendule",
@@ -111,7 +112,6 @@
       "timeoutVsInsufficient": "au temps contre matériel insuffisant"
     },
     "confirmResign": "Voulez-vous vraiment abandonner ?",
-    "level": "Niveau",
     "record": "Votre bilan : {{w}} V · {{d}} N · {{l}} D",
     "autoFlip": "Retourner l’échiquier à chaque tour",
     "assistOpt": {
@@ -143,7 +143,18 @@
     "standardStart": "Position initiale",
     "invalidStart": "Cette position n'est pas jouable : la partie commencera depuis la position initiale.",
     "typeMove": "Tapez un coup (e4, Nf3, O-O)",
-    "illegalMove": "« {{move}} » n'est pas un coup légal ici"
+    "illegalMove": "« {{move}} » n'est pas un coup légal ici",
+    "saveFailed": "Impossible d'enregistrer la partie. Elle reste en cours pour que vous puissiez la reprendre.",
+    "botFailed": "Le moteur du bot s'est arrêté. Réessayez.",
+    "abort": "Annuler la partie",
+    "aborted": "Partie annulée",
+    "confirmDraw": "Les deux joueurs sont-ils d'accord pour une nulle ?",
+    "acceptDraw": "Accepter la nulle",
+    "confirmResignSide": "Voulez-vous vraiment abandonner avec les {{side}} ?",
+    "challenge_best": "{{delta}} Elo : vous avez joué le meilleur coup",
+    "challenge_worst": "{{delta}} Elo : vous avez joué le pire coup",
+    "challenge_check": "{{delta}} Elo : vous lui avez fait échec",
+    "challengeCapture": "Prise : il joue maintenant à {{elo}} Elo"
   },
   "bots": {
     "group": {
@@ -151,7 +162,8 @@
       "intermediate": "Intermédiaires",
       "advanced": "Avancés",
       "master": "Maîtres",
-      "engine": "Moteur"
+      "engine": "Moteur",
+      "challenge": "Défis"
     }
   },
   "review": {
@@ -216,7 +228,13 @@
       "allowsMate_other": "Elle permet un mat en {{count}}.",
       "missedMate_one": "Il y avait mat en {{count}} avec {{san}}.",
       "missedMate_other": "Il y avait mat en {{count}} en commençant par {{san}}."
-    }
+    },
+    "retryFailed": "Impossible de vérifier ce coup. Réessayez.",
+    "graphStart": "Position initiale",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Coup précédent de la ligne",
+    "lineNext": "Coup suivant de la ligne",
+    "lineStep": "Suite {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Problèmes",
@@ -227,7 +245,6 @@
     "yourTurn": "Trait aux Blancs",
     "yourTurnBlack": "Trait aux Noirs",
     "findBest": "Trouvez le meilleur coup",
-    "correct": "Correct !",
     "keepGoing": "Bien, continuez",
     "incorrect": "Incorrect",
     "solved": "Résolu !",
@@ -237,9 +254,8 @@
     "solution": "Voir la solution",
     "analyze": "Analyser",
     "hint": "Indice",
-    "ratingChange": "{{delta}} points",
     "puzzleRating": "Problème {{rating}}",
-    "noData": "Aucun problème téléchargé. Lancez « npm run data:puzzles » pour les générer.",
+    "noData": "Les puzzles ne sont pas inclus dans cette version de l'application.",
     "streak": "Série",
     "best": "Record",
     "rush3": "3 minutes",
@@ -251,7 +267,6 @@
     "rushOver": "Rush terminé",
     "newRecord": "Nouveau record !",
     "playAgain": "Rejouer",
-    "allThemes": "Tous les thèmes",
     "history": "Historique",
     "mistakes": "Vos erreurs",
     "mistakesSub": "Rejouez les positions ratées de vos parties analysées",
@@ -263,7 +278,15 @@
     "results": "Résultats",
     "streakMode": "Série de problèmes",
     "streakSub": "Sans pendule. Chaque problème est un peu plus dur et une seule erreur met fin à la série.",
-    "streakOver": "Série terminée"
+    "streakOver": "Série terminée",
+    "checking": "Vérification de ton coup…",
+    "offline": "Impossible de charger les puzzles. Vérifie ta connexion et réessaie ; les puzzles ouverts en ligne restent disponibles hors ligne.",
+    "exhausted": "Tu as joué tous les puzzles proches de ton classement.",
+    "themeExhausted": "Tu as joué tous les puzzles de ce thème proches de ton classement.",
+    "themeEmpty": "Il n'y a pas de puzzles de ce thème proches de ton classement.",
+    "includePlayed": "Inclure les puzzles déjà joués",
+    "skip": "Passer ce puzzle (une fois par série)",
+    "skipUsed": "Passe utilisée"
   },
   "themes": {
     "mateIn1": "Mat en 1",
@@ -342,7 +365,11 @@
     "dueCount_one": "{{count}} à réviser",
     "dueCount_other": "{{count}} à réviser",
     "positions_one": "{{count}} position",
-    "positions_other": "{{count}} positions"
+    "positions_other": "{{count}} positions",
+    "badToken": "Lichess n'a pas accepté ton jeton. Vérifie-le dans",
+    "rateLimited": "Trop de requêtes vers Lichess. Réessaie dans une minute ; ouvertures connues affichées.",
+    "explorerError": "Impossible de charger les statistiques Lichess. Ouvertures connues affichées.",
+    "playShown": "Joue le coup de la flèche pour continuer."
   },
   "lessons": {
     "title": "Leçons",
@@ -375,7 +402,6 @@
   },
   "analysis": {
     "title": "Échiquier d’analyse",
-    "engine": "Moteur",
     "lines": "Lignes",
     "editor": "Éditeur de position",
     "loadFen": "Charger un FEN",
@@ -414,17 +440,16 @@
       "mateIn_other": "· mat en {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Montrer la menace"
   },
   "games": {
     "title": "Mes parties",
     "empty": "Aucune partie enregistrée.",
     "review": "Analyser",
-    "reviewed": "Analysée",
     "vs": "contre",
     "delete": "Supprimer la partie",
     "all": "Toutes",
-    "filter": "Filtrer",
     "search": "Rechercher un joueur ou une ouverture",
     "result": "Résultat",
     "color": "Couleur",
@@ -435,7 +460,16 @@
     "anyColor": "Les deux couleurs",
     "loadMore": "Charger plus",
     "noMatch": "Aucune partie ne correspond à ces filtres.",
-    "clearFilters": "Effacer les filtres"
+    "clearFilters": "Effacer les filtres",
+    "deleteConfirm": "Supprimer cette partie ? Cette action est irréversible.",
+    "speed": "Cadence",
+    "anySpeed": "Toutes les cadences",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapide",
+    "classical": "Classique",
+    "daily": "Par jour",
+    "untimed": "Sans pendule"
   },
   "import": {
     "title": "Importer des parties",
@@ -450,22 +484,19 @@
     "file": "ou envoyez un fichier .pgn",
     "notFound": "Utilisateur introuvable",
     "none": "Aucune partie sur cette période",
-    "importReview": "Importer et analyser",
     "importAll": "Tout importer",
     "loadMore": "Charger des parties plus anciennes",
-    "already": "Déjà importée",
-    "remember": "Se souvenir de cet utilisateur",
     "imported_one": "{{count}} partie importée",
     "imported_other": "{{count}} parties importées",
     "failed_one": "{{count}} partie illisible",
     "failed_other": "{{count}} parties illisibles",
     "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez.",
     "alreadyHad_one": "{{count}} partie était déjà importée",
-    "alreadyHad_other": "{{count}} parties étaient déjà importées"
+    "alreadyHad_other": "{{count}} parties étaient déjà importées",
+    "importing": "Importation {{done}} sur {{total}}…"
   },
   "profile": {
     "title": "Profil",
-    "stats": "Statistiques",
     "puzzleRating": "Classement problèmes",
     "puzzlesSolved": "Problèmes résolus",
     "gamesPlayed": "Parties jouées",
@@ -476,7 +507,6 @@
     "noData": "Pas encore de données",
     "sync": "Synchronisation",
     "syncOff": "La synchronisation n’est pas configurée. Ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY à .env.",
-    "signIn": "Se connecter",
     "signOut": "Se déconnecter",
     "signOutClear": "Supprimer aussi vos données synchronisées de cet appareil ? Elles restent enregistrées dans votre compte. Annuler les conserve ici.",
     "signOutKept": "Impossible de synchroniser avant la déconnexion : vos données ont été conservées sur cet appareil.",
@@ -495,7 +525,14 @@
     "restored": "Sauvegarde restaurée",
     "byOpening": "Par ouverture",
     "gamesShort_one": "{{count}} p.",
-    "gamesShort_other": "{{count}} p."
+    "gamesShort_other": "{{count}} p.",
+    "results": "Résultats",
+    "overall": "Total",
+    "withWhite": "Avec les Blancs",
+    "withBlack": "Avec les Noirs",
+    "won": "Gagnées",
+    "drawn": "Nulles",
+    "lost": "Perdues"
   },
   "settings": {
     "title": "Réglages",
@@ -532,6 +569,7 @@
       "futuristic": "Futuriste"
     },
     "highContrast": "Contraste élevé",
-    "highContrastHint": "Boutons et textes secondaires plus lisibles (WCAG AA)"
+    "highContrastHint": "Boutons et textes secondaires plus lisibles (WCAG AA)",
+    "system": "Système"
   }
 }

@@ -1,6 +1,6 @@
 import { Chess } from 'chess.js'
 import { sharedEngine } from '../../engine/engine'
-import { classifyMoves, gameAccuracy, terminalScore, winPercent, type PositionEval } from './classify'
+import { classifyMoves, gameAccuracy, repetitionDraws, terminalScore, winPercent, type PositionEval } from './classify'
 import { bookChecker } from '../openings/openingsData'
 import { db, put, type GameRow } from '../../db/db'
 import { clearPartial, loadPartial, savePartial } from './partial'
@@ -42,6 +42,8 @@ export async function analyzeGame(
   // resume where an interrupted review of this game stopped
   const positions: PositionEval[] = loadPartial(game.id, depth, game.pgn, parsed.fens)
   const total = parsed.fens.length
+  const repeated = repetitionDraws(parsed.fens)
+  const ucis = parsed.moves.map((m) => m.uci)
   if (positions.length) onProgress(positions.length, total)
   const stop = () => {
     savePartial(game.id, depth, game.pgn, positions)
@@ -50,12 +52,16 @@ export async function analyzeGame(
   for (let i = positions.length; i < total; i++) {
     if (signal?.cancelled) return stop()
     const fen = parsed.fens[i]
-    const term = terminalScore(fen)
+    // a third repetition that ends the game is a draw however the engine would play on;
+    // one the players went past (the draw has to be claimed) is searched like any other
+    const term = terminalScore(fen) ?? (repeated[i] && i === total - 1 ? { cp: 0 } : null)
     if (term) {
       positions.push({ fen, lines: [], score: term })
     } else {
       // depth is the target; the time cap keeps a long game on a slow phone from taking minutes
-      const r = await engine.search(fen, { depth, multipv: 2, movetime: 1200 })
+      // the moves so far let the engine see a repetition coming
+      const history = { startFen: parsed.startFen, moves: ucis.slice(0, i) }
+      const r = await engine.search(fen, { depth, multipv: 2, movetime: 1200, history })
       if (signal?.cancelled) return stop()
       // short PVs are all the review keeps, and they keep the resume save small
       const lines = r.lines.map((l) => ({ ...l, pv: l.pv.slice(0, PV_KEEP) }))

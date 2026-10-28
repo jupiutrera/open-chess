@@ -1,9 +1,12 @@
 {
   "name": "open-chess",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/copy-engine.mjs",
