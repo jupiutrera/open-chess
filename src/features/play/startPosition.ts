@@ -12,5 +12,8 @@ export function customStartFen(param: string | null | undefined): string | null 
   const c = new Chess(fen)
   // not isGameOver(): past the 50-move mark the game goes on until someone claims it
   if (c.isCheckmate() || c.isStalemate() || c.isInsufficientMaterial() || epd(c.fen()) === epd(START_FEN)) return null
-  return c.fen()
+  // a halfmove clock near 100 would end the game within a move or two: the count starts here
+  const parts = c.fen().split(' ')
+  parts[4] = '0'
+  return parts.join(' ')
 }

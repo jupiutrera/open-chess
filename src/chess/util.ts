@@ -52,6 +52,12 @@ export function epd(fen: string): string {
   return fen.split(' ').slice(0, 4).join(' ')
 }
 
+/** How a move list from this FEN is numbered: its first move number and whether Black moves first. */
+export function moveNumbering(fen: string): { startNumber: number; blackFirst: boolean } {
+  const parts = fen.split(' ')
+  return { startNumber: Math.max(1, Number(parts[5]) || 1), blackFirst: parts[1] === 'b' }
+}
+
 /** Converts a list of UCI moves from a FEN to SAN. */
 export function uciLineToSan(fen: string, ucis: string[], max = 99): string[] {
   const c = new Chess(fen)
