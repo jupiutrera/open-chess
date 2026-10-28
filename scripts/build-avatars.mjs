@@ -1,10 +1,10 @@
 // Generates the bot portraits in src/assets/bots/: one SVG per bot and mood.
-// People use DiceBear's Open Peeps (Pablo Stanley, CC0 1.0); Stockfish uses
-// Bottts (Pablo Stanley, free for personal and commercial use). See README.
+// People use DiceBear's Open Peeps (Pablo Stanley, CC0 1.0). Stockfish's portrait is
+// a photo instead (resources/stockfish-cod.jpg, NOAA, public domain), cropped into
+// src/assets/bots/stockfish-*.webp by hand. See README.
 // Run with `npm run data:avatars` after changing a look.
 import { createAvatar } from '@dicebear/core'
 import * as openPeeps from '@dicebear/open-peeps'
-import * as bottts from '@dicebear/bottts'
 import { mkdirSync, writeFileSync } from 'node:fs'
 
 const SKIN = { light: 'ffdbb4', fair: 'edb98a', tan: 'd08b5b', brown: 'ae5d29', dark: '694d3d' }
@@ -56,23 +56,4 @@ for (const [id, l] of Object.entries(LOOKS)) {
   }
 }
 
-// Stockfish: a robot, whose eyes and mouth change with the mood
-const ROBOT = {
-  neutral: { eyes: ['eva'], mouth: ['smile02'] },
-  happy: { eyes: ['happy'], mouth: ['smile01'] },
-  sad: { eyes: ['dizzy'], mouth: ['square01'] },
-}
-for (const [mood, face] of Object.entries(ROBOT)) {
-  const svg = createAvatar(bottts, {
-    seed: 'stockfish',
-    baseColor: ['43a047'],
-    face: ['square04'],
-    top: ['lights'],
-    sides: ['round'],
-    texture: [],
-    textureProbability: 0,
-    ...face,
-  }).toString()
-  writeFileSync(`${out}/stockfish-${mood}.svg`, svg)
-}
 console.log('avatars written to', out)

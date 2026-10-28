@@ -1,7 +1,7 @@
 {
   "name": "open-chess",
   "private": true,
-  "version": "0.4.2",
+  "version": "0.4.3",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "engines": {
@@ -50,7 +50,6 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
-    "@dicebear/bottts": "^9.4.2",
     "@dicebear/core": "^9.4.3",
     "@dicebear/open-peeps": "^9.4.2",
     "@playwright/test": "^1.64.1",
