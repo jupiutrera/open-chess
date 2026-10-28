@@ -401,7 +401,9 @@
     "imported_other": "已导入 {{count}} 局",
     "failed_one": "{{count}} 局无法读取",
     "failed_other": "{{count}} 局无法读取",
-    "rateLimited": "请求过于频繁，请等待一分钟后重试。"
+    "rateLimited": "请求过于频繁，请等待一分钟后重试。",
+    "alreadyHad_one": "{{count}} 局此前已导入",
+    "alreadyHad_other": "{{count}} 局此前已导入"
   },
   "profile": {
     "title": "个人资料",

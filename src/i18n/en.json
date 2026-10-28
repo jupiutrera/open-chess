@@ -401,7 +401,9 @@
     "imported_other": "{{count}} games imported",
     "failed_one": "{{count}} game couldn't be read",
     "failed_other": "{{count}} games couldn't be read",
-    "rateLimited": "Too many requests in a row. Wait a minute and try again."
+    "rateLimited": "Too many requests in a row. Wait a minute and try again.",
+    "alreadyHad_one": "{{count}} game was already imported",
+    "alreadyHad_other": "{{count}} games were already imported"
   },
   "profile": {
     "title": "Profile",

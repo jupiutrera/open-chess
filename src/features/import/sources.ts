@@ -29,8 +29,8 @@ async function get(url: string, init?: RequestInit): Promise<Response> {
 }
 
 /** Monthly archive URLs for a chess.com user, newest first. */
-export async function chesscomArchives(user: string): Promise<string[]> {
-  const res = await get(`https://api.chess.com/pub/player/${encodeURIComponent(user.toLowerCase())}/games/archives`)
+export async function chesscomArchives(user: string, signal?: AbortSignal): Promise<string[]> {
+  const res = await get(`https://api.chess.com/pub/player/${encodeURIComponent(user.toLowerCase())}/games/archives`, { signal })
   const data = (await res.json()) as { archives: string[] }
   return [...data.archives].reverse()
 }
@@ -57,8 +57,8 @@ export function chesscomTimeControl(tc: string): string {
   return daily ? `${Math.round(Number(daily[1]) / 86400)}d` : tc
 }
 
-export async function chesscomMonth(archiveUrl: string): Promise<RemoteGame[]> {
-  const res = await get(archiveUrl)
+export async function chesscomMonth(archiveUrl: string, signal?: AbortSignal): Promise<RemoteGame[]> {
+  const res = await get(archiveUrl, { signal })
   const data = (await res.json()) as { games: ChesscomGame[] }
   return data.games
     .filter((g) => g.rules === 'chess' && g.pgn)
@@ -135,11 +135,12 @@ export interface LichessPage {
 }
 
 /** One page of a user's games, newest first, created before `until` (ms) when given. */
-export async function lichessGames(user: string, until?: number, max = 50): Promise<LichessPage> {
+export async function lichessGames(user: string, until?: number, signal?: AbortSignal, max = 50): Promise<LichessPage> {
   const params = new URLSearchParams({ max: String(max), pgnInJson: 'true', clocks: 'false', evals: 'false' })
   if (until) params.set('until', String(until))
   const res = await get(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?${params}`, {
     headers: { Accept: 'application/x-ndjson' },
+    signal,
   })
   const text = await res.text()
   const raw = ndjsonLines(text)
@@ -147,8 +148,10 @@ export async function lichessGames(user: string, until?: number, max = 50): Prom
   return { games: parseLichessGames(text), next: raw.length === max && oldest ? oldest - 1 : undefined }
 }
 
-export async function importedIds(): Promise<Set<string>> {
-  const rows = await db.games.filter((g) => !!g.externalId && !g.deleted).toArray()
+/** Which of these external ids are already stored (and not deleted), looked up by index. */
+export async function importedIds(ids: string[]): Promise<Set<string>> {
+  if (!ids.length) return new Set()
+  const rows = await db.games.where('externalId').anyOf(ids).filter((g) => !g.deleted).toArray()
   return new Set(rows.map((r) => r.externalId!))
 }
 

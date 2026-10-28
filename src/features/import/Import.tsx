@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MagnifyingGlass, DownloadSimple, CheckCircle, FileArrowUp } from '@phosphor-icons/react'
@@ -15,6 +15,8 @@ function remembered(source: string) {
     return ''
   }
 }
+
+const isAbort = (e: unknown) => e instanceof DOMException && e.name === 'AbortError'
 
 export default function Import() {
   const { t } = useTranslation()
@@ -33,18 +35,39 @@ export default function Import() {
   /** `until` cursor for the next page of Lichess games */
   const [lichessNext, setLichessNext] = useState<number | undefined>(undefined)
   const [loadingMore, setLoadingMore] = useState(false)
+  /** the request in flight; a newer one aborts it so a stale response can't overwrite the list */
+  const request = useRef<AbortController | null>(null)
+
+  const begin = () => {
+    request.current?.abort()
+    const ctrl = new AbortController()
+    request.current = ctrl
+    return ctrl
+  }
+
+  const errorText = (e: unknown) =>
+    e instanceof NotFoundError ? t('import.notFound') : e instanceof RateLimitError ? t('import.rateLimited') : online ? t('common.error') : t('common.offline')
 
   useEffect(() => {
-    void importedIds().then(setHave)
+    let live = true
+    void importedIds(games?.map((g) => g.externalId) ?? []).then((s) => live && setHave(s))
+    return () => {
+      live = false
+    }
   }, [games])
 
   useEffect(() => {
+    request.current?.abort()
     setUser(remembered(source))
     setGames(null)
     setArchives([])
     setLichessNext(undefined)
     setError(null)
+    setLoading(false)
+    setLoadingMore(false)
   }, [source])
+
+  useEffect(() => () => request.current?.abort(), [])
 
   const fetchGames = async () => {
     const u = user.trim()
@@ -54,69 +77,89 @@ export default function Import() {
     } catch {
       /* private mode */
     }
+    const ctrl = begin()
     setLoading(true)
+    setLoadingMore(false)
     setError(null)
     setGames(null)
+    setArchives([])
     setLichessNext(undefined)
     try {
       if (source === 'chesscom') {
-        const a = await chesscomArchives(u)
+        const a = await chesscomArchives(u, ctrl.signal)
+        if (ctrl.signal.aborted) return
         setArchives(a)
         if (!a.length) {
           setGames([])
           return
         }
         setMonth(a[0])
-        setGames(await chesscomMonth(a[0]))
+        const gs = await chesscomMonth(a[0], ctrl.signal)
+        if (!ctrl.signal.aborted) setGames(gs)
       } else {
-        const page = await lichessGames(u)
+        const page = await lichessGames(u, undefined, ctrl.signal)
+        if (ctrl.signal.aborted) return
         setGames(page.games)
         setLichessNext(page.next)
       }
     } catch (e) {
-      setError(e instanceof NotFoundError ? t('import.notFound') : e instanceof RateLimitError ? t('import.rateLimited') : online ? t('common.error') : t('common.offline'))
+      if (!ctrl.signal.aborted && !isAbort(e)) setError(errorText(e))
     } finally {
-      setLoading(false)
+      if (request.current === ctrl) setLoading(false)
     }
   }
 
   const changeMonth = async (m: string) => {
+    const ctrl = begin()
     setMonth(m)
     setLoading(true)
+    setError(null)
     try {
-      setGames(await chesscomMonth(m))
-    } catch {
-      setError(t('common.error'))
+      const gs = await chesscomMonth(m, ctrl.signal)
+      if (!ctrl.signal.aborted) setGames(gs)
+    } catch (e) {
+      if (!ctrl.signal.aborted && !isAbort(e)) setError(errorText(e))
     } finally {
-      setLoading(false)
+      if (request.current === ctrl) setLoading(false)
     }
   }
 
   const loadMoreLichess = async () => {
     if (!lichessNext) return
+    const ctrl = begin()
     setLoadingMore(true)
     try {
-      const page = await lichessGames(user.trim(), lichessNext)
+      const page = await lichessGames(user.trim(), lichessNext, ctrl.signal)
+      if (ctrl.signal.aborted) return
       setGames((gs) => [...(gs ?? []), ...page.games])
       setLichessNext(page.next)
-    } catch {
-      toast(online ? t('common.error') : t('common.offline'), 'error')
+    } catch (e) {
+      if (!ctrl.signal.aborted && !isAbort(e)) toast(errorText(e), 'error')
     } finally {
-      setLoadingMore(false)
+      if (request.current === ctrl) setLoadingMore(false)
     }
   }
 
   const review = async (g: RemoteGame) => {
-    const row = await importRemote(g, user.trim())
-    nav(`/review/${row.id}`)
+    try {
+      const row = await importRemote(g, user.trim())
+      nav(`/review/${row.id}`)
+    } catch {
+      // its PGN didn't load
+      toast(t('import.failed', { count: 1 }), 'error')
+    }
   }
 
   const importAll = async () => {
     if (!games) return
     let n = 0
     let failed = 0
+    let already = 0
     for (const g of games) {
-      if (have.has(g.externalId)) continue
+      if (have.has(g.externalId)) {
+        already++
+        continue
+      }
       // one unreadable game must not stop the rest
       try {
         await importRemote(g, user.trim())
@@ -125,19 +168,21 @@ export default function Import() {
         failed++
       }
     }
-    setHave(await importedIds())
-    toast(t('import.imported', { count: n }), 'success')
+    setHave(await importedIds(games.map((g) => g.externalId)))
+    if (n || !already) toast(t('import.imported', { count: n }), 'success')
+    if (already) toast(t('import.alreadyHad', { count: already }))
     if (failed) toast(t('import.failed', { count: failed }), 'error')
   }
 
   const importPgn = async (text: string) => {
-    const { rows, failed } = await importPgnText(text)
+    const { rows, existing, failed } = await importPgnText(text)
     if (failed && rows.length) toast(t('import.failed', { count: failed }), 'error')
     if (!rows.length) {
       toast(t('analysis.invalidPgn'), 'error')
       return
     }
-    toast(t('import.imported', { count: rows.length }), 'success')
+    if (rows.length > existing) toast(t('import.imported', { count: rows.length - existing }), 'success')
+    if (existing) toast(t('import.alreadyHad', { count: existing }))
     setPgn('')
     if (rows.length === 1) nav(`/review/${rows[0].id}`)
     else nav('/games')
@@ -186,7 +231,7 @@ export default function Import() {
                   spellCheck={false}
                   placeholder={source === 'chesscom' ? 'hikaru' : 'DrNykterstein'}
                 />
-                <button className="btn btn-primary" disabled={!user.trim() || loading}>
+                <button className="btn btn-primary" disabled={!user.trim() || loading} aria-label={t('import.fetch')}>
                   <MagnifyingGlass size={20} weight="bold" /> <span className="hidden sm:inline">{t('import.fetch')}</span>
                 </button>
               </form>

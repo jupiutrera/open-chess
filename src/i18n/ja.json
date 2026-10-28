@@ -401,7 +401,9 @@
     "imported_other": "{{count}} 局をインポートしました",
     "failed_one": "{{count}} 局を読み込めませんでした",
     "failed_other": "{{count}} 局を読み込めませんでした",
-    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。"
+    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。",
+    "alreadyHad_one": "{{count}} 局はインポート済みです",
+    "alreadyHad_other": "{{count}} 局はインポート済みです"
   },
   "profile": {
     "title": "プロフィール",

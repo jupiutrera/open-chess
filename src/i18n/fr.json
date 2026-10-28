@@ -401,7 +401,9 @@
     "imported_other": "{{count}} parties importées",
     "failed_one": "{{count}} partie illisible",
     "failed_other": "{{count}} parties illisibles",
-    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez."
+    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez.",
+    "alreadyHad_one": "{{count}} partie était déjà importée",
+    "alreadyHad_other": "{{count}} parties étaient déjà importées"
   },
   "profile": {
     "title": "Profil",
