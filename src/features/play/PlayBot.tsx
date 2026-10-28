@@ -15,7 +15,7 @@ import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
 import { capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
-import { formatScore, sharedEngine } from '../../engine/engine'
+import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
 import { timeControl } from './timeControl'
 import { GameOverDialog, type GameEnd } from './GameOver'
@@ -254,9 +254,10 @@ export default function PlayBot() {
 
   const showHint = async () => {
     if (turn !== userColor || endRef.current) return
-    const fen = liveFen
+    // read the live game, not this render's state: it goes stale while the engine thinks
+    const fen = game.chess.fen()
     const r = await sharedEngine().search(fen, { depth: 12 })
-    if (!r.bestmove || game.fens[game.fens.length - 1] !== fen) return
+    if (!r.bestmove || endRef.current || game.chess.fen() !== fen) return
     const { from, to } = parseUci(r.bestmove)
     setHint([{ orig: from as never, dest: to as never, brush: 'paleGreen' }])
   }
@@ -275,11 +276,17 @@ export default function PlayBot() {
   const offerDraw = async () => {
     if (endRef.current || thinking || offering) return
     setOffering(true)
-    const r = await sharedEngine()
-      .search(liveFen, { depth: 10 })
-      .finally(() => setOffering(false))
-    // interrupted (the user moved meanwhile): no answer rather than a guess
-    if (!r.lines[0] || endRef.current) return
+    const fen = game.chess.fen()
+    const depth = 10
+    let r: SearchResult | undefined
+    try {
+      // a search stopped early (e.g. by a hint) resolves with shallow lines: look again rather than judge on them
+      for (let i = 0; i < 3 && (!r || r.depth < depth) && game.chess.fen() === fen; i++) r = await sharedEngine().search(fen, { depth })
+    } finally {
+      setOffering(false)
+    }
+    // the position moved on (a move or takeback) or the game ended: the offer lapses unanswered
+    if (!r?.lines[0] || endRef.current || game.chess.fen() !== fen) return
     const w = winPercent(r.lines[0].score)
     const botColor = userColor === 'w' ? 'b' : 'w'
     if (game.moves.length >= 20 && botAcceptsDraw(w, botColor)) {
