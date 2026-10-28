@@ -13,11 +13,12 @@
 npm install
 npm run dev
 npm test        # tiene que pasar
+npm run lint    # tiene que pasar (oxlint)
 npm run e2e     # recomendable si tocas el tablero, los bots o la revisión
 npm run typecheck
 ```
 
-Cada PR pasa por el CI: tests unitarios, build y los tests de Playwright. Si falla, revisa el informe que se adjunta al job.
+Cada PR pasa por el CI: lint, tests unitarios, build y los tests de Playwright. Si falla, revisa el informe que se adjunta al job.
 
 ## Ideas que encajan bien
 
