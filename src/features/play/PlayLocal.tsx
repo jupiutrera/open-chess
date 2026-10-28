@@ -18,6 +18,7 @@ import { TimeControlPicker } from './TimeControlPicker'
 import { Panel, Toggle } from '../../ui/kit'
 import { cloneWithHistory } from './PlayBot'
 import { clearLiveGame, loadLiveGame, saveLiveGame, type LiveGame } from './liveGame'
+import { PLAYER } from './playerName'
 
 export default function PlayLocal() {
   const { t } = useTranslation()
@@ -46,8 +47,8 @@ export default function PlayLocal() {
     const row = await saveGame({
       source: 'local',
       chess: cloneWithHistory(game.chess),
-      white: t('common.white'),
-      black: t('common.black'),
+      white: PLAYER.white,
+      black: PLAYER.black,
       result: e.result,
       timeControl: tc.base ? `${tc.base}+${tc.inc}` : '-',
       termination: e.reason,

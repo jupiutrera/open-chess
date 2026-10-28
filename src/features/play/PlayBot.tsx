@@ -28,6 +28,7 @@ import { useAssist } from './useAssist'
 import { AssistToggles } from './AssistToggles'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { localize } from '../../i18n/content'
+import { PLAYER } from './playerName'
 
 export default function PlayBot() {
   const { t } = useTranslation()
@@ -84,8 +85,8 @@ export default function PlayBot() {
       const row = await saveGame({
         source: 'bot',
         chess: cloneWithHistory(game.chess),
-        white: userColor === 'w' ? t('common.you') : bot.name,
-        black: userColor === 'b' ? t('common.you') : bot.name,
+        white: userColor === 'w' ? PLAYER.you : bot.name,
+        black: userColor === 'b' ? PLAYER.you : bot.name,
         whiteElo: userColor === 'w' ? undefined : bot.elo,
         blackElo: userColor === 'b' ? undefined : bot.elo,
         result: e.result,
