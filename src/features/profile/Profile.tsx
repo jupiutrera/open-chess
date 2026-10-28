@@ -13,53 +13,71 @@ import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut,
 import { saveTextFile } from '../../ui/files'
 import { fmtDecimal } from '../../i18n/format'
 import { PieceIcon } from '../../board/QualityIcon'
+import { gameOutcome } from './gameFilter'
 
 export default function Profile() {
   const { t } = useTranslation()
   const lang = useSettings((s) => s.lang)
   const data = useLiveQuery(async () => {
-    const [rating, attempts, games, rush] = await Promise.all([
-      getPuzzleRating(),
-      db.puzzleAttempts.orderBy('date').filter((a) => !a.deleted).toArray(),
-      db.games.filter((g) => !g.deleted).toArray(),
-      kvGet<Record<string, number>>('rushBest', {}),
-    ])
-    const accs = games
-      .filter((g) => g.review && g.userColor)
-      .map((g) => (g.userColor === 'w' ? g.review!.accuracy.white : g.review!.accuracy.black))
-    const history = attempts.filter((a) => a.ratingAfter !== undefined).map((a) => ({ date: a.date, rating: a.ratingAfter! }))
-    const vsBots = BOTS.map((b) => {
-      const r = { w: 0, d: 0, l: 0 }
-      for (const g of games) {
-        if (g.botId !== b.id || !g.userColor) continue
-        if (g.result === '1/2-1/2') r.d++
-        else if ((g.result === '1-0') === (g.userColor === 'w')) r.w++
-        else r.l++
-      }
-      return { bot: b, ...r }
-    }).filter((r) => r.w + r.d + r.l > 0)
+    // rows are streamed with each() and reduced to a few numbers, so the PGNs and
+    // reviews of every game are never held in memory at once
+    let solved = 0
+    const history: { date: number; rating: number }[] = []
+    const attemptsDone = db.puzzleAttempts.orderBy('date').each((a) => {
+      if (a.deleted) return
+      if (a.solved) solved++
+      if (a.ratingAfter !== undefined) history.push({ date: a.date, rating: a.ratingAfter })
+    })
+    let gamesPlayed = 0
+    let accSum = 0
+    let accN = 0
+    const botResults = new Map<string, { w: number; d: number; l: number }>()
     // results by opening (family name before the colon), for games where we know the user's side
-    const byOpening = new Map<string, { n: number; points: number; acc: number[]; color: 'w' | 'b' }>()
-    for (const g of games) {
-      if (!g.userColor || !g.opening || g.result === '*') continue
-      const name = g.opening.split(':')[0].trim()
-      const key = `${g.userColor}|${name}`
-      const row = byOpening.get(key) ?? { n: 0, points: 0, acc: [], color: g.userColor }
+    const byOpening = new Map<string, { n: number; points: number; accSum: number; accN: number; color: 'w' | 'b' }>()
+    const gamesDone = db.games.each((g) => {
+      if (g.deleted) return
+      gamesPlayed++
+      const uc = g.userColor
+      if (!uc) return
+      const acc = g.review ? (uc === 'w' ? g.review.accuracy.white : g.review.accuracy.black) : null
+      if (acc !== null) {
+        accSum += acc
+        accN++
+      }
+      const outcome = gameOutcome(g)
+      if (!outcome) return
+      if (g.botId) {
+        const r = botResults.get(g.botId) ?? { w: 0, d: 0, l: 0 }
+        r[outcome === 'win' ? 'w' : outcome === 'draw' ? 'd' : 'l']++
+        botResults.set(g.botId, r)
+      }
+      if (!g.opening) return
+      const key = `${uc}|${g.opening.split(':')[0].trim()}`
+      const row = byOpening.get(key) ?? { n: 0, points: 0, accSum: 0, accN: 0, color: uc }
       row.n++
-      row.points += g.result === '1/2-1/2' ? 0.5 : (g.result === '1-0') === (g.userColor === 'w') ? 1 : 0
-      if (g.review) row.acc.push(g.userColor === 'w' ? g.review.accuracy.white : g.review.accuracy.black)
+      row.points += outcome === 'win' ? 1 : outcome === 'draw' ? 0.5 : 0
+      if (acc !== null) {
+        row.accSum += acc
+        row.accN++
+      }
       byOpening.set(key, row)
-    }
+    })
+    const [rating, rush] = await Promise.all([getPuzzleRating(), kvGet<Record<string, number>>('rushBest', {}), attemptsDone, gamesDone])
+    const vsBots = BOTS.flatMap((b) => {
+      const r = botResults.get(b.id)
+      return r ? [{ bot: b, ...r }] : []
+    })
     const openings = [...byOpening.entries()]
-      .map(([key, r]) => ({ name: key.slice(2), ...r, score: (r.points / r.n) * 100, avgAcc: r.acc.length ? r.acc.reduce((a, b) => a + b, 0) / r.acc.length : null }))
+      .map(([key, r]) => ({ name: key.slice(2), n: r.n, color: r.color, score: (r.points / r.n) * 100, avgAcc: r.accN ? r.accSum / r.accN : null }))
       .sort((a, b) => b.n - a.n)
       .slice(0, 10)
     return {
       rating: rating.rating,
-      solved: attempts.filter((a) => a.solved).length,
-      gamesPlayed: games.length,
-      avgAcc: accs.length ? accs.reduce((a, b) => a + b, 0) / accs.length : null,
-      rushBest: Math.max(0, ...Object.values(rush)),
+      solved,
+      gamesPlayed,
+      avgAcc: accN ? accSum / accN : null,
+      // the Puzzle Streak record shares the rushBest row but isn't a Rush score
+      rushBest: Math.max(0, ...Object.entries(rush).flatMap(([k, v]) => (k === 'streak' ? [] : [v]))),
       history,
       vsBots,
       openings,

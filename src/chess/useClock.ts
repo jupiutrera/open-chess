@@ -57,6 +57,8 @@ export function useClock(baseSec: number, incSec: number, onFlag: (side: 'w' | '
     (side: 'w' | 'b') => {
       if (!enabled || flagged.current) return
       tick()
+      // the mover's time may have run out since the last interval tick: the game is already over
+      if (flagged.current) return
       timeRef.current = { ...timeRef.current, [side]: timeRef.current[side] + incSec * 1000 }
       setTime(timeRef.current)
       start(side === 'w' ? 'b' : 'w')

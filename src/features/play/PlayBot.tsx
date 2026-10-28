@@ -13,12 +13,14 @@ import { MoveList, MoveStrip } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
-import { capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
+import { START_FEN, capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
-import { formatScore, sharedEngine } from '../../engine/engine'
+import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
 import { timeControl } from './timeControl'
-import { GameOverDialog, type GameEnd } from './GameOver'
+import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
+import { GameAnnouncer } from '../../board/GameAnnouncer'
+import { MoveInput } from '../../board/MoveInput'
 import { saveGame } from '../../db/games'
 import { clearLiveGame, loadLiveGame, saveLiveGame } from './liveGame'
 import { winPercent } from '../review/classify'
@@ -28,29 +30,37 @@ import { useAssist } from './useAssist'
 import { AssistToggles } from './AssistToggles'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { localize } from '../../i18n/content'
+import { PLAYER } from './playerName'
+import { customStartFen } from './startPosition'
 
 export default function PlayBot() {
   const { t } = useTranslation()
   const nav = useNavigate()
   const { botId = 'ivan' } = useParams()
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const bot = botById(botId) ?? botById('ivan')!
   const tc = timeControl(params.get('tc'))
   const assist = useSettings((s) => s.assist)
   const lang = useSettings((s) => s.lang)
 
-  const pickColor = useCallback(() => {
-    const c = params.get('color')
-    return c === 'b' ? 'b' : c === 'w' ? 'w' : Math.random() < 0.5 ? 'w' : 'b'
-  }, [params])
-  // a saved game in progress against this bot, when coming from "Continue"
+  // a saved game in progress against this bot, when coming from "Continue" or reloading
   const [resumed] = useState(() => {
     const g = params.get('resume') ? loadLiveGame('bot') : null
     return g && g.botId === bot.id ? g : null
   })
+  // a game from a given position ("play this position" from analysis); kept for rematches
+  const [startFen] = useState(() => customStartFen(resumed ? resumed.fen : params.get('fen')) ?? START_FEN)
+  const pickColor = useCallback(() => {
+    const c = params.get('color')
+    if (c === 'w' || c === 'b') return c
+    // from a given position the user takes the side to move, as on the analysis board,
+    // unless they chose random
+    if (c !== 'r' && startFen !== START_FEN) return new Chess(startFen).turn()
+    return Math.random() < 0.5 ? 'w' : 'b'
+  }, [params, startFen])
   const [userColor, setUserColor] = useState<'w' | 'b'>(() => resumed?.userColor ?? pickColor())
   const [orientation, setOrientation] = useState<'white' | 'black'>(userColor === 'w' ? 'white' : 'black')
-  const game = useGame()
+  const game = useGame(startFen)
   const [end, setEnd] = useState<GameEnd | null>(null)
   const [dialog, setDialog] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
@@ -84,8 +94,8 @@ export default function PlayBot() {
       const row = await saveGame({
         source: 'bot',
         chess: cloneWithHistory(game.chess),
-        white: userColor === 'w' ? t('common.you') : bot.name,
-        black: userColor === 'b' ? t('common.you') : bot.name,
+        white: userColor === 'w' ? PLAYER.you : bot.name,
+        black: userColor === 'b' ? PLAYER.you : bot.name,
         whiteElo: userColor === 'w' ? undefined : bot.elo,
         blackElo: userColor === 'b' ? undefined : bot.elo,
         result: e.result,
@@ -106,7 +116,7 @@ export default function PlayBot() {
   // put a resumed game back on the board, clock included
   useEffect(() => {
     if (!resumed) return
-    game.replay(resumed.sans)
+    game.replay(resumed.sans, startFen)
     if (resumed.clock) clock.restore(resumed.clock, game.chess.turn())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -154,6 +164,7 @@ export default function PlayBot() {
       botId: bot.id,
       userColor,
       tc: tc.id,
+      fen: startFen !== START_FEN ? startFen : undefined,
       sans: game.chess.history(),
       clock: clock.enabled ? { w: clock.left('w'), b: clock.left('b') } : undefined,
     })
@@ -164,6 +175,19 @@ export default function PlayBot() {
     if (!endRef.current && game.chess.history().length) toast(t('play.saved'))
   }
   useEffect(() => persist.current(), [liveFen])
+  // once there is a saved game, mark the URL so a reload picks it up instead of starting over it
+  const hasMoves = game.moves.length > 0
+  useEffect(() => {
+    if (!hasMoves || endRef.current || (params.get('resume') && params.get('color') === userColor)) return
+    setParams(
+      (p) => {
+        p.set('resume', '1')
+        p.set('color', userColor)
+        return p
+      },
+      { replace: true },
+    )
+  }, [hasMoves, userColor, params, setParams])
   useEffect(() => {
     const save = () => persist.current()
     window.addEventListener('pagehide', save)
@@ -221,18 +245,25 @@ export default function PlayBot() {
   const userTurn = turn === userColor && game.atLive && !end
   const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
 
+  // the clock re-renders this screen every 100ms: keep the board's props stable so its memo holds
+  // (help.lines is a new empty array on every render while the position is unevaluated)
+  const suggestion = help.lines[0]?.pv[0]
   const shapes = useMemo(() => {
     const out: DrawShape[] = [...hint]
     const arrow = (uci: string, brush: string): DrawShape => ({ orig: uci.slice(0, 2) as never, dest: uci.slice(2, 4) as never, brush })
-    if (assist.suggest && userTurn && help.lines[0]?.pv[0] && !hint.length) out.push(arrow(help.lines[0].pv[0], 'green'))
+    if (assist.suggest && userTurn && suggestion && !hint.length) out.push(arrow(suggestion, 'green'))
     if (assist.threats && userTurn && help.threat) out.push(arrow(help.threat, 'red'))
     return out
-  }, [hint, assist.suggest, assist.threats, userTurn, help.lines, help.threat])
+  }, [hint, assist.suggest, assist.threats, userTurn, suggestion, help.threat])
 
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
   const viewedQuality = assist.feedback ? help.quality(viewedMove) : undefined
-  const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
-  const qualities = game.moves.map((m) => help.quality(m))
+  const badge = useMemo(() => (viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null), [viewedMove, viewedQuality])
+  // help.quality is a new function every render; the ratings only change as moves get rated
+  const qualityList = game.moves.map((m) => help.quality(m))
+  const qualityKey = qualityList.join()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const qualities = useMemo(() => qualityList, [game.moves, qualityKey])
 
   const lastFeedback = help.quality(game.moves[moveCount - 1])
   useEffect(() => {
@@ -254,9 +285,10 @@ export default function PlayBot() {
 
   const showHint = async () => {
     if (turn !== userColor || endRef.current) return
-    const fen = liveFen
+    // read the live game, not this render's state: it goes stale while the engine thinks
+    const fen = game.chess.fen()
     const r = await sharedEngine().search(fen, { depth: 12 })
-    if (!r.bestmove || game.fens[game.fens.length - 1] !== fen) return
+    if (!r.bestmove || endRef.current || game.chess.fen() !== fen) return
     const { from, to } = parseUci(r.bestmove)
     setHint([{ orig: from as never, dest: to as never, brush: 'paleGreen' }])
   }
@@ -275,11 +307,17 @@ export default function PlayBot() {
   const offerDraw = async () => {
     if (endRef.current || thinking || offering) return
     setOffering(true)
-    const r = await sharedEngine()
-      .search(liveFen, { depth: 10 })
-      .finally(() => setOffering(false))
-    // interrupted (the user moved meanwhile): no answer rather than a guess
-    if (!r.lines[0] || endRef.current) return
+    const fen = game.chess.fen()
+    const depth = 10
+    let r: SearchResult | undefined
+    try {
+      // a search stopped early (e.g. by a hint) resolves with shallow lines: look again rather than judge on them
+      for (let i = 0; i < 3 && (!r || r.depth < depth) && game.chess.fen() === fen; i++) r = await sharedEngine().search(fen, { depth })
+    } finally {
+      setOffering(false)
+    }
+    // the position moved on (a move or takeback) or the game ended: the offer lapses unanswered
+    if (!r?.lines[0] || endRef.current || game.chess.fen() !== fen) return
     const w = winPercent(r.lines[0].score)
     const botColor = userColor === 'w' ? 'b' : 'w'
     if (game.moves.length >= 20 && botAcceptsDraw(w, botColor)) {
@@ -303,7 +341,7 @@ export default function PlayBot() {
     lastChatPly.current = -10
     clearLiveGame('bot')
     setTimeout(() => say('greet'), 500)
-    game.reset()
+    game.reset(startFen)
     clock.reset()
     setUserColor(c)
     setOrientation(c === 'w' ? 'white' : 'black')
@@ -353,6 +391,7 @@ export default function PlayBot() {
 
   return (
     <>
+      <GameAnnouncer moves={game.moves} result={end ? endAnnouncement(end, userColor, t) : null} />
       <BoardLayout
         above={assist.eval ? <EvalStrip score={help.score} orientation={orientation} /> : undefined}
         top={flipped ? userBar : botBar}
@@ -421,6 +460,7 @@ export default function PlayBot() {
               qualities={assist.feedback ? qualities : undefined}
               className="hidden min-h-[120px] flex-1 py-1 lg:block"
             />
+            {!end && <MoveInput fen={liveFen} disabled={!userTurn} onMove={onUserMove} className="border-t border-line p-3" />}
             <div className="flex items-center justify-center gap-1 border-t border-line p-2 max-lg:order-3">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />

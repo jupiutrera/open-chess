@@ -44,6 +44,15 @@
       "knight": "Knight",
       "pawn": "Pawn",
       "king": "King"
+    },
+    "promotion": "Choose a promotion piece",
+    "speech": {
+      "takes": "takes",
+      "castleShort": "castles kingside",
+      "castleLong": "castles queenside",
+      "promotion": "promotes to {{piece}}",
+      "check": "check",
+      "checkmate": "checkmate"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "Custom",
     "minutes": "Minutes",
     "increment": "Increment (s)",
-    "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it."
+    "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it.",
+    "customStart": "Starting from a custom position",
+    "standardStart": "Standard start",
+    "invalidStart": "That position can't be played, so the game starts from the usual position.",
+    "typeMove": "Type a move (e4, Nf3, O-O)",
+    "illegalMove": "“{{move}}” isn't a legal move here"
   },
   "bots": {
     "group": {
@@ -161,6 +175,8 @@
     "last": "End",
     "evalGraph": "Evaluation graph",
     "bestWas": "Best was {{san}}",
+    "engineLines": "Engine lines",
+    "engineLinesHint": "Re-analyze the game to see engine lines",
     "opening": "Opening",
     "depth": "Depth {{d}}",
     "reanalyze": "Analyze again",
@@ -241,7 +257,13 @@
     "mistakesSub": "Replay the positions you got wrong in your reviewed games",
     "mistakesEmpty": "No mistakes to practise yet. Play or import games, review them, and the positions you got wrong will show up here.",
     "mistakeContext": "Against {{opponent}} you played {{san}} ({{quality}}). Find the best move.",
-    "seeGame": "See game"
+    "seeGame": "See game",
+    "missed": "Missed puzzles",
+    "view": "View puzzle",
+    "results": "Results",
+    "streakMode": "Puzzle Streak",
+    "streakSub": "No clock. Each puzzle is a little harder and one miss ends the run.",
+    "streakOver": "Streak over"
   },
   "themes": {
     "mateIn1": "Mate in 1",
@@ -268,7 +290,29 @@
     "crushing": "Crushing",
     "advantage": "Advantage",
     "short": "Short",
-    "long": "Long"
+    "long": "Long",
+    "mate": "Checkmate",
+    "mateIn4": "Mate in 4",
+    "oneMove": "One move",
+    "veryLong": "Very long",
+    "kingsideAttack": "Kingside attack",
+    "queensideAttack": "Queenside attack",
+    "advancedPawn": "Advanced pawn",
+    "exposedKing": "Exposed king",
+    "discoveredCheck": "Discovered check",
+    "doubleCheck": "Double check",
+    "clearance": "Clearance",
+    "intermezzo": "Intermezzo",
+    "capturingDefender": "Capture the defender",
+    "interference": "Interference",
+    "attackingF2F7": "Attacking f2/f7",
+    "xRayAttack": "X-ray attack",
+    "rookEndgame": "Rook endgame",
+    "pawnEndgame": "Pawn endgame",
+    "bishopEndgame": "Bishop endgame",
+    "knightEndgame": "Knight endgame",
+    "queenEndgame": "Queen endgame",
+    "queenRookEndgame": "Queen and rook endgame"
   },
   "openings": {
     "title": "Openings",
@@ -293,6 +337,7 @@
     "search": "Search openings",
     "known": "Named continuations",
     "remove": "Remove",
+    "removeConfirm": "Remove the line {{line}} from your repertoire? Positions it shares with other lines are kept.",
     "needToken": "Lichess stats need a free personal token. Add it in",
     "dueCount_one": "{{count}} due",
     "dueCount_other": "{{count}} due",
@@ -307,6 +352,7 @@
     "review": "Review",
     "completed": "Completed",
     "step": "Step {{n}} of {{total}}",
+    "notFound": "Lesson not found",
     "tryAgain": "Not that one. Try again",
     "wellDone": "Well done!",
     "finished": "Lesson complete!",
@@ -346,6 +392,7 @@
     "eraser": "Eraser",
     "castling": "Castling",
     "editorShort": "Editor",
+    "playFromHere": "Play a bot from here",
     "illegal": {
       "invalid": "Invalid FEN",
       "kings": "Each side needs exactly one king",
@@ -377,7 +424,18 @@
     "vs": "vs",
     "delete": "Delete game",
     "all": "All",
-    "filter": "Filter"
+    "filter": "Filter",
+    "search": "Search player or opening",
+    "result": "Result",
+    "color": "Color",
+    "anyResult": "All results",
+    "wins": "Wins",
+    "draws": "Draws",
+    "losses": "Losses",
+    "anyColor": "Both colors",
+    "loadMore": "Load more",
+    "noMatch": "No games match these filters.",
+    "clearFilters": "Clear filters"
   },
   "import": {
     "title": "Import games",
@@ -401,7 +459,9 @@
     "imported_other": "{{count}} games imported",
     "failed_one": "{{count}} game couldn't be read",
     "failed_other": "{{count}} games couldn't be read",
-    "rateLimited": "Too many requests in a row. Wait a minute and try again."
+    "rateLimited": "Too many requests in a row. Wait a minute and try again.",
+    "alreadyHad_one": "{{count}} game was already imported",
+    "alreadyHad_other": "{{count}} games were already imported"
   },
   "profile": {
     "title": "Profile",
@@ -418,6 +478,9 @@
     "syncOff": "Sync is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.",
     "signIn": "Sign in",
     "signOut": "Sign out",
+    "signOutClear": "Also remove your synced data from this device? It stays saved in your account. Cancel keeps it here.",
+    "signOutKept": "Could not sync before signing out, so your data was kept on this device.",
+    "foreignData": "This device has data from another account. Add it to this account? Cancel signs you out without uploading it.",
     "email": "Email",
     "sendLink": "Send magic link",
     "linkSent": "Check your inbox and open the link to sign in.",
@@ -441,6 +504,13 @@
     "dark": "Dark",
     "light": "Light",
     "board": "Board",
+    "boardColors": {
+      "green": "Green",
+      "brown": "Brown",
+      "blue": "Blue",
+      "gray": "Gray",
+      "purple": "Purple"
+    },
     "sound": "Sound",
     "coords": "Coordinates",
     "showDests": "Show legal moves",

@@ -13,15 +13,16 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { QualityIcon, qualityColor } from '../../board/QualityIcon'
 import { EvalGraph } from './EvalGraph'
 import { analyzeGame, getGame, parseGame } from './analyze'
-import { QUALITY_ORDER, countQualities, estimateRating, winPercent, type MoveReview, type Quality } from './classify'
-import { capturedPieces, playUci } from '../../chess/util'
+import { QUALITY_ORDER, countQualities, estimateRating, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { capturedPieces, playUci, uciLineToSan } from '../../chess/util'
 import { playMoveSound, play } from '../../chess/sounds'
-import { formatScore, sharedEngine, type Score } from '../../engine/engine'
+import { formatScore, sharedEngine, type PvLine, type Score } from '../../engine/engine'
 import type { GameRow } from '../../db/db'
 import { useSettings } from '../../settings'
 import { BoardScreenSkeleton, Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
+import { playerName } from '../play/playerName'
 import { fmtDecimal } from '../../i18n/format'
 import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
@@ -43,6 +44,8 @@ export default function Review() {
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [variation, setVariation] = useState<{ fen: string; lastMove: [string, string]; quality?: Quality } | null>(null)
   const [retry, setRetry] = useState<null | 'waiting' | 'wrong' | 'right'>(null)
+  // engine line whose first move is drawn on the board
+  const [lineArrow, setLineArrow] = useState<number | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -57,7 +60,13 @@ export default function Review() {
   }, [id])
 
   const retryTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  useEffect(() => () => clearTimeout(retryTimer.current), [])
+  // bumped whenever the retry is abandoned, so a pending engine check or reset timer is dropped
+  const retryGen = useRef(0)
+  const cancelRetry = useCallback(() => {
+    retryGen.current++
+    clearTimeout(retryTimer.current)
+  }, [])
+  useEffect(() => cancelRetry, [cancelRetry])
 
   // analyze when missing
   useEffect(() => {
@@ -112,8 +121,10 @@ export default function Review() {
     (p: number) => {
       if (!parsed) return
       const next = Math.max(0, Math.min(total, p))
+      cancelRetry()
       setVariation(null)
       setRetry(null)
+      setLineArrow(null)
       setPly((cur) => {
         if (next === cur + 1) {
           const c = new Chess(parsed.fens[cur])
@@ -123,7 +134,7 @@ export default function Review() {
         return next
       })
     },
-    [parsed, total],
+    [parsed, total, cancelRetry],
   )
 
   useBoardKeys({ ply, total, goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
@@ -154,9 +165,13 @@ export default function Review() {
 
   const showArrow =
     mode === 'moves' && !variation && !retry && current?.bestUci && !['best', 'book', 'forced', 'brilliant', 'great'].includes(current.quality)
-  const shapes: DrawShape[] = showArrow
-    ? [{ orig: current!.bestUci!.slice(0, 2) as never, dest: current!.bestUci!.slice(2, 4) as never, brush: 'green' }]
-    : []
+  const positionLines = mode === 'moves' && !variation && !retry ? review?.lines?.[ply] : undefined
+  const pickedUci = lineArrow !== null ? positionLines?.[lineArrow]?.pv[0] : undefined
+  const shapes: DrawShape[] = pickedUci
+    ? [{ orig: pickedUci.slice(0, 2) as never, dest: pickedUci.slice(2, 4) as never, brush: 'paleBlue' }]
+    : showArrow
+      ? [{ orig: current!.bestUci!.slice(0, 2) as never, dest: current!.bestUci!.slice(2, 4) as never, brush: 'green' }]
+      : []
   const badge =
     mode === 'moves' && !retry
       ? variation
@@ -170,8 +185,8 @@ export default function Review() {
 
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
-  const whiteName = h.White ?? game.white
-  const blackName = h.Black ?? game.black
+  const whiteName = playerName(h.White ?? game.white, game.source, t)
+  const blackName = playerName(h.Black ?? game.black, game.source, t)
   const bar = (c: 'w' | 'b') => (
     <PlayerBar
       name={c === 'w' ? whiteName : blackName}
@@ -190,11 +205,15 @@ export default function Review() {
     const m = playUci(c, current.bestUci)
     if (!m) return
     playMoveSound(m)
+    cancelRetry()
     setRetry(null)
+    setLineArrow(null)
     setVariation({ fen: c.fen(), lastMove: [m.from, m.to], quality: 'best' })
   }
 
   const startRetry = () => {
+    cancelRetry()
+    setLineArrow(null)
     setVariation(null)
     setRetry('waiting')
   }
@@ -206,16 +225,20 @@ export default function Review() {
     const m = playUci(c, from + to + (promotion ?? ''))
     if (!m) return
     playMoveSound(m)
+    cancelRetry()
+    const gen = retryGen.current
     const uci = m.from + m.to + (m.promotion ?? '')
     let good = uci === current.bestUci
     if (!good) {
-      const r = await sharedEngine().search(c.fen(), { depth: 12 })
-      const after = r.lines[0]?.score ?? { cp: 0 }
+      // a mating or stalemating retry ends the game, so the engine has no lines to score it
+      const after = terminalScore(c.fen()) ?? (await sharedEngine().search(c.fen(), { depth: 12 })).lines[0]?.score ?? { cp: 0 }
       const mover = current.color
       const w = winPercent(after)
       const prevBest = review!.curve[ply - 1]
       const loss = mover === 'w' ? prevBest - w : w - prevBest
       good = loss < 3
+      // the user moved on (or moved again) while the engine was thinking
+      if (gen !== retryGen.current) return
     }
     if (good) {
       play('correct')
@@ -302,6 +325,15 @@ export default function Review() {
                 onBest={showBest}
                 onRetry={retryable ? startRetry : undefined}
               />
+              {!variation && !retry && (
+                <EngineLines
+                  fen={parsed.fens[ply]}
+                  lines={positionLines}
+                  missing={!review.lines}
+                  picked={lineArrow}
+                  onPick={(i) => setLineArrow((cur) => (cur === i ? null : i))}
+                />
+              )}
               <div className="px-3 pt-3">
                 <EvalGraph curve={review.curve} moves={review.moves} ply={ply} onSelect={goto} height={64} />
               </div>
@@ -603,6 +635,48 @@ function Coach({
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+/** The stored engine lines for the viewed position; picking one draws its first move. */
+function EngineLines({
+  fen,
+  lines,
+  missing,
+  picked,
+  onPick,
+}: {
+  fen: string
+  lines?: PvLine[]
+  /** review made before lines were stored */
+  missing: boolean
+  picked: number | null
+  onPick: (i: number) => void
+}) {
+  const { t } = useTranslation()
+  if (missing) return <p className="border-b border-line px-4 py-2 text-[12px] text-fg-3">{t('review.engineLinesHint')}</p>
+  // game-over positions have nothing to show
+  if (!lines?.length) return null
+  return (
+    <div className="border-b border-line py-1" role="group" aria-label={t('review.engineLines')}>
+      {lines.slice(0, 2).map((l, i) => (
+        <button
+          key={i}
+          className={`flex w-full items-baseline gap-2 px-3 py-1.5 text-left text-[13px] transition-colors duration-100 hover:bg-raise ${picked === i ? 'bg-raise' : ''}`}
+          aria-pressed={picked === i}
+          onClick={() => onPick(i)}
+        >
+          <span
+            className={`tabular w-14 shrink-0 rounded px-1 py-0.5 text-center font-mono font-bold ${
+              winPercent(l.score) >= 50 ? 'bg-[#f1f1f1] text-[#262421]' : 'bg-[#1b1a18] text-[#f1f1f1]'
+            }`}
+          >
+            {formatScore(l.score)}
+          </span>
+          <span className="truncate text-fg-2">{uciLineToSan(fen, l.pv, 6).join(' ')}</span>
+        </button>
+      ))}
     </div>
   )
 }

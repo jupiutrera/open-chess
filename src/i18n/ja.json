@@ -44,6 +44,15 @@
       "knight": "ナイト",
       "pawn": "ポーン",
       "king": "キング"
+    },
+    "promotion": "成る駒を選択",
+    "speech": {
+      "takes": "取る",
+      "castleShort": "キング側キャスリング",
+      "castleLong": "クイーン側キャスリング",
+      "promotion": "{{piece}}に成る",
+      "check": "チェック",
+      "checkmate": "チェックメイト"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "カスタム",
     "minutes": "持ち時間（分）",
     "increment": "加算（秒）",
-    "replaceSaved": "{{name}}との対局が途中です。新しく始めると破棄されます。"
+    "replaceSaved": "{{name}}との対局が途中です。新しく始めると破棄されます。",
+    "customStart": "カスタム局面から開始",
+    "standardStart": "通常の初期配置",
+    "invalidStart": "この局面は対局できないため、通常の初期配置から始めます。",
+    "typeMove": "指し手を入力（e4、Nf3、O-O）",
+    "illegalMove": "「{{move}}」はこの局面では指せません"
   },
   "bots": {
     "group": {
@@ -161,6 +175,8 @@
     "last": "最後",
     "evalGraph": "評価グラフ",
     "bestWas": "最善手は {{san}} でした",
+    "engineLines": "エンジンの読み筋",
+    "engineLinesHint": "エンジンの読み筋を見るには対局を再解析してください",
     "opening": "オープニング",
     "depth": "深さ {{d}}",
     "reanalyze": "再解析",
@@ -241,7 +257,13 @@
     "mistakesSub": "解析済みの対局で間違えた局面をもう一度",
     "mistakesEmpty": "まだ練習するミスがありません。対局をプレイまたはインポートして解析すると、間違えた局面がここに表示されます。",
     "mistakeContext": "{{opponent}}戦で{{san}}（{{quality}}）を指しました。最善手を見つけましょう。",
-    "seeGame": "対局を見る"
+    "seeGame": "対局を見る",
+    "missed": "間違えたパズル",
+    "view": "パズルを見る",
+    "results": "結果",
+    "streakMode": "パズルストリーク",
+    "streakSub": "時間制限なし。問題は少しずつ難しくなり、1問でも間違えると終了です。",
+    "streakOver": "ストリーク終了"
   },
   "themes": {
     "mateIn1": "1手詰め",
@@ -268,7 +290,29 @@
     "crushing": "圧倒的",
     "advantage": "優勢",
     "short": "短い",
-    "long": "長い"
+    "long": "長い",
+    "mate": "チェックメイト",
+    "mateIn4": "4手詰め",
+    "oneMove": "1手",
+    "veryLong": "とても長い",
+    "kingsideAttack": "キングサイド攻撃",
+    "queensideAttack": "クイーンサイド攻撃",
+    "advancedPawn": "進んだポーン",
+    "exposedKing": "露出したキング",
+    "discoveredCheck": "ディスカバードチェック",
+    "doubleCheck": "ダブルチェック",
+    "clearance": "クリアランス",
+    "intermezzo": "中間手",
+    "capturingDefender": "守り駒を取る",
+    "interference": "インターフェアランス",
+    "attackingF2F7": "f2/f7 への攻撃",
+    "xRayAttack": "X線攻撃",
+    "rookEndgame": "ルークエンドゲーム",
+    "pawnEndgame": "ポーンエンドゲーム",
+    "bishopEndgame": "ビショップエンドゲーム",
+    "knightEndgame": "ナイトエンドゲーム",
+    "queenEndgame": "クイーンエンドゲーム",
+    "queenRookEndgame": "クイーンとルークのエンドゲーム"
   },
   "openings": {
     "title": "オープニング",
@@ -293,6 +337,7 @@
     "search": "オープニングを検索",
     "known": "名前のある続き",
     "remove": "削除",
+    "removeConfirm": "レパートリーからライン {{line}} を削除しますか？他のラインと共通の局面は残ります。",
     "needToken": "Lichess の統計には無料の個人トークンが必要です。追加はこちら：",
     "dueCount_one": "復習 {{count}} 件",
     "dueCount_other": "復習 {{count}} 件",
@@ -307,6 +352,7 @@
     "review": "復習",
     "completed": "完了",
     "step": "ステップ {{n}} / {{total}}",
+    "notFound": "レッスンが見つかりません",
     "tryAgain": "その手ではありません。もう一度",
     "wellDone": "よくできました！",
     "finished": "レッスン完了！",
@@ -346,6 +392,7 @@
     "eraser": "消しゴム",
     "castling": "キャスリング",
     "editorShort": "エディター",
+    "playFromHere": "この局面からボットと対局",
     "illegal": {
       "invalid": "無効なFENです",
       "kings": "両陣営にキングがちょうど1つずつ必要です",
@@ -377,7 +424,18 @@
     "vs": "対",
     "delete": "対局を削除",
     "all": "すべて",
-    "filter": "絞り込み"
+    "filter": "絞り込み",
+    "search": "プレイヤーまたはオープニングを検索",
+    "result": "結果",
+    "color": "手番の色",
+    "anyResult": "すべての結果",
+    "wins": "勝ち",
+    "draws": "引き分け",
+    "losses": "負け",
+    "anyColor": "両方の色",
+    "loadMore": "さらに読み込む",
+    "noMatch": "この条件に一致する対局はありません。",
+    "clearFilters": "フィルターを解除"
   },
   "import": {
     "title": "対局をインポート",
@@ -401,7 +459,9 @@
     "imported_other": "{{count}} 局をインポートしました",
     "failed_one": "{{count}} 局を読み込めませんでした",
     "failed_other": "{{count}} 局を読み込めませんでした",
-    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。"
+    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。",
+    "alreadyHad_one": "{{count}} 局はインポート済みです",
+    "alreadyHad_other": "{{count}} 局はインポート済みです"
   },
   "profile": {
     "title": "プロフィール",
@@ -418,6 +478,9 @@
     "syncOff": "同期が設定されていません。.env に VITE_SUPABASE_URL と VITE_SUPABASE_ANON_KEY を追加してください。",
     "signIn": "ログイン",
     "signOut": "ログアウト",
+    "signOutClear": "同期済みのデータをこの端末からも削除しますか？データはアカウントに保存されたままです。キャンセルするとこの端末に残ります。",
+    "signOutKept": "ログアウト前に同期できなかったため、データはこの端末に残してあります。",
+    "foreignData": "この端末には別のアカウントのデータがあります。このアカウントに追加しますか？キャンセルするとアップロードせずにログアウトします。",
     "email": "メールアドレス",
     "sendLink": "ログインリンクを送信",
     "linkSent": "受信トレイを確認し、リンクを開いてログインしてください。",
@@ -441,6 +504,13 @@
     "dark": "ダーク",
     "light": "ライト",
     "board": "盤",
+    "boardColors": {
+      "green": "グリーン",
+      "brown": "ブラウン",
+      "blue": "ブルー",
+      "gray": "グレー",
+      "purple": "パープル"
+    },
     "sound": "サウンド",
     "coords": "座標",
     "showDests": "合法手を表示",

@@ -14,12 +14,24 @@ import { recentGames } from '../../db/games'
 import { dailyPuzzle, getPuzzleRating, type Puzzle } from '../puzzles/puzzlesData'
 import { playUci } from '../../chess/util'
 import { GameRowItem } from '../profile/GameRowItem'
+import { playerName } from '../play/playerName'
 
 export function Home() {
   const { t } = useTranslation()
   const games = useLiveQuery(() => recentGames(5), [])
   const rating = useLiveQuery(() => getPuzzleRating(), [])
-  const due = useLiveQuery(() => db.repertoire.where('due').below(Date.now()).filter((r) => !r.deleted).count(), [])
+  // cards fall due as time passes, not only when the table changes
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    const tick = () => document.visibilityState === 'visible' && setNow(Date.now())
+    const timer = setInterval(tick, 60_000)
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', tick)
+    }
+  }, [])
+  const due = useLiveQuery(() => db.repertoire.where('due').below(now).filter((r) => !r.deleted).count(), [now])
   const [daily, setDaily] = useState<{ p: Puzzle; fen: string; color: 'white' | 'black' } | null>(null)
   const [dailyFailed, setDailyFailed] = useState(false)
 
@@ -81,7 +93,7 @@ export function Home() {
                 <div className="min-w-0 flex-1">
                   <div className="text-[17px] font-extrabold">{t('home.review')}</div>
                   <div className="truncate text-[14px] text-fg-2">
-                    {last.white} {t('games.vs')} {last.black} · {last.result.replace('1/2-1/2', '½-½')}
+                    {playerName(last.white, last.source, t)} {t('games.vs')} {playerName(last.black, last.source, t)} · {last.result.replace('1/2-1/2', '½-½')}
                   </div>
                 </div>
                 <CaretRight size={22} className="text-fg-3" />

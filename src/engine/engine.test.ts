@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatScore, parseInfo } from './engine'
+import { formatScore, legalMoveCount, parseInfo } from './engine'
 
 describe('parseInfo', () => {
   const line = 'info depth 18 seldepth 24 multipv 2 score cp 35 nodes 1 nps 1 time 1 pv e2e4 e7e5 g1f3'
@@ -25,5 +25,13 @@ describe('formatScore', () => {
     expect(formatScore({ cp: -1250 })).toBe('-13')
     expect(formatScore({ mate: -2 })).toBe('-M2')
     expect(formatScore(undefined)).toBe('0.0')
+  })
+})
+
+describe('legalMoveCount', () => {
+  it('counts legal moves, so MultiPV can be capped', () => {
+    expect(legalMoveCount('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBe(20)
+    expect(legalMoveCount('k7/8/1K6/8/8/8/8/7R b - - 0 1')).toBe(1)
+    expect(legalMoveCount('not a fen')).toBe(Infinity)
   })
 })

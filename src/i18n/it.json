@@ -44,6 +44,15 @@
       "knight": "Cavallo",
       "pawn": "Pedone",
       "king": "Re"
+    },
+    "promotion": "Scegli il pezzo di promozione",
+    "speech": {
+      "takes": "prende",
+      "castleShort": "arrocco corto",
+      "castleLong": "arrocco lungo",
+      "promotion": "promuove a {{piece}}",
+      "check": "scacco",
+      "checkmate": "scacco matto"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "Altro",
     "minutes": "Minuti",
     "increment": "Incremento (s)",
-    "replaceSaved": "Hai una partita non finita contro {{name}}. Iniziarne un'altra la scarterà."
+    "replaceSaved": "Hai una partita non finita contro {{name}}. Iniziarne un'altra la scarterà.",
+    "customStart": "Partita da una posizione personalizzata",
+    "standardStart": "Posizione iniziale",
+    "invalidStart": "Questa posizione non si può giocare: la partita inizierà dalla posizione iniziale.",
+    "typeMove": "Scrivi una mossa (e4, Nf3, O-O)",
+    "illegalMove": "«{{move}}» non è una mossa legale qui"
   },
   "bots": {
     "group": {
@@ -161,6 +175,8 @@
     "last": "Fine",
     "evalGraph": "Grafico di valutazione",
     "bestWas": "La migliore era {{san}}",
+    "engineLines": "Linee del motore",
+    "engineLinesHint": "Rianalizza la partita per vedere le linee del motore",
     "opening": "Apertura",
     "depth": "Profondità {{d}}",
     "reanalyze": "Analizza di nuovo",
@@ -241,7 +257,13 @@
     "mistakesSub": "Rigioca le posizioni sbagliate nelle tue partite analizzate",
     "mistakesEmpty": "Ancora nessun errore da ripassare. Gioca o importa partite, analizzale e qui compariranno le posizioni sbagliate.",
     "mistakeContext": "Contro {{opponent}} hai giocato {{san}} ({{quality}}). Trova la mossa migliore.",
-    "seeGame": "Vedi partita"
+    "seeGame": "Vedi partita",
+    "missed": "Problemi sbagliati",
+    "view": "Vedi il problema",
+    "results": "Risultati",
+    "streakMode": "Serie di problemi",
+    "streakSub": "Senza orologio. Ogni problema è un po' più difficile e un solo errore chiude la serie.",
+    "streakOver": "Serie terminata"
   },
   "themes": {
     "mateIn1": "Matto in 1",
@@ -268,7 +290,29 @@
     "crushing": "Schiacciante",
     "advantage": "Vantaggio",
     "short": "Breve",
-    "long": "Lungo"
+    "long": "Lungo",
+    "mate": "Scacco matto",
+    "mateIn4": "Matto in 4",
+    "oneMove": "Una mossa",
+    "veryLong": "Molto lungo",
+    "kingsideAttack": "Attacco sul lato di re",
+    "queensideAttack": "Attacco sul lato di donna",
+    "advancedPawn": "Pedone avanzato",
+    "exposedKing": "Re esposto",
+    "discoveredCheck": "Scacco di scoperta",
+    "doubleCheck": "Scacco doppio",
+    "clearance": "Sgombero",
+    "intermezzo": "Mossa intermedia",
+    "capturingDefender": "Elimina il difensore",
+    "interference": "Interferenza",
+    "attackingF2F7": "Attacco su f2/f7",
+    "xRayAttack": "Attacco a raggi X",
+    "rookEndgame": "Finale di torri",
+    "pawnEndgame": "Finale di pedoni",
+    "bishopEndgame": "Finale di alfieri",
+    "knightEndgame": "Finale di cavalli",
+    "queenEndgame": "Finale di donne",
+    "queenRookEndgame": "Finale di donna e torre"
   },
   "openings": {
     "title": "Aperture",
@@ -293,6 +337,7 @@
     "search": "Cerca aperture",
     "known": "Continuazioni note",
     "remove": "Rimuovi",
+    "removeConfirm": "Rimuovere la linea {{line}} dal tuo repertorio? Le posizioni in comune con altre linee vengono mantenute.",
     "needToken": "Le statistiche di Lichess richiedono un token personale gratuito. Aggiungilo in",
     "dueCount_one": "{{count}} da ripassare",
     "dueCount_other": "{{count}} da ripassare",
@@ -307,6 +352,7 @@
     "review": "Ripassa",
     "completed": "Completata",
     "step": "Passo {{n}} di {{total}}",
+    "notFound": "Lezione non trovata",
     "tryAgain": "Non quella. Riprova",
     "wellDone": "Ben fatto!",
     "finished": "Lezione completata!",
@@ -346,6 +392,7 @@
     "eraser": "Gomma",
     "castling": "Arrocchi",
     "editorShort": "Editor",
+    "playFromHere": "Gioca contro un bot da qui",
     "illegal": {
       "invalid": "FEN non valido",
       "kings": "Ogni lato deve avere esattamente un re",
@@ -377,7 +424,18 @@
     "vs": "vs",
     "delete": "Elimina partita",
     "all": "Tutte",
-    "filter": "Filtra"
+    "filter": "Filtra",
+    "search": "Cerca giocatore o apertura",
+    "result": "Risultato",
+    "color": "Colore",
+    "anyResult": "Tutti i risultati",
+    "wins": "Vittorie",
+    "draws": "Patte",
+    "losses": "Sconfitte",
+    "anyColor": "Entrambi i colori",
+    "loadMore": "Carica altre",
+    "noMatch": "Nessuna partita corrisponde a questi filtri.",
+    "clearFilters": "Rimuovi filtri"
   },
   "import": {
     "title": "Importa partite",
@@ -401,7 +459,9 @@
     "imported_other": "{{count}} partite importate",
     "failed_one": "{{count}} partita non leggibile",
     "failed_other": "{{count}} partite non leggibili",
-    "rateLimited": "Troppe richieste di seguito. Attendi un minuto e riprova."
+    "rateLimited": "Troppe richieste di seguito. Attendi un minuto e riprova.",
+    "alreadyHad_one": "{{count}} partita era già importata",
+    "alreadyHad_other": "{{count}} partite erano già importate"
   },
   "profile": {
     "title": "Profilo",
@@ -418,6 +478,9 @@
     "syncOff": "La sincronizzazione non è configurata. Aggiungi VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY a .env.",
     "signIn": "Accedi",
     "signOut": "Esci",
+    "signOutClear": "Rimuovere anche i dati sincronizzati da questo dispositivo? Restano salvati nel tuo account. Annulla li mantiene qui.",
+    "signOutKept": "Impossibile sincronizzare prima di uscire, quindi i tuoi dati sono rimasti su questo dispositivo.",
+    "foreignData": "Questo dispositivo contiene dati di un altro account. Aggiungerli a questo account? Annulla ti disconnette senza caricarli.",
     "email": "Email",
     "sendLink": "Invia link magico",
     "linkSent": "Controlla la posta e apri il link per accedere.",
@@ -441,6 +504,13 @@
     "dark": "Scuro",
     "light": "Chiaro",
     "board": "Scacchiera",
+    "boardColors": {
+      "green": "Verde",
+      "brown": "Marrone",
+      "blue": "Blu",
+      "gray": "Grigio",
+      "purple": "Viola"
+    },
     "sound": "Suono",
     "coords": "Coordinate",
     "showDests": "Mostra le mosse legali",

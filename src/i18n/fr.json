@@ -44,6 +44,15 @@
       "knight": "Cavalier",
       "pawn": "Pion",
       "king": "Roi"
+    },
+    "promotion": "Choisissez la pièce de promotion",
+    "speech": {
+      "takes": "prend",
+      "castleShort": "petit roque",
+      "castleLong": "grand roque",
+      "promotion": "promotion en {{piece}}",
+      "check": "échec",
+      "checkmate": "échec et mat"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "Perso",
     "minutes": "Minutes",
     "increment": "Incrément (s)",
-    "replaceSaved": "Vous avez une partie non terminée contre {{name}}. En commencer une autre l'abandonnera."
+    "replaceSaved": "Vous avez une partie non terminée contre {{name}}. En commencer une autre l'abandonnera.",
+    "customStart": "Partie depuis une position personnalisée",
+    "standardStart": "Position initiale",
+    "invalidStart": "Cette position n'est pas jouable : la partie commencera depuis la position initiale.",
+    "typeMove": "Tapez un coup (e4, Nf3, O-O)",
+    "illegalMove": "« {{move}} » n'est pas un coup légal ici"
   },
   "bots": {
     "group": {
@@ -161,6 +175,8 @@
     "last": "Fin",
     "evalGraph": "Graphique d’évaluation",
     "bestWas": "Le meilleur était {{san}}",
+    "engineLines": "Lignes du moteur",
+    "engineLinesHint": "Relancez l'analyse de la partie pour voir les lignes du moteur",
     "opening": "Ouverture",
     "depth": "Profondeur {{d}}",
     "reanalyze": "Analyser à nouveau",
@@ -241,7 +257,13 @@
     "mistakesSub": "Rejouez les positions ratées de vos parties analysées",
     "mistakesEmpty": "Pas encore d'erreurs à travailler. Jouez ou importez des parties, analysez-les et les positions ratées apparaîtront ici.",
     "mistakeContext": "Contre {{opponent}} vous avez joué {{san}} ({{quality}}). Trouvez le meilleur coup.",
-    "seeGame": "Voir la partie"
+    "seeGame": "Voir la partie",
+    "missed": "Problèmes ratés",
+    "view": "Voir le problème",
+    "results": "Résultats",
+    "streakMode": "Série de problèmes",
+    "streakSub": "Sans pendule. Chaque problème est un peu plus dur et une seule erreur met fin à la série.",
+    "streakOver": "Série terminée"
   },
   "themes": {
     "mateIn1": "Mat en 1",
@@ -268,7 +290,29 @@
     "crushing": "Écrasant",
     "advantage": "Avantage",
     "short": "Court",
-    "long": "Long"
+    "long": "Long",
+    "mate": "Mat",
+    "mateIn4": "Mat en 4",
+    "oneMove": "Un coup",
+    "veryLong": "Très long",
+    "kingsideAttack": "Attaque à l'aile roi",
+    "queensideAttack": "Attaque à l'aile dame",
+    "advancedPawn": "Pion avancé",
+    "exposedKing": "Roi exposé",
+    "discoveredCheck": "Échec à la découverte",
+    "doubleCheck": "Échec double",
+    "clearance": "Dégagement",
+    "intermezzo": "Coup intermédiaire",
+    "capturingDefender": "Éliminer le défenseur",
+    "interference": "Interférence",
+    "attackingF2F7": "Attaque sur f2/f7",
+    "xRayAttack": "Attaque en rayons X",
+    "rookEndgame": "Finale de tours",
+    "pawnEndgame": "Finale de pions",
+    "bishopEndgame": "Finale de fous",
+    "knightEndgame": "Finale de cavaliers",
+    "queenEndgame": "Finale de dames",
+    "queenRookEndgame": "Finale dame et tour"
   },
   "openings": {
     "title": "Ouvertures",
@@ -293,6 +337,7 @@
     "search": "Rechercher une ouverture",
     "known": "Suites connues",
     "remove": "Retirer",
+    "removeConfirm": "Retirer la ligne {{line}} de votre répertoire ? Les positions qu'elle partage avec d'autres lignes sont conservées.",
     "needToken": "Les statistiques Lichess nécessitent un jeton personnel gratuit. Ajoutez-le dans",
     "dueCount_one": "{{count}} à réviser",
     "dueCount_other": "{{count}} à réviser",
@@ -307,6 +352,7 @@
     "review": "Revoir",
     "completed": "Terminée",
     "step": "Étape {{n}} sur {{total}}",
+    "notFound": "Leçon introuvable",
     "tryAgain": "Pas celui-là. Réessayez",
     "wellDone": "Bravo !",
     "finished": "Leçon terminée !",
@@ -346,6 +392,7 @@
     "eraser": "Gomme",
     "castling": "Roques",
     "editorShort": "Éditeur",
+    "playFromHere": "Jouer contre un bot à partir d’ici",
     "illegal": {
       "invalid": "FEN non valide",
       "kings": "Chaque camp doit avoir exactement un roi",
@@ -377,7 +424,18 @@
     "vs": "contre",
     "delete": "Supprimer la partie",
     "all": "Toutes",
-    "filter": "Filtrer"
+    "filter": "Filtrer",
+    "search": "Rechercher un joueur ou une ouverture",
+    "result": "Résultat",
+    "color": "Couleur",
+    "anyResult": "Tous les résultats",
+    "wins": "Victoires",
+    "draws": "Nulles",
+    "losses": "Défaites",
+    "anyColor": "Les deux couleurs",
+    "loadMore": "Charger plus",
+    "noMatch": "Aucune partie ne correspond à ces filtres.",
+    "clearFilters": "Effacer les filtres"
   },
   "import": {
     "title": "Importer des parties",
@@ -401,7 +459,9 @@
     "imported_other": "{{count}} parties importées",
     "failed_one": "{{count}} partie illisible",
     "failed_other": "{{count}} parties illisibles",
-    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez."
+    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez.",
+    "alreadyHad_one": "{{count}} partie était déjà importée",
+    "alreadyHad_other": "{{count}} parties étaient déjà importées"
   },
   "profile": {
     "title": "Profil",
@@ -418,6 +478,9 @@
     "syncOff": "La synchronisation n’est pas configurée. Ajoutez VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY à .env.",
     "signIn": "Se connecter",
     "signOut": "Se déconnecter",
+    "signOutClear": "Supprimer aussi vos données synchronisées de cet appareil ? Elles restent enregistrées dans votre compte. Annuler les conserve ici.",
+    "signOutKept": "Impossible de synchroniser avant la déconnexion : vos données ont été conservées sur cet appareil.",
+    "foreignData": "Cet appareil contient des données d'un autre compte. Les ajouter à ce compte ? Annuler vous déconnecte sans les envoyer.",
     "email": "E-mail",
     "sendLink": "Envoyer un lien magique",
     "linkSent": "Consultez votre boîte de réception et ouvrez le lien pour vous connecter.",
@@ -441,6 +504,13 @@
     "dark": "Sombre",
     "light": "Clair",
     "board": "Échiquier",
+    "boardColors": {
+      "green": "Vert",
+      "brown": "Marron",
+      "blue": "Bleu",
+      "gray": "Gris",
+      "purple": "Violet"
+    },
     "sound": "Son",
     "coords": "Coordonnées",
     "showDests": "Afficher les coups légaux",

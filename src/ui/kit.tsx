@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
 import { create } from 'zustand'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -78,13 +78,25 @@ export function Segmented<T extends string | number>({
   onChange: (v: T) => void
   className?: string
 }) {
+  // radio-group keys: arrows move the choice (and keep them from stepping a board behind it)
+  const onKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+    if (!step) return
+    e.preventDefault()
+    e.stopPropagation()
+    const i = options.findIndex((o) => o.value === value)
+    const next = (i + step + options.length) % options.length
+    onChange(options[next].value)
+    ;(e.currentTarget.children[next] as HTMLElement | undefined)?.focus()
+  }
   return (
-    <div className={`flex gap-1 rounded-lg bg-panel-2 p-1 ${className}`} role="radiogroup">
+    <div className={`flex gap-1 rounded-lg bg-panel-2 p-1 ${className}`} role="radiogroup" onKeyDown={onKeyDown}>
       {options.map((o) => (
         <button
           key={String(o.value)}
           role="radio"
           aria-checked={o.value === value}
+          tabIndex={o.value === value ? 0 : -1}
           onClick={() => onChange(o.value)}
           className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md px-3 text-[14px] font-bold transition-colors duration-150 ${
             o.value === value ? 'bg-raise-2 text-fg' : 'text-fg-3 hover:text-fg'
@@ -122,7 +134,7 @@ export function Toggle({ checked, onChange, label, hint }: { checked: boolean; o
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
 
 /** Keeps Tab inside `box` while mounted, focuses it, and gives focus back on unmount. */
-function useFocusTrap(box: React.RefObject<HTMLElement | null>, active: boolean) {
+export function useFocusTrap(box: React.RefObject<HTMLElement | null>, active: boolean) {
   useEffect(() => {
     if (!active || !box.current) return
     const el = box.current

@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js'
 import { db, put, type GameRow, type GameSource } from './db'
 import { uid } from '../chess/util'
-import { lookupOpening } from '../features/openings/openingsData'
+import { latestOpening } from '../features/openings/openingsData'
 
 export interface SaveGameInput {
   source: GameSource
@@ -51,16 +51,11 @@ export async function saveGame(input: SaveGameInput): Promise<GameRow> {
 
 /** Deepest named opening reached in the game. */
 export async function openingName(c: Chess): Promise<string | undefined> {
-  const hist = c.history({ verbose: true })
-  let name: string | undefined
-  for (const m of hist.slice(0, 30)) {
-    const o = await lookupOpening(m.after)
-    if (o) name = `${o.eco} ${o.name}`
-  }
-  return name
+  const o = await latestOpening(c.history({ verbose: true }).slice(0, 30).map((m) => m.after))
+  return o && `${o.eco} ${o.name}`
 }
 
 export async function recentGames(limit = 20): Promise<GameRow[]> {
-  const rows = await db.games.orderBy('date').reverse().limit(limit * 2).toArray()
-  return rows.filter((r) => !r.deleted).slice(0, limit)
+  // filter before limit so tombstones don't eat into the page
+  return db.games.orderBy('date').reverse().filter((r) => !r.deleted).limit(limit).toArray()
 }

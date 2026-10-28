@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from 'dexie'
 import type { MoveReview } from '../features/review/classify'
+import type { PvLine } from '../engine/engine'
 
 /** Every synced row carries these. */
 export interface SyncRow {
@@ -31,6 +32,8 @@ export interface GameRow extends SyncRow {
     moves: MoveReview[]
     /** win% (White POV) per position */
     curve: number[]
+    /** engine lines per position, PVs shortened; missing on older reviews */
+    lines?: PvLine[][]
   }
 }
 

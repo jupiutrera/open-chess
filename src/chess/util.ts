@@ -92,12 +92,19 @@ export function capturedPieces(fen: string) {
   }
 }
 
-export function gameResultText(chess: Chess): { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null {
+/**
+ * How the game in `chess` has ended, or null. `fiftyMoves: false` leaves the 50-move rule
+ * out (it is a claim, not the end of the position), as Analysis wants.
+ */
+export function gameResultText(
+  chess: Chess,
+  { fiftyMoves = true }: { fiftyMoves?: boolean } = {},
+): { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null {
   if (chess.isCheckmate()) return { result: chess.turn() === 'w' ? '0-1' : '1-0', reason: 'checkmate' }
   if (chess.isStalemate()) return { result: '1/2-1/2', reason: 'stalemate' }
   if (chess.isInsufficientMaterial()) return { result: '1/2-1/2', reason: 'insufficient' }
   if (chess.isThreefoldRepetition()) return { result: '1/2-1/2', reason: 'repetition' }
-  if (chess.isDrawByFiftyMoves()) return { result: '1/2-1/2', reason: 'fifty' }
+  if (fiftyMoves && chess.isDrawByFiftyMoves()) return { result: '1/2-1/2', reason: 'fifty' }
   return null
 }
 
@@ -124,6 +131,45 @@ export function timeoutResult(chess: Chess, flagged: Color): { result: '1-0' | '
   const opp: Color = flagged === 'w' ? 'b' : 'w'
   if (!canMate(chess, opp)) return { result: '1/2-1/2', reason: 'timeoutVsInsufficient' }
   return { result: opp === 'w' ? '1-0' : '0-1', reason: 'timeout' }
+}
+
+/**
+ * Cleans up a pasted FEN: fills in missing trailing fields, drops castling rights whose
+ * king or rook is not on its home square and an en-passant square no pawn could have
+ * just skipped. chess.js accepts (or rejects) these, and the engine misplays them.
+ * Anything it can't read is returned trimmed, for positionProblem to report.
+ */
+export function normalizeFen(fen: string): string {
+  const parts = fen.trim().split(/\s+/)
+  const rows = parts[0]?.split('/') ?? []
+  if (parts.length < 2 || rows.length !== 8) return parts.join(' ')
+  const defaults = ['', '', '-', '-', '0', '1']
+  for (let i = parts.length; i < 6; i++) parts.push(defaults[i])
+  // grid[rank][file], rank 0 = rank 8
+  const grid = rows.map((row) => row.replace(/\d/g, (d) => '.'.repeat(Number(d))))
+  const at = (sq: string) => grid[8 - Number(sq[1])]?.[sq.charCodeAt(0) - 97] ?? ''
+  const home: Record<string, [string, string, string, string]> = {
+    K: ['e1', 'K', 'h1', 'R'],
+    Q: ['e1', 'K', 'a1', 'R'],
+    k: ['e8', 'k', 'h8', 'r'],
+    q: ['e8', 'k', 'a8', 'r'],
+  }
+  const castling = parts[2]
+    .split('')
+    .filter((f) => home[f] && at(home[f][0]) === home[f][1] && at(home[f][2]) === home[f][3])
+  parts[2] = castling.length ? [...new Set(castling)].join('') : '-'
+  // a double push by the side that just moved: its pawn in front, both squares behind it empty
+  const ep = parts[3]
+  if (ep !== '-') {
+    const file = ep[0]
+    const ok =
+      /^[a-h][36]$/.test(ep) &&
+      (parts[1] === 'b'
+        ? ep[1] === '3' && at(`${file}4`) === 'P' && at(`${file}3`) === '.' && at(`${file}2`) === '.'
+        : ep[1] === '6' && at(`${file}5`) === 'p' && at(`${file}6`) === '.' && at(`${file}7`) === '.')
+    if (!ok) parts[3] = '-'
+  }
+  return parts.slice(0, 6).join(' ')
 }
 
 export type PositionProblem = 'invalid' | 'kings' | 'pawns' | 'count' | 'check'

@@ -12,6 +12,7 @@ import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
 import { QualityBadge, PieceSprite } from './QualityIcon'
 import { OutcomeMarks } from './OutcomeMarks'
+import { useDismiss, useFocusTrap } from '../ui/kit'
 
 export interface BoardProps {
   fen: string
@@ -72,7 +73,9 @@ function BoardView({
 
   const config: Config = useMemo(() => {
     const turn = chess?.turn() === 'b' ? 'black' : 'white'
-    const canMove = movable !== 'none' && chess && !chess.isGameOver()
+    // a bare FEN has no history, and the 50-move rule needs a claim: only a position with no
+    // legal play locks the board (games that ended otherwise pass movable 'none')
+    const canMove = movable !== 'none' && chess && !chess.isCheckmate() && !chess.isStalemate() && !chess.isInsufficientMaterial()
     return {
       fen,
       orientation,
@@ -218,10 +221,19 @@ function PromotionPicker({
   const pieces = ['q', 'n', 'r', 'b']
   const role: Record<string, string> = { q: 'queen', n: 'knight', r: 'rook', b: 'bishop' }
   const { t } = useTranslation()
+  const box = useRef<HTMLDivElement>(null)
+  // a modal like any sheet: focus moves in, Escape and the Android back button cancel
+  useDismiss(true, () => onPick(null))
+  useFocusTrap(box, true)
   return (
     <div className="absolute inset-0 z-20 bg-black/45" onClick={() => onPick(null)}>
       <div
-        className="pop absolute flex w-[12.5%] flex-col overflow-hidden rounded-md bg-[#f2f1ee] shadow-xl"
+        ref={box}
+        role="dialog"
+        aria-modal
+        aria-label={t('common.promotion')}
+        tabIndex={-1}
+        className="pop absolute flex w-[12.5%] flex-col overflow-hidden rounded-md bg-[#f2f1ee] shadow-xl outline-none"
         style={{
           left: `${col * 12.5}%`,
           top: fromTop ? 0 : 'auto',
@@ -233,6 +245,7 @@ function PromotionPicker({
         {pieces.map((p) => (
           <button
             key={p}
+            data-autofocus={p === 'q' ? '' : undefined}
             className="cg-wrap aspect-square w-full transition-colors duration-100 hover:bg-[#ddd]"
             style={{ position: 'relative' }}
             onClick={() => onPick(p)}

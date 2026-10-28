@@ -26,8 +26,14 @@ export function loadOpenings(): Promise<Map<string, Opening>> {
   return cache
 }
 
-export async function lookupOpening(fen: string): Promise<Opening | undefined> {
-  return (await loadOpenings()).get(epd(fen))
+/** The latest named position of a line, walking back from its last position. */
+export async function latestOpening(fens: string[]): Promise<Opening | undefined> {
+  const book = await loadOpenings()
+  for (let i = fens.length - 1; i >= 0; i--) {
+    const o = book.get(epd(fens[i]))
+    if (o) return o
+  }
+  return undefined
 }
 
 /** Named positions reachable in one legal move from this one. */

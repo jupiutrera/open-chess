@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
 import {
@@ -12,6 +12,7 @@ import {
   Copy,
   UploadSimple,
   Cpu,
+  Robot,
 } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
@@ -20,22 +21,50 @@ import { BoardLayout } from '../../board/BoardLayout'
 import { MoveList } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
-import { gameResultText, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
+import { gameResultText, normalizeFen, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import { formatScore } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
-import { lookupOpening, type Opening } from '../openings/openingsData'
+import { latestOpening, type Opening } from '../openings/openingsData'
 import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
 import { BoardEditor } from './BoardEditor'
 import { TablebasePanel } from './TablebasePanel'
 import { useAssist } from '../play/useAssist'
+import { customStartFen } from '../play/startPosition'
 
 const RATE_ONLY = { eval: false, threats: false, suggest: false, feedback: true, engine: false }
 const RATE_OFF = { ...RATE_ONLY, feedback: false }
 
+const SAVE_KEY = 'oc-analysis'
+
+interface SavedAnalysis {
+  startFen: string
+  /** SAN moves from startFen */
+  moves: string[]
+  ply: number
+  orientation: 'white' | 'black'
+}
+
+/** The analysis left open last time, if it is still readable. */
+function loadSaved(): SavedAnalysis | null {
+  try {
+    const s = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as Partial<SavedAnalysis> | null
+    if (!s || typeof s.startFen !== 'string' || !Array.isArray(s.moves) || positionProblem(s.startFen)) return null
+    return {
+      startFen: s.startFen,
+      moves: s.moves.filter((m): m is string => typeof m === 'string'),
+      ply: typeof s.ply === 'number' ? s.ply : s.moves.length,
+      orientation: s.orientation === 'black' ? 'black' : 'white',
+    }
+  } catch {
+    return null
+  }
+}
+
 export default function Analysis() {
   const { t } = useTranslation()
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const game = useGame()
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [engineOn, setEngineOn] = useState(true)
@@ -44,9 +73,13 @@ export default function Analysis() {
   const [loader, setLoader] = useState(false)
   const [opening, setOpening] = useState<Opening | undefined>()
   const [rateMoves, setRateMoves] = useState(true)
+  // read once, before the save effect below overwrites it
+  const [saved] = useState(loadSaved)
+  const mountParams = useRef(params)
 
   useEffect(() => {
-    const fen = params.get('fen')
+    const raw = params.get('fen')
+    const fen = raw && normalizeFen(raw)
     const pgn = params.get('pgn')
     try {
       if (pgn) game.loadPgn(pgn)
@@ -58,6 +91,11 @@ export default function Analysis() {
         }
         game.reset(fen)
         if (fen.split(' ')[1] === 'b') setOrientation('black')
+      } else if (saved && params === mountParams.current) {
+        // only on arrival: a later bare /analysis link keeps the line on screen
+        game.replay(saved.moves, saved.startFen)
+        game.goto(saved.ply)
+        setOrientation(saved.orientation)
       }
     } catch {
       toast(t('analysis.invalidFen'), 'error')
@@ -65,9 +103,24 @@ export default function Analysis() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
 
+  // keep the line across navigation and reloads
   useEffect(() => {
-    void lookupOpening(game.fen).then((o) => o && setOpening(o))
-  }, [game.fen])
+    const state: SavedAnalysis = { startFen: game.startFen, moves: game.sans, ply: game.ply, orientation }
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(state))
+    } catch {
+      // storage full or blocked: the analysis just isn't kept
+    }
+  }, [game.startFen, game.sans, game.ply, orientation])
+
+  // the latest named position up to the viewed ply; stale lookups are dropped
+  useEffect(() => {
+    let alive = true
+    void latestOpening(game.fens.slice(0, game.ply + 1)).then((o) => alive && setOpening(o))
+    return () => {
+      alive = false
+    }
+  }, [game.fens, game.ply])
 
   const { lines, depth } = useAnalysis(game.fen, engineOn, multipv)
 
@@ -76,13 +129,16 @@ export default function Analysis() {
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
   const viewedQuality = rateMoves ? rating.quality(viewedMove) : undefined
   const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
+  // replayed up to the viewed ply so repetitions count; the 50-move rule doesn't end an analysis
   const outcome = useMemo(() => {
     try {
-      return gameResultText(new Chess(game.fen))
+      const c = new Chess(game.startFen)
+      for (const m of game.moves.slice(0, game.ply)) c.move(m.san)
+      return gameResultText(c, { fiftyMoves: false })
     } catch {
       return null
     }
-  }, [game.fen])
+  }, [game.startFen, game.moves, game.ply])
   // a finished position has no engine lines; show the result instead
   const evalScore = outcome ? (outcome.reason === 'checkmate' ? { mate: 0, cp: outcome.result === '1-0' ? 1 : -1 } : { cp: 0 }) : lines[0]?.score
   const best = lines[0]
@@ -165,13 +221,14 @@ export default function Analysis() {
                     </button>
                   )
                 })}
-                <div className="flex items-center gap-2 px-3 py-1.5 text-[12px] text-fg-3">
-                  {t('analysis.lines')}
+                <div className="flex items-center gap-1 px-3 py-1 text-[12px] text-fg-3" role="group" aria-label={t('analysis.lines')}>
+                  <span className="mr-1">{t('analysis.lines')}</span>
                   {[1, 2, 3].map((n) => (
                     <button
                       key={n}
                       onClick={() => setMultipv(n)}
-                      className={`tabular h-6 w-6 rounded font-bold ${multipv === n ? 'bg-raise-2 text-fg' : 'hover:bg-raise'}`}
+                      aria-pressed={multipv === n}
+                      className={`tabular h-10 w-10 rounded font-bold ${multipv === n ? 'bg-raise-2 text-fg' : 'hover:bg-raise'}`}
                     >
                       {n}
                     </button>
@@ -227,6 +284,16 @@ export default function Analysis() {
               <IconAction label={t('analysis.copyPgn')} onClick={() => void copy(game.moves.length ? game.chess.pgn() : game.fen)}>
                 <Copy size={20} weight="bold" />
               </IconAction>
+            </div>
+            <div className="border-t border-line p-2.5 pt-0 lg:pt-2.5">
+              <button
+                className="btn w-full"
+                disabled={!!outcome}
+                // the usual start position is just a normal game
+                onClick={() => navigate(customStartFen(game.fen) ? `/play?fen=${encodeURIComponent(game.fen)}` : '/play')}
+              >
+                <Robot size={20} weight="bold" /> {t('analysis.playFromHere')}
+              </button>
             </div>
           </Panel>
         }
@@ -295,9 +362,10 @@ function Loader({
         <button
           className="btn"
           onClick={() => {
-            const problem = positionProblem(fenText.trim())
+            const f = normalizeFen(fenText)
+            const problem = positionProblem(f)
             if (problem) toast(t(`analysis.illegal.${problem}`), 'error')
-            else onFen(fenText.trim())
+            else onFen(f)
           }}
         >
           {t('analysis.loadFen')}

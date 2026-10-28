@@ -44,6 +44,15 @@
       "knight": "马",
       "pawn": "兵",
       "king": "王"
+    },
+    "promotion": "选择升变的棋子",
+    "speech": {
+      "takes": "吃",
+      "castleShort": "王翼易位",
+      "castleLong": "后翼易位",
+      "promotion": "升变为{{piece}}",
+      "check": "将军",
+      "checkmate": "将死"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "自定义",
     "minutes": "分钟",
     "increment": "加秒",
-    "replaceSaved": "你与 {{name}} 的对局尚未结束。开始新对局将放弃它。"
+    "replaceSaved": "你与 {{name}} 的对局尚未结束。开始新对局将放弃它。",
+    "customStart": "从自定义局面开始",
+    "standardStart": "标准开局",
+    "invalidStart": "该局面无法对弈，将从标准初始局面开始。",
+    "typeMove": "输入走法（e4、Nf3、O-O）",
+    "illegalMove": "“{{move}}”在此局面不是合法走法"
   },
   "bots": {
     "group": {
@@ -161,6 +175,8 @@
     "last": "结束",
     "evalGraph": "评估曲线",
     "bestWas": "最佳着法是 {{san}}",
+    "engineLines": "引擎变化",
+    "engineLinesHint": "重新分析这盘棋以查看引擎变化",
     "opening": "开局",
     "depth": "深度 {{d}}",
     "reanalyze": "重新分析",
@@ -241,7 +257,13 @@
     "mistakesSub": "重练你在已复盘对局中走错的局面",
     "mistakesEmpty": "暂时没有可练习的失误。下棋或导入对局并复盘后，你走错的局面会出现在这里。",
     "mistakeContext": "对阵 {{opponent}} 时你走了 {{san}}（{{quality}}）。找出最佳着法。",
-    "seeGame": "查看对局"
+    "seeGame": "查看对局",
+    "missed": "做错的谜题",
+    "view": "查看谜题",
+    "results": "结果",
+    "streakMode": "谜题连胜",
+    "streakSub": "不计时。谜题逐渐变难，错一题即结束。",
+    "streakOver": "连胜结束"
   },
   "themes": {
     "mateIn1": "一步杀",
@@ -268,7 +290,29 @@
     "crushing": "压倒性优势",
     "advantage": "优势",
     "short": "短",
-    "long": "长"
+    "long": "长",
+    "mate": "将杀",
+    "mateIn4": "四步杀",
+    "oneMove": "一步",
+    "veryLong": "很长",
+    "kingsideAttack": "王翼进攻",
+    "queensideAttack": "后翼进攻",
+    "advancedPawn": "冲兵",
+    "exposedKing": "王暴露",
+    "discoveredCheck": "闪将",
+    "doubleCheck": "双将",
+    "clearance": "腾挪",
+    "intermezzo": "中间着",
+    "capturingDefender": "消灭防守子",
+    "interference": "阻断",
+    "attackingF2F7": "攻击 f2/f7",
+    "xRayAttack": "X 光攻击",
+    "rookEndgame": "车残局",
+    "pawnEndgame": "兵残局",
+    "bishopEndgame": "象残局",
+    "knightEndgame": "马残局",
+    "queenEndgame": "后残局",
+    "queenRookEndgame": "后车残局"
   },
   "openings": {
     "title": "开局",
@@ -293,6 +337,7 @@
     "search": "搜索开局",
     "known": "已命名的后续",
     "remove": "移除",
+    "removeConfirm": "要从你的开局库中移除 {{line}} 这条变例吗？与其他变例共用的局面会保留。",
     "needToken": "Lichess 统计需要一个免费的个人令牌。请在此添加：",
     "dueCount_one": "{{count}} 个待复习",
     "dueCount_other": "{{count}} 个待复习",
@@ -307,6 +352,7 @@
     "review": "复习",
     "completed": "已完成",
     "step": "第 {{n}} 步，共 {{total}} 步",
+    "notFound": "未找到该课程",
     "tryAgain": "不是这步，再试一次",
     "wellDone": "做得好！",
     "finished": "课程完成！",
@@ -346,6 +392,7 @@
     "eraser": "橡皮擦",
     "castling": "王车易位",
     "editorShort": "编辑器",
+    "playFromHere": "从此局面与机器人对弈",
     "illegal": {
       "invalid": "无效的 FEN",
       "kings": "双方必须各有且仅有一个王",
@@ -377,7 +424,18 @@
     "vs": "对",
     "delete": "删除棋局",
     "all": "全部",
-    "filter": "筛选"
+    "filter": "筛选",
+    "search": "搜索棋手或开局",
+    "result": "结果",
+    "color": "执子",
+    "anyResult": "全部结果",
+    "wins": "胜",
+    "draws": "和",
+    "losses": "负",
+    "anyColor": "黑白均可",
+    "loadMore": "加载更多",
+    "noMatch": "没有符合这些筛选条件的对局。",
+    "clearFilters": "清除筛选"
   },
   "import": {
     "title": "导入棋局",
@@ -401,7 +459,9 @@
     "imported_other": "已导入 {{count}} 局",
     "failed_one": "{{count}} 局无法读取",
     "failed_other": "{{count}} 局无法读取",
-    "rateLimited": "请求过于频繁，请等待一分钟后重试。"
+    "rateLimited": "请求过于频繁，请等待一分钟后重试。",
+    "alreadyHad_one": "{{count}} 局此前已导入",
+    "alreadyHad_other": "{{count}} 局此前已导入"
   },
   "profile": {
     "title": "个人资料",
@@ -418,6 +478,9 @@
     "syncOff": "尚未配置同步。请在 .env 中添加 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY。",
     "signIn": "登录",
     "signOut": "退出登录",
+    "signOutClear": "同时从此设备删除已同步的数据吗？数据仍保存在你的账户中。点击取消则保留在此设备上。",
+    "signOutKept": "退出登录前同步失败，因此你的数据已保留在此设备上。",
+    "foreignData": "此设备上有另一个账户的数据。要将其添加到当前账户吗？点击取消将退出登录且不上传。",
     "email": "邮箱",
     "sendLink": "发送登录链接",
     "linkSent": "请查看收件箱并打开链接登录。",
@@ -441,6 +504,13 @@
     "dark": "深色",
     "light": "浅色",
     "board": "棋盘",
+    "boardColors": {
+      "green": "绿色",
+      "brown": "棕色",
+      "blue": "蓝色",
+      "gray": "灰色",
+      "purple": "紫色"
+    },
     "sound": "声音",
     "coords": "坐标",
     "showDests": "显示合法着法",

@@ -1,17 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Chess, type Move } from 'chess.js'
 import { Engine, type PvLine, type Score } from '../../engine/engine'
-import { classifyMoves, type PositionEval, type Quality } from '../review/classify'
+import { classifyMoves, terminalScore, type PositionEval, type Quality } from '../review/classify'
 import { bookChecker } from '../openings/openingsData'
 import type { AssistSettings } from '../../settings'
 
 const DEPTH = 13
-
-function terminalScore(c: Chess): Score | null {
-  if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 }
-  if (c.isDraw() || c.isStalemate()) return { cp: 0 }
-  return null
-}
 
 /** The same position with the other side to move, for "what does my opponent threaten". */
 function nullMoveFen(fen: string): string | null {
@@ -106,7 +100,7 @@ export function useAssist({
   const evaluate = (f: string): Promise<PositionEval> => {
     let p = evals.current.get(f)
     if (!p) {
-      const term = terminalScore(new Chess(f))
+      const term = terminalScore(f)
       p = term
         ? Promise.resolve({ fen: f, lines: [], score: term })
         : run((e) => e.search(f, { depth: DEPTH, multipv })).then((r) => {
@@ -156,22 +150,24 @@ export function useAssist({
   // rate the last move and the one being viewed, as they appear
   const targets = [...new Set([ply, moves.length, ...(rateAll ? moves.map((_, i) => i + 1) : [])])].filter((p) => p > 0 && p <= moves.length)
   const targetKey = targets.map((p) => moveKey(moves[p - 1])).join(';')
+  // Results are keyed by move, so one that lands after the bot has already replied is still
+  // stored: dropping it left the user's move unrated, as it is no longer the last move.
+  const rating = useRef(new Set<string>())
   useEffect(() => {
     if (!assist.feedback) return
-    let alive = true
     for (const p of targets) {
       const m = moves[p - 1]
       const key = moveKey(m)
-      if ((rate !== 'both' && m.color !== rate) || feedback[key]) continue
+      if ((rate !== 'both' && m.color !== rate) || feedback[key] || rating.current.has(key)) continue
+      rating.current.add(key)
       void (async () => {
         const [before, after, isBook] = await Promise.all([evaluate(m.before), evaluate(m.after), bookChecker()])
-        if (!alive) return
         const [r] = classifyMoves([before, after], [{ san: m.san, uci: m.from + m.to + (m.promotion ?? '') }], (f) => p <= 30 && isBook(f))
         setFeedback((fb) => ({ ...fb, [key]: r.quality }))
-      })().catch(() => {})
-    }
-    return () => {
-      alive = false
+      })()
+        .catch(() => {})
+        // a failed rating is tried again the next time this move is a target
+        .finally(() => rating.current.delete(key))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetKey, assist.feedback, rate])

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
+import { terminalScore, winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
 import { parseInfo } from '../../engine/engine'
 
 describe('winPercent', () => {
@@ -32,8 +32,29 @@ describe('accuracy', () => {
     const a = gameAccuracy(curve)
     expect(a.white).toBeLessThan(a.black)
   })
+  it('attributes moves correctly when Black moves first', () => {
+    // White's win% jumps at index 4 -> 5: a Black blunder when Black moves first
+    const curve = [48, 47, 48, 46, 47, 85, 86, 87, 88, 90, 91]
+    const a = gameAccuracy(curve, 'b')
+    expect(a.black).toBeLessThan(a.white)
+    // read as a White-first game the same jump is a White gain, so nobody erred
+    const wrong = gameAccuracy(curve)
+    expect(wrong.black).toBeGreaterThan(a.black)
+  })
   it('rating estimate grows with accuracy', () => {
     expect(estimateRating(90)).toBeGreaterThan(estimateRating(70))
+  })
+})
+
+describe('terminalScore', () => {
+  it('scores mate and stalemate without the engine', () => {
+    expect(terminalScore('rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3')).toEqual({ mate: 0, cp: -1 })
+    expect(terminalScore('7k/5Q2/6K1/8/8/8/8/8 b - - 0 1')).toEqual({ cp: 0 })
+    expect(terminalScore('8/8/4k3/8/8/4K3/8/8 w - - 0 1')).toEqual({ cp: 0 })
+  })
+  it('still searches positions past the 50-move mark', () => {
+    expect(terminalScore('8/8/4k3/8/8/4K3/4Q3/8 w - - 120 90')).toBeNull()
+    expect(terminalScore('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBeNull()
   })
 })
 
@@ -61,6 +82,67 @@ describe('classifyMoves', () => {
     expect(best[0].quality).toBe('best')
     const blunder = classifyMoves([pos(start, 30, ['e2e4']), pos(afterA3, -600)], [{ san: 'a3', uci: 'a2a3' }], () => false)
     expect(blunder[0].quality).toBe('blunder')
+  })
+  it('does not call every move best once the game is decided', () => {
+    const kq = '7k/8/5K2/8/8/8/8/Q7 w - - 0 1'
+    const after = '7k/8/5K2/8/8/8/Q7/8 b - - 1 1'
+    const at = (before: PositionEval['score'], afterScore: PositionEval['score']) =>
+      classifyMoves(
+        [
+          { fen: kq, score: before, lines: [{ multipv: 1, depth: 20, score: before, pv: ['a1h1'] }] },
+          { fen: after, score: afterScore, lines: [] },
+        ],
+        [{ san: 'Qa2', uci: 'a1a2' }],
+        () => false,
+      )[0].quality
+    // mate in 5 kept at the same pace, slightly slower, much slower
+    expect(at({ mate: 5 }, { mate: 4 })).toBe('best')
+    expect(at({ mate: 5 }, { mate: 6 })).toBe('excellent')
+    expect(at({ mate: 5 }, { mate: 9 })).toBe('good')
+    // +15 to +14.8 is fine; +15 to +11 throws away material although win% stays ~97
+    expect(at({ cp: 1500 }, { cp: 1480 })).toBe('best')
+    expect(at({ cp: 1500 }, { cp: 1100 })).toBe('good')
+    // the losing side: the longest defence is best, hurrying the mate is not
+    const black = classifyMoves(
+      [
+        { fen: '7k/8/5K2/8/8/8/8/Q7 b - - 0 1', score: { mate: 4 }, lines: [{ multipv: 1, depth: 20, score: { mate: 4 }, pv: ['h8g8'] }] },
+        { fen: after, score: { mate: 1 }, lines: [] },
+      ],
+      [{ san: 'Kh7', uci: 'h8h7' }],
+      () => false,
+    )
+    expect(black[0].quality).toBe('good')
+  })
+  it('calls letting a forced mate go a missed win', () => {
+    const kq = '7k/8/5K2/8/8/8/8/Q7 w - - 0 1'
+    const after = '7k/8/5K2/8/8/8/Q7/8 b - - 1 1'
+    const at = (before: PositionEval['score'], afterScore: PositionEval['score']) =>
+      classifyMoves(
+        [
+          { fen: kq, score: before, lines: [{ multipv: 1, depth: 20, score: before, pv: ['a1h1'] }] },
+          { fen: after, score: afterScore, lines: [] },
+        ],
+        [{ san: 'Qa2', uci: 'a1a2' }],
+        () => false,
+      )[0].quality
+    expect(at({ mate: 2 }, { cp: 1500 })).toBe('miss')
+    expect(at({ mate: 3 }, { cp: 250 })).toBe('miss')
+    // still mating, only slower: not a miss
+    expect(at({ mate: 2 }, { mate: 3 })).toBe('excellent')
+    // throwing the whole game away stays a blunder
+    expect(at({ mate: 2 }, { cp: -400 })).toBe('blunder')
+    // the engine's own move is never a miss, even if the search after it lost sight of the mate
+    const own = classifyMoves(
+      [
+        { fen: kq, score: { mate: 4 }, lines: [{ multipv: 1, depth: 20, score: { mate: 4 }, pv: ['a1a2'] }] },
+        { fen: after, score: { cp: 1500 }, lines: [] },
+      ],
+      [{ san: 'Qa2', uci: 'a1a2' }],
+      () => false,
+    )
+    expect(own[0].quality).toBe('best')
+    // a long mate the engine may lose at another depth is judged on the evaluation
+    expect(at({ mate: 12 }, { cp: 1500 })).not.toBe('miss')
   })
   it('uses book while the game follows theory', () => {
     const r = classifyMoves(

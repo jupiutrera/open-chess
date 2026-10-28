@@ -44,6 +44,15 @@
       "knight": "Caballo",
       "pawn": "Peón",
       "king": "Rey"
+    },
+    "promotion": "Elige la pieza de promoción",
+    "speech": {
+      "takes": "captura",
+      "castleShort": "enroque corto",
+      "castleLong": "enroque largo",
+      "promotion": "promociona a {{piece}}",
+      "check": "jaque",
+      "checkmate": "jaque mate"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "Otro",
     "minutes": "Minutos",
     "increment": "Incremento (s)",
-    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará."
+    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará.",
+    "customStart": "Partida desde una posición personalizada",
+    "standardStart": "Posición inicial",
+    "invalidStart": "Esa posición no se puede jugar; la partida empezará desde la posición inicial.",
+    "typeMove": "Escribe una jugada (e4, Nf3, O-O)",
+    "illegalMove": "«{{move}}» no es una jugada legal aquí"
   },
   "bots": {
     "group": {
@@ -161,6 +175,8 @@
     "last": "Final",
     "evalGraph": "Gráfica de evaluación",
     "bestWas": "La mejor era {{san}}",
+    "engineLines": "Líneas del motor",
+    "engineLinesHint": "Vuelve a analizar la partida para ver las líneas del motor",
     "opening": "Apertura",
     "depth": "Profundidad {{d}}",
     "reanalyze": "Volver a analizar",
@@ -241,7 +257,13 @@
     "mistakesSub": "Repite las posiciones en las que fallaste en tus partidas revisadas",
     "mistakesEmpty": "Aún no hay errores que repasar. Juega o importa partidas, revísalas y aquí aparecerán las posiciones en las que fallaste.",
     "mistakeContext": "Contra {{opponent}} jugaste {{san}} ({{quality}}). Encuentra la mejor jugada.",
-    "seeGame": "Ver partida"
+    "seeGame": "Ver partida",
+    "missed": "Problemas fallados",
+    "view": "Ver problema",
+    "results": "Resultados",
+    "streakMode": "Racha de problemas",
+    "streakSub": "Sin reloj. Cada problema es más difícil y un solo fallo termina la racha.",
+    "streakOver": "Fin de la racha"
   },
   "themes": {
     "mateIn1": "Mate en 1",
@@ -268,7 +290,29 @@
     "crushing": "Ventaja decisiva",
     "advantage": "Ventaja",
     "short": "Corto",
-    "long": "Largo"
+    "long": "Largo",
+    "mate": "Mate",
+    "mateIn4": "Mate en 4",
+    "oneMove": "Una jugada",
+    "veryLong": "Muy largo",
+    "kingsideAttack": "Ataque en el flanco de rey",
+    "queensideAttack": "Ataque en el flanco de dama",
+    "advancedPawn": "Peón avanzado",
+    "exposedKing": "Rey expuesto",
+    "discoveredCheck": "Jaque descubierto",
+    "doubleCheck": "Jaque doble",
+    "clearance": "Despeje",
+    "intermezzo": "Jugada intermedia",
+    "capturingDefender": "Capturar al defensor",
+    "interference": "Interferencia",
+    "attackingF2F7": "Ataque a f2/f7",
+    "xRayAttack": "Ataque de rayos X",
+    "rookEndgame": "Final de torres",
+    "pawnEndgame": "Final de peones",
+    "bishopEndgame": "Final de alfiles",
+    "knightEndgame": "Final de caballos",
+    "queenEndgame": "Final de damas",
+    "queenRookEndgame": "Final de dama y torre"
   },
   "openings": {
     "title": "Aperturas",
@@ -293,6 +337,7 @@
     "search": "Buscar apertura",
     "known": "Continuaciones con nombre",
     "remove": "Quitar",
+    "removeConfirm": "¿Quitar la línea {{line}} de tu repertorio? Las posiciones que comparte con otras líneas se conservan.",
     "needToken": "Las estadísticas de Lichess necesitan un token personal gratuito. Añádelo en",
     "dueCount_one": "{{count}} pendiente",
     "dueCount_other": "{{count}} pendientes",
@@ -307,6 +352,7 @@
     "review": "Repasar",
     "completed": "Completada",
     "step": "Paso {{n}} de {{total}}",
+    "notFound": "Lección no encontrada",
     "tryAgain": "No es esa. Inténtalo de nuevo",
     "wellDone": "¡Muy bien!",
     "finished": "¡Lección completada!",
@@ -346,6 +392,7 @@
     "eraser": "Goma",
     "castling": "Enroques",
     "editorShort": "Editor",
+    "playFromHere": "Jugar contra un bot desde aquí",
     "illegal": {
       "invalid": "FEN no válido",
       "kings": "Cada bando necesita exactamente un rey",
@@ -377,7 +424,18 @@
     "vs": "contra",
     "delete": "Borrar partida",
     "all": "Todas",
-    "filter": "Filtrar"
+    "filter": "Filtrar",
+    "search": "Buscar jugador o apertura",
+    "result": "Resultado",
+    "color": "Color",
+    "anyResult": "Todos los resultados",
+    "wins": "Victorias",
+    "draws": "Tablas",
+    "losses": "Derrotas",
+    "anyColor": "Ambos colores",
+    "loadMore": "Cargar más",
+    "noMatch": "Ninguna partida coincide con estos filtros.",
+    "clearFilters": "Quitar filtros"
   },
   "import": {
     "title": "Importar partidas",
@@ -401,7 +459,9 @@
     "imported_other": "{{count}} partidas importadas",
     "failed_one": "{{count}} partida no se pudo leer",
     "failed_other": "{{count}} partidas no se pudieron leer",
-    "rateLimited": "Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo."
+    "rateLimited": "Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo.",
+    "alreadyHad_one": "{{count}} partida ya estaba importada",
+    "alreadyHad_other": "{{count}} partidas ya estaban importadas"
   },
   "profile": {
     "title": "Perfil",
@@ -418,6 +478,9 @@
     "syncOff": "La sincronización no está configurada. Añade VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en .env.",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
+    "signOutClear": "¿Borrar también de este dispositivo los datos sincronizados? Seguirán guardados en tu cuenta. Cancelar los deja aquí.",
+    "signOutKept": "No se pudo sincronizar antes de cerrar sesión, así que tus datos se han quedado en este dispositivo.",
+    "foreignData": "Este dispositivo tiene datos de otra cuenta. ¿Añadirlos a esta cuenta? Cancelar cierra la sesión sin subirlos.",
     "email": "Correo electrónico",
     "sendLink": "Enviar enlace mágico",
     "linkSent": "Revisa tu correo y abre el enlace para entrar.",
@@ -441,6 +504,13 @@
     "dark": "Oscuro",
     "light": "Claro",
     "board": "Tablero",
+    "boardColors": {
+      "green": "Verde",
+      "brown": "Marrón",
+      "blue": "Azul",
+      "gray": "Gris",
+      "purple": "Morado"
+    },
     "sound": "Sonido",
     "coords": "Coordenadas",
     "showDests": "Mostrar jugadas legales",

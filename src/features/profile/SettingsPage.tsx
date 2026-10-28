@@ -62,7 +62,7 @@ export default function SettingsPage() {
                   className={`grid aspect-square grid-cols-2 overflow-hidden rounded-md transition-transform duration-150 active:scale-[0.97] ${
                     s.board === b.id ? 'ring-3 ring-accent ring-offset-2 ring-offset-panel' : ''
                   }`}
-                  aria-label={b.id}
+                  aria-label={t(`settings.boardColors.${b.id}`)}
                   aria-pressed={s.board === b.id}
                 >
                   <span style={{ background: b.light }} />

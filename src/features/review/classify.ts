@@ -37,6 +37,16 @@ export const QUALITY_SYMBOL: Partial<Record<Quality, string>> = {
   blunder: '??',
 }
 
+/** Score of a game-over position (no engine needed), or null when there are moves to search. */
+export function terminalScore(fen: string): Score | null {
+  const c = new Chess(fen)
+  if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 } // side to move is mated
+  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched.
+  // A bare FEN has no history, so repetition is left to the engine
+  if (c.isStalemate() || c.isInsufficientMaterial()) return { cp: 0 }
+  return null
+}
+
 /** Lichess win probability (0-100) from White's point of view. */
 export function winPercent(s: Score): number {
   if (s.mate !== undefined) return s.mate > 0 || (s.mate === 0 && (s.cp ?? 0) > 0) ? 100 : 0
@@ -60,8 +70,9 @@ function stdev(xs: number[]): number {
  * Game accuracy per colour, Lichess style: volatility-weighted mean averaged
  * with the harmonic mean of per-move accuracies.
  * @param whiteWins win% (White POV) for every position, length = moves + 1
+ * @param firstMover side to move in the first position (games set up from a FEN may start with Black)
  */
-export function gameAccuracy(whiteWins: number[]): { white: number; black: number } {
+export function gameAccuracy(whiteWins: number[], firstMover: 'w' | 'b' = 'w'): { white: number; black: number } {
   const n = whiteWins.length - 1
   if (n < 1) return { white: 100, black: 100 }
   const windowSize = Math.max(2, Math.min(8, Math.floor(n / 10)))
@@ -74,7 +85,7 @@ export function gameAccuracy(whiteWins: number[]): { white: number; black: numbe
   const acc = { w: [] as number[], b: [] as number[] }
   const wts = { w: [] as number[], b: [] as number[] }
   for (let i = 0; i < n; i++) {
-    const white = i % 2 === 0
+    const white = (i % 2 === 0) === (firstMover === 'w')
     const before = white ? whiteWins[i] : 100 - whiteWins[i]
     const after = white ? whiteWins[i + 1] : 100 - whiteWins[i + 1]
     const a = moveAccuracy(before, after)
@@ -161,6 +172,45 @@ export interface MoveReview {
   scoreAfter: Score
 }
 
+/** Letting go of a forced mate this short counts as a missed win. */
+const MISSED_MATE_MAX = 5
+
+/** A score as centipawns from `color`'s side, with a forced mate beyond any material count. */
+function moverCp(s: Score, color: 'w' | 'b'): number {
+  const sign = color === 'w' ? 1 : -1
+  if (s.mate !== undefined) {
+    const whiteMates = s.mate > 0 || (s.mate === 0 && (s.cp ?? 0) > 0)
+    return (whiteMates ? 1 : -1) * sign * (10000 - Math.abs(s.mate) * 10)
+  }
+  return sign * (s.cp ?? 0)
+}
+
+/**
+ * Win% saturates in decided positions (+10 and +20 are both ~97%, any mate is 100%), so in a
+ * won or lost endgame almost every move "loses" nothing. For a move that isn't the engine's
+ * choice, compare the raw evaluations instead: a slower mate or a dropped piece is not "best".
+ */
+function saturatedQuality(before: Score, after: Score, color: 'w' | 'b'): Quality {
+  const sign = color === 'w' ? 1 : -1
+  // mover's mate in N before; the opponent, now to move, is mated in N-1 after the best move
+  const mateBefore = before.mate !== undefined ? before.mate * sign : undefined
+  const mateAfter = after.mate !== undefined ? after.mate * sign : undefined
+  if (mateBefore !== undefined && mateBefore > 0 && mateAfter !== undefined) {
+    if (mateAfter === 0) return 'best' // delivered mate
+    if (mateAfter > 0) {
+      const slower = mateAfter - (mateBefore - 1)
+      return slower <= 0 ? 'best' : slower <= 2 ? 'excellent' : 'good'
+    }
+  }
+  if (mateBefore !== undefined && mateBefore < 0 && mateAfter !== undefined && mateAfter < 0) {
+    // getting mated: the best defence lasts as long as the engine's line
+    const faster = -mateBefore - -mateAfter
+    return faster <= 0 ? 'best' : faster <= 2 ? 'excellent' : 'good'
+  }
+  const cpLoss = moverCp(before, color) - moverCp(after, color)
+  return cpLoss < 50 ? 'best' : cpLoss < 150 ? 'excellent' : 'good'
+}
+
 export function classifyMoves(
   positions: PositionEval[],
   moves: { san: string; uci: string }[],
@@ -187,7 +237,8 @@ export function classifyMoves(
     } else {
       bookRun = false
       if (legal === 1) quality = 'forced'
-      else if (uci === best || loss < 0.5) quality = 'best'
+      else if (uci === best) quality = 'best'
+      else if (loss < 0.5) quality = saturatedQuality(before.score, after.score, color)
       else if (loss < 2) quality = 'excellent'
       else if (loss < 5) quality = 'good'
       else if (loss < 10) quality = 'inaccuracy'
@@ -197,6 +248,14 @@ export function classifyMoves(
       const prev = out[i - 1]
       const opponentErred = prev && (prev.quality === 'mistake' || prev.quality === 'blunder' || prev.quality === 'miss')
       if (opponentErred && (quality === 'inaccuracy' || quality === 'mistake' || quality === 'blunder') && loss >= 8 && winBefore >= 60 && winAfter >= 50) {
+        quality = 'miss'
+      }
+
+      // a forced mate let go is a missed win even when the position stays winning; a short one
+      // only, as long mates come and go with search depth. Ending up worse than equal stays a blunder
+      const mateBefore = before.score.mate !== undefined ? before.score.mate * (color === 'w' ? 1 : -1) : undefined
+      const stillMates = after.score.mate !== undefined && moverCp(after.score, color) > 0
+      if (quality !== 'forced' && uci !== best && mateBefore !== undefined && mateBefore > 0 && mateBefore <= MISSED_MATE_MAX && !stillMates && winAfter >= 50) {
         quality = 'miss'
       }
 

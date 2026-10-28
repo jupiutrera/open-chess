@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { DotsThreeOutline } from '@phosphor-icons/react'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { Logo } from './Logo'
 import { AppIcon, type AppIconName } from './AppIcon'
 import { BoardScreenSkeleton, HubSkeleton, useDismiss } from './kit'
@@ -20,6 +20,18 @@ export function Layout() {
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
   useDismiss(moreOpen, () => setMoreOpen(false))
+  const moreButton = useRef<HTMLButtonElement>(null)
+  const moreMenu = useRef<HTMLDivElement>(null)
+  // keyboard focus goes into the menu when it opens and back to its button when it closes
+  useEffect(() => {
+    if (!moreOpen) return
+    const menu = moreMenu.current
+    const button = moreButton.current
+    menu?.querySelector<HTMLElement>('a')?.focus()
+    return () => {
+      if (document.activeElement === document.body || menu?.contains(document.activeElement)) button?.focus()
+    }
+  }, [moreOpen])
 
   const primary: Item[] = [
     { to: '/', label: t('nav.home'), icon: 'home' },
@@ -89,6 +101,7 @@ export function Layout() {
           </NavLink>
         ))}
         <button
+          ref={moreButton}
           onClick={() => setMoreOpen((v) => !v)}
           className={`flex h-16 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold ${moreOpen || inMore ? 'text-fg' : 'text-fg-3'}`}
           aria-expanded={moreOpen}
@@ -102,6 +115,7 @@ export function Layout() {
       {moreOpen && (
         <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setMoreOpen(false)}>
           <div
+            ref={moreMenu}
             id="more-menu"
             className="enter absolute inset-x-0 bottom-[calc(64px+var(--inset-bottom))] rounded-t-2xl bg-panel p-2"
             onClick={(e) => e.stopPropagation()}

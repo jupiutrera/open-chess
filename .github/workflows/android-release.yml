@@ -37,6 +37,8 @@ jobs:
         with:
           ref: ${{ env.TAG }}
           fetch-depth: 0
+          # keep the write token out of .git/config, where install scripts could read it
+          persist-credentials: false
       - name: Check the version matches the tag
         # Android refuses an update whose versionCode isn't higher than the installed one
         run: |
