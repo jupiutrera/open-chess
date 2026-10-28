@@ -6,6 +6,7 @@ import { timeAgo } from '../../ui/kit'
 import { useSettings } from '../../settings'
 import { fmtDecimal } from '../../i18n/format'
 import { gameOutcome } from './gameFilter'
+import { playerName } from '../play/playerName'
 
 const SOURCE_ICON = { bot: Robot, local: Users, chesscom: Globe, lichess: Globe, pgn: FileText }
 
@@ -21,10 +22,10 @@ export function GameRowItem({ game, onDelete }: { game: GameRow; onDelete?: () =
       <Icon size={20} className="shrink-0 text-fg-3" />
       <Link to={`/review/${game.id}`} className="min-w-0 flex-1">
         <div className="truncate font-semibold">
-          {game.white}
+          {playerName(game.white, game.source, t)}
           {game.whiteElo ? <span className="tabular font-normal text-fg-3"> ({game.whiteElo})</span> : null}
           <span className="font-normal text-fg-3"> {t('games.vs')} </span>
-          {game.black}
+          {playerName(game.black, game.source, t)}
           {game.blackElo ? <span className="tabular font-normal text-fg-3"> ({game.blackElo})</span> : null}
         </div>
         <div className="truncate text-[13px] text-fg-3">

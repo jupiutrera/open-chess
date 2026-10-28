@@ -12,12 +12,15 @@ import { useClock } from '../../chess/useClock'
 import { capturedPieces, gameResultText, timeoutResult } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { saveGame } from '../../db/games'
-import { GameOverDialog, type GameEnd } from './GameOver'
+import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
+import { GameAnnouncer } from '../../board/GameAnnouncer'
+import { MoveInput } from '../../board/MoveInput'
 import { timeControl } from './timeControl'
 import { TimeControlPicker } from './TimeControlPicker'
 import { Panel, Toggle } from '../../ui/kit'
 import { cloneWithHistory } from './PlayBot'
 import { clearLiveGame, loadLiveGame, saveLiveGame, type LiveGame } from './liveGame'
+import { PLAYER } from './playerName'
 
 export default function PlayLocal() {
   const { t } = useTranslation()
@@ -46,8 +49,8 @@ export default function PlayLocal() {
     const row = await saveGame({
       source: 'local',
       chess: cloneWithHistory(game.chess),
-      white: t('common.white'),
-      black: t('common.black'),
+      white: PLAYER.white,
+      black: PLAYER.black,
       result: e.result,
       timeControl: tc.base ? `${tc.base}+${tc.inc}` : '-',
       termination: e.reason,
@@ -169,8 +172,16 @@ export default function PlayLocal() {
     )
   }
 
+  // from the board or typed in
+  const onMove = (from: string, to: string, promotion?: string) => {
+    if (ended.current || !game.atLive) return
+    const before = game.chess.turn()
+    if (game.move(from, to, promotion)) clock.press(before)
+  }
+
   return (
     <>
+      <GameAnnouncer moves={game.moves} result={end ? endAnnouncement(end, undefined, t) : null} />
       <BoardLayout
         top={orientation === 'white' ? bar('b') : bar('w')}
         bottom={orientation === 'white' ? bar('w') : bar('b')}
@@ -181,16 +192,14 @@ export default function PlayLocal() {
             movable={end || !game.atLive ? 'none' : 'both'}
             outcome={end && game.atLive ? end : null}
             lastMove={game.lastMove}
-            onMove={(f, to, p) => {
-              const before = game.chess.turn()
-              if (game.move(f, to, p)) clock.press(before)
-            }}
+            onMove={onMove}
           />
         }
         side={
           <Panel className="flex flex-col lg:h-full">
             <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} className="border-b border-line lg:hidden" />
             <MoveList sans={game.sans} ply={game.ply} onSelect={game.goto} className="hidden min-h-[120px] flex-1 py-1 lg:block" />
+            {!end && <MoveInput fen={liveFen} disabled={!game.atLive} onMove={onMove} className="border-t border-line p-3" />}
             <div className="flex items-center justify-center gap-1 border-t border-line p-2">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />

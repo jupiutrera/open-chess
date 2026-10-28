@@ -11,6 +11,8 @@ export interface LiveGame {
   /** local games */
   autoFlip?: boolean
   tc: string
+  /** the start position, when it isn't the usual one */
+  fen?: string
   sans: string[]
   clock?: { w: number; b: number }
   savedAt: number

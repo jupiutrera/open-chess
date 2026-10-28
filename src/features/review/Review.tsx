@@ -22,6 +22,7 @@ import { useSettings } from '../../settings'
 import { BoardScreenSkeleton, Panel } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
+import { playerName } from '../play/playerName'
 import { fmtDecimal } from '../../i18n/format'
 import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
@@ -184,8 +185,8 @@ export default function Review() {
 
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
-  const whiteName = h.White ?? game.white
-  const blackName = h.Black ?? game.black
+  const whiteName = playerName(h.White ?? game.white, game.source, t)
+  const blackName = playerName(h.Black ?? game.black, game.source, t)
   const bar = (c: 'w' | 'b') => (
     <PlayerBar
       name={c === 'w' ? whiteName : blackName}

@@ -25,6 +25,14 @@ describe('botMove', () => {
     expect(calls).toHaveLength(1)
   })
 
+  it('skips the book in a game started from a custom position', async () => {
+    const { engine, calls } = fakeEngine('e2e3')
+    // Boris opens 1.e4 / 1.d4, both legal here
+    const uci = await botMove(botById('boris')!, engine, '4k3/8/8/8/8/8/3PP3/4K3 w - - 0 1', [])
+    expect(uci).toBe('e2e3')
+    expect(calls).toHaveLength(1)
+  })
+
   it('answers 1.e4 from its black repertoire', async () => {
     const bot = botById('ivan')!
     const { engine, calls } = fakeEngine('a7a6')

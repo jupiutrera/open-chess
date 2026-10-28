@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Users, Shuffle } from '@phosphor-icons/react'
+import { Chess } from 'chess.js'
+import { Users, Shuffle, PuzzlePiece } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, type Bot } from './bots'
 import { clearLiveGame, loadLiveGame } from './liveGame'
 import { TimeControlPicker } from './TimeControlPicker'
@@ -15,6 +16,8 @@ import { Board } from '../../board/Board'
 import { db } from '../../db/db'
 import { useSettings } from '../../settings'
 import { localize } from '../../i18n/content'
+import { START_FEN } from '../../chess/util'
+import { customStartFen } from './startPosition'
 
 
 export function useBotRecord(botId: string) {
@@ -35,8 +38,13 @@ export default function PlayHub() {
   const { t } = useTranslation()
   const lang = useSettings((s) => s.lang)
   const nav = useNavigate()
+  const [params, setParams] = useSearchParams()
+  // "play this position" from analysis links here with ?fen=
+  const fenParam = params.get('fen')
+  const startFen = useMemo(() => customStartFen(fenParam), [fenParam])
   const [selected, setSelected] = useState<Bot>(BOTS[4])
-  const [color, setColor] = useState<'w' | 'b' | 'r'>('w')
+  // from a given position the user takes the side to move by default
+  const [color, setColor] = useState<'w' | 'b' | 'r'>(() => (startFen ? new Chess(startFen).turn() : 'w'))
   const [tc, setTc] = useState('none')
   const record = useBotRecord(selected.id)
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
@@ -48,6 +56,7 @@ export default function PlayHub() {
   const begin = () => {
     clearLiveGame('bot')
     const q = new URLSearchParams({ color, tc })
+    if (startFen) q.set('fen', startFen)
     nav(`/play/bot/${selected.id}?${q}`)
   }
   const start = () => (live && liveBot ? setConfirmNew(true) : begin())
@@ -55,6 +64,30 @@ export default function PlayHub() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader title={t('play.title')} />
+      {fenParam && (
+        <div className="px-4 pb-4 lg:px-6">
+          <Panel className="flex flex-wrap items-center gap-3 p-3">
+            <PuzzlePiece size={22} weight="bold" className="shrink-0 text-fg-3" />
+            <div className="min-w-0 flex-1 text-[14px] font-semibold">{startFen ? t('play.customStart') : t('play.invalidStart')}</div>
+            {startFen && (
+              <button
+                className="btn"
+                onClick={() =>
+                  setParams(
+                    (p) => {
+                      p.delete('fen')
+                      return p
+                    },
+                    { replace: true },
+                  )
+                }
+              >
+                {t('play.standardStart')}
+              </button>
+            )}
+          </Panel>
+        </div>
+      )}
       {live && liveBot && (
         <div className="px-4 pb-4 lg:px-6">
           <Panel className="flex flex-wrap items-center gap-3 p-3">
@@ -93,7 +126,7 @@ export default function PlayHub() {
                 {greeting}
               </div>
             </div>
-            <Board fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" orientation={color === 'b' ? 'black' : 'white'} />
+            <Board fen={startFen ?? START_FEN} orientation={color === 'b' ? 'black' : 'white'} />
           </div>
         </div>
 

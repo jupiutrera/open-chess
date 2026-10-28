@@ -44,6 +44,15 @@
       "knight": "Caballo",
       "pawn": "Peón",
       "king": "Rey"
+    },
+    "promotion": "Elige la pieza de promoción",
+    "speech": {
+      "takes": "captura",
+      "castleShort": "enroque corto",
+      "castleLong": "enroque largo",
+      "promotion": "promociona a {{piece}}",
+      "check": "jaque",
+      "checkmate": "jaque mate"
     }
   },
   "home": {
@@ -129,7 +138,12 @@
     "custom": "Otro",
     "minutes": "Minutos",
     "increment": "Incremento (s)",
-    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará."
+    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará.",
+    "customStart": "Partida desde una posición personalizada",
+    "standardStart": "Posición inicial",
+    "invalidStart": "Esa posición no se puede jugar; la partida empezará desde la posición inicial.",
+    "typeMove": "Escribe una jugada (e4, Nf3, O-O)",
+    "illegalMove": "«{{move}}» no es una jugada legal aquí"
   },
   "bots": {
     "group": {

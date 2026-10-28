@@ -14,6 +14,7 @@ import { recentGames } from '../../db/games'
 import { dailyPuzzle, getPuzzleRating, type Puzzle } from '../puzzles/puzzlesData'
 import { playUci } from '../../chess/util'
 import { GameRowItem } from '../profile/GameRowItem'
+import { playerName } from '../play/playerName'
 
 export function Home() {
   const { t } = useTranslation()
@@ -92,7 +93,7 @@ export function Home() {
                 <div className="min-w-0 flex-1">
                   <div className="text-[17px] font-extrabold">{t('home.review')}</div>
                   <div className="truncate text-[14px] text-fg-2">
-                    {last.white} {t('games.vs')} {last.black} · {last.result.replace('1/2-1/2', '½-½')}
+                    {playerName(last.white, last.source, t)} {t('games.vs')} {playerName(last.black, last.source, t)} · {last.result.replace('1/2-1/2', '½-½')}
                   </div>
                 </div>
                 <CaretRight size={22} className="text-fg-3" />
