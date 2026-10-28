@@ -346,6 +346,7 @@
     "eraser": "Eraser",
     "castling": "Castling",
     "editorShort": "Editor",
+    "playFromHere": "Play a bot from here",
     "illegal": {
       "invalid": "Invalid FEN",
       "kings": "Each side needs exactly one king",

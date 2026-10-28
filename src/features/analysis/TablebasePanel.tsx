@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { forMover, pieceCount, tablebase, TB_MAX_PIECES, type TbCategory, type TbResult } from './tablebase'
+import { forMover, mateInMoves, pieceCount, tablebase, TB_MAX_PIECES, type TbCategory, type TbResult } from './tablebase'
 
 const TONE: Record<string, string> = { win: 'text-accent', loss: 'text-danger', draw: 'text-fg-2' }
 const tone = (c: TbCategory) => TONE[c.replace(/^(cursed|blessed|maybe)-/, '')] ?? 'text-fg-2'
@@ -20,9 +20,15 @@ export function TablebasePanel({ fen, onPlay }: { fen: string; onPlay: (uci: str
   }, [fen, small])
   if (!small) return null
   const tb = result?.fen === fen ? result.tb : undefined
-  const distance = (d?: { dtm?: number | null; dtz?: number | null }) =>
-    // dtm is in plies; players count mate in moves
-    d?.dtm != null ? t('analysis.tb.mateIn', { count: Math.ceil(Math.abs(d.dtm) / 2) }) : d?.dtz != null ? t('analysis.tb.dtz', { count: Math.abs(d.dtz) }) : ''
+  const distance = (d: { category: TbCategory; dtm?: number | null; dtz?: number | null }, move = false) =>
+    // dtm is in plies; players count mate in moves. A draw has no mate to count.
+    d.category === 'draw' || d.category === 'unknown'
+      ? ''
+      : d.dtm != null
+        ? t('analysis.tb.mateIn', { count: mateInMoves(d.dtm, move) })
+        : d.dtz != null
+          ? t('analysis.tb.dtz', { count: Math.abs(d.dtz) })
+          : ''
   return (
     <div className="border-b border-line px-3 py-2 text-[13px]">
       <div className="flex items-baseline gap-2">
@@ -43,7 +49,7 @@ export function TablebasePanel({ fen, onPlay }: { fen: string; onPlay: (uci: str
             const c = forMover(m.category)
             return (
               <button key={m.uci} className="rounded bg-panel-2 px-2 py-0.5 hover:bg-raise" onClick={() => onPlay(m.uci)} title={t(`analysis.tb.${c}`)}>
-                <span className="font-bold">{m.san}</span> <span className={tone(c)}>{distance(m)}</span>
+                <span className="font-bold">{m.san}</span> <span className={tone(c)}>{distance(m, true)}</span>
               </button>
             )
           })}

@@ -346,6 +346,7 @@
     "eraser": "Gomma",
     "castling": "Arrocchi",
     "editorShort": "Editor",
+    "playFromHere": "Gioca contro un bot da qui",
     "illegal": {
       "invalid": "FEN non valido",
       "kings": "Ogni lato deve avere esattamente un re",

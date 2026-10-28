@@ -346,6 +346,7 @@
     "eraser": "橡皮擦",
     "castling": "王车易位",
     "editorShort": "编辑器",
+    "playFromHere": "从此局面与机器人对弈",
     "illegal": {
       "invalid": "无效的 FEN",
       "kings": "双方必须各有且仅有一个王",

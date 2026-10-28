@@ -346,6 +346,7 @@
     "eraser": "Goma",
     "castling": "Enroques",
     "editorShort": "Editor",
+    "playFromHere": "Jugar contra un bot desde aquí",
     "illegal": {
       "invalid": "FEN no válido",
       "kings": "Cada bando necesita exactamente un rey",

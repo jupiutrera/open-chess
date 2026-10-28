@@ -55,7 +55,13 @@ export function useAnalysis(fen: string, enabled: boolean, multipv = 3, maxDepth
             flush ??= setTimeout(publish, INFO_INTERVAL)
           },
         })
-        .then(publish)
+        .then((r) => {
+          // the final result also covers searches whose info lines never reached a publish
+          if (r.lines.length) latest = { l: r.lines, d: r.depth }
+          publish()
+        })
+        // a destroyed or crashed engine: the panel simply stays empty
+        .catch(() => undefined)
     }, 60)
     return () => {
       alive = false

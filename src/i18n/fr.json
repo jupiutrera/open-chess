@@ -346,6 +346,7 @@
     "eraser": "Gomme",
     "castling": "Roques",
     "editorShort": "Éditeur",
+    "playFromHere": "Jouer contre un bot à partir d’ici",
     "illegal": {
       "invalid": "FEN non valide",
       "kings": "Chaque camp doit avoir exactement un roi",
