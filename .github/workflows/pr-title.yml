@@ -1,0 +1,35 @@
+name: PR title
+
+# Pull requests are squash-merged, so the PR title becomes the commit on main that
+# release-please reads. It has to follow Conventional Commits (feat: …, fix: …).
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            revert
+            refactor
+            docs
+            test
+            build
+            ci
+            chore
+            style
+          requireScope: false
+          # the subject reads as a sentence, so it may start with a capital letter
+          subjectPattern: ^.+$

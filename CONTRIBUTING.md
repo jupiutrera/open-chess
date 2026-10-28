@@ -20,6 +20,17 @@ npm run typecheck
 
 Cada PR pasa por el CI: lint, tests unitarios, build y los tests de Playwright. Si falla, revisa el informe que se adjunta al job.
 
+## Título del PR
+
+Los PRs se fusionan con *squash*, así que el título del PR acaba siendo el commit en `main` y la línea del CHANGELOG. Tiene que seguir [Conventional Commits](https://www.conventionalcommits.org/es/v1.0.0/) (un check lo comprueba):
+
+- `feat: Los puzzles se pueden filtrar por tema`: función nueva, sube la versión menor.
+- `fix: El reloj se para al rendirse`: arreglo, sube el parche.
+- `docs:`, `test:`, `ci:`, `refactor:`, `chore:`: no generan versión.
+- Un cambio incompatible (por ejemplo, datos guardados que dejan de leerse) lleva `!`: `feat!: …`.
+
+No toques la versión a mano: la calcula release-please al publicar.
+
 ## Ideas que encajan bien
 
 - **Lecciones nuevas**: añádelas en `src/features/lessons/lessonData.ts`. Cada paso es un ejercicio (FEN y jugadas UCI) o una práctica contra el motor. El test `lessonData.test.ts` comprueba que todas las jugadas son legales y que los mates son mates.

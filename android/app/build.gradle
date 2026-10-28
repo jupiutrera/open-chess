@@ -9,6 +9,12 @@ if (keystorePropsFile.exists()) keystorePropsFile.withInputStream { keystoreProp
 def signingValue = { String key, String env -> keystoreProps.getProperty(key) ?: System.getenv(env) }
 def releaseStoreFile = signingValue('storeFile', 'OC_KEYSTORE_FILE')
 
+// The version comes from package.json, which release-please bumps. versionCode is derived from it
+// (0.5.2 -> 5002), so it always grows with the version and is never edited by hand.
+def appVersion = new groovy.json.JsonSlurper().parse(rootProject.file('../package.json')).version
+def (vMajor, vMinor, vPatch) = appVersion.tokenize('-')[0].tokenize('.').collect { it as int }
+def appVersionCode = vMajor * 1000000 + vMinor * 1000 + vPatch
+
 android {
     namespace = "com.openchess.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +22,8 @@ android {
         applicationId "com.openchess.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 14
-        versionName "0.4.3"
+        versionCode appVersionCode
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

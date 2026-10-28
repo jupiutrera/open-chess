@@ -1,0 +1,31 @@
+name: Bug report
+description: Something doesn't work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you saw instead. Screenshots help.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The APK you installed (e.g. 0.4.3), or leave empty for the website
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where
+      options:
+        - Web (desktop)
+        - Web (phone)
+        - Android APK
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Browser, device, a PGN or FEN that reproduces it…
