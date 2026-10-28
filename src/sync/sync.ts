@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import type { EntityTable } from 'dexie'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
 import { mergeRow } from './merge'
+import { serialRunner } from './runner'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -40,6 +41,8 @@ const PULL_OVERLAP_MS = 2 * 60_000
 const CURSOR_USER_KEY = 'oc-sync-user'
 
 function resetCursors() {
+  // a sync in flight read the old cursors: it must not write them back
+  runner.invalidate()
   localStorage.removeItem(PUSH_KEY)
   localStorage.removeItem(PULL_SEQ_KEY)
   localStorage.removeItem(PULL_TS_KEY)
@@ -49,16 +52,16 @@ function table(name: string) {
   return db[name as (typeof SYNC_TABLES)[number]] as unknown as EntityTable<SyncRow, 'id'>
 }
 
-let running: Promise<void> | null = null
+const runner = serialRunner(doSync, () => !!useSync.getState().user)
 
 /** Pushes local changes, then pulls remote ones. Last write (updatedAt) wins. */
 export function syncNow(): Promise<void> {
   if (!syncConfigured || !useSync.getState().user) return Promise.resolve()
-  running ??= doSync().finally(() => (running = null))
-  return running
+  return runner.run()
 }
 
-async function doSync() {
+/** `stale` turns true when the cursors were reset meanwhile: then nothing more is written. */
+async function doSync(stale: () => boolean) {
   const sb = await supabase()
   useSync.setState({ syncing: true, error: null })
   try {
@@ -78,6 +81,7 @@ async function doSync() {
         if (error) throw error
       }
     }
+    if (stale()) return
     localStorage.setItem(PUSH_KEY, String(pushStart))
 
     let cursor = Number(localStorage.getItem(PULL_SEQ_KEY)) || 0
@@ -90,6 +94,7 @@ async function doSync() {
       first = false
       const { data, error } = await q.order('seq', { ascending: true }).limit(500)
       if (error) throw error
+      if (stale()) return
       if (!data?.length) break
       for (const r of data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]) {
         if (SYNC_TABLES.includes(r.tbl as never)) {
@@ -97,6 +102,7 @@ async function doSync() {
           const keep = mergeRow(r.tbl, await t.get(r.id), { ...r.data, updatedAt: r.updated_at })
           if (keep) await t.put(keep)
         }
+        if (stale()) return
         if (r.seq > cursor) {
           cursor = r.seq
           lastTs = r.server_ts
@@ -195,6 +201,7 @@ export async function importBackup(json: string) {
     }
   })
   // restored rows keep their old updatedAt, which can be below the push cursor: push everything once
+  runner.invalidate()
   localStorage.removeItem(PUSH_KEY)
   void syncNow()
 }
