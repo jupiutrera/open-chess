@@ -92,12 +92,19 @@ export function capturedPieces(fen: string) {
   }
 }
 
-export function gameResultText(chess: Chess): { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null {
+/**
+ * How the game in `chess` has ended, or null. `fiftyMoves: false` leaves the 50-move rule
+ * out (it is a claim, not the end of the position), as Analysis wants.
+ */
+export function gameResultText(
+  chess: Chess,
+  { fiftyMoves = true }: { fiftyMoves?: boolean } = {},
+): { result: '1-0' | '0-1' | '1/2-1/2'; reason: string } | null {
   if (chess.isCheckmate()) return { result: chess.turn() === 'w' ? '0-1' : '1-0', reason: 'checkmate' }
   if (chess.isStalemate()) return { result: '1/2-1/2', reason: 'stalemate' }
   if (chess.isInsufficientMaterial()) return { result: '1/2-1/2', reason: 'insufficient' }
   if (chess.isThreefoldRepetition()) return { result: '1/2-1/2', reason: 'repetition' }
-  if (chess.isDrawByFiftyMoves()) return { result: '1/2-1/2', reason: 'fifty' }
+  if (fiftyMoves && chess.isDrawByFiftyMoves()) return { result: '1/2-1/2', reason: 'fifty' }
   return null
 }
 

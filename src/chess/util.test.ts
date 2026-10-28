@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
-import { canMate, normalizeFen, positionProblem, timeoutResult } from './util'
+import { canMate, gameResultText, normalizeFen, positionProblem, timeoutResult } from './util'
 
 describe('timeoutResult', () => {
   it('is a loss when the opponent has mating material', () => {
@@ -62,5 +62,16 @@ describe('normalizeFen', () => {
   })
   it('leaves unreadable input for positionProblem to reject', () => {
     expect(positionProblem(normalizeFen('hello'))).toBe('invalid')
+  })
+})
+
+describe('gameResultText', () => {
+  const fifty = '4k3/8/8/8/8/8/8/R3K3 w - - 100 80'
+  it('ends on the 50-move rule unless asked not to', () => {
+    expect(gameResultText(new Chess(fifty))?.reason).toBe('fifty')
+    expect(gameResultText(new Chess(fifty), { fiftyMoves: false })).toBeNull()
+  })
+  it('still reports checkmate without the 50-move rule', () => {
+    expect(gameResultText(new Chess('R3k3/8/4K3/8/8/8/8/8 b - - 100 80'), { fiftyMoves: false })?.reason).toBe('checkmate')
   })
 })

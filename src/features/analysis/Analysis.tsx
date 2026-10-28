@@ -77,13 +77,16 @@ export default function Analysis() {
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
   const viewedQuality = rateMoves ? rating.quality(viewedMove) : undefined
   const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
+  // replayed up to the viewed ply so repetitions count; the 50-move rule doesn't end an analysis
   const outcome = useMemo(() => {
     try {
-      return gameResultText(new Chess(game.fen))
+      const c = new Chess(game.startFen)
+      for (const m of game.moves.slice(0, game.ply)) c.move(m.san)
+      return gameResultText(c, { fiftyMoves: false })
     } catch {
       return null
     }
-  }, [game.fen])
+  }, [game.startFen, game.moves, game.ply])
   // a finished position has no engine lines; show the result instead
   const evalScore = outcome ? (outcome.reason === 'checkmate' ? { mate: 0, cp: outcome.result === '1-0' ? 1 : -1 } : { cp: 0 }) : lines[0]?.score
   const best = lines[0]
