@@ -29,6 +29,7 @@ import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
 import { annotatedPgn } from './pgnExport'
 import { explainMove } from './explain'
+import { playLine } from './line'
 
 type Mode = 'summary' | 'moves'
 
@@ -47,6 +48,10 @@ export default function Review() {
   const [retry, setRetry] = useState<null | 'waiting' | 'wrong' | 'right'>(null)
   // engine line whose first move is drawn on the board
   const [lineArrow, setLineArrow] = useState<number | null>(null)
+  // moves of that line played out on the board ("show follow-up")
+  const [lineStep, setLineStep] = useState(0)
+  // set each render while a line is picked: the board keys step through it instead of the game
+  const lineKeys = useRef<((p: number) => boolean) | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -126,6 +131,7 @@ export default function Review() {
       setVariation(null)
       setRetry(null)
       setLineArrow(null)
+      setLineStep(0)
       setPly((cur) => {
         if (next === cur + 1) {
           const c = new Chess(parsed.fens[cur])
@@ -138,7 +144,8 @@ export default function Review() {
     [parsed, total, cancelRetry],
   )
 
-  useBoardKeys({ ply, total, goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
+  const keyGoto = useCallback((p: number) => lineKeys.current?.(p) || goto(p), [goto])
+  useBoardKeys({ ply, total, goto: keyGoto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   if (game === undefined) return <BoardScreenSkeleton />
   if (game === null || !parsed)
@@ -152,10 +159,36 @@ export default function Review() {
     )
 
   const current: MoveReview | undefined = review && ply > 0 ? review.moves[ply - 1] : undefined
-  const fen = variation?.fen ?? (retry ? parsed.fens[ply - 1] : parsed.fens[ply])
+  const positionLines = mode === 'moves' && !variation && !retry ? review?.lines?.[ply] : undefined
+  const pickedLine = lineArrow !== null ? positionLines?.[lineArrow] : undefined
+  const lineView = pickedLine && lineStep > 0 ? playLine(parsed.fens[ply], pickedLine.pv, lineStep) : null
+  const lineLength = pickedLine ? playLine(parsed.fens[ply], pickedLine.pv, pickedLine.pv.length).played : 0
+  const stepLine = (d: number) => {
+    const next = Math.max(0, Math.min(lineLength, lineStep + d))
+    if (next === lineStep || !pickedLine) return
+    if (next > lineStep) {
+      const m = playLine(parsed.fens[ply], pickedLine.pv, next).last
+      if (m) playMoveSound(m)
+    }
+    setLineStep(next)
+  }
+  lineKeys.current = pickedLine
+    ? (p) => {
+        // ← → step the line (also at the game's ends, where the target ply is clamped); ← from its start leaves it
+        if (p === ply + 1 || (p === ply && ply === total)) stepLine(1)
+        else if (p === ply - 1 || (p === ply && ply === 0)) {
+          if (lineStep > 0) stepLine(-1)
+          else setLineArrow(null)
+        } else return false
+        return true
+      }
+    : null
+  const fen = variation?.fen ?? lineView?.fen ?? (retry ? parsed.fens[ply - 1] : parsed.fens[ply])
   const lastMove: [string, string] | null = variation
     ? variation.lastMove
-    : retry
+    : lineView?.last
+      ? [lineView.last.from, lineView.last.to]
+      : retry
       ? ply > 1
         ? [parsed.moves[ply - 2].from, parsed.moves[ply - 2].to]
         : null
@@ -166,8 +199,8 @@ export default function Review() {
 
   const showArrow =
     mode === 'moves' && !variation && !retry && current?.bestUci && !['best', 'book', 'forced', 'brilliant', 'great'].includes(current.quality)
-  const positionLines = mode === 'moves' && !variation && !retry ? review?.lines?.[ply] : undefined
-  const pickedUci = lineArrow !== null ? positionLines?.[lineArrow]?.pv[0] : undefined
+  // the line's next move
+  const pickedUci = pickedLine?.pv[lineStep]
   const shapes: DrawShape[] = pickedUci
     ? [{ orig: pickedUci.slice(0, 2) as never, dest: pickedUci.slice(2, 4) as never, brush: 'paleBlue' }]
     : showArrow
@@ -177,12 +210,12 @@ export default function Review() {
     mode === 'moves' && !retry
       ? variation
         ? variation.quality && { square: variation.lastMove[1], quality: variation.quality }
-        : current && { square: parsed.moves[ply - 1].to, quality: current.quality }
+        : !lineView && current && { square: parsed.moves[ply - 1].to, quality: current.quality }
       : null
 
   const h = parsed.headers
   const result = (h.Result ?? game.result) as '1-0' | '0-1' | '1/2-1/2' | '*'
-  const outcome = ply === total && !variation && !retry && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
+  const outcome = ply === total && !variation && !retry && !lineView && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
 
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
@@ -209,12 +242,14 @@ export default function Review() {
     cancelRetry()
     setRetry(null)
     setLineArrow(null)
+    setLineStep(0)
     setVariation({ fen: c.fen(), lastMove: [m.from, m.to], quality: 'best' })
   }
 
   const startRetry = () => {
     cancelRetry()
     setLineArrow(null)
+    setLineStep(0)
     setVariation(null)
     setRetry('waiting')
   }
@@ -344,7 +379,12 @@ export default function Review() {
                   lines={positionLines}
                   missing={!review.lines}
                   picked={lineArrow}
-                  onPick={(i) => setLineArrow((cur) => (cur === i ? null : i))}
+                  step={lineStep}
+                  onPick={(i) => {
+                    setLineArrow((cur) => (cur === i ? null : i))
+                    setLineStep(0)
+                  }}
+                  onStep={stepLine}
                 />
               )}
               <div className="px-3 pt-3">
@@ -674,14 +714,19 @@ function EngineLines({
   lines,
   missing,
   picked,
+  step,
   onPick,
+  onStep,
 }: {
   fen: string
   lines?: PvLine[]
   /** review made before lines were stored */
   missing: boolean
   picked: number | null
+  /** moves of the picked line shown on the board */
+  step: number
   onPick: (i: number) => void
+  onStep: (d: number) => void
 }) {
   const { t } = useTranslation()
   if (missing) return <p className="border-b border-line px-4 py-2 text-[12px] text-fg-3">{t('review.engineLinesHint')}</p>
@@ -689,23 +734,63 @@ function EngineLines({
   if (!lines?.length) return null
   return (
     <div className="border-b border-line py-1" role="group" aria-label={t('review.engineLines')}>
-      {lines.slice(0, 2).map((l, i) => (
-        <button
-          key={i}
-          className={`flex w-full items-baseline gap-2 px-3 py-1.5 text-left text-[13px] transition-colors duration-100 hover:bg-raise ${picked === i ? 'bg-raise' : ''}`}
-          aria-pressed={picked === i}
-          onClick={() => onPick(i)}
-        >
-          <span
-            className={`tabular w-14 shrink-0 rounded px-1 py-0.5 text-center font-mono font-bold ${
-              winPercent(l.score) >= 50 ? 'bg-[#f1f1f1] text-[#262421]' : 'bg-[#1b1a18] text-[#f1f1f1]'
-            }`}
-          >
-            {formatScore(l.score)}
-          </span>
-          <span className="truncate text-fg-2">{uciLineToSan(fen, l.pv, 6).join(' ')}</span>
-        </button>
-      ))}
+      {lines.slice(0, 2).map((l, i) => {
+        const open = picked === i
+        // the picked line shows all its moves, the one on the board in bold
+        const sans = uciLineToSan(fen, l.pv, open ? undefined : 6)
+        return (
+          <div key={i} className={open ? 'bg-raise' : ''}>
+            <button
+              className="flex w-full items-baseline gap-2 px-3 py-1.5 text-left text-[13px] transition-colors duration-100 hover:bg-raise"
+              aria-pressed={open}
+              onClick={() => onPick(i)}
+            >
+              <span
+                className={`tabular w-14 shrink-0 rounded px-1 py-0.5 text-center font-mono font-bold ${
+                  winPercent(l.score) >= 50 ? 'bg-[#f1f1f1] text-[#262421]' : 'bg-[#1b1a18] text-[#f1f1f1]'
+                }`}
+              >
+                {formatScore(l.score)}
+              </span>
+              <span className={open ? 'min-w-0 text-fg-2' : 'truncate text-fg-2'}>
+                {open
+                  ? sans.map((san, j) => (
+                      <span key={j} className={j === step - 1 ? 'font-bold text-fg' : ''}>
+                        {j ? ' ' : ''}
+                        {san}
+                      </span>
+                    ))
+                  : sans.join(' ')}
+              </span>
+            </button>
+            {open && sans.length > 0 && (
+              <div className="flex items-center gap-1 pb-1 pl-[76px] pr-2 text-[12px] text-fg-3">
+                <span className="tabular" aria-live="polite">
+                  {t('review.lineStep', { n: step, total: sans.length })}
+                </span>
+                <button
+                  className="btn btn-ghost btn-icon ml-auto"
+                  aria-label={t('review.linePrev')}
+                  title={t('review.linePrev')}
+                  disabled={step === 0}
+                  onClick={() => onStep(-1)}
+                >
+                  <CaretLeft size={18} weight="bold" />
+                </button>
+                <button
+                  className="btn btn-ghost btn-icon"
+                  aria-label={t('review.lineNext')}
+                  title={t('review.lineNext')}
+                  disabled={step >= sans.length}
+                  onClick={() => onStep(1)}
+                >
+                  <CaretRight size={18} weight="bold" />
+                </button>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

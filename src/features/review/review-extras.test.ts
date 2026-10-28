@@ -3,6 +3,7 @@ import { Chess } from 'chess.js'
 import { explainMove } from './explain'
 import { annotatedPgn } from './pgnExport'
 import { moveNumberLabel } from './moveNumber'
+import { playLine } from './line'
 import type { MoveReview } from './classify'
 import type { GameRow } from '../../db/db'
 
@@ -62,5 +63,19 @@ describe('moveNumberLabel', () => {
     expect(moveNumberLabel(1, fen, '...')).toBe('23...')
     expect(moveNumberLabel(2, fen)).toBe('24.')
     expect(moveNumberLabel(3, fen)).toBe('24…')
+  })
+})
+
+describe('playLine', () => {
+  const start = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  it('steps into an engine line', () => {
+    const r = playLine(start, ['e2e4', 'e7e5', 'g1f3'], 2)
+    expect(r.played).toBe(2)
+    expect(r.last?.san).toBe('e5')
+    expect(r.fen.split(' ')[0]).toBe('rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR')
+  })
+  it('step 0 is the position itself, and an illegal move ends the line', () => {
+    expect(playLine(start, ['e2e4'], 0)).toEqual({ fen: start, last: null, played: 0 })
+    expect(playLine(start, ['e2e4', 'e2e4', 'g1f3'], 3).played).toBe(1)
   })
 })
