@@ -60,7 +60,7 @@ export async function analyzeGame(
   }
   const moves = classifyMoves(positions, parsed.moves, (fen, ply) => ply <= 30 && isBook(fen))
   const curve = positions.map((p) => winPercent(p.score))
-  const review = { depth, accuracy: gameAccuracy(curve), moves, curve }
+  const review = { depth, accuracy: gameAccuracy(curve, parsed.startFen.split(' ')[1] === 'b' ? 'b' : 'w'), moves, curve }
   await put<GameRow>('games', { ...game, review })
   return review
 }

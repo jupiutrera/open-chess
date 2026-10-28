@@ -32,6 +32,15 @@ describe('accuracy', () => {
     const a = gameAccuracy(curve)
     expect(a.white).toBeLessThan(a.black)
   })
+  it('attributes moves correctly when Black moves first', () => {
+    // White's win% jumps at index 4 -> 5: a Black blunder when Black moves first
+    const curve = [48, 47, 48, 46, 47, 85, 86, 87, 88, 90, 91]
+    const a = gameAccuracy(curve, 'b')
+    expect(a.black).toBeLessThan(a.white)
+    // read as a White-first game the same jump is a White gain, so nobody erred
+    const wrong = gameAccuracy(curve)
+    expect(wrong.black).toBeGreaterThan(a.black)
+  })
   it('rating estimate grows with accuracy', () => {
     expect(estimateRating(90)).toBeGreaterThan(estimateRating(70))
   })

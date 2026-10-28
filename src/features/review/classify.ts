@@ -60,8 +60,9 @@ function stdev(xs: number[]): number {
  * Game accuracy per colour, Lichess style: volatility-weighted mean averaged
  * with the harmonic mean of per-move accuracies.
  * @param whiteWins win% (White POV) for every position, length = moves + 1
+ * @param firstMover side to move in the first position (games set up from a FEN may start with Black)
  */
-export function gameAccuracy(whiteWins: number[]): { white: number; black: number } {
+export function gameAccuracy(whiteWins: number[], firstMover: 'w' | 'b' = 'w'): { white: number; black: number } {
   const n = whiteWins.length - 1
   if (n < 1) return { white: 100, black: 100 }
   const windowSize = Math.max(2, Math.min(8, Math.floor(n / 10)))
@@ -74,7 +75,7 @@ export function gameAccuracy(whiteWins: number[]): { white: number; black: numbe
   const acc = { w: [] as number[], b: [] as number[] }
   const wts = { w: [] as number[], b: [] as number[] }
   for (let i = 0; i < n; i++) {
-    const white = i % 2 === 0
+    const white = (i % 2 === 0) === (firstMover === 'w')
     const before = white ? whiteWins[i] : 100 - whiteWins[i]
     const after = white ? whiteWins[i + 1] : 100 - whiteWins[i + 1]
     const a = moveAccuracy(before, after)
