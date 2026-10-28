@@ -1,6 +1,7 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { create } from 'zustand'
 import type { EntityTable } from 'dexie'
+import i18n from 'i18next'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
 import { mergeRow } from './merge'
 import { serialRunner } from './runner'
@@ -37,7 +38,10 @@ const PULL_SEQ_KEY = 'oc-sync-pull-seq'
 const PULL_TS_KEY = 'oc-sync-pull-ts'
 /** rows committed late can carry a seq below the cursor; re-read this window to catch them */
 const PULL_OVERLAP_MS = 2 * 60_000
-/** account the cursors belong to: another account must start from scratch */
+/**
+ * account the cursors and the local data belong to: another account must start from scratch,
+ * and must not receive that data without asking. Kept after a sign-out that keeps the data.
+ */
 const CURSOR_USER_KEY = 'oc-sync-user'
 
 function resetCursors() {
@@ -129,16 +133,30 @@ export function startSync(): () => void {
   let unsubscribe = () => {}
   void supabase().then((sb) => {
     if (stopped) return
-    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
-      const user = session?.user ?? null
+    let chain = Promise.resolve()
+    let declined: string | null = null
+    const onSession = async (user: User | null) => {
       const prev = useSync.getState().user
+      if (stopped || (user && user.id === declined)) return
+      const owner = localStorage.getItem(CURSOR_USER_KEY)
+      if (user && user.id !== prev?.id && owner && owner !== user.id && (await hasLocalData()) && !window.confirm(i18n.t('profile.foreignData'))) {
+        // the data here belongs to another account: don't upload it into this one
+        declined = user.id
+        await sb.auth.signOut()
+        return
+      }
+      if (!user) declined = null
       useSync.setState({ user })
-      if (user && localStorage.getItem(CURSOR_USER_KEY) !== user.id) {
+      if (user && owner !== user.id) {
         // a different account (even without a sign-out in between) must not reuse the cursors
         resetCursors()
         localStorage.setItem(CURSOR_USER_KEY, user.id)
       }
       if (user && user.id !== prev?.id) void syncNow()
+    }
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => {
+      // auth calls inside this callback deadlock: handle it afterwards, one event at a time
+      setTimeout(() => (chain = chain.then(() => onSession(session?.user ?? null)).catch(() => undefined)), 0)
     })
     unsubscribe = () => sub.subscription.unsubscribe()
   })
@@ -168,10 +186,32 @@ export async function signInWithGoogle() {
   if (error) throw error
 }
 
+async function hasLocalData() {
+  for (const name of SYNC_TABLES) if (await table(name).filter((r) => !r.deleted).first()) return true
+  return false
+}
+
+/**
+ * Signs out. The user may also erase the synced data from this device (after a last sync, so nothing
+ * is lost); data that stays is remembered as this account's, and another account asks before taking it.
+ */
 export async function signOut() {
+  let clear = !!useSync.getState().user && window.confirm(i18n.t('profile.signOutClear'))
+  if (clear) {
+    await syncNow()
+    if (useSync.getState().error) {
+      window.alert(i18n.t('profile.signOutKept'))
+      clear = false
+    }
+  }
   if (syncConfigured) await (await supabase()).auth.signOut()
   resetCursors()
-  localStorage.removeItem(CURSOR_USER_KEY)
+  if (clear) {
+    localStorage.removeItem(CURSOR_USER_KEY)
+    await db.transaction('rw', SYNC_TABLES.map(table), () => Promise.all(SYNC_TABLES.map((name) => table(name).clear())))
+    // in-memory caches (seen puzzles, live queries) still hold the old data
+    location.reload()
+  }
 }
 
 /** Full local backup as JSON (works without an account). */
