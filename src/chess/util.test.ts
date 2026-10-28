@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
-import { canMate, positionProblem, timeoutResult } from './util'
+import { canMate, normalizeFen, positionProblem, timeoutResult } from './util'
 
 describe('timeoutResult', () => {
   it('is a loss when the opponent has mating material', () => {
@@ -33,5 +33,34 @@ describe('positionProblem', () => {
     expect(positionProblem('P3k3/8/8/8/8/8/8/4K3 w - - 0 1')).not.toBeNull()
     expect(positionProblem('8/8/8/8/8/8/8/4K3 w - - 0 1')).not.toBeNull()
     expect(positionProblem('garbage')).toBe('invalid')
+  })
+})
+
+describe('normalizeFen', () => {
+  it('keeps a valid FEN as is', () => {
+    const start = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    expect(normalizeFen(start)).toBe(start)
+    const afterE4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+    expect(normalizeFen(afterE4)).toBe(afterE4)
+  })
+  it('drops castling rights without the king and rook at home', () => {
+    expect(normalizeFen('r3k3/8/8/8/8/8/8/4K2R w KQkq - 0 1')).toBe('r3k3/8/8/8/8/8/8/4K2R w Kq - 0 1')
+    expect(normalizeFen('4k3/8/8/8/8/8/8/R4K1R w KQ - 0 1')).toBe('4k3/8/8/8/8/8/8/R4K1R w - - 0 1')
+  })
+  it('drops an en-passant square no pawn could have skipped', () => {
+    // no pawn on e4
+    expect(normalizeFen('4k3/8/8/8/8/8/8/4K3 b - e3 0 1')).toBe('4k3/8/8/8/8/8/8/4K3 b - - 0 1')
+    // wrong side to move for a rank-3 square
+    expect(normalizeFen('4k3/8/8/8/4P3/8/8/4K3 w - e3 0 1')).toBe('4k3/8/8/8/4P3/8/8/4K3 w - - 0 1')
+    // the square the pawn came from is occupied
+    expect(normalizeFen('4k3/3p4/8/3p4/8/8/8/4K3 w - d6 0 1')).toBe('4k3/3p4/8/3p4/8/8/8/4K3 w - - 0 1')
+    expect(normalizeFen('4k3/8/8/3p4/8/8/8/4K3 w - d6 0 1')).toBe('4k3/8/8/3p4/8/8/8/4K3 w - d6 0 1')
+  })
+  it('fills in missing trailing fields and trims whitespace', () => {
+    expect(normalizeFen('  4k3/8/8/8/8/8/8/4K3 w  ')).toBe('4k3/8/8/8/8/8/8/4K3 w - - 0 1')
+    expect(positionProblem(normalizeFen('4k3/8/8/8/8/8/8/4K3 b'))).toBeNull()
+  })
+  it('leaves unreadable input for positionProblem to reject', () => {
+    expect(positionProblem(normalizeFen('hello'))).toBe('invalid')
   })
 })
