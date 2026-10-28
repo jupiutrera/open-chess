@@ -141,7 +141,9 @@
     "replaceSaved": "Vous avez une partie non terminée contre {{name}}. En commencer une autre l'abandonnera.",
     "customStart": "Partie depuis une position personnalisée",
     "standardStart": "Position initiale",
-    "invalidStart": "Cette position n'est pas jouable : la partie commencera depuis la position initiale."
+    "invalidStart": "Cette position n'est pas jouable : la partie commencera depuis la position initiale.",
+    "typeMove": "Tapez un coup (e4, Nf3, O-O)",
+    "illegalMove": "« {{move}} » n'est pas un coup légal ici"
   },
   "bots": {
     "group": {

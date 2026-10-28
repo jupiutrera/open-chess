@@ -20,6 +20,7 @@ import { botAcceptsDraw, botById, botMove } from './bots'
 import { timeControl } from './timeControl'
 import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
 import { GameAnnouncer } from '../../board/GameAnnouncer'
+import { MoveInput } from '../../board/MoveInput'
 import { saveGame } from '../../db/games'
 import { clearLiveGame, loadLiveGame, saveLiveGame } from './liveGame'
 import { winPercent } from '../review/classify'
@@ -458,6 +459,7 @@ export default function PlayBot() {
               qualities={assist.feedback ? qualities : undefined}
               className="hidden min-h-[120px] flex-1 py-1 lg:block"
             />
+            {!end && <MoveInput fen={liveFen} disabled={!userTurn} onMove={onUserMove} className="border-t border-line p-3" />}
             <div className="flex items-center justify-center gap-1 border-t border-line p-2 max-lg:order-3">
               <button className="btn btn-ghost btn-icon" onClick={() => game.goto(game.ply - 1)} aria-label={t('review.prev')}>
                 <CaretLeft size={22} weight="bold" />

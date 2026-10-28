@@ -141,7 +141,9 @@
     "replaceSaved": "Hai una partita non finita contro {{name}}. Iniziarne un'altra la scarterà.",
     "customStart": "Partita da una posizione personalizzata",
     "standardStart": "Posizione iniziale",
-    "invalidStart": "Questa posizione non si può giocare: la partita inizierà dalla posizione iniziale."
+    "invalidStart": "Questa posizione non si può giocare: la partita inizierà dalla posizione iniziale.",
+    "typeMove": "Scrivi una mossa (e4, Nf3, O-O)",
+    "illegalMove": "«{{move}}» non è una mossa legale qui"
   },
   "bots": {
     "group": {

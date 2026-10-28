@@ -141,7 +141,9 @@
     "replaceSaved": "你与 {{name}} 的对局尚未结束。开始新对局将放弃它。",
     "customStart": "从自定义局面开始",
     "standardStart": "标准开局",
-    "invalidStart": "该局面无法对弈，将从标准初始局面开始。"
+    "invalidStart": "该局面无法对弈，将从标准初始局面开始。",
+    "typeMove": "输入走法（e4、Nf3、O-O）",
+    "illegalMove": "“{{move}}”在此局面不是合法走法"
   },
   "bots": {
     "group": {

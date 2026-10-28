@@ -141,7 +141,9 @@
     "replaceSaved": "{{name}}との対局が途中です。新しく始めると破棄されます。",
     "customStart": "カスタム局面から開始",
     "standardStart": "通常の初期配置",
-    "invalidStart": "この局面は対局できないため、通常の初期配置から始めます。"
+    "invalidStart": "この局面は対局できないため、通常の初期配置から始めます。",
+    "typeMove": "指し手を入力（e4、Nf3、O-O）",
+    "illegalMove": "「{{move}}」はこの局面では指せません"
   },
   "bots": {
     "group": {

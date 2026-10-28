@@ -141,7 +141,9 @@
     "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it.",
     "customStart": "Starting from a custom position",
     "standardStart": "Standard start",
-    "invalidStart": "That position can't be played, so the game starts from the usual position."
+    "invalidStart": "That position can't be played, so the game starts from the usual position.",
+    "typeMove": "Type a move (e4, Nf3, O-O)",
+    "illegalMove": "“{{move}}” isn't a legal move here"
   },
   "bots": {
     "group": {
