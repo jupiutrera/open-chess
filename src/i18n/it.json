@@ -241,7 +241,10 @@
     "mistakesSub": "Rigioca le posizioni sbagliate nelle tue partite analizzate",
     "mistakesEmpty": "Ancora nessun errore da ripassare. Gioca o importa partite, analizzale e qui compariranno le posizioni sbagliate.",
     "mistakeContext": "Contro {{opponent}} hai giocato {{san}} ({{quality}}). Trova la mossa migliore.",
-    "seeGame": "Vedi partita"
+    "seeGame": "Vedi partita",
+    "missed": "Problemi sbagliati",
+    "view": "Vedi il problema",
+    "results": "Risultati"
   },
   "themes": {
     "mateIn1": "Matto in 1",

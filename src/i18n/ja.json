@@ -241,7 +241,10 @@
     "mistakesSub": "解析済みの対局で間違えた局面をもう一度",
     "mistakesEmpty": "まだ練習するミスがありません。対局をプレイまたはインポートして解析すると、間違えた局面がここに表示されます。",
     "mistakeContext": "{{opponent}}戦で{{san}}（{{quality}}）を指しました。最善手を見つけましょう。",
-    "seeGame": "対局を見る"
+    "seeGame": "対局を見る",
+    "missed": "間違えたパズル",
+    "view": "パズルを見る",
+    "results": "結果"
   },
   "themes": {
     "mateIn1": "1手詰め",

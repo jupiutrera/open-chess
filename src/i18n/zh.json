@@ -241,7 +241,10 @@
     "mistakesSub": "重练你在已复盘对局中走错的局面",
     "mistakesEmpty": "暂时没有可练习的失误。下棋或导入对局并复盘后，你走错的局面会出现在这里。",
     "mistakeContext": "对阵 {{opponent}} 时你走了 {{san}}（{{quality}}）。找出最佳着法。",
-    "seeGame": "查看对局"
+    "seeGame": "查看对局",
+    "missed": "做错的谜题",
+    "view": "查看谜题",
+    "results": "结果"
   },
   "themes": {
     "mateIn1": "一步杀",
