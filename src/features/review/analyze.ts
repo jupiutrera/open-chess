@@ -3,6 +3,7 @@ import { sharedEngine } from '../../engine/engine'
 import { classifyMoves, gameAccuracy, terminalScore, winPercent, type PositionEval } from './classify'
 import { bookChecker } from '../openings/openingsData'
 import { db, put, type GameRow } from '../../db/db'
+import { clearPartial, loadPartial, savePartial } from './partial'
 
 export interface ParsedGame {
   startFen: string
@@ -35,9 +36,11 @@ export async function analyzeGame(
   const engine = sharedEngine()
   await engine.newGame()
   const isBook = await bookChecker()
-  const positions: PositionEval[] = []
+  // resume where an interrupted review of this game stopped
+  const positions: PositionEval[] = loadPartial(game.id, depth, game.pgn, parsed.fens)
   const total = parsed.fens.length
-  for (let i = 0; i < total; i++) {
+  if (positions.length) onProgress(positions.length, total)
+  for (let i = positions.length; i < total; i++) {
     if (signal?.cancelled) return null
     const fen = parsed.fens[i]
     const term = terminalScore(fen)
@@ -48,6 +51,7 @@ export async function analyzeGame(
       const r = await engine.search(fen, { depth, multipv: 2, movetime: 1200 })
       if (signal?.cancelled) return null
       positions.push({ fen, lines: r.lines, score: r.lines[0]?.score ?? { cp: 0 } })
+      savePartial(game.id, depth, game.pgn, positions)
     }
     onProgress(i + 1, total)
   }
@@ -55,6 +59,7 @@ export async function analyzeGame(
   const curve = positions.map((p) => winPercent(p.score))
   const review = { depth, accuracy: gameAccuracy(curve, parsed.startFen.split(' ')[1] === 'b' ? 'b' : 'w'), moves, curve }
   await put<GameRow>('games', { ...game, review })
+  clearPartial(game.id)
   return review
 }
 
