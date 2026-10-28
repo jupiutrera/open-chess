@@ -6,14 +6,12 @@ import { i18nReady } from './i18n'
 import { App } from './App'
 import { Capacitor } from '@capacitor/core'
 import { useUpdate } from './ui/UpdateBanner'
-import { clearReloadFlag, reloadOnce } from './ui/ErrorBoundary'
+import { reloadOnce } from './ui/ErrorBoundary'
 
 // a lazy screen whose chunk vanished with a new deploy: reload once onto the new version
 window.addEventListener('vite:preloadError', (e) => {
   if (reloadOnce()) e.preventDefault()
 })
-// the app loaded fine, so a failure later in this session is a new deploy and may reload again
-setTimeout(clearReloadFlag, 10_000)
 
 if (Capacitor.isNativePlatform()) {
   // a service worker inside the WebView would serve stale assets after an update

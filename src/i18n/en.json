@@ -283,6 +283,7 @@
     "offline": "Couldn't load puzzles. Check your connection and try again; puzzles you open online stay available offline.",
     "exhausted": "You've played every puzzle around your rating.",
     "themeExhausted": "You've played every puzzle of this theme around your rating.",
+    "themeEmpty": "There are no puzzles of this theme around your rating.",
     "includePlayed": "Include puzzles already played",
     "skip": "Skip this puzzle (once per run)",
     "skipUsed": "Skip used"

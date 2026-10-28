@@ -104,7 +104,10 @@ async function doSync(stale: () => boolean) {
       const page = data as { tbl: string; id: string; data: SyncRow; updated_at: number; server_ts: string; seq: number }[]
       const byTable = new Map<string, SyncRow[]>()
       for (const r of page) {
-        if (SYNC_TABLES.includes(r.tbl as never)) byTable.set(r.tbl, [...(byTable.get(r.tbl) ?? []), { ...r.data, id: r.id, updatedAt: r.updated_at }])
+        if (!SYNC_TABLES.includes(r.tbl as never)) continue
+        let rows = byTable.get(r.tbl)
+        if (!rows) byTable.set(r.tbl, (rows = []))
+        rows.push({ ...r.data, id: r.id, updatedAt: r.updated_at })
       }
       // one transaction per page: a local write can't land between reading a row and merging over it
       const applied = await db.transaction('rw', SYNC_TABLES.map(table), async () => {

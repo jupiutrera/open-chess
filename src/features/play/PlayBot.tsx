@@ -265,8 +265,10 @@ export default function PlayBot() {
         const minThink = Math.min(350 + Math.random() * 500, botClock ? botClock.left / 60 : Infinity)
         const wait = Math.max(0, minThink - (performance.now() - started))
         await new Promise((r) => setTimeout(r, wait))
-        if (cancelled || endRef.current) return
+        if (cancelled) return
+        // also when the game ended meanwhile: thinking pauses the assist engine
         setThinking(false)
+        if (endRef.current) return
         if (!uci) {
           // the search was superseded (e.g. by a hint or a draw offer): think again
           setBotRetry((n) => n + 1)

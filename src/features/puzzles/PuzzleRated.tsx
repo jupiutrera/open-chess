@@ -69,7 +69,7 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
       <div className="mx-auto max-w-md p-6">
         <Panel className="space-y-4 p-5">
           <p className="text-fg-2">
-            {empty === 'offline' ? t('puzzles.offline') : empty === 'missing' ? t('puzzles.noData') : theme ? t('puzzles.themeExhausted') : t('puzzles.exhausted')}
+            {empty === 'offline' ? t('puzzles.offline') : empty === 'missing' ? t('puzzles.noData') : empty === 'none' ? t('puzzles.themeEmpty') : theme ? t('puzzles.themeExhausted') : t('puzzles.exhausted')}
           </p>
           <div className="flex flex-wrap gap-2">
             {empty === 'exhausted' && !daily && (

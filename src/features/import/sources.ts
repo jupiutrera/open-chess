@@ -300,6 +300,8 @@ export async function importPgnText(text: string, opts: PgnImportOptions = {}): 
   const texts = splitPgn(text)
   /** new rows not written yet, by external id: the same game twice in one file is stored once */
   const pending = new Map<string, GameRow>()
+  /** every game this import added, flushed or not: a repeat later in the file is neither new nor "already had" */
+  const added = new Set<string>()
   const flush = async () => {
     if (pending.size) await db.games.bulkPut([...pending.values()])
     pending.clear()
@@ -326,7 +328,8 @@ export async function importPgnText(text: string, opts: PgnImportOptions = {}): 
     const moves = c.history()
     const identity = pgnIdentity(h, moves)
     const externalId = `pgn:${hash64(identity)}`
-    const existing = pending.get(externalId) ?? (await findPgnGame(identity, [h.White, h.Black, h.Date, h.Round, moves.join(' ')].join('|')))
+    if (added.has(externalId)) continue
+    const existing = await findPgnGame(identity, [h.White, h.Black, h.Date, h.Round, moves.join(' ')].join('|'))
     if (existing) {
       out.push(existing)
       existingCount++
@@ -352,6 +355,7 @@ export async function importPgnText(text: string, opts: PgnImportOptions = {}): 
       updatedAt: Date.now(),
     }
     pending.set(externalId, row)
+    added.add(externalId)
     out.push(row)
   }
   await flush()

@@ -2,6 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const RELOADED = 'oc-chunk-reload'
+const RELOAD_EVERY_MS = 5 * 60 * 1000
 
 /**
  * After a deploy the old hashed chunks are gone, so a lazy screen fails to load. One reload picks up the
@@ -9,7 +10,10 @@ const RELOADED = 'oc-chunk-reload'
  */
 export function reloadOnce(): boolean {
   try {
-    if (sessionStorage.getItem(RELOADED)) return false
+    // offline the chunk is missing for good: show the error screen instead of reloading into it
+    if (!navigator.onLine) return false
+    // at most one reload every few minutes, so a chunk that keeps failing can't loop
+    if (Date.now() - Number(sessionStorage.getItem(RELOADED) ?? 0) < RELOAD_EVERY_MS) return false
     sessionStorage.setItem(RELOADED, String(Date.now()))
   } catch {
     return false
@@ -19,13 +23,6 @@ export function reloadOnce(): boolean {
 }
 
 /** Called once the app has run fine for a while: a later deploy in the same session may reload again. */
-export function clearReloadFlag() {
-  try {
-    sessionStorage.removeItem(RELOADED)
-  } catch {
-    // storage blocked: reloadOnce never reloads then, which is the safe side
-  }
-}
 
 const isChunkError = (e: unknown) =>
   e instanceof Error && /dynamically imported module|Importing a module script failed|Unable to preload|Loading chunk/i.test(e.message)

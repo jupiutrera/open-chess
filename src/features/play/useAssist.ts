@@ -33,6 +33,9 @@ export interface ExternalLines {
   done: boolean
 }
 
+/** How long a position waits for outside lines before searching itself. */
+const EXTERNAL_WAIT_MS = 8000
+
 /** Whether outside lines are as good as our own search of `fen` would be. */
 export function externalCovers(ext: ExternalLines | undefined, fen: string): boolean {
   if (!ext || ext.fen !== fen || !ext.lines[0]) return false
@@ -155,7 +158,14 @@ export function useAssist({
       else if (ext && externalCovers(ext, f)) p = Promise.resolve({ fen: f, lines: ext.lines, score: ext.lines[0].score })
       else if (ext?.fen === f)
         p = new Promise<PositionEval>((resolve, reject) => {
-          waiting.current.set(f, { resolve, fallback: () => search(f).then(resolve, reject) })
+          const w = { resolve, fallback: () => search(f).then(resolve, reject) }
+          waiting.current.set(f, w)
+          // the outside search may stall (hidden tab) or end without lines: don't wait on it forever
+          setTimeout(() => {
+            if (waiting.current.get(f) !== w) return
+            waiting.current.delete(f)
+            w.fallback()
+          }, EXTERNAL_WAIT_MS)
         })
       else p = search(f)
       evals.current.set(f, p)
@@ -169,7 +179,7 @@ export function useAssist({
   useEffect(() => {
     for (const [f, w] of waiting.current) {
       if (external && externalCovers(external, f)) w.resolve({ fen: f, lines: external.lines, score: external.lines[0].score })
-      else if (external?.fen === f) continue
+      else if (external?.fen === f && !external.done) continue
       else w.fallback()
       waiting.current.delete(f)
     }

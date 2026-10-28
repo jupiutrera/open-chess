@@ -28,6 +28,7 @@ export default function OpeningTrainer() {
   const [highlights, setHighlights] = useState<Map<string, string> | undefined>()
   /** cards missed this session, asked again once before "all done" */
   const missed = useRef<RepertoireRow[]>([])
+  const grading = useRef<Promise<void>>(Promise.resolve())
   const reasking = useRef(false)
   /** a wrong move on show, before the position snaps back */
   const [flashing, setFlashing] = useState(false)
@@ -120,13 +121,18 @@ export default function OpeningTrainer() {
     } else {
       setResult('wrong')
       rejectMove(c.fen(), m.from, m.to)
-      const graded = await grade(card, answerQuality(false, 0))
-      if (!reasking.current) missed.current.push(graded)
+      const job = grade(card, answerQuality(false, 0)).then((graded) => {
+        if (!reasking.current) missed.current.push(graded)
+      })
+      grading.current = job
+      await job
     }
   }
 
-  const next = () => {
+  const next = async () => {
     if (!queue) return
+    // a miss is queued for its re-ask only once its grade is stored
+    await grading.current
     const step = nextInSession(queue.slice(1), missed.current, reasking.current)
     if (!step) return void load()
     if (step.reasking !== reasking.current) missed.current = []
@@ -193,7 +199,7 @@ export default function OpeningTrainer() {
           </div>
           {(result === 'right' || result === 'fixed') && (
             <div className="border-t border-line p-3">
-              <button className="btn btn-primary btn-lg w-full" onClick={next}>
+              <button className="btn btn-primary btn-lg w-full" onClick={() => void next()}>
                 {t('common.next')} <ArrowRight size={20} weight="bold" />
               </button>
             </div>

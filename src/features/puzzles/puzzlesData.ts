@@ -106,14 +106,19 @@ function seenPuzzles(): Promise<Set<string>> {
   return seenIds
 }
 
-export type NoPuzzleReason = 'offline' | 'missing' | 'exhausted'
+export type NoPuzzleReason = 'offline' | 'missing' | 'exhausted' | 'none'
+
+/** What the last empty pick ran into: a bucket that didn't load, or matching puzzles all tried before. */
+let lastMiss = { failed: false, seen: false }
 
 /** After a pick came back empty: is it the connection, a build without puzzles, or nothing unplayed left? */
 export async function noPuzzleReason(): Promise<NoPuzzleReason> {
   const idx = await loadIndex()
   if (!idx) return indexIssue
-  // buckets not cached yet look empty when offline
-  return typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'exhausted'
+  // buckets not cached yet look empty when offline (a loaded bucket is never empty)
+  if (lastMiss.failed || (typeof navigator !== 'undefined' && !navigator.onLine)) return 'offline'
+  // nothing tried was skipped: there are no such puzzles near the rating at all
+  return lastMiss.seen ? 'exhausted' : 'none'
 }
 
 /**
@@ -128,6 +133,7 @@ export async function nextPuzzle(
   if (!idx) return null
   const tried = opts.includeSeen ? null : await seenPuzzles()
   const seen = { has: (id: string) => !!tried?.has(id) || !!opts.exclude?.has(id) }
+  lastMiss = { failed: false, seen: false }
   // look in the target bucket first, then widen
   for (let spread = 0; spread <= 6; spread++) {
     const offsets = spread === 0 ? [0] : [spread, -spread]
@@ -136,8 +142,11 @@ export async function nextPuzzle(
       if (b < idx.min || b >= idx.max) continue
       const list = await loadBucket(b)
       if (spread === 0) prefetchAround(idx, b)
-      const pool = list.filter((p) => !seen.has(p.id) && (!opts.theme || p.themes.includes(opts.theme)))
+      if (!list.length) lastMiss.failed = true
+      const matching = opts.theme ? list.filter((p) => p.themes.includes(opts.theme!)) : list
+      const pool = matching.filter((p) => !seen.has(p.id))
       if (pool.length) return pool[Math.floor(Math.random() * pool.length)]
+      if (matching.length) lastMiss.seen = true
     }
   }
   return null

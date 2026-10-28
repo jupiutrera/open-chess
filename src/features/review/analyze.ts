@@ -52,8 +52,9 @@ export async function analyzeGame(
   for (let i = positions.length; i < total; i++) {
     if (signal?.cancelled) return stop()
     const fen = parsed.fens[i]
-    // a third repetition is a draw however the engine would play on
-    const term = terminalScore(fen) ?? (repeated[i] ? { cp: 0 } : null)
+    // a third repetition that ends the game is a draw however the engine would play on;
+    // one the players went past (the draw has to be claimed) is searched like any other
+    const term = terminalScore(fen) ?? (repeated[i] && i === total - 1 ? { cp: 0 } : null)
     if (term) {
       positions.push({ fen, lines: [], score: term })
     } else {

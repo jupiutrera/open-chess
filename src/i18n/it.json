@@ -283,6 +283,7 @@
     "offline": "Impossibile caricare i puzzle. Controlla la connessione e riprova; i puzzle aperti online restano disponibili offline.",
     "exhausted": "Hai giocato tutti i puzzle vicini al tuo punteggio.",
     "themeExhausted": "Hai giocato tutti i puzzle di questo tema vicini al tuo punteggio.",
+    "themeEmpty": "Non ci sono puzzle di questo tema vicini al tuo punteggio.",
     "includePlayed": "Includi i puzzle già giocati",
     "skip": "Salta questo puzzle (una volta per serie)",
     "skipUsed": "Salto usato"

@@ -31,10 +31,12 @@ export function useRouteChange(main: RefObject<HTMLElement | null>) {
     document.title = key ? `${t(key)} · Open Chess` : 'Open Chess'
   }, [section, t])
 
-  const first = useRef(true)
+  // compared by path rather than a first-run flag, which StrictMode's double effect run would clear
+  const shown = useRef(pathname)
   useEffect(() => {
     // the first page load keeps the browser's default focus
-    if (first.current) return void (first.current = false)
+    if (shown.current === pathname) return
+    shown.current = pathname
     const box = main.current
     if (!box) return
     const focusHeading = () => {
