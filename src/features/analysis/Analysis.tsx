@@ -73,6 +73,7 @@ export default function Analysis() {
   const [loader, setLoader] = useState(false)
   const [opening, setOpening] = useState<Opening | undefined>()
   const [rateMoves, setRateMoves] = useState(true)
+  const [showThreat, setShowThreat] = useState(false)
   // read once, before the save effect below overwrites it
   const [saved] = useState(loadSaved)
   const mountParams = useRef(params)
@@ -122,10 +123,17 @@ export default function Analysis() {
     }
   }, [game.fens, game.ply])
 
-  const { lines, depth } = useAnalysis(game.fen, engineOn, multipv)
+  const { lines, depth, done } = useAnalysis(game.fen, engineOn, multipv)
+  // the rating reuses these lines for the viewed position instead of searching it a second time
+  // (it needs two lines to spot a "great" move, so a single-line view leaves it to search alone)
+  const external = useMemo(
+    () => (engineOn && multipv >= 2 ? { fen: game.fen, lines, depth, done } : undefined),
+    [engineOn, multipv, game.fen, lines, depth, done],
+  )
 
-  // move quality for both sides, as in game review
-  const rating = useAssist({ assist: rateMoves ? RATE_ONLY : RATE_OFF, fen: game.fen, moves: game.moves, ply: game.ply, rate: 'both', rateAll: true, userTurn: false })
+  // move quality for both sides, as in game review; the threat is the opponent's best reply if it were their move
+  const assist = useMemo(() => ({ ...(rateMoves ? RATE_ONLY : RATE_OFF), threats: showThreat }), [rateMoves, showThreat])
+  const rating = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: 'both', rateAll: true, userTurn: true, external })
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
   const viewedQuality = rateMoves ? rating.quality(viewedMove) : undefined
   const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
@@ -142,13 +150,13 @@ export default function Analysis() {
   // a finished position has no engine lines; show the result instead
   const evalScore = outcome ? (outcome.reason === 'checkmate' ? { mate: 0, cp: outcome.result === '1-0' ? 1 : -1 } : { cp: 0 }) : lines[0]?.score
   const best = lines[0]
-  const shapes: DrawShape[] = useMemo(
-    () =>
-      engineOn && best?.pv[0]
-        ? [{ orig: best.pv[0].slice(0, 2) as never, dest: best.pv[0].slice(2, 4) as never, brush: 'paleBlue' }]
-        : [],
-    [engineOn, best],
-  )
+  const threat = showThreat && !outcome ? rating.threat : null
+  const shapes: DrawShape[] = useMemo(() => {
+    const out: DrawShape[] = []
+    if (engineOn && best?.pv[0]) out.push({ orig: best.pv[0].slice(0, 2) as never, dest: best.pv[0].slice(2, 4) as never, brush: 'paleBlue' })
+    if (threat) out.push({ orig: threat.slice(0, 2) as never, dest: threat.slice(2, 4) as never, brush: 'red' })
+    return out
+  }, [engineOn, best, threat])
 
   useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
@@ -192,6 +200,9 @@ export default function Analysis() {
             </div>
             <div className="border-b border-line px-4">
               <Toggle checked={rateMoves} onChange={setRateMoves} label={t('play.assistOpt.feedback')} />
+            </div>
+            <div className="border-b border-line px-4">
+              <Toggle checked={showThreat} onChange={setShowThreat} label={t('analysis.showThreat')} />
             </div>
             {engineOn && !outcome && (
               <div className="border-b border-line">
