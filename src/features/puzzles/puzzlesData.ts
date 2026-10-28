@@ -23,10 +23,30 @@ const base = `${import.meta.env.BASE_URL}data/puzzles/`
 let indexP: Promise<Index | null> | null = null
 const bucketCache = new Map<number, Promise<Puzzle[]>>()
 
+/** Why the last index load failed: no connection (or a server error), or no puzzle data in this build. */
+let indexIssue: 'offline' | 'missing' = 'offline'
+
 export function loadIndex(): Promise<Index | null> {
   indexP ??= fetch(`${base}index.json`)
-    .then((r) => (r.ok ? (r.json() as Promise<Index>) : null))
-    .catch(() => null)
+    .then(
+      async (r) => {
+        if (!r.ok) {
+          indexIssue = r.status === 404 ? 'missing' : 'offline'
+          return null
+        }
+        try {
+          return (await r.json()) as Index
+        } catch {
+          // a dev server answers a missing file with its HTML page
+          indexIssue = 'missing'
+          return null
+        }
+      },
+      () => {
+        indexIssue = 'offline'
+        return null
+      },
+    )
     .then((idx) => {
       if (!idx) indexP = null // offline: try again next time
       return idx
@@ -86,11 +106,28 @@ function seenPuzzles(): Promise<Set<string>> {
   return seenIds
 }
 
-/** Picks an unseen puzzle near the target rating, optionally of one theme. */
-export async function nextPuzzle(target: number, opts: { theme?: string; exclude?: Set<string> } = {}): Promise<Puzzle | null> {
+export type NoPuzzleReason = 'offline' | 'missing' | 'exhausted'
+
+/** After a pick came back empty: is it the connection, a build without puzzles, or nothing unplayed left? */
+export async function noPuzzleReason(): Promise<NoPuzzleReason> {
+  const idx = await loadIndex()
+  if (!idx) return indexIssue
+  // buckets not cached yet look empty when offline
+  return typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'exhausted'
+}
+
+/**
+ * Picks a puzzle near the target rating, optionally of one theme, never one in `exclude` and,
+ * unless `includeSeen`, none tried before.
+ */
+export async function nextPuzzle(
+  target: number,
+  opts: { theme?: string; exclude?: Set<string>; includeSeen?: boolean } = {},
+): Promise<Puzzle | null> {
   const idx = await loadIndex()
   if (!idx) return null
-  const seen = opts.exclude ?? (await seenPuzzles())
+  const tried = opts.includeSeen ? null : await seenPuzzles()
+  const seen = { has: (id: string) => !!tried?.has(id) || !!opts.exclude?.has(id) }
   // look in the target bucket first, then widen
   for (let spread = 0; spread <= 6; spread++) {
     const offsets = spread === 0 ? [0] : [spread, -spread]
@@ -117,10 +154,22 @@ export async function dailyPuzzle(date = new Date()): Promise<Puzzle | null> {
   return list[(day * 2654435761) % list.length]
 }
 
+/**
+ * A puzzle for a Rush or Streak run: none tried before nor in this run, and when the user has
+ * played everything near the target, ones tried before rather than none.
+ */
+export async function runPuzzle(target: number, run: Set<string>): Promise<Puzzle | null> {
+  return (await nextPuzzle(target, { exclude: run })) ?? nextPuzzle(target, { exclude: run, includeSeen: true })
+}
+
 /** Rush ladder: puzzles get harder as the score grows. */
-export async function rushPuzzle(n: number, exclude: Set<string>): Promise<Puzzle | null> {
-  const target = 600 + n * 70
-  return nextPuzzle(target, { exclude })
+export async function rushPuzzle(n: number, run: Set<string>): Promise<Puzzle | null> {
+  return runPuzzle(600 + n * 70, run)
+}
+
+/** Whether this puzzle was already tried in a mode, e.g. today's daily puzzle on a second visit. */
+export async function triedIn(puzzleId: string, mode: PuzzleAttemptRow['mode']): Promise<boolean> {
+  return (await db.puzzleAttempts.where('puzzleId').equals(puzzleId).filter((a) => a.mode === mode && !a.deleted).count()) > 0
 }
 
 export async function getPuzzleRating(): Promise<Glicko> {

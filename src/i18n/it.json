@@ -239,7 +239,7 @@
     "hint": "Suggerimento",
     "ratingChange": "{{delta}} punti",
     "puzzleRating": "Problema {{rating}}",
-    "noData": "Nessun problema scaricato. Esegui “npm run data:puzzles” per generarli.",
+    "noData": "I puzzle non sono inclusi in questa versione dell'app.",
     "streak": "Serie",
     "best": "Record",
     "rush3": "3 minuti",
@@ -264,7 +264,13 @@
     "streakMode": "Serie di problemi",
     "streakSub": "Senza orologio. Ogni problema è un po' più difficile e un solo errore chiude la serie.",
     "streakOver": "Serie terminata",
-    "checking": "Verifica della tua mossa…"
+    "checking": "Verifica della tua mossa…",
+    "offline": "Impossibile caricare i puzzle. Controlla la connessione e riprova; i puzzle aperti online restano disponibili offline.",
+    "exhausted": "Hai giocato tutti i puzzle vicini al tuo punteggio.",
+    "themeExhausted": "Hai giocato tutti i puzzle di questo tema vicini al tuo punteggio.",
+    "includePlayed": "Includi i puzzle già giocati",
+    "skip": "Salta questo puzzle (una volta per serie)",
+    "skipUsed": "Salto usato"
   },
   "themes": {
     "mateIn1": "Matto in 1",

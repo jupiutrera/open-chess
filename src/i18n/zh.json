@@ -239,7 +239,7 @@
     "hint": "提示",
     "ratingChange": "{{delta}} 分",
     "puzzleRating": "谜题 {{rating}}",
-    "noData": "尚未下载谜题。运行 “npm run data:puzzles” 生成。",
+    "noData": "此版本的应用不包含谜题。",
     "streak": "连胜",
     "best": "最佳",
     "rush3": "3 分钟",
@@ -264,7 +264,13 @@
     "streakMode": "谜题连胜",
     "streakSub": "不计时。谜题逐渐变难，错一题即结束。",
     "streakOver": "连胜结束",
-    "checking": "正在检查你的着法…"
+    "checking": "正在检查你的着法…",
+    "offline": "无法加载谜题。请检查网络连接后重试；在线打开过的谜题离线时仍可使用。",
+    "exhausted": "你已经做完了接近你等级分的所有谜题。",
+    "themeExhausted": "你已经做完了此主题中接近你等级分的所有谜题。",
+    "includePlayed": "包含已做过的谜题",
+    "skip": "跳过此谜题（每轮一次）",
+    "skipUsed": "已使用跳过"
   },
   "themes": {
     "mateIn1": "一步杀",

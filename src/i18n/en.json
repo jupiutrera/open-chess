@@ -239,7 +239,7 @@
     "hint": "Hint",
     "ratingChange": "{{delta}} points",
     "puzzleRating": "Puzzle {{rating}}",
-    "noData": "No puzzles downloaded. Run “npm run data:puzzles” to generate them.",
+    "noData": "Puzzles aren't included in this version of the app.",
     "streak": "Streak",
     "best": "Best",
     "rush3": "3 minutes",
@@ -264,7 +264,13 @@
     "streakMode": "Puzzle Streak",
     "streakSub": "No clock. Each puzzle is a little harder and one miss ends the run.",
     "streakOver": "Streak over",
-    "checking": "Checking your move…"
+    "checking": "Checking your move…",
+    "offline": "Couldn't load puzzles. Check your connection and try again; puzzles you open online stay available offline.",
+    "exhausted": "You've played every puzzle around your rating.",
+    "themeExhausted": "You've played every puzzle of this theme around your rating.",
+    "includePlayed": "Include puzzles already played",
+    "skip": "Skip this puzzle (once per run)",
+    "skipUsed": "Skip used"
   },
   "themes": {
     "mateIn1": "Mate in 1",

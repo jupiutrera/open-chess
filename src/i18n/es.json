@@ -239,7 +239,7 @@
     "hint": "Pista",
     "ratingChange": "{{delta}} puntos",
     "puzzleRating": "Puzzle {{rating}}",
-    "noData": "No hay puzzles descargados. Ejecuta «npm run data:puzzles» para generarlos.",
+    "noData": "Esta versión de la app no incluye puzzles.",
     "streak": "Racha",
     "best": "Récord",
     "rush3": "3 minutos",
@@ -264,7 +264,13 @@
     "streakMode": "Racha de problemas",
     "streakSub": "Sin reloj. Cada problema es más difícil y un solo fallo termina la racha.",
     "streakOver": "Fin de la racha",
-    "checking": "Comprobando tu jugada…"
+    "checking": "Comprobando tu jugada…",
+    "offline": "No se pudieron cargar los puzzles. Revisa tu conexión y vuelve a intentarlo; los puzzles que abras con conexión seguirán disponibles sin ella.",
+    "exhausted": "Ya has jugado todos los puzzles de tu nivel.",
+    "themeExhausted": "Ya has jugado todos los puzzles de este tema de tu nivel.",
+    "includePlayed": "Incluir puzzles ya jugados",
+    "skip": "Saltar este puzzle (una vez por racha)",
+    "skipUsed": "Salto usado"
   },
   "themes": {
     "mateIn1": "Mate en 1",
