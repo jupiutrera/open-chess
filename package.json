@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
-    "@dicebear/core": "^9.4.3",
+    "@dicebear/core": "^10.7.0",
     "@dicebear/open-peeps": "^9.4.2",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
