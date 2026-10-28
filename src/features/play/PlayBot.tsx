@@ -301,7 +301,7 @@ export default function PlayBot() {
   useBoardKeys({ ply: game.ply, total: game.moves.length, goto: game.goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
   const userTurn = turn === userColor && game.atLive && !end
-  const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
+  const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn, paused: thinking })
 
   // the clock re-renders this screen every 100ms: keep the board's props stable so its memo holds
   // (help.lines is a new empty array on every render while the position is unevaluated)
