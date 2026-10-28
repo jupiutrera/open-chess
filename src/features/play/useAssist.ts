@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Chess, type Move } from 'chess.js'
-import { Engine, type PvLine, type Score } from '../../engine/engine'
+import { Engine, legalMoveCount, type PvLine, type Score } from '../../engine/engine'
 import { classifyMoves, terminalScore, type PositionEval, type Quality } from '../review/classify'
 import { bookChecker } from '../openings/openingsData'
 import type { AssistSettings } from '../../settings'
@@ -24,6 +24,22 @@ function nullMoveFen(fen: string): string | null {
   }
 }
 
+/** Lines searched elsewhere (e.g. the analysis board's engine) that stand in for our own search. */
+export interface ExternalLines {
+  fen: string
+  lines: PvLine[]
+  depth: number
+  /** the search has finished, even if short of our depth */
+  done: boolean
+}
+
+/** Whether outside lines are as good as our own search of `fen` would be. */
+export function externalCovers(ext: ExternalLines | undefined, fen: string): boolean {
+  if (!ext || ext.fen !== fen || !ext.lines[0]) return false
+  // the second line is what tells a "great" move apart
+  return (ext.depth >= DEPTH || ext.done) && ext.lines.length >= Math.min(2, legalMoveCount(fen))
+}
+
 const moveKey = (m: Move) => `${m.before}|${m.from}${m.to}${m.promotion ?? ''}`
 
 /**
@@ -39,6 +55,8 @@ export function useAssist({
   rate,
   rateAll = false,
   userTurn,
+  external,
+  paused = false,
 }: {
   assist: AssistSettings
   /** position being viewed */
@@ -53,6 +71,14 @@ export function useAssist({
   rateAll?: boolean
   /** it's the user's move at the live position (threat arrows) */
   userTurn: boolean
+  /**
+   * Lines another engine is already searching for the viewed position. While given, that
+   * position waits for them instead of being searched a second time; positions left before
+   * they were deep enough fall back to our own search.
+   */
+  external?: ExternalLines
+  /** holds back new searches (e.g. while a bot is thinking); a running one still finishes */
+  paused?: boolean
 }) {
   const enabled = assist.eval || assist.engine || assist.suggest || assist.threats || assist.feedback
   const engine = useRef<Engine | null>(null)
@@ -64,6 +90,12 @@ export function useAssist({
   // keyed by move (position before + uci) so it survives takebacks and new branches
   const [feedback, setFeedback] = useState<Record<string, Quality>>({})
   const multipv = assist.engine ? 3 : 2
+  // positions waiting for outside lines, with the search to fall back on
+  const waiting = useRef(new Map<string, { resolve: (e: PositionEval) => void; fallback: () => void }>())
+  const externalRef = useRef(external)
+  externalRef.current = external
+  // closed while paused: jobs wait on it before starting
+  const gate = useRef<Promise<void> | null>(null)
 
   useEffect(() => {
     if (!enabled) return
@@ -83,8 +115,19 @@ export function useAssist({
     evals.current.clear()
   }, [multipv])
 
+  useEffect(() => {
+    if (!paused) return
+    let open = () => {}
+    gate.current = new Promise<void>((r) => (open = r))
+    return () => {
+      gate.current = null
+      open()
+    }
+  }, [paused])
+
   const run = <T,>(job: (e: Engine) => Promise<T>): Promise<T> => {
-    const p = queue.current.then(() => {
+    const p = queue.current.then(async () => {
+      while (gate.current) await gate.current
       if (!engine.current) throw new Error('engine gone')
       // a crashed worker is replaced instead of failing every later job
       if (engine.current.failed) {
@@ -97,22 +140,40 @@ export function useAssist({
     return p
   }
 
+  const search = (f: string): Promise<PositionEval> =>
+    run((e) => e.search(f, { depth: DEPTH, multipv })).then((r) => {
+      if (!r.lines[0]) throw new Error('search interrupted')
+      return { fen: f, lines: r.lines, score: r.lines[0].score }
+    })
+
   const evaluate = (f: string): Promise<PositionEval> => {
     let p = evals.current.get(f)
     if (!p) {
       const term = terminalScore(f)
-      p = term
-        ? Promise.resolve({ fen: f, lines: [], score: term })
-        : run((e) => e.search(f, { depth: DEPTH, multipv })).then((r) => {
-            if (!r.lines[0]) throw new Error('search interrupted')
-            return { fen: f, lines: r.lines, score: r.lines[0].score }
-          })
+      const ext = externalRef.current
+      if (term) p = Promise.resolve({ fen: f, lines: [], score: term })
+      else if (ext && externalCovers(ext, f)) p = Promise.resolve({ fen: f, lines: ext.lines, score: ext.lines[0].score })
+      else if (ext?.fen === f)
+        p = new Promise<PositionEval>((resolve, reject) => {
+          waiting.current.set(f, { resolve, fallback: () => search(f).then(resolve, reject) })
+        })
+      else p = search(f)
       evals.current.set(f, p)
       // failures are not cached, so the position is evaluated again next time
       p.catch(() => evals.current.get(f) === p && evals.current.delete(f))
     }
     return p
   }
+
+  // hand outside lines to the position waiting for them; positions no longer covered search themselves
+  useEffect(() => {
+    for (const [f, w] of waiting.current) {
+      if (external && externalCovers(external, f)) w.resolve({ fen: f, lines: external.lines, score: external.lines[0].score })
+      else if (external?.fen === f) continue
+      else w.fallback()
+      waiting.current.delete(f)
+    }
+  }, [external])
 
   // evaluation of the viewed position
   useEffect(() => {

@@ -223,7 +223,13 @@
       "allowsMate_other": "{{count}}手詰めを許します。",
       "missedMate_one": "{{san}}で{{count}}手詰めがありました。",
       "missedMate_other": "{{san}}から{{count}}手詰めがありました。"
-    }
+    },
+    "retryFailed": "その手を確認できませんでした。もう一度お試しください。",
+    "graphStart": "開始局面",
+    "graphValue": "{{move}} {{san}}、{{score}}、{{quality}}",
+    "linePrev": "ラインの前の手",
+    "lineNext": "ラインの次の手",
+    "lineStep": "続き {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "パズル",
@@ -417,7 +423,8 @@
       "mateIn_other": "· {{count}}手詰め",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "脅威を表示"
   },
   "games": {
     "title": "マイ棋譜",

@@ -223,7 +223,13 @@
       "allowsMate_other": "Elle permet un mat en {{count}}.",
       "missedMate_one": "Il y avait mat en {{count}} avec {{san}}.",
       "missedMate_other": "Il y avait mat en {{count}} en commençant par {{san}}."
-    }
+    },
+    "retryFailed": "Impossible de vérifier ce coup. Réessayez.",
+    "graphStart": "Position initiale",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Coup précédent de la ligne",
+    "lineNext": "Coup suivant de la ligne",
+    "lineStep": "Suite {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Problèmes",
@@ -417,7 +423,8 @@
       "mateIn_other": "· mat en {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Montrer la menace"
   },
   "games": {
     "title": "Mes parties",

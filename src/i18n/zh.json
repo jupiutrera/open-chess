@@ -223,7 +223,13 @@
       "allowsMate_other": "让对方 {{count}} 步杀。",
       "missedMate_one": "{{san}} 可以 {{count}} 步杀。",
       "missedMate_other": "从 {{san}} 开始可以 {{count}} 步杀。"
-    }
+    },
+    "retryFailed": "无法检查这步棋，请重试。",
+    "graphStart": "初始局面",
+    "graphValue": "{{move}} {{san}}，{{score}}，{{quality}}",
+    "linePrev": "变化中的上一步",
+    "lineNext": "变化中的下一步",
+    "lineStep": "后续 {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "谜题",
@@ -417,7 +423,8 @@
       "mateIn_other": "· {{count}} 步杀",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "显示威胁"
   },
   "games": {
     "title": "我的棋局",

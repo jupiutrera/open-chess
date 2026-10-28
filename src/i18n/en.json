@@ -223,7 +223,13 @@
       "allowsMate_other": "It allows mate in {{count}}.",
       "missedMate_one": "There was mate in {{count}} with {{san}}.",
       "missedMate_other": "There was mate in {{count}} starting with {{san}}."
-    }
+    },
+    "retryFailed": "Couldn't check that move. Try again.",
+    "graphStart": "Start position",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Previous move in the line",
+    "lineNext": "Next move in the line",
+    "lineStep": "Follow-up {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Puzzles",
@@ -417,7 +423,8 @@
       "mateIn_other": "· mate in {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Show threat"
   },
   "games": {
     "title": "My games",
