@@ -13,6 +13,7 @@ import { play, playMoveSound } from '../../chess/sounds'
 import { sharedEngine } from '../../engine/engine'
 import { db, put, type LessonProgressRow } from '../../db/db'
 import { localize } from '../../i18n/content'
+import { pickPromotion } from '../puzzles/promotion'
 
 type State = 'playing' | 'wrong' | 'stepDone' | 'failed' | 'thinking'
 
@@ -91,6 +92,8 @@ export default function LessonPlayer() {
       setFen(chess.current.fen())
     }
     if (chess.current.isGameOver()) {
+      // a draw the engine's move forces still meets a draw goal; being mated never does
+      if (step.goal === 'draw' && !chess.current.isCheckmate()) return stepComplete()
       play('wrong')
       setState('failed')
     } else setState('playing')
@@ -101,7 +104,7 @@ export default function LessonPlayer() {
     if (step.kind === 'puzzle') {
       const expected = step.moves[ply.current]
       const trial = new Chess(chess.current.fen())
-      const m = playUci(trial, from + to + (promotion ?? (expected?.length === 5 ? expected[4] : '')))
+      const m = playUci(trial, from + to + pickPromotion(from, to, promotion, expected, useSettings.getState().autoQueen))
       if (!m) return
       const uci = m.from + m.to + (m.promotion ?? '')
       const last = ply.current === step.moves.length - 1
@@ -139,6 +142,7 @@ export default function LessonPlayer() {
     // practice against the engine
     const m = playUci(chess.current, from + to + (promotion ?? ''))
     if (!m) return
+    setHighlights(undefined)
     playMoveSound(m)
     setLastMove([m.from, m.to])
     setFen(chess.current.fen())
@@ -156,9 +160,15 @@ export default function LessonPlayer() {
     if (step.kind === 'puzzle') {
       setHighlights(new Map([[parseUci(step.moves[ply.current]).from, 'hint-from']]))
     } else {
+      // a hint that arrives after the position moved on (the user played, the engine replied) is stale
+      const asked = chess.current.fen()
+      const mine = round.current
       void sharedEngine()
-        .search(chess.current.fen(), { depth: 14 })
-        .then((r) => r.bestmove && setHighlights(new Map([[parseUci(r.bestmove).from, 'hint-from']])))
+        .search(asked, { depth: 14 })
+        .then((r) => {
+          if (r.bestmove && mine === round.current && chess.current.fen() === asked) setHighlights(new Map([[parseUci(r.bestmove).from, 'hint-from']]))
+        })
+        .catch(() => undefined)
     }
   }
 
