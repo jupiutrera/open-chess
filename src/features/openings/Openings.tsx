@@ -81,6 +81,9 @@ export default function Openings() {
 
   return (
     <>
+      <h1 tabIndex={-1} className="sr-only">
+        {t('openings.title')}
+      </h1>
       <BoardLayout
         board={
           <Board

@@ -47,7 +47,7 @@ const PAGES: [string, RegExp | null][] = [
   ['/play/local', /Two players/],
   ['/puzzles', /^Puzzles$/],
   ['/puzzles/rated', /Rated puzzles/],
-  ['/openings', null],
+  ['/openings', /Openings/],
   ['/lessons', /^Lessons$/],
   ['/lessons/forks', /./],
   ['/analysis', /Analysis board/],
