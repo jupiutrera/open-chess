@@ -1,6 +1,6 @@
 import { Chess } from 'chess.js'
 import { sharedEngine } from '../../engine/engine'
-import { classifyMoves, gameAccuracy, winPercent, type PositionEval } from './classify'
+import { classifyMoves, gameAccuracy, terminalScore, winPercent, type PositionEval } from './classify'
 import { bookChecker } from '../openings/openingsData'
 import { db, put, type GameRow } from '../../db/db'
 
@@ -22,13 +22,6 @@ export function parseGame(pgn: string): ParsedGame {
     moves: hist.map((m) => ({ san: m.san, uci: m.from + m.to + (m.promotion ?? ''), from: m.from, to: m.to })),
     headers: c.getHeaders() as Record<string, string>,
   }
-}
-
-function terminalScore(fen: string) {
-  const c = new Chess(fen)
-  if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 } // side to move is mated
-  if (c.isDraw() || c.isStalemate()) return { cp: 0 }
-  return null
 }
 
 /** Runs Stockfish over every position and stores the review on the game row. */

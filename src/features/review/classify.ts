@@ -37,6 +37,15 @@ export const QUALITY_SYMBOL: Partial<Record<Quality, string>> = {
   blunder: '??',
 }
 
+/** Score of a game-over position (no engine needed), or null when there are moves to search. */
+export function terminalScore(fen: string): Score | null {
+  const c = new Chess(fen)
+  if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 } // side to move is mated
+  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched
+  if (c.isStalemate() || c.isInsufficientMaterial() || c.isThreefoldRepetition()) return { cp: 0 }
+  return null
+}
+
 /** Lichess win probability (0-100) from White's point of view. */
 export function winPercent(s: Score): number {
   if (s.mate !== undefined) return s.mate > 0 || (s.mate === 0 && (s.cp ?? 0) > 0) ? 100 : 0

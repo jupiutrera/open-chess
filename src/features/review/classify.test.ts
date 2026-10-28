@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
+import { terminalScore, winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
 import { parseInfo } from '../../engine/engine'
 
 describe('winPercent', () => {
@@ -43,6 +43,18 @@ describe('accuracy', () => {
   })
   it('rating estimate grows with accuracy', () => {
     expect(estimateRating(90)).toBeGreaterThan(estimateRating(70))
+  })
+})
+
+describe('terminalScore', () => {
+  it('scores mate and stalemate without the engine', () => {
+    expect(terminalScore('rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3')).toEqual({ mate: 0, cp: -1 })
+    expect(terminalScore('7k/5Q2/6K1/8/8/8/8/8 b - - 0 1')).toEqual({ cp: 0 })
+    expect(terminalScore('8/8/4k3/8/8/4K3/8/8 w - - 0 1')).toEqual({ cp: 0 })
+  })
+  it('still searches positions past the 50-move mark', () => {
+    expect(terminalScore('8/8/4k3/8/8/4K3/4Q3/8 w - - 120 90')).toBeNull()
+    expect(terminalScore('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBeNull()
   })
 })
 

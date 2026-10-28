@@ -9,7 +9,8 @@ const DEPTH = 13
 
 function terminalScore(c: Chess): Score | null {
   if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 }
-  if (c.isDraw() || c.isStalemate()) return { cp: 0 }
+  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched
+  if (c.isStalemate() || c.isInsufficientMaterial() || c.isThreefoldRepetition()) return { cp: 0 }
   return null
 }
 
