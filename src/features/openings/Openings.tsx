@@ -11,7 +11,7 @@ import { PieceIcon } from '../../board/QualityIcon'
 import { useGame } from '../../chess/useGame'
 import { parseUci } from '../../chess/util'
 import { Panel, Segmented, Sheet, Skeleton, toast, useOnline } from '../../ui/kit'
-import { lookupOpening, namedContinuations, searchOpenings, type Opening } from './openingsData'
+import { latestOpening, namedContinuations, searchOpenings, type Opening } from './openingsData'
 import { fetchExplorer, type ExplorerDb, type ExplorerResult } from './explorerApi'
 import { addLine, removeLine } from './repertoire'
 import { db } from '../../db/db'
@@ -35,8 +35,7 @@ export default function Openings() {
   useEffect(() => {
     // the latest named position up to the viewed ply; stale lookups are dropped
     let alive = true
-    const fens = game.fens.slice(0, game.ply + 1).reverse()
-    void Promise.all(fens.map(lookupOpening)).then((os) => alive && setOpening(os.find(Boolean)))
+    void latestOpening(game.fens.slice(0, game.ply + 1)).then((o) => alive && setOpening(o))
     void namedContinuations(game.fen).then((n) => alive && setNamed(n))
     return () => {
       alive = false

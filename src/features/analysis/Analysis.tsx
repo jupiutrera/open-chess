@@ -25,7 +25,7 @@ import { gameResultText, normalizeFen, parseUci, positionProblem, uciLineToSan }
 import { winPercent } from '../review/classify'
 import { formatScore } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
-import { lookupOpening, type Opening } from '../openings/openingsData'
+import { latestOpening, type Opening } from '../openings/openingsData'
 import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
 import { BoardEditor } from './BoardEditor'
 import { TablebasePanel } from './TablebasePanel'
@@ -116,8 +116,7 @@ export default function Analysis() {
   // the latest named position up to the viewed ply; stale lookups are dropped
   useEffect(() => {
     let alive = true
-    const fens = game.fens.slice(0, game.ply + 1).reverse()
-    void Promise.all(fens.map(lookupOpening)).then((os) => alive && setOpening(os.find(Boolean)))
+    void latestOpening(game.fens.slice(0, game.ply + 1)).then((o) => alive && setOpening(o))
     return () => {
       alive = false
     }
