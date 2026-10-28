@@ -279,7 +279,7 @@ Open Chess is **GPL-3.0-or-later** and builds on:
 | Chessnut pieces | Alexis Luengas | Apache-2.0 |
 | cburnett pieces | Colin M.L. Burnett | GPL-2.0+ |
 | Bot portraits, [Open Peeps](https://www.dicebear.com/styles/open-peeps/) style via [DiceBear](https://www.dicebear.com) | Pablo Stanley | CC0 1.0 |
-| Stockfish portrait, [Bottts](https://www.dicebear.com/styles/bottts/) style | Pablo Stanley | Free for personal and commercial use |
+| Stockfish portrait, [photo of an Atlantic cod](https://commons.wikimedia.org/wiki/File:Gadus_morhua_2.jpg) | NOAA FishWatch | Public domain |
 | "Wood" sounds | [pychess](https://github.com/pychess/pychess) | GPL-3.0 |
 | SFX, Piano, NES and Futuristic sounds | Enigmahack, via [Lichess](https://github.com/lichess-org/lila) | AGPL-3.0+ |
 | [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) icons | Microsoft | MIT |

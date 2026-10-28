@@ -279,7 +279,7 @@ Open Chess se distribuye bajo **GPL-3.0-or-later** y se apoya en:
 | Piezas Chessnut | Alexis Luengas | Apache-2.0 |
 | Piezas cburnett | Colin M.L. Burnett | GPL-2.0+ |
 | Avatares de los bots, estilo [Open Peeps](https://www.dicebear.com/styles/open-peeps/) vía [DiceBear](https://www.dicebear.com) | Pablo Stanley | CC0 1.0 |
-| Avatar de Stockfish, estilo [Bottts](https://www.dicebear.com/styles/bottts/) | Pablo Stanley | Libre para uso personal y comercial |
+| Avatar de Stockfish, [foto de un bacalao del Atlántico](https://commons.wikimedia.org/wiki/File:Gadus_morhua_2.jpg) | NOAA FishWatch | Dominio público |
 | Sonidos «Madera» | [pychess](https://github.com/pychess/pychess) | GPL-3.0 |
 | Sonidos SFX, Piano, NES y Futurista | Enigmahack, vía [Lichess](https://github.com/lichess-org/lila) | AGPL-3.0+ |
 | Iconos [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) | Microsoft | MIT |
