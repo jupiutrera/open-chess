@@ -113,6 +113,27 @@ describe('classifyMoves', () => {
     )
     expect(black[0].quality).toBe('good')
   })
+  it('calls letting a forced mate go a missed win', () => {
+    const kq = '7k/8/5K2/8/8/8/8/Q7 w - - 0 1'
+    const after = '7k/8/5K2/8/8/8/Q7/8 b - - 1 1'
+    const at = (before: PositionEval['score'], afterScore: PositionEval['score']) =>
+      classifyMoves(
+        [
+          { fen: kq, score: before, lines: [{ multipv: 1, depth: 20, score: before, pv: ['a1h1'] }] },
+          { fen: after, score: afterScore, lines: [] },
+        ],
+        [{ san: 'Qa2', uci: 'a1a2' }],
+        () => false,
+      )[0].quality
+    expect(at({ mate: 2 }, { cp: 1500 })).toBe('miss')
+    expect(at({ mate: 3 }, { cp: 250 })).toBe('miss')
+    // still mating, only slower: not a miss
+    expect(at({ mate: 2 }, { mate: 3 })).toBe('excellent')
+    // throwing the whole game away stays a blunder
+    expect(at({ mate: 2 }, { cp: -400 })).toBe('blunder')
+    // a long mate the engine may lose at another depth is judged on the evaluation
+    expect(at({ mate: 12 }, { cp: 1500 })).not.toBe('miss')
+  })
   it('uses book while the game follows theory', () => {
     const r = classifyMoves(
       [

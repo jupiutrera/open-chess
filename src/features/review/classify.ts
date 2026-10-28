@@ -171,6 +171,9 @@ export interface MoveReview {
   scoreAfter: Score
 }
 
+/** Letting go of a forced mate this short counts as a missed win. */
+const MISSED_MATE_MAX = 5
+
 /** A score as centipawns from `color`'s side, with a forced mate beyond any material count. */
 function moverCp(s: Score, color: 'w' | 'b'): number {
   const sign = color === 'w' ? 1 : -1
@@ -244,6 +247,14 @@ export function classifyMoves(
       const prev = out[i - 1]
       const opponentErred = prev && (prev.quality === 'mistake' || prev.quality === 'blunder' || prev.quality === 'miss')
       if (opponentErred && (quality === 'inaccuracy' || quality === 'mistake' || quality === 'blunder') && loss >= 8 && winBefore >= 60 && winAfter >= 50) {
+        quality = 'miss'
+      }
+
+      // a forced mate let go is a missed win even when the position stays winning; a short one
+      // only, as long mates come and go with search depth. Ending up worse than equal stays a blunder
+      const mateBefore = before.score.mate !== undefined ? before.score.mate * (color === 'w' ? 1 : -1) : undefined
+      const stillMates = after.score.mate !== undefined && moverCp(after.score, color) > 0
+      if (quality !== 'forced' && mateBefore !== undefined && mateBefore > 0 && mateBefore <= MISSED_MATE_MAX && !stillMates && winAfter >= 50) {
         quality = 'miss'
       }
 
