@@ -5,6 +5,7 @@ import i18n from 'i18next'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
 import { mergeRow } from './merge'
 import { serialRunner } from './runner'
+import { backupSettings, settingsPatch, useSettings } from '../settings'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -214,16 +215,16 @@ export async function signOut() {
   }
 }
 
-/** Full local backup as JSON (works without an account). */
+/** Full local backup as JSON (works without an account): live rows plus settings, without the Lichess token. */
 export async function exportBackup(): Promise<string> {
   const out: Record<string, unknown[]> = {}
-  for (const name of SYNC_TABLES) out[name] = await table(name).toArray()
-  return JSON.stringify({ app: 'open-chess', version: 1, exportedAt: Date.now(), tables: out })
+  for (const name of SYNC_TABLES) out[name] = await table(name).filter((r) => !r.deleted).toArray()
+  return JSON.stringify({ app: 'open-chess', version: 1, exportedAt: Date.now(), tables: out, settings: backupSettings() })
 }
 
 /** Restores a backup in one transaction (a bad file changes nothing); newer local rows are kept. */
 export async function importBackup(json: string) {
-  const parsed = JSON.parse(json) as { app?: string; tables?: Record<string, unknown> }
+  const parsed = JSON.parse(json) as { app?: string; tables?: Record<string, unknown>; settings?: unknown }
   if (parsed?.app !== 'open-chess' || typeof parsed.tables !== 'object' || !parsed.tables) throw new Error('not an Open Chess backup')
   const rows = new Map<string, SyncRow[]>()
   for (const name of SYNC_TABLES) {
@@ -240,6 +241,9 @@ export async function importBackup(json: string) {
       }
     }
   })
+  // older backups have no settings; the token, if any, never came from a file
+  const settings = useSettings.getState()
+  settings.set(settingsPatch(parsed.settings, settings))
   // restored rows keep their old updatedAt, which can be below the push cursor: push everything once
   runner.invalidate()
   localStorage.removeItem(PUSH_KEY)
