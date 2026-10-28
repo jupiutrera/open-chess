@@ -89,10 +89,13 @@ async function cardsOf(color: 'w' | 'b'): Promise<RepertoireRow[]> {
   })
 }
 
-/** Adds every move of `color` in the line as a card; returns how many were new. */
-export async function addLine(sans: string[], color: 'w' | 'b', startFen?: string): Promise<number> {
+/**
+ * Adds every move of `color` in the line (from the start position, as lineMoves replays it to find
+ * cards shared between lines) as a card; returns how many were new.
+ */
+export async function addLine(sans: string[], color: 'w' | 'b'): Promise<number> {
   return db.transaction('rw', db.repertoire, async () => {
-    const c = new Chess(startFen)
+    const c = new Chess()
     const lineText = sans.join(' ')
     let added = 0
     for (const san of sans) {
