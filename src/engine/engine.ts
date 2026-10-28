@@ -34,6 +34,8 @@ export interface SearchOptions {
   onInfo?: (lines: PvLine[], depth: number) => void
 }
 
+import { Chess } from 'chess.js'
+
 const ENGINE_URL = `${import.meta.env.BASE_URL}stockfish/stockfish-19-lite-single.js`
 
 export class Engine {
@@ -136,7 +138,8 @@ export class Engine {
   private async run(fen: string, opts: SearchOptions, gen: number): Promise<SearchResult> {
     await this.ready
     if (gen !== this.gen) return { bestmove: null, lines: [], depth: 0 }
-    const multipv = opts.multipv ?? 1
+    // Stockfish never reports more lines than there are legal moves
+    const multipv = Math.max(1, Math.min(opts.multipv ?? 1, legalMoveCount(fen)))
     if (multipv !== this.current.multipv) {
       this.send(`setoption name MultiPV value ${multipv}`)
       this.current.multipv = multipv
@@ -201,6 +204,15 @@ export class Engine {
 
   destroy() {
     this.worker.terminate()
+  }
+}
+
+/** Legal moves in `fen`; unknown (Infinity) when chess.js can't read it. */
+export function legalMoveCount(fen: string): number {
+  try {
+    return new Chess(fen).moves().length
+  } catch {
+    return Infinity
   }
 }
 
