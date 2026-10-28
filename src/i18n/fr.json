@@ -243,7 +243,13 @@
     "mistakesSub": "Rejouez les positions ratées de vos parties analysées",
     "mistakesEmpty": "Pas encore d'erreurs à travailler. Jouez ou importez des parties, analysez-les et les positions ratées apparaîtront ici.",
     "mistakeContext": "Contre {{opponent}} vous avez joué {{san}} ({{quality}}). Trouvez le meilleur coup.",
-    "seeGame": "Voir la partie"
+    "seeGame": "Voir la partie",
+    "missed": "Problèmes ratés",
+    "view": "Voir le problème",
+    "results": "Résultats",
+    "streakMode": "Série de problèmes",
+    "streakSub": "Sans pendule. Chaque problème est un peu plus dur et une seule erreur met fin à la série.",
+    "streakOver": "Série terminée"
   },
   "themes": {
     "mateIn1": "Mat en 1",
@@ -270,7 +276,29 @@
     "crushing": "Écrasant",
     "advantage": "Avantage",
     "short": "Court",
-    "long": "Long"
+    "long": "Long",
+    "mate": "Mat",
+    "mateIn4": "Mat en 4",
+    "oneMove": "Un coup",
+    "veryLong": "Très long",
+    "kingsideAttack": "Attaque à l'aile roi",
+    "queensideAttack": "Attaque à l'aile dame",
+    "advancedPawn": "Pion avancé",
+    "exposedKing": "Roi exposé",
+    "discoveredCheck": "Échec à la découverte",
+    "doubleCheck": "Échec double",
+    "clearance": "Dégagement",
+    "intermezzo": "Coup intermédiaire",
+    "capturingDefender": "Éliminer le défenseur",
+    "interference": "Interférence",
+    "attackingF2F7": "Attaque sur f2/f7",
+    "xRayAttack": "Attaque en rayons X",
+    "rookEndgame": "Finale de tours",
+    "pawnEndgame": "Finale de pions",
+    "bishopEndgame": "Finale de fous",
+    "knightEndgame": "Finale de cavaliers",
+    "queenEndgame": "Finale de dames",
+    "queenRookEndgame": "Finale dame et tour"
   },
   "openings": {
     "title": "Ouvertures",
@@ -382,7 +410,18 @@
     "vs": "contre",
     "delete": "Supprimer la partie",
     "all": "Toutes",
-    "filter": "Filtrer"
+    "filter": "Filtrer",
+    "search": "Rechercher un joueur ou une ouverture",
+    "result": "Résultat",
+    "color": "Couleur",
+    "anyResult": "Tous les résultats",
+    "wins": "Victoires",
+    "draws": "Nulles",
+    "losses": "Défaites",
+    "anyColor": "Les deux couleurs",
+    "loadMore": "Charger plus",
+    "noMatch": "Aucune partie ne correspond à ces filtres.",
+    "clearFilters": "Effacer les filtres"
   },
   "import": {
     "title": "Importer des parties",
@@ -406,7 +445,9 @@
     "imported_other": "{{count}} parties importées",
     "failed_one": "{{count}} partie illisible",
     "failed_other": "{{count}} parties illisibles",
-    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez."
+    "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez.",
+    "alreadyHad_one": "{{count}} partie était déjà importée",
+    "alreadyHad_other": "{{count}} parties étaient déjà importées"
   },
   "profile": {
     "title": "Profil",

@@ -5,6 +5,7 @@ import type { GameRow } from '../../db/db'
 import { timeAgo } from '../../ui/kit'
 import { useSettings } from '../../settings'
 import { fmtDecimal } from '../../i18n/format'
+import { gameOutcome } from './gameFilter'
 
 const SOURCE_ICON = { bot: Robot, local: Users, chesscom: Globe, lichess: Globe, pgn: FileText }
 
@@ -13,8 +14,7 @@ export function GameRowItem({ game, onDelete }: { game: GameRow; onDelete?: () =
   const lang = useSettings((s) => s.lang)
   const Icon = SOURCE_ICON[game.source]
   const uc = game.userColor
-  const outcome =
-    game.result === '1/2-1/2' ? 'draw' : !uc ? null : (game.result === '1-0') === (uc === 'w') ? 'win' : game.result === '*' ? null : 'loss'
+  const outcome = gameOutcome(game)
   const acc = game.review && uc ? (uc === 'w' ? game.review.accuracy.white : game.review.accuracy.black) : null
   return (
     <div className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 hover:bg-raise/50">

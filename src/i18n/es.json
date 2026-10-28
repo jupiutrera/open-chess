@@ -243,7 +243,13 @@
     "mistakesSub": "Repite las posiciones en las que fallaste en tus partidas revisadas",
     "mistakesEmpty": "Aún no hay errores que repasar. Juega o importa partidas, revísalas y aquí aparecerán las posiciones en las que fallaste.",
     "mistakeContext": "Contra {{opponent}} jugaste {{san}} ({{quality}}). Encuentra la mejor jugada.",
-    "seeGame": "Ver partida"
+    "seeGame": "Ver partida",
+    "missed": "Problemas fallados",
+    "view": "Ver problema",
+    "results": "Resultados",
+    "streakMode": "Racha de problemas",
+    "streakSub": "Sin reloj. Cada problema es más difícil y un solo fallo termina la racha.",
+    "streakOver": "Fin de la racha"
   },
   "themes": {
     "mateIn1": "Mate en 1",
@@ -270,7 +276,29 @@
     "crushing": "Ventaja decisiva",
     "advantage": "Ventaja",
     "short": "Corto",
-    "long": "Largo"
+    "long": "Largo",
+    "mate": "Mate",
+    "mateIn4": "Mate en 4",
+    "oneMove": "Una jugada",
+    "veryLong": "Muy largo",
+    "kingsideAttack": "Ataque en el flanco de rey",
+    "queensideAttack": "Ataque en el flanco de dama",
+    "advancedPawn": "Peón avanzado",
+    "exposedKing": "Rey expuesto",
+    "discoveredCheck": "Jaque descubierto",
+    "doubleCheck": "Jaque doble",
+    "clearance": "Despeje",
+    "intermezzo": "Jugada intermedia",
+    "capturingDefender": "Capturar al defensor",
+    "interference": "Interferencia",
+    "attackingF2F7": "Ataque a f2/f7",
+    "xRayAttack": "Ataque de rayos X",
+    "rookEndgame": "Final de torres",
+    "pawnEndgame": "Final de peones",
+    "bishopEndgame": "Final de alfiles",
+    "knightEndgame": "Final de caballos",
+    "queenEndgame": "Final de damas",
+    "queenRookEndgame": "Final de dama y torre"
   },
   "openings": {
     "title": "Aperturas",
@@ -382,7 +410,18 @@
     "vs": "contra",
     "delete": "Borrar partida",
     "all": "Todas",
-    "filter": "Filtrar"
+    "filter": "Filtrar",
+    "search": "Buscar jugador o apertura",
+    "result": "Resultado",
+    "color": "Color",
+    "anyResult": "Todos los resultados",
+    "wins": "Victorias",
+    "draws": "Tablas",
+    "losses": "Derrotas",
+    "anyColor": "Ambos colores",
+    "loadMore": "Cargar más",
+    "noMatch": "Ninguna partida coincide con estos filtros.",
+    "clearFilters": "Quitar filtros"
   },
   "import": {
     "title": "Importar partidas",
@@ -406,7 +445,9 @@
     "imported_other": "{{count}} partidas importadas",
     "failed_one": "{{count}} partida no se pudo leer",
     "failed_other": "{{count}} partidas no se pudieron leer",
-    "rateLimited": "Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo."
+    "rateLimited": "Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo.",
+    "alreadyHad_one": "{{count}} partida ya estaba importada",
+    "alreadyHad_other": "{{count}} partidas ya estaban importadas"
   },
   "profile": {
     "title": "Perfil",

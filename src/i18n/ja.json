@@ -243,7 +243,13 @@
     "mistakesSub": "解析済みの対局で間違えた局面をもう一度",
     "mistakesEmpty": "まだ練習するミスがありません。対局をプレイまたはインポートして解析すると、間違えた局面がここに表示されます。",
     "mistakeContext": "{{opponent}}戦で{{san}}（{{quality}}）を指しました。最善手を見つけましょう。",
-    "seeGame": "対局を見る"
+    "seeGame": "対局を見る",
+    "missed": "間違えたパズル",
+    "view": "パズルを見る",
+    "results": "結果",
+    "streakMode": "パズルストリーク",
+    "streakSub": "時間制限なし。問題は少しずつ難しくなり、1問でも間違えると終了です。",
+    "streakOver": "ストリーク終了"
   },
   "themes": {
     "mateIn1": "1手詰め",
@@ -270,7 +276,29 @@
     "crushing": "圧倒的",
     "advantage": "優勢",
     "short": "短い",
-    "long": "長い"
+    "long": "長い",
+    "mate": "チェックメイト",
+    "mateIn4": "4手詰め",
+    "oneMove": "1手",
+    "veryLong": "とても長い",
+    "kingsideAttack": "キングサイド攻撃",
+    "queensideAttack": "クイーンサイド攻撃",
+    "advancedPawn": "進んだポーン",
+    "exposedKing": "露出したキング",
+    "discoveredCheck": "ディスカバードチェック",
+    "doubleCheck": "ダブルチェック",
+    "clearance": "クリアランス",
+    "intermezzo": "中間手",
+    "capturingDefender": "守り駒を取る",
+    "interference": "インターフェアランス",
+    "attackingF2F7": "f2/f7 への攻撃",
+    "xRayAttack": "X線攻撃",
+    "rookEndgame": "ルークエンドゲーム",
+    "pawnEndgame": "ポーンエンドゲーム",
+    "bishopEndgame": "ビショップエンドゲーム",
+    "knightEndgame": "ナイトエンドゲーム",
+    "queenEndgame": "クイーンエンドゲーム",
+    "queenRookEndgame": "クイーンとルークのエンドゲーム"
   },
   "openings": {
     "title": "オープニング",
@@ -382,7 +410,18 @@
     "vs": "対",
     "delete": "対局を削除",
     "all": "すべて",
-    "filter": "絞り込み"
+    "filter": "絞り込み",
+    "search": "プレイヤーまたはオープニングを検索",
+    "result": "結果",
+    "color": "手番の色",
+    "anyResult": "すべての結果",
+    "wins": "勝ち",
+    "draws": "引き分け",
+    "losses": "負け",
+    "anyColor": "両方の色",
+    "loadMore": "さらに読み込む",
+    "noMatch": "この条件に一致する対局はありません。",
+    "clearFilters": "フィルターを解除"
   },
   "import": {
     "title": "対局をインポート",
@@ -406,7 +445,9 @@
     "imported_other": "{{count}} 局をインポートしました",
     "failed_one": "{{count}} 局を読み込めませんでした",
     "failed_other": "{{count}} 局を読み込めませんでした",
-    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。"
+    "rateLimited": "リクエストが多すぎます。1分待ってから再試行してください。",
+    "alreadyHad_one": "{{count}} 局はインポート済みです",
+    "alreadyHad_other": "{{count}} 局はインポート済みです"
   },
   "profile": {
     "title": "プロフィール",

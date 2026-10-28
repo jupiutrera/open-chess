@@ -243,7 +243,13 @@
     "mistakesSub": "重练你在已复盘对局中走错的局面",
     "mistakesEmpty": "暂时没有可练习的失误。下棋或导入对局并复盘后，你走错的局面会出现在这里。",
     "mistakeContext": "对阵 {{opponent}} 时你走了 {{san}}（{{quality}}）。找出最佳着法。",
-    "seeGame": "查看对局"
+    "seeGame": "查看对局",
+    "missed": "做错的谜题",
+    "view": "查看谜题",
+    "results": "结果",
+    "streakMode": "谜题连胜",
+    "streakSub": "不计时。谜题逐渐变难，错一题即结束。",
+    "streakOver": "连胜结束"
   },
   "themes": {
     "mateIn1": "一步杀",
@@ -270,7 +276,29 @@
     "crushing": "压倒性优势",
     "advantage": "优势",
     "short": "短",
-    "long": "长"
+    "long": "长",
+    "mate": "将杀",
+    "mateIn4": "四步杀",
+    "oneMove": "一步",
+    "veryLong": "很长",
+    "kingsideAttack": "王翼进攻",
+    "queensideAttack": "后翼进攻",
+    "advancedPawn": "冲兵",
+    "exposedKing": "王暴露",
+    "discoveredCheck": "闪将",
+    "doubleCheck": "双将",
+    "clearance": "腾挪",
+    "intermezzo": "中间着",
+    "capturingDefender": "消灭防守子",
+    "interference": "阻断",
+    "attackingF2F7": "攻击 f2/f7",
+    "xRayAttack": "X 光攻击",
+    "rookEndgame": "车残局",
+    "pawnEndgame": "兵残局",
+    "bishopEndgame": "象残局",
+    "knightEndgame": "马残局",
+    "queenEndgame": "后残局",
+    "queenRookEndgame": "后车残局"
   },
   "openings": {
     "title": "开局",
@@ -382,7 +410,18 @@
     "vs": "对",
     "delete": "删除棋局",
     "all": "全部",
-    "filter": "筛选"
+    "filter": "筛选",
+    "search": "搜索棋手或开局",
+    "result": "结果",
+    "color": "执子",
+    "anyResult": "全部结果",
+    "wins": "胜",
+    "draws": "和",
+    "losses": "负",
+    "anyColor": "黑白均可",
+    "loadMore": "加载更多",
+    "noMatch": "没有符合这些筛选条件的对局。",
+    "clearFilters": "清除筛选"
   },
   "import": {
     "title": "导入棋局",
@@ -406,7 +445,9 @@
     "imported_other": "已导入 {{count}} 局",
     "failed_one": "{{count}} 局无法读取",
     "failed_other": "{{count}} 局无法读取",
-    "rateLimited": "请求过于频繁，请等待一分钟后重试。"
+    "rateLimited": "请求过于频繁，请等待一分钟后重试。",
+    "alreadyHad_one": "{{count}} 局此前已导入",
+    "alreadyHad_other": "{{count}} 局此前已导入"
   },
   "profile": {
     "title": "个人资料",

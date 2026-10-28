@@ -81,6 +81,22 @@ export default function PuzzlesHub() {
           </div>
         </Panel>
 
+        <Link to="/puzzles/rush/streak" className="group">
+          <Panel className="flex items-center gap-4 p-5 transition-colors duration-150 group-hover:bg-raise">
+            <span className="grid h-10 w-10 shrink-0 place-items-center">
+              <Fire size={36} weight="fill" className="text-warn" />
+            </span>
+            <div className="flex-1">
+              <div className="text-[18px] font-extrabold">{t('puzzles.streakMode')}</div>
+              <div className="text-[13px] text-fg-3">{t('puzzles.streakSub')}</div>
+            </div>
+            <span className="tabular text-[13px] font-semibold text-fg-3">
+              {t('puzzles.best')}: {rush?.streak ?? 0}
+            </span>
+            <CaretRight size={22} className="text-fg-3" />
+          </Panel>
+        </Link>
+
         <Link to="/puzzles/mistakes" className="group">
           <Panel className="flex items-center gap-4 p-5 transition-colors duration-150 group-hover:bg-raise">
             <AppIcon name="analysis" size={40} />
