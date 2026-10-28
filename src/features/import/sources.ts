@@ -161,8 +161,7 @@ export async function importRemote(g: RemoteGame, username?: string): Promise<Ga
   if (existing) return existing
   const c = new Chess()
   c.loadPgn(g.pgn)
-  const u = username?.toLowerCase()
-  const userColor = u ? (g.white.toLowerCase() === u ? 'w' : g.black.toLowerCase() === u ? 'b' : undefined) : undefined
+  const userColor = userColorFor(g.white, g.black, username ? [username] : [])
   return put<GameRow>('games', {
     // derived from the external id, so the same game imported on two devices syncs as one row
     id: rowIdFor(g.externalId),
@@ -179,6 +178,14 @@ export async function importRemote(g: RemoteGame, username?: string): Promise<Ga
     externalId: g.externalId,
     opening: await openingName(c),
   })
+}
+
+/** The side one of these usernames played, ignoring case; none, or both sides (a game against yourself): undefined. */
+export function userColorFor(white: string | undefined, black: string | undefined, usernames: string[]): 'w' | 'b' | undefined {
+  const mine = new Set(usernames.map((u) => u.trim().toLowerCase()).filter(Boolean))
+  const w = !!white && mine.has(white.trim().toLowerCase())
+  const b = !!black && mine.has(black.trim().toLowerCase())
+  return w === b ? undefined : w ? 'w' : 'b'
 }
 
 /** A URL-safe row id for an external id (chess.com ids are URLs). */
@@ -271,16 +278,39 @@ async function findPgnGame(identity: string, legacyIdentity: string): Promise<Ga
   })
 }
 
+export interface PgnImportOptions {
+  /** the user's names on other sites: a game where one of them plays gets its userColor */
+  usernames?: string[]
+  /** called every few games with how many were read so far */
+  onProgress?: (done: number, total: number) => void
+}
+
+/** games per write and between yields to the browser, so a big file doesn't freeze the page */
+const PGN_CHUNK = 50
+
 /**
  * Stores every valid game of a PGN file, keeping its text as written (variations,
  * comments, NAGs). Games already imported are returned but not stored again
  * (`existing` counts them); `failed` counts unreadable ones.
  */
-export async function importPgnText(text: string): Promise<{ rows: GameRow[]; existing: number; failed: number }> {
+export async function importPgnText(text: string, opts: PgnImportOptions = {}): Promise<{ rows: GameRow[]; existing: number; failed: number }> {
   const out: GameRow[] = []
   let failed = 0
   let existingCount = 0
-  for (const pgn of splitPgn(text)) {
+  const texts = splitPgn(text)
+  /** new rows not written yet, by external id: the same game twice in one file is stored once */
+  const pending = new Map<string, GameRow>()
+  const flush = async () => {
+    if (pending.size) await db.games.bulkPut([...pending.values()])
+    pending.clear()
+  }
+  for (let i = 0; i < texts.length; i++) {
+    if (i && i % PGN_CHUNK === 0) {
+      await flush()
+      opts.onProgress?.(i, texts.length)
+      await new Promise((r) => setTimeout(r, 0))
+    }
+    const pgn = texts[i]
     const c = new Chess()
     try {
       c.loadPgn(pgn)
@@ -295,30 +325,36 @@ export async function importPgnText(text: string): Promise<{ rows: GameRow[]; ex
     const h = c.getHeaders()
     const moves = c.history()
     const identity = pgnIdentity(h, moves)
-    const existing = await findPgnGame(identity, [h.White, h.Black, h.Date, h.Round, moves.join(' ')].join('|'))
+    const externalId = `pgn:${hash64(identity)}`
+    const existing = pending.get(externalId) ?? (await findPgnGame(identity, [h.White, h.Black, h.Date, h.Round, moves.join(' ')].join('|')))
     if (existing) {
       out.push(existing)
       existingCount++
       continue
     }
-    const externalId = `pgn:${hash64(identity)}`
     const res = (h.Result as GameRow['result']) ?? '*'
-    out.push(
-      await put<GameRow>('games', {
-        id: rowIdFor(externalId),
-        externalId,
-        source: 'pgn',
-        pgn,
-        white: h.White ?? '?',
-        black: h.Black ?? '?',
-        whiteElo: Number(h.WhiteElo) || undefined,
-        blackElo: Number(h.BlackElo) || undefined,
-        result: ['1-0', '0-1', '1/2-1/2'].includes(res) ? res : '*',
-        // no usable date at all: the import time keeps it sortable among recent games
-        date: pgnDate(h) ?? Date.now(),
-        opening: await openingName(c),
-      }),
-    )
+    const tc = h.TimeControl?.trim()
+    const row: GameRow = {
+      id: rowIdFor(externalId),
+      externalId,
+      source: 'pgn',
+      pgn,
+      white: h.White ?? '?',
+      black: h.Black ?? '?',
+      whiteElo: Number(h.WhiteElo) || undefined,
+      blackElo: Number(h.BlackElo) || undefined,
+      result: ['1-0', '0-1', '1/2-1/2'].includes(res) ? res : '*',
+      userColor: userColorFor(h.White, h.Black, opts.usernames ?? []),
+      timeControl: tc && tc !== '-' && tc !== '?' ? chesscomTimeControl(tc) : undefined,
+      // no usable date at all: the import time keeps it sortable among recent games
+      date: pgnDate(h) ?? Date.now(),
+      opening: await openingName(c),
+      updatedAt: Date.now(),
+    }
+    pending.set(externalId, row)
+    out.push(row)
   }
+  await flush()
+  opts.onProgress?.(texts.length, texts.length)
   return { rows: out, existing: existingCount, failed }
 }

@@ -442,7 +442,16 @@
     "anyColor": "Both colors",
     "loadMore": "Load more",
     "noMatch": "No games match these filters.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "deleteConfirm": "Delete this game? This can’t be undone.",
+    "speed": "Time control",
+    "anySpeed": "Any time control",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapid",
+    "classical": "Classical",
+    "daily": "Daily",
+    "untimed": "No clock"
   },
   "import": {
     "title": "Import games",
@@ -468,7 +477,8 @@
     "failed_other": "{{count}} games couldn't be read",
     "rateLimited": "Too many requests in a row. Wait a minute and try again.",
     "alreadyHad_one": "{{count}} game was already imported",
-    "alreadyHad_other": "{{count}} games were already imported"
+    "alreadyHad_other": "{{count}} games were already imported",
+    "importing": "Importing {{done}} of {{total}}…"
   },
   "profile": {
     "title": "Profile",
@@ -502,7 +512,14 @@
     "restored": "Backup restored",
     "byOpening": "By opening",
     "gamesShort_one": "{{count}} g.",
-    "gamesShort_other": "{{count}} g."
+    "gamesShort_other": "{{count}} g.",
+    "results": "Results",
+    "overall": "Overall",
+    "withWhite": "As White",
+    "withBlack": "As Black",
+    "won": "Won",
+    "drawn": "Drawn",
+    "lost": "Lost"
   },
   "settings": {
     "title": "Settings",

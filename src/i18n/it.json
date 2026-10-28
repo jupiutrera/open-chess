@@ -442,7 +442,16 @@
     "anyColor": "Entrambi i colori",
     "loadMore": "Carica altre",
     "noMatch": "Nessuna partita corrisponde a questi filtri.",
-    "clearFilters": "Rimuovi filtri"
+    "clearFilters": "Rimuovi filtri",
+    "deleteConfirm": "Eliminare questa partita? Non si può annullare.",
+    "speed": "Cadenza",
+    "anySpeed": "Tutte le cadenze",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapid",
+    "classical": "Classica",
+    "daily": "Giornaliera",
+    "untimed": "Senza orologio"
   },
   "import": {
     "title": "Importa partite",
@@ -468,7 +477,8 @@
     "failed_other": "{{count}} partite non leggibili",
     "rateLimited": "Troppe richieste di seguito. Attendi un minuto e riprova.",
     "alreadyHad_one": "{{count}} partita era già importata",
-    "alreadyHad_other": "{{count}} partite erano già importate"
+    "alreadyHad_other": "{{count}} partite erano già importate",
+    "importing": "Importazione {{done}} di {{total}}…"
   },
   "profile": {
     "title": "Profilo",
@@ -502,7 +512,14 @@
     "restored": "Backup ripristinato",
     "byOpening": "Per apertura",
     "gamesShort_one": "{{count}} p.",
-    "gamesShort_other": "{{count}} p."
+    "gamesShort_other": "{{count}} p.",
+    "results": "Risultati",
+    "overall": "Totale",
+    "withWhite": "Con il Bianco",
+    "withBlack": "Con il Nero",
+    "won": "Vinte",
+    "drawn": "Patte",
+    "lost": "Perse"
   },
   "settings": {
     "title": "Impostazioni",

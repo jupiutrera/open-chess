@@ -442,7 +442,16 @@
     "anyColor": "Ambos colores",
     "loadMore": "Cargar más",
     "noMatch": "Ninguna partida coincide con estos filtros.",
-    "clearFilters": "Quitar filtros"
+    "clearFilters": "Quitar filtros",
+    "deleteConfirm": "¿Borrar esta partida? No se puede deshacer.",
+    "speed": "Ritmo",
+    "anySpeed": "Todos los ritmos",
+    "bullet": "Bala",
+    "blitz": "Blitz",
+    "rapid": "Rápidas",
+    "classical": "Clásicas",
+    "daily": "Diarias",
+    "untimed": "Sin reloj"
   },
   "import": {
     "title": "Importar partidas",
@@ -468,7 +477,8 @@
     "failed_other": "{{count}} partidas no se pudieron leer",
     "rateLimited": "Demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo.",
     "alreadyHad_one": "{{count}} partida ya estaba importada",
-    "alreadyHad_other": "{{count}} partidas ya estaban importadas"
+    "alreadyHad_other": "{{count}} partidas ya estaban importadas",
+    "importing": "Importando {{done}} de {{total}}…"
   },
   "profile": {
     "title": "Perfil",
@@ -502,7 +512,14 @@
     "restored": "Copia restaurada",
     "byOpening": "Por apertura",
     "gamesShort_one": "{{count}} p.",
-    "gamesShort_other": "{{count}} p."
+    "gamesShort_other": "{{count}} p.",
+    "results": "Resultados",
+    "overall": "Total",
+    "withWhite": "Con blancas",
+    "withBlack": "Con negras",
+    "won": "Ganadas",
+    "drawn": "Tablas",
+    "lost": "Perdidas"
   },
   "settings": {
     "title": "Ajustes",

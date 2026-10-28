@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { GameRow } from '../../db/db'
-import { gameMatcher, gameOutcome, NO_FILTER } from './gameFilter'
+import { gameMatcher, gameOutcome, gameSpeed, NO_FILTER } from './gameFilter'
 
 const g = (over: Partial<GameRow>): GameRow => ({
   id: 'x',
@@ -45,5 +45,30 @@ describe('gameMatcher', () => {
     expect(shown(g({ white: 'You' }))).toBe(true)
     expect(gameMatcher({ ...NO_FILTER, query: 'sicilian' })(g({ opening: 'B20 Sicilian Defense' }))).toBe(true)
     expect(gameMatcher({ ...NO_FILTER, query: 'french' })(g({ opening: 'B20 Sicilian Defense' }))).toBe(false)
+  })
+})
+
+describe('gameSpeed', () => {
+  it('classifies by base + 40 × increment', () => {
+    expect(gameSpeed('60+0')).toBe('bullet')
+    expect(gameSpeed('120+1')).toBe('bullet')
+    expect(gameSpeed('180')).toBe('blitz')
+    expect(gameSpeed('180+2')).toBe('blitz')
+    expect(gameSpeed('600')).toBe('rapid')
+    expect(gameSpeed('900+10')).toBe('rapid')
+    expect(gameSpeed('1800+0')).toBe('classical')
+  })
+  it('knows daily games and games without a clock', () => {
+    expect(gameSpeed('3d')).toBe('daily')
+    expect(gameSpeed('1/86400')).toBe('daily')
+    expect(gameSpeed('-')).toBeNull()
+    expect(gameSpeed('0+0')).toBeNull()
+    expect(gameSpeed(undefined)).toBeNull()
+  })
+  it('filters the list by speed', () => {
+    const blitz = gameMatcher({ ...NO_FILTER, speed: 'blitz' })
+    expect(blitz(g({ timeControl: '300+0' }))).toBe(true)
+    expect(blitz(g({ timeControl: '600+0' }))).toBe(false)
+    expect(blitz(g({}))).toBe(false)
   })
 })

@@ -442,7 +442,16 @@
     "anyColor": "Les deux couleurs",
     "loadMore": "Charger plus",
     "noMatch": "Aucune partie ne correspond à ces filtres.",
-    "clearFilters": "Effacer les filtres"
+    "clearFilters": "Effacer les filtres",
+    "deleteConfirm": "Supprimer cette partie ? Cette action est irréversible.",
+    "speed": "Cadence",
+    "anySpeed": "Toutes les cadences",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapide",
+    "classical": "Classique",
+    "daily": "Par jour",
+    "untimed": "Sans pendule"
   },
   "import": {
     "title": "Importer des parties",
@@ -468,7 +477,8 @@
     "failed_other": "{{count}} parties illisibles",
     "rateLimited": "Trop de requêtes d'affilée. Attendez une minute et réessayez.",
     "alreadyHad_one": "{{count}} partie était déjà importée",
-    "alreadyHad_other": "{{count}} parties étaient déjà importées"
+    "alreadyHad_other": "{{count}} parties étaient déjà importées",
+    "importing": "Importation {{done}} sur {{total}}…"
   },
   "profile": {
     "title": "Profil",
@@ -502,7 +512,14 @@
     "restored": "Sauvegarde restaurée",
     "byOpening": "Par ouverture",
     "gamesShort_one": "{{count}} p.",
-    "gamesShort_other": "{{count}} p."
+    "gamesShort_other": "{{count}} p.",
+    "results": "Résultats",
+    "overall": "Total",
+    "withWhite": "Avec les Blancs",
+    "withBlack": "Avec les Noirs",
+    "won": "Gagnées",
+    "drawn": "Nulles",
+    "lost": "Perdues"
   },
   "settings": {
     "title": "Réglages",
