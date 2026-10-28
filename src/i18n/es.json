@@ -263,7 +263,8 @@
     "results": "Resultados",
     "streakMode": "Racha de problemas",
     "streakSub": "Sin reloj. Cada problema es más difícil y un solo fallo termina la racha.",
-    "streakOver": "Fin de la racha"
+    "streakOver": "Fin de la racha",
+    "checking": "Comprobando tu jugada…"
   },
   "themes": {
     "mateIn1": "Mate en 1",

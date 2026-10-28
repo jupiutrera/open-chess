@@ -263,7 +263,8 @@
     "results": "Risultati",
     "streakMode": "Serie di problemi",
     "streakSub": "Senza orologio. Ogni problema è un po' più difficile e un solo errore chiude la serie.",
-    "streakOver": "Serie terminata"
+    "streakOver": "Serie terminata",
+    "checking": "Verifica della tua mossa…"
   },
   "themes": {
     "mateIn1": "Matto in 1",

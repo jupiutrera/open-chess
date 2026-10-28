@@ -263,7 +263,8 @@
     "results": "Results",
     "streakMode": "Puzzle Streak",
     "streakSub": "No clock. Each puzzle is a little harder and one miss ends the run.",
-    "streakOver": "Streak over"
+    "streakOver": "Streak over",
+    "checking": "Checking your move…"
   },
   "themes": {
     "mateIn1": "Mate in 1",

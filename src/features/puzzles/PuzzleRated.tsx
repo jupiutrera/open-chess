@@ -180,6 +180,13 @@ export function StatusBlock({ status, color }: { status: string; color: 'w' | 'b
         <span className="text-[18px] font-bold">{t('puzzles.incorrect')}</span>
       </div>
     )
+  if (status === 'checking')
+    return (
+      <div className="flex items-center gap-3" aria-live="polite">
+        <span className="h-10 w-10 animate-spin rounded-full border-4 border-raise border-t-accent motion-reduce:animate-none" aria-hidden />
+        <span className="text-[18px] font-bold">{t('puzzles.checking')}</span>
+      </div>
+    )
   if (status === 'correct')
     return (
       <div key="c" className="pop flex items-center gap-3">

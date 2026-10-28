@@ -263,7 +263,8 @@
     "results": "結果",
     "streakMode": "パズルストリーク",
     "streakSub": "時間制限なし。問題は少しずつ難しくなり、1問でも間違えると終了です。",
-    "streakOver": "ストリーク終了"
+    "streakOver": "ストリーク終了",
+    "checking": "手を確認しています…"
   },
   "themes": {
     "mateIn1": "1手詰め",
