@@ -6,7 +6,7 @@
 
 ### Everything chess.com charges for to train, free and on your own device.
 
-Stockfish game review, 13 bots with personality, 104,000 puzzles, an opening trainer and lessons.<br/>
+Stockfish game review, 13 bots with personality, 14 challenge bots, 104,000 puzzles, an opening trainer and lessons.<br/>
 In the browser or as an Android app. **No ads, no subscription and no account.**
 
 [![Release](https://img.shields.io/github/v/release/jupiutrera/open-chess?style=for-the-badge&label=version&color=81b64c)](https://github.com/jupiutrera/open-chess/releases/latest)
@@ -37,7 +37,7 @@ In the browser or as an Android app. **No ads, no subscription and no account.**
 
 <table align="center">
   <tr>
-    <td align="center"><b>13</b><br/><sub>bots, 250 to 3200</sub></td>
+    <td align="center"><b>13 + 14</b><br/><sub>bots and challenges</sub></td>
     <td align="center"><b>104,000</b><br/><sub>Lichess puzzles</sub></td>
     <td align="center"><b>3,865</b><br/><sub>named openings</sub></td>
     <td align="center"><b>11</b><br/><sub>interactive lessons</sub></td>
@@ -70,6 +70,8 @@ Open Chess puts those pieces together in an app with the chess.com experience yo
 **🔍 Game review.** Stockfish analyses every move and classifies it the way chess.com does: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss and blunder. You get each player's accuracy, an estimated performance and the evaluation graph. You can see the best move and **retry your mistakes** to learn from them.
 
 **🤖 13 bots with personality.** Pip, the kid who just discovered the knight; Iván, who will sacrifice whatever it takes; Boris, the old-school FIDE master… Each one has a portrait, favourite openings and their own voice: they greet you, react to your captures and blunders, and celebrate (or regret) the result. They play like people, not like a broken engine.
+
+**🐟 14 challenges.** Stockfish, but with a silly rule: **Meltfish** loses 50 Elo every move, **Growfish** starts at 0 and climbs, **Envyfish** drops 300 Elo whenever you find the best move, **Drawfish** plays for 0.00, **Checkfish** checks whenever it can, **Greedfish** grabs everything, **Coinfish** picks its n-th best move with probability ½ⁿ, **Yoyofish** swings between 250 and 3200 on every capture, **Copyfish** copies the quality of your last move… The bot's Elo changes live as you play.
 
 **🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.
 
