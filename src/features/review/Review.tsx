@@ -13,13 +13,14 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { QualityIcon, qualityColor } from '../../board/QualityIcon'
 import { EvalGraph } from './EvalGraph'
 import { analyzeGame, getGame, parseGame } from './analyze'
-import { QUALITY_ORDER, countQualities, estimateRating, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { QUALITY_ORDER, countQualities, estimateRating, repetitionDraws, retryAccepted, scoreFromWin, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { moveNumberLabel } from './moveNumber'
 import { capturedPieces, playUci, uciLineToSan } from '../../chess/util'
 import { playMoveSound, play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type PvLine, type Score } from '../../engine/engine'
 import type { GameRow } from '../../db/db'
 import { useSettings } from '../../settings'
-import { BoardScreenSkeleton, Panel } from '../../ui/kit'
+import { BoardScreenSkeleton, Panel, toast } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
 import { playerName } from '../play/playerName'
@@ -161,7 +162,7 @@ export default function Review() {
       : ply > 0
         ? [parsed.moves[ply - 1].from, parsed.moves[ply - 1].to]
         : null
-  const score: Score | undefined = current ? current.scoreAfter : review ? { cp: 20 } : undefined
+  const score: Score | undefined = current ? current.scoreAfter : review ? positionScore(review, 0) : undefined
 
   const showArrow =
     mode === 'moves' && !variation && !retry && current?.bestUci && !['best', 'book', 'forced', 'brilliant', 'great'].includes(current.quality)
@@ -228,17 +229,28 @@ export default function Review() {
     cancelRetry()
     const gen = retryGen.current
     const uci = m.from + m.to + (m.promotion ?? '')
-    let good = uci === current.bestUci
-    if (!good) {
-      // a mating or stalemating retry ends the game, so the engine has no lines to score it
-      const after = terminalScore(c.fen()) ?? (await sharedEngine().search(c.fen(), { depth: 12 })).lines[0]?.score ?? { cp: 0 }
-      const mover = current.color
-      const w = winPercent(after)
-      const prevBest = review!.curve[ply - 1]
-      const loss = mover === 'w' ? prevBest - w : w - prevBest
-      good = loss < 3
+    let good = uci === current.bestUci && uci !== current.uci
+    if (!good && uci !== current.uci) {
+      const moves = [...parsed.moves.slice(0, ply - 1).map((x) => x.uci), uci]
+      let after: Score
+      try {
+        // a mating or stalemating retry ends the game, so the engine has no lines to score it;
+        // nor does a third repetition, which is a draw
+        after =
+          terminalScore(c.fen()) ??
+          (repetitionDraws([...parsed.fens.slice(0, ply), c.fen()])[ply] ? { cp: 0 } : null) ??
+          (await sharedEngine().search(c.fen(), { depth: 12, history: { startFen: parsed.startFen, moves } })).lines[0]?.score ?? { cp: 0 }
+      } catch {
+        if (gen !== retryGen.current) return
+        toast(t('review.retryFailed'), 'error')
+        setVariation(null)
+        setRetry(null)
+        return
+      }
       // the user moved on (or moved again) while the engine was thinking
       if (gen !== retryGen.current) return
+      const beforePos = { fen: before, score: positionScore(review!, ply - 1), lines: positionLinesFor(review!, ply - 1, current.bestUci) }
+      good = retryAccepted(beforePos, { fen: c.fen(), lines: [], score: after }, uci, current.uci)
     }
     if (good) {
       play('correct')
@@ -311,6 +323,7 @@ export default function Review() {
                 goto(p)
               }}
               keyMoments={keyMoments}
+              startFen={parsed.startFen}
               onExport={exportPgn}
               onReanalyze={reanalyze}
             />
@@ -319,7 +332,7 @@ export default function Review() {
               <Coach
                 move={current}
                 fenBefore={parsed.fens[ply - 1]}
-                scoreBefore={ply > 1 ? review.moves[ply - 2]?.scoreAfter : undefined}
+                scoreBefore={ply > 0 ? positionScore(review, ply - 1) : undefined}
                 retry={retry}
                 variation={!!variation && !retry}
                 onBest={showBest}
@@ -335,7 +348,7 @@ export default function Review() {
                 />
               )}
               <div className="px-3 pt-3">
-                <EvalGraph curve={review.curve} moves={review.moves} ply={ply} onSelect={goto} height={64} />
+                <EvalGraph curve={review.curve} moves={review.moves} ply={ply} onSelect={goto} startFen={parsed.startFen} height={64} />
               </div>
               {keyMoments.length > 0 && (
                 <div className="flex items-center gap-2 px-3 pt-2 text-[13px]">
@@ -405,6 +418,21 @@ export default function Review() {
   )
 }
 
+type StoredReview = NonNullable<GameRow['review']>
+
+/** Score of the game's position `i`; the first one comes from its stored lines, or older reviews' win%. */
+function positionScore(review: StoredReview, i: number): Score {
+  if (i > 0) return review.moves[i - 1].scoreAfter
+  return review.lines?.[0]?.[0]?.score ?? scoreFromWin(review.curve[0] ?? 50)
+}
+
+/** Stored engine lines of position `i`, or just the best move for reviews made before lines were kept. */
+function positionLinesFor(review: StoredReview, i: number, bestUci: string | null): PvLine[] {
+  const stored = review.lines?.[i]
+  if (stored?.length) return stored
+  return bestUci ? [{ multipv: 1, depth: review.depth, score: positionScore(review, i), pv: [bestUci] }] : []
+}
+
 /** Normalises our own, Lichess and chess.com termination headers. */
 function endReason(termination: string | undefined, fen: string): string {
   const t = (termination ?? '').toLowerCase()
@@ -463,10 +491,12 @@ function Summary({
   ply,
   onSelect,
   keyMoments,
+  startFen,
   onExport,
   onReanalyze,
 }: {
   keyMoments: MoveReview[]
+  startFen: string
   onExport: () => void
   onReanalyze: () => void
   game: GameRow
@@ -485,7 +515,7 @@ function Summary({
   const b = countQualities(moves, 'b')
   return (
     <div className="enter flex-1 overflow-y-auto p-4">
-      <EvalGraph curve={curve} moves={moves} ply={ply} onSelect={onSelect} height={72} />
+      <EvalGraph curve={curve} moves={moves} ply={ply} onSelect={onSelect} startFen={startFen} height={72} />
       <div className="mt-4 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 gap-y-2">
         <span />
         <span className="w-[76px] truncate text-center text-[13px] font-bold">{whiteName}</span>
@@ -525,8 +555,7 @@ function Summary({
                 <button className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-raise" onClick={() => onSelect(m.ply)}>
                   <QualityIcon quality={m.quality} size={20} />
                   <span className="tabular w-10 text-[13px] text-fg-3">
-                    {Math.ceil(m.ply / 2)}
-                    {m.color === 'w' ? '.' : '...'}
+                    {moveNumberLabel(m.ply, startFen, '...')}
                   </span>
                   <span className="font-bold">{m.san}</span>
                   <span className="ml-auto truncate text-[13px]" style={{ color: qualityColor(m.quality) }}>

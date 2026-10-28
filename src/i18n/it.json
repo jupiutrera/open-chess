@@ -216,7 +216,13 @@
       "allowsMate_other": "Concede matto in {{count}}.",
       "missedMate_one": "C'era matto in {{count}} con {{san}}.",
       "missedMate_other": "C'era matto in {{count}} a partire da {{san}}."
-    }
+    },
+    "retryFailed": "Impossibile verificare la mossa. Riprova.",
+    "graphStart": "Posizione iniziale",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Mossa precedente della linea",
+    "lineNext": "Mossa successiva della linea",
+    "lineStep": "Seguito {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Problemi",
@@ -414,7 +420,8 @@
       "mateIn_other": "· matto in {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Mostra minaccia"
   },
   "games": {
     "title": "Le mie partite",

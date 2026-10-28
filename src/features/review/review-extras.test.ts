@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
 import { explainMove } from './explain'
 import { annotatedPgn } from './pgnExport'
+import { moveNumberLabel } from './moveNumber'
 import type { MoveReview } from './classify'
 import type { GameRow } from '../../db/db'
 
@@ -46,5 +47,20 @@ describe('annotatedPgn', () => {
     expect(pgn).toContain('?! inaccuracy. Nf3!')
     expect(pgn).toContain('[%eval -0.1]')
     expect(new Chess().loadPgn(pgn)).toBeUndefined()
+  })
+})
+
+describe('moveNumberLabel', () => {
+  const start = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  it('counts from move 1 with White first', () => {
+    expect(moveNumberLabel(1, start)).toBe('1.')
+    expect(moveNumberLabel(2, start)).toBe('1…')
+    expect(moveNumberLabel(3, start)).toBe('2.')
+  })
+  it('follows a FEN start with Black to move', () => {
+    const fen = '4k3/8/8/8/8/8/4P3/4K3 b - - 0 23'
+    expect(moveNumberLabel(1, fen, '...')).toBe('23...')
+    expect(moveNumberLabel(2, fen)).toBe('24.')
+    expect(moveNumberLabel(3, fen)).toBe('24…')
   })
 })

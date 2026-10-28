@@ -216,7 +216,13 @@
       "allowsMate_other": "Permite mate en {{count}}.",
       "missedMate_one": "Había mate en {{count}} con {{san}}.",
       "missedMate_other": "Había mate en {{count}} empezando por {{san}}."
-    }
+    },
+    "retryFailed": "No se pudo comprobar esa jugada. Inténtalo de nuevo.",
+    "graphStart": "Posición inicial",
+    "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
+    "linePrev": "Jugada anterior de la línea",
+    "lineNext": "Siguiente jugada de la línea",
+    "lineStep": "Continuación {{n}}/{{total}}"
   },
   "puzzles": {
     "title": "Puzzles",
@@ -414,7 +420,8 @@
       "mateIn_other": "· mate en {{count}}",
       "dtz_one": "· DTZ {{count}}",
       "dtz_other": "· DTZ {{count}}"
-    }
+    },
+    "showThreat": "Mostrar amenaza"
   },
   "games": {
     "title": "Mis partidas",
