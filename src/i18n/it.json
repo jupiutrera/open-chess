@@ -143,7 +143,14 @@
     "standardStart": "Posizione iniziale",
     "invalidStart": "Questa posizione non si può giocare: la partita inizierà dalla posizione iniziale.",
     "typeMove": "Scrivi una mossa (e4, Nf3, O-O)",
-    "illegalMove": "«{{move}}» non è una mossa legale qui"
+    "illegalMove": "«{{move}}» non è una mossa legale qui",
+    "saveFailed": "Impossibile salvare la partita. Resta in corso così puoi riprenderla.",
+    "botFailed": "Il motore del bot si è fermato. Riprova.",
+    "abort": "Annulla partita",
+    "aborted": "Partita annullata",
+    "confirmDraw": "Entrambi i giocatori accettano la patta?",
+    "acceptDraw": "Accetta la patta",
+    "confirmResignSide": "Vuoi davvero abbandonare con il {{side}}?"
   },
   "bots": {
     "group": {

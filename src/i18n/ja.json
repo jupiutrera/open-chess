@@ -143,7 +143,14 @@
     "standardStart": "通常の初期配置",
     "invalidStart": "この局面は対局できないため、通常の初期配置から始めます。",
     "typeMove": "指し手を入力（e4、Nf3、O-O）",
-    "illegalMove": "「{{move}}」はこの局面では指せません"
+    "illegalMove": "「{{move}}」はこの局面では指せません",
+    "saveFailed": "対局を保存できませんでした。続きから再開できるよう、対局中のまま残しています。",
+    "botFailed": "ボットのエンジンが停止しました。もう一度お試しください。",
+    "abort": "中止",
+    "aborted": "対局を中止しました",
+    "confirmDraw": "両者とも引き分けに同意しますか？",
+    "acceptDraw": "引き分けに同意",
+    "confirmResignSide": "{{side}}が投了します。よろしいですか？"
   },
   "bots": {
     "group": {

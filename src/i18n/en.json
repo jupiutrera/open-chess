@@ -143,7 +143,14 @@
     "standardStart": "Standard start",
     "invalidStart": "That position can't be played, so the game starts from the usual position.",
     "typeMove": "Type a move (e4, Nf3, O-O)",
-    "illegalMove": "“{{move}}” isn't a legal move here"
+    "illegalMove": "“{{move}}” isn't a legal move here",
+    "saveFailed": "Couldn't save the game. It stays in progress so you can come back to it.",
+    "botFailed": "The bot's engine stopped. Try again.",
+    "abort": "Abort",
+    "aborted": "Game aborted",
+    "confirmDraw": "Do both players agree to a draw?",
+    "acceptDraw": "Agree to a draw",
+    "confirmResignSide": "{{side}} resigns. Are you sure?"
   },
   "bots": {
     "group": {

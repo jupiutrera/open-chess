@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
-import { Lightbulb, ArrowCounterClockwise, Flag, Handshake, ArrowsDownUp, CaretLeft, CaretRight, SlidersHorizontal } from '@phosphor-icons/react'
+import { Lightbulb, ArrowCounterClockwise, Flag, Handshake, ArrowsDownUp, CaretLeft, CaretRight, SlidersHorizontal, X } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
 import { useBoardKeys } from '../../board/useBoardKeys'
 import { BoardLayout } from '../../board/BoardLayout'
@@ -13,7 +13,7 @@ import { MoveList, MoveStrip } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
-import { START_FEN, capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
+import { START_FEN, capturedPieces, gameResultText, moveNumbering, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
@@ -68,6 +68,9 @@ export default function PlayBot() {
   const [offering, setOffering] = useState(false)
   // bumped to retry the bot's move when its search was cut short
   const [botRetry, setBotRetry] = useState(0)
+  // the engine crashed twice on this move: the user retries by hand
+  const [botFailed, setBotFailed] = useState(false)
+  const retriedAt = useRef<string | null>(null)
   const [hint, setHint] = useState<DrawShape[]>([])
   const [confirmResign, setConfirmResign] = useState(false)
   const [assistOpen, setAssistOpen] = useState(false)
@@ -81,6 +84,11 @@ export default function PlayBot() {
     [bot, lang],
   )
   const endRef = useRef<GameEnd | null>(null)
+  // bumped on rematch, so a save still running for the previous game can't attach its id to this one
+  const gameToken = useRef(0)
+  const dialogTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  // aborted games aren't saved, not even as a game in progress
+  const aborted = useRef(false)
 
   const finish = useCallback(
     async (e: GameEnd) => {
@@ -89,9 +97,9 @@ export default function PlayBot() {
       say(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'lose' : 'win')
       setEnd(e)
       clock.stop()
-      clearLiveGame('bot')
       play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
-      const row = await saveGame({
+      const token = gameToken.current
+      const pending = saveGame({
         source: 'bot',
         chess: cloneWithHistory(game.chess),
         white: userColor === 'w' ? PLAYER.you : bot.name,
@@ -104,11 +112,17 @@ export default function PlayBot() {
         timeControl: tc.base ? `${tc.base}+${tc.inc}` : '-',
         termination: e.reason,
       })
-      setSavedId(row.id)
-      setTimeout(() => setDialog(true), 450)
+      // until it's in the DB the game stays resumable
+      const row = await pending.catch(() => null)
+      if (token !== gameToken.current) return
+      if (row) {
+        clearLiveGame('bot')
+        setSavedId(row.id)
+      } else toast(t('play.saveFailed'), 'error')
+      dialogTimer.current = setTimeout(() => setDialog(true), 450)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [bot, userColor, tc, game.chess, say],
+    [bot, userColor, tc, game.chess, say, t],
   )
 
   const clock = useClock(tc.base, tc.inc, (side) => void finish(timeoutResult(game.chess, side)))
@@ -157,8 +171,15 @@ export default function PlayBot() {
 
   // autosave after every move, and when the page is hidden or left (clock times)
   const persist = useRef(() => {})
+  const hadMoves = useRef(false)
   persist.current = () => {
-    if (endRef.current) return
+    if (endRef.current || aborted.current) return
+    // taken back to the start: the old saved position mustn't stay resumable
+    if (!game.chess.history().length) {
+      if (hadMoves.current) clearLiveGame('bot')
+      return
+    }
+    hadMoves.current = true
     saveLiveGame({
       kind: 'bot',
       botId: bot.id,
@@ -172,7 +193,7 @@ export default function PlayBot() {
   // read at unmount: the live game object is replaced on resume and rematch
   const leaveNote = useRef(() => {})
   leaveNote.current = () => {
-    if (!endRef.current && game.chess.history().length) toast(t('play.saved'))
+    if (!endRef.current && !aborted.current && game.chess.history().length) toast(t('play.saved'))
   }
   useEffect(() => persist.current(), [liveFen])
   // once there is a saved game, mark the URL so a reload picks it up instead of starting over it
@@ -197,6 +218,7 @@ export default function PlayBot() {
       document.removeEventListener('visibilitychange', save)
       save()
       leaveNote.current()
+      clearTimeout(dialogTimer.current)
     }
   }, [])
 
@@ -210,6 +232,7 @@ export default function PlayBot() {
   useEffect(() => {
     if (endRef.current || turn === userColor || game.chess.isGameOver()) return
     let cancelled = false
+    setBotFailed(false)
     setThinking(true)
     const started = performance.now()
     const botClock = clock.enabled ? { left: clock.left(turn), inc: tc.inc * 1000 } : undefined
@@ -231,7 +254,14 @@ export default function PlayBot() {
       .catch(() => {
         if (cancelled) return
         setThinking(false)
-        toast(t('review.engineFailed'), 'error')
+        // sharedEngine() replaces a crashed worker: try once more on our own, then let the user retry
+        if (retriedAt.current !== liveFen) {
+          retriedAt.current = liveFen
+          setBotRetry((n) => n + 1)
+          return
+        }
+        toast(t('play.botFailed'), 'error')
+        setBotFailed(true)
       })
     return () => {
       cancelled = true
@@ -247,14 +277,17 @@ export default function PlayBot() {
 
   // the clock re-renders this screen every 100ms: keep the board's props stable so its memo holds
   // (help.lines is a new empty array on every render while the position is unevaluated)
-  const suggestion = help.lines[0]?.pv[0]
+  // and only while it's the user's turn, so the bot's thinking doesn't touch them (it would cost a premove)
+  const suggestion = userTurn ? help.lines[0]?.pv[0] : undefined
+  const threat = userTurn ? help.threat : undefined
   const shapes = useMemo(() => {
-    const out: DrawShape[] = [...hint]
+    // the hint is for the live position, not one browsed back to
+    const out: DrawShape[] = game.atLive ? [...hint] : []
     const arrow = (uci: string, brush: string): DrawShape => ({ orig: uci.slice(0, 2) as never, dest: uci.slice(2, 4) as never, brush })
-    if (assist.suggest && userTurn && suggestion && !hint.length) out.push(arrow(suggestion, 'green'))
-    if (assist.threats && userTurn && help.threat) out.push(arrow(help.threat, 'red'))
+    if (assist.suggest && suggestion && !hint.length) out.push(arrow(suggestion, 'green'))
+    if (assist.threats && threat) out.push(arrow(threat, 'red'))
     return out
-  }, [hint, assist.suggest, assist.threats, userTurn, suggestion, help.threat])
+  }, [hint, game.atLive, assist.suggest, assist.threats, suggestion, threat])
 
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
   const viewedQuality = assist.feedback ? help.quality(viewedMove) : undefined
@@ -331,8 +364,24 @@ export default function PlayBot() {
     void finish({ result: userColor === 'w' ? '0-1' : '1-0', reason: 'resign' })
   }
 
+  // chess.com style: before both sides have moved the game can be dropped without a result
+  const canAbort = game.moves.length < 2
+  const abort = () => {
+    aborted.current = true
+    clock.stop()
+    sharedEngine().stop()
+    clearLiveGame('bot')
+    toast(t('play.aborted'))
+    nav('/play')
+  }
+
   const restart = (sameColor: boolean) => {
     const c = sameColor ? (userColor === 'w' ? 'b' : 'w') : pickColor()
+    gameToken.current++
+    clearTimeout(dialogTimer.current)
+    hadMoves.current = false
+    retriedAt.current = null
+    setBotFailed(false)
     endRef.current = null
     setEnd(null)
     setDialog(false)
@@ -350,6 +399,7 @@ export default function PlayBot() {
   }
 
   const cap = useMemo(() => capturedPieces(game.fen), [game.fen])
+  const numbering = useMemo(() => moveNumbering(game.startFen), [game.startFen])
   const lineSans = useMemo(() => (assist.engine ? help.lines.slice(0, 3).map((l) => uciLineToSan(game.fen, l.pv, 8).join(' ')) : []), [assist.engine, help.lines, game.fen])
   const botEdge = userColor === 'w' ? -cap.diff : cap.diff
   const mood: Mood = end
@@ -452,12 +502,13 @@ export default function PlayBot() {
                 })}
               </div>
             )}
-            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} className="border-b border-line max-lg:order-1 lg:hidden" />
+            <MoveStrip sans={game.sans} ply={game.ply} onSelect={game.goto} qualities={assist.feedback ? qualities : undefined} {...numbering} className="border-b border-line max-lg:order-1 lg:hidden" />
             <MoveList
               sans={game.sans}
               ply={game.ply}
               onSelect={game.goto}
               qualities={assist.feedback ? qualities : undefined}
+              {...numbering}
               className="hidden min-h-[120px] flex-1 py-1 lg:block"
             />
             {!end && <MoveInput fen={liveFen} disabled={!userTurn} onMove={onUserMove} className="border-t border-line p-3" />}
@@ -472,6 +523,14 @@ export default function PlayBot() {
                 <ArrowsDownUp size={22} weight="bold" />
               </button>
             </div>
+            {botFailed && !end && (
+              <div className="flex items-center gap-3 border-t border-line p-3 max-lg:order-2" role="alert">
+                <p className="min-w-0 flex-1 text-[13px] text-fg-2">{t('play.botFailed')}</p>
+                <button className="btn shrink-0" onClick={() => setBotRetry((n) => n + 1)}>
+                  {t('common.retry')}
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-4 gap-2 border-t border-line p-3 max-lg:order-2 max-lg:border-t-0">
               {end ? (
                 <>
@@ -490,7 +549,11 @@ export default function PlayBot() {
                   <ActionButton icon={<Lightbulb size={22} weight="bold" />} label={t('play.hint')} onClick={showHint} disabled={turn !== userColor} />
                   <ActionButton icon={<ArrowCounterClockwise size={22} weight="bold" />} label={t('play.undo')} onClick={takeback} disabled={game.moves.length < 1} />
                   <ActionButton icon={<Handshake size={22} weight="bold" />} label={t('play.draw')} onClick={offerDraw} disabled={thinking || offering} />
-                  <ActionButton icon={<Flag size={22} weight="bold" />} label={t('play.resign')} onClick={() => setConfirmResign(true)} />
+                  {canAbort ? (
+                    <ActionButton icon={<X size={22} weight="bold" />} label={t('play.abort')} onClick={abort} />
+                  ) : (
+                    <ActionButton icon={<Flag size={22} weight="bold" />} label={t('play.resign')} onClick={() => setConfirmResign(true)} />
+                  )}
                 </>
               )}
             </div>
@@ -527,7 +590,7 @@ export default function PlayBot() {
   )
 }
 
-function ActionButton({ icon, label, onClick, disabled }: { icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean }) {
+export function ActionButton({ icon, label, onClick, disabled }: { icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean }) {
   return (
     <button className="btn flex-col gap-0.5 px-1 py-1.5 text-[11px] font-semibold" style={{ minHeight: 56 }} onClick={onClick} disabled={disabled} title={label}>
       {icon}

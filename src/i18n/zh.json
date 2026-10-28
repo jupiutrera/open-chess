@@ -143,7 +143,14 @@
     "standardStart": "标准开局",
     "invalidStart": "该局面无法对弈，将从标准初始局面开始。",
     "typeMove": "输入走法（e4、Nf3、O-O）",
-    "illegalMove": "“{{move}}”在此局面不是合法走法"
+    "illegalMove": "“{{move}}”在此局面不是合法走法",
+    "saveFailed": "无法保存对局。对局仍在进行中，你可以稍后继续。",
+    "botFailed": "机器人的引擎已停止。请重试。",
+    "abort": "中止",
+    "aborted": "对局已中止",
+    "confirmDraw": "双方都同意和棋吗？",
+    "acceptDraw": "同意和棋",
+    "confirmResignSide": "{{side}}认输，确定吗？"
   },
   "bots": {
     "group": {

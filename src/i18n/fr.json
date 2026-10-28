@@ -143,7 +143,14 @@
     "standardStart": "Position initiale",
     "invalidStart": "Cette position n'est pas jouable : la partie commencera depuis la position initiale.",
     "typeMove": "Tapez un coup (e4, Nf3, O-O)",
-    "illegalMove": "« {{move}} » n'est pas un coup légal ici"
+    "illegalMove": "« {{move}} » n'est pas un coup légal ici",
+    "saveFailed": "Impossible d'enregistrer la partie. Elle reste en cours pour que vous puissiez la reprendre.",
+    "botFailed": "Le moteur du bot s'est arrêté. Réessayez.",
+    "abort": "Annuler la partie",
+    "aborted": "Partie annulée",
+    "confirmDraw": "Les deux joueurs sont-ils d'accord pour une nulle ?",
+    "acceptDraw": "Accepter la nulle",
+    "confirmResignSide": "Voulez-vous vraiment abandonner avec les {{side}} ?"
   },
   "bots": {
     "group": {
