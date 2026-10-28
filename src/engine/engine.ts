@@ -202,7 +202,9 @@ export class Engine {
     return done
   }
 
+  /** Terminates the worker; anything still waiting on it rejects instead of hanging. */
   destroy() {
+    this.fail(new Error('Engine destroyed'))
     this.worker.terminate()
   }
 }
