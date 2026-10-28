@@ -38,12 +38,15 @@ function loadBucket(b: number): Promise<Puzzle[]> {
   let p = bucketCache.get(b)
   if (!p) {
     p = fetch(`${base}r${b}.json`)
-      .then((r) => (r.ok ? r.json() : []))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then((rows: [string, string, string, number, string][]) =>
         rows.map(([id, fen, moves, rating, themes]) => ({ id, fen, moves: moves.split(' '), rating, themes: themes.split(' ') })),
       )
       .catch(() => {
-        bucketCache.delete(b) // offline: try again next time
+        bucketCache.delete(b) // offline or a failed response: try again next time
         return []
       })
     bucketCache.set(b, p)
