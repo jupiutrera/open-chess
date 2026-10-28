@@ -6,7 +6,7 @@ import { db, softDelete } from '../../db/db'
 import { PageHeader, Panel, Segmented, SkeletonRows, toast } from '../../ui/kit'
 import { DownloadSimple, MagnifyingGlass } from '@phosphor-icons/react'
 import { GameRowItem } from './GameRowItem'
-import { gameMatcher, NO_FILTER, type GameFilter } from './gameFilter'
+import { gameMatcher, NO_FILTER, SPEEDS, type GameFilter } from './gameFilter'
 import { gamesPgn } from '../review/pgnExport'
 import { playerName } from '../play/playerName'
 import { saveTextFile } from '../../ui/files'
@@ -19,12 +19,15 @@ export default function Games() {
   const [limit, setLimit] = useState(PAGE)
   // typing shouldn't re-scan the table on every keystroke before React catches up
   const query = useDeferredValue(filter.query)
-  const { source, result, color } = filter
+  const { source, result, color, speed } = filter
   const match = useMemo(
-    () => gameMatcher({ source, result, color, query }, (name, g) => playerName(name, g.source, t)),
-    [source, result, color, query, t],
+    () => gameMatcher({ source, result, color, speed, query }, (name, g) => playerName(name, g.source, t)),
+    [source, result, color, speed, query, t],
   )
-  const filtered = filter.source !== 'all' || filter.result !== 'all' || filter.color !== 'all' || !!filter.query.trim()
+  const filtered = filter.source !== 'all' || filter.result !== 'all' || filter.color !== 'all' || filter.speed !== 'all' || !!filter.query.trim()
+
+  // the row (PGN, review) is gone for good once deleted, so ask first
+  const remove = (id: string) => window.confirm(t('games.deleteConfirm')) && void softDelete('games', id)
 
   // one extra row tells whether there is another page
   const page = useLiveQuery(() => db.games.orderBy('date').reverse().filter(match).limit(limit + 1).toArray(), [match, limit])
@@ -105,6 +108,19 @@ export default function Games() {
             <option value="w">{t('common.white')}</option>
             <option value="b">{t('common.black')}</option>
           </select>
+          <select
+            className="field w-auto"
+            aria-label={t('games.speed')}
+            value={filter.speed}
+            onChange={(e) => change({ speed: e.target.value as GameFilter['speed'] })}
+          >
+            <option value="all">{t('games.anySpeed')}</option>
+            {SPEEDS.map((s) => (
+              <option key={s} value={s}>
+                {t(`games.${s}`)}
+              </option>
+            ))}
+          </select>
         </div>
         <Panel className="overflow-hidden">
           {games?.length === 0 &&
@@ -129,7 +145,7 @@ export default function Games() {
               </div>
             ))}
           <div className="divide-y divide-line">
-            {games ? games.map((g) => <GameRowItem key={g.id} game={g} onDelete={() => void softDelete('games', g.id)} />) : <SkeletonRows count={6} />}
+            {games ? games.map((g) => <GameRowItem key={g.id} game={g} onDelete={() => remove(g.id)} />) : <SkeletonRows count={6} />}
           </div>
           {more && (
             <div className="border-t border-line p-3 text-center">
