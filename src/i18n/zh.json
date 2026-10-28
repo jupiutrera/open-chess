@@ -346,7 +346,8 @@
     "positions_other": "{{count}} 个局面",
     "badToken": "Lichess 未接受你的令牌。请在此检查：",
     "rateLimited": "对 Lichess 的请求过多。请一分钟后再试；正在显示已知开局。",
-    "explorerError": "无法加载 Lichess 统计数据。正在显示已知开局。"
+    "explorerError": "无法加载 Lichess 统计数据。正在显示已知开局。",
+    "playShown": "走出箭头所示的着法以继续。"
   },
   "lessons": {
     "title": "课程",

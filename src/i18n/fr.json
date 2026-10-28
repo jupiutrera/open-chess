@@ -346,7 +346,8 @@
     "positions_other": "{{count}} positions",
     "badToken": "Lichess n'a pas accepté ton jeton. Vérifie-le dans",
     "rateLimited": "Trop de requêtes vers Lichess. Réessaie dans une minute ; ouvertures connues affichées.",
-    "explorerError": "Impossible de charger les statistiques Lichess. Ouvertures connues affichées."
+    "explorerError": "Impossible de charger les statistiques Lichess. Ouvertures connues affichées.",
+    "playShown": "Joue le coup de la flèche pour continuer."
   },
   "lessons": {
     "title": "Leçons",

@@ -346,7 +346,8 @@
     "positions_other": "{{count}} positions",
     "badToken": "Lichess didn't accept your token. Check it in",
     "rateLimited": "Too many requests to Lichess. Try again in a minute; showing known openings.",
-    "explorerError": "Couldn't load Lichess stats. Showing known openings."
+    "explorerError": "Couldn't load Lichess stats. Showing known openings.",
+    "playShown": "Play the arrow's move to continue."
   },
   "lessons": {
     "title": "Lessons",

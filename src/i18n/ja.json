@@ -346,7 +346,8 @@
     "positions_other": "{{count}} 局面",
     "badToken": "Lichess がトークンを受け付けませんでした。確認してください：",
     "rateLimited": "Lichess へのリクエストが多すぎます。1 分後にもう一度お試しください。既知のオープニングを表示しています。",
-    "explorerError": "Lichess の統計を読み込めませんでした。既知のオープニングを表示しています。"
+    "explorerError": "Lichess の統計を読み込めませんでした。既知のオープニングを表示しています。",
+    "playShown": "矢印の手を指して続けましょう。"
   },
   "lessons": {
     "title": "レッスン",

@@ -346,7 +346,8 @@
     "positions_other": "{{count}} posiciones",
     "badToken": "Lichess no ha aceptado tu token. Revísalo en",
     "rateLimited": "Demasiadas peticiones a Lichess. Vuelve a intentarlo en un minuto; se muestran las aperturas conocidas.",
-    "explorerError": "No se pudieron cargar las estadísticas de Lichess. Se muestran las aperturas conocidas."
+    "explorerError": "No se pudieron cargar las estadísticas de Lichess. Se muestran las aperturas conocidas.",
+    "playShown": "Juega la jugada de la flecha para continuar."
   },
   "lessons": {
     "title": "Lecciones",

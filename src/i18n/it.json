@@ -346,7 +346,8 @@
     "positions_other": "{{count}} posizioni",
     "badToken": "Lichess non ha accettato il tuo token. Controllalo in",
     "rateLimited": "Troppe richieste a Lichess. Riprova tra un minuto; vengono mostrate le aperture note.",
-    "explorerError": "Impossibile caricare le statistiche di Lichess. Vengono mostrate le aperture note."
+    "explorerError": "Impossibile caricare le statistiche di Lichess. Vengono mostrate le aperture note.",
+    "playShown": "Gioca la mossa della freccia per continuare."
   },
   "lessons": {
     "title": "Lezioni",
