@@ -7,7 +7,7 @@ import { Layout } from './ui/Layout'
 import { UpdateBanner } from './ui/UpdateBanner'
 import { requestPersistentStorage } from './ui/files'
 import { Toaster, closeTopOverlay } from './ui/kit'
-import { applyDocumentSettings, useSettings } from './settings'
+import { applyDocumentSettings, useResolvedTheme, useSettings } from './settings'
 import { startSync } from './sync/sync'
 import { preloadSounds } from './chess/sounds'
 import { Home } from './features/home/Home'
@@ -46,7 +46,7 @@ function BackButton() {
 }
 
 export function App() {
-  const theme = useSettings((s) => s.theme)
+  const theme = useResolvedTheme()
   const board = useSettings((s) => s.board)
   const lang = useSettings((s) => s.lang)
   const pieces = useSettings((s) => s.pieces)

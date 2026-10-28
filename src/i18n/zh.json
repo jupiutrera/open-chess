@@ -52,7 +52,13 @@
       "promotion": "升变为{{piece}}",
       "check": "将军",
       "checkmate": "将死"
-    }
+    },
+    "notFoundTitle": "找不到页面",
+    "notFoundBody": "这个链接在 Open Chess 中没有对应的页面。",
+    "goHome": "返回首页",
+    "errorTitle": "出了点问题",
+    "errorBody": "此页面出现错误。重新加载通常可以解决；你的对局和进度都已保存。",
+    "reload": "重新加载"
   },
   "home": {
     "greeting": "今天练什么？",
@@ -515,6 +521,7 @@
       "futuristic": "未来感"
     },
     "highContrast": "高对比度",
-    "highContrastHint": "按钮和次要文字更易读（WCAG AA）"
+    "highContrastHint": "按钮和次要文字更易读（WCAG AA）",
+    "system": "跟随系统"
   }
 }

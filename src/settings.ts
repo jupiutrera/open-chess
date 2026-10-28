@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -13,10 +14,17 @@ export type Lang = (typeof LANGS)[number]
 /** Native name of each language, for the picker. */
 export const LANG_NAMES: Record<Lang, string> = { es: 'Español', en: 'English', fr: 'Français', it: 'Italiano', zh: '中文', ja: '日本語' }
 
-function detectLang(): Lang {
-  const nav = (navigator.language ?? 'es').slice(0, 2).toLowerCase()
-  return (LANGS as readonly string[]).includes(nav) ? (nav as Lang) : 'es'
+/** The first browser language the app speaks; English for everyone else. */
+export function detectLang(prefs: readonly string[] = typeof navigator === 'undefined' ? [] : (navigator.languages ?? [navigator.language])): Lang {
+  for (const p of prefs) {
+    const code = (p ?? '').slice(0, 2).toLowerCase()
+    if ((LANGS as readonly string[]).includes(code)) return code as Lang
+  }
+  return 'en'
 }
+
+/** 'system' follows the device's light/dark preference. */
+export type ThemeChoice = 'system' | 'dark' | 'light'
 
 export type BoardTheme = 'green' | 'brown' | 'blue' | 'gray' | 'purple'
 
@@ -31,7 +39,7 @@ export interface AssistSettings {
 
 export interface Settings {
   lang: Lang
-  theme: 'dark' | 'light'
+  theme: ThemeChoice
   board: BoardTheme
   pieces: PieceSet
   sound: boolean
@@ -54,7 +62,7 @@ export const useSettings = create<Settings>()(
   persist(
     (set) => ({
       lang: detectLang(),
-      theme: 'dark',
+      theme: 'system',
       board: 'green',
       pieces: 'staunty',
       sound: true,
@@ -70,7 +78,13 @@ export const useSettings = create<Settings>()(
       lichessToken: '',
       set: (patch) => set(patch),
     }),
-    { name: 'oc-settings' },
+    {
+      name: 'oc-settings',
+      // v1 added the 'system' theme; older saves need no change, merge validates them all
+      version: 1,
+      migrate: (persisted) => persisted as Settings,
+      merge: (persisted, current) => mergeSettings(persisted, current),
+    },
   ),
 )
 
@@ -86,7 +100,7 @@ export function backupSettings(s: Settings = useSettings.getState()): BackupSett
 
 const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
   lang: LANGS,
-  theme: ['dark', 'light'],
+  theme: ['system', 'dark', 'light'] satisfies ThemeChoice[],
   board: ['green', 'brown', 'blue', 'gray', 'purple'] satisfies BoardTheme[],
   pieces: PIECE_SETS,
   soundSet: SOUND_SETS,
@@ -110,7 +124,31 @@ export function settingsPatch(raw: unknown, current: Settings): Partial<BackupSe
   return patch as Partial<BackupSettings>
 }
 
-export function applyDocumentSettings(s: Pick<Settings, 'theme' | 'board' | 'lang' | 'pieces' | 'highContrast'>) {
+/**
+ * Saved settings over the defaults: nested flags (assist) merge key by key so a new flag gets its default,
+ * and values a newer or older version doesn't know are dropped instead of breaking the UI.
+ */
+export function mergeSettings(persisted: unknown, current: Settings): Settings {
+  const token = (persisted as { lichessToken?: unknown } | null)?.lichessToken
+  return { ...current, ...settingsPatch(persisted, current), ...(typeof token === 'string' ? { lichessToken: token } : {}) }
+}
+
+const lightQuery = () => (typeof matchMedia === 'undefined' ? null : matchMedia('(prefers-color-scheme: light)'))
+
+function subscribeScheme(cb: () => void) {
+  const q = lightQuery()
+  q?.addEventListener('change', cb)
+  return () => q?.removeEventListener('change', cb)
+}
+
+/** The theme actually shown: 'system' resolves to the device preference and follows it live. */
+export function useResolvedTheme(): 'dark' | 'light' {
+  const choice = useSettings((s) => s.theme)
+  const systemLight = useSyncExternalStore(subscribeScheme, () => !!lightQuery()?.matches, () => false)
+  return choice === 'system' ? (systemLight ? 'light' : 'dark') : choice
+}
+
+export function applyDocumentSettings(s: Pick<Settings, 'board' | 'lang' | 'pieces' | 'highContrast'> & { theme: 'dark' | 'light' }) {
   const root = document.documentElement
   root.dataset.theme = s.theme
   root.dataset.contrast = s.highContrast ? 'high' : 'normal'

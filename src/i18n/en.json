@@ -52,7 +52,13 @@
       "promotion": "promotes to {{piece}}",
       "check": "check",
       "checkmate": "checkmate"
-    }
+    },
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "This link doesn't lead anywhere in Open Chess.",
+    "goHome": "Go to home",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This screen hit an error. Reloading usually fixes it; your games and progress are saved.",
+    "reload": "Reload"
   },
   "home": {
     "greeting": "What are we training today?",
@@ -515,6 +521,7 @@
       "futuristic": "Futuristic"
     },
     "highContrast": "High contrast",
-    "highContrastHint": "More readable buttons and secondary text (WCAG AA)"
+    "highContrastHint": "More readable buttons and secondary text (WCAG AA)",
+    "system": "System"
   }
 }

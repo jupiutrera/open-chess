@@ -52,7 +52,13 @@
       "promotion": "promuove a {{piece}}",
       "check": "scacco",
       "checkmate": "scacco matto"
-    }
+    },
+    "notFoundTitle": "Pagina non trovata",
+    "notFoundBody": "Questo link non porta da nessuna parte in Open Chess.",
+    "goHome": "Vai alla home",
+    "errorTitle": "Qualcosa è andato storto",
+    "errorBody": "Questa schermata ha avuto un errore. Ricaricare di solito risolve; le tue partite e i tuoi progressi sono salvati.",
+    "reload": "Ricarica"
   },
   "home": {
     "greeting": "Cosa alleniamo oggi?",
@@ -515,6 +521,7 @@
       "futuristic": "Futuristico"
     },
     "highContrast": "Contrasto elevato",
-    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)"
+    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)",
+    "system": "Sistema"
   }
 }

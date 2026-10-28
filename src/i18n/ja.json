@@ -52,7 +52,13 @@
       "promotion": "{{piece}}に成る",
       "check": "チェック",
       "checkmate": "チェックメイト"
-    }
+    },
+    "notFoundTitle": "ページが見つかりません",
+    "notFoundBody": "このリンクは Open Chess のどのページにもつながっていません。",
+    "goHome": "ホームへ",
+    "errorTitle": "問題が発生しました",
+    "errorBody": "この画面でエラーが発生しました。再読み込みすると通常は直ります。対局と進捗は保存されています。",
+    "reload": "再読み込み"
   },
   "home": {
     "greeting": "今日は何を練習しますか？",
@@ -515,6 +521,7 @@
       "futuristic": "未来的"
     },
     "highContrast": "ハイコントラスト",
-    "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）"
+    "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）",
+    "system": "システム"
   }
 }

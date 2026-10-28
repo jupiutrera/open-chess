@@ -52,7 +52,13 @@
       "promotion": "promociona a {{piece}}",
       "check": "jaque",
       "checkmate": "jaque mate"
-    }
+    },
+    "notFoundTitle": "Página no encontrada",
+    "notFoundBody": "Este enlace no lleva a ninguna parte de Open Chess.",
+    "goHome": "Ir al inicio",
+    "errorTitle": "Algo ha ido mal",
+    "errorBody": "Esta pantalla ha fallado. Recargar suele arreglarlo; tus partidas y tu progreso están guardados.",
+    "reload": "Recargar"
   },
   "home": {
     "greeting": "¿Qué entrenamos hoy?",
@@ -515,6 +521,7 @@
       "futuristic": "Futurista"
     },
     "highContrast": "Contraste alto",
-    "highContrastHint": "Botones y textos secundarios más legibles (WCAG AA)"
+    "highContrastHint": "Botones y textos secundarios más legibles (WCAG AA)",
+    "system": "Sistema"
   }
 }
