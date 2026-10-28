@@ -343,7 +343,10 @@
     "dueCount_one": "{{count}} 个待复习",
     "dueCount_other": "{{count}} 个待复习",
     "positions_one": "{{count}} 个局面",
-    "positions_other": "{{count}} 个局面"
+    "positions_other": "{{count}} 个局面",
+    "badToken": "Lichess 未接受你的令牌。请在此检查：",
+    "rateLimited": "对 Lichess 的请求过多。请一分钟后再试；正在显示已知开局。",
+    "explorerError": "无法加载 Lichess 统计数据。正在显示已知开局。"
   },
   "lessons": {
     "title": "课程",

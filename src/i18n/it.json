@@ -343,7 +343,10 @@
     "dueCount_one": "{{count}} da ripassare",
     "dueCount_other": "{{count}} da ripassare",
     "positions_one": "{{count}} posizione",
-    "positions_other": "{{count}} posizioni"
+    "positions_other": "{{count}} posizioni",
+    "badToken": "Lichess non ha accettato il tuo token. Controllalo in",
+    "rateLimited": "Troppe richieste a Lichess. Riprova tra un minuto; vengono mostrate le aperture note.",
+    "explorerError": "Impossibile caricare le statistiche di Lichess. Vengono mostrate le aperture note."
   },
   "lessons": {
     "title": "Lezioni",

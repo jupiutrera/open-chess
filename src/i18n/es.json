@@ -343,7 +343,10 @@
     "dueCount_one": "{{count}} pendiente",
     "dueCount_other": "{{count}} pendientes",
     "positions_one": "{{count}} posición",
-    "positions_other": "{{count}} posiciones"
+    "positions_other": "{{count}} posiciones",
+    "badToken": "Lichess no ha aceptado tu token. Revísalo en",
+    "rateLimited": "Demasiadas peticiones a Lichess. Vuelve a intentarlo en un minuto; se muestran las aperturas conocidas.",
+    "explorerError": "No se pudieron cargar las estadísticas de Lichess. Se muestran las aperturas conocidas."
   },
   "lessons": {
     "title": "Lecciones",

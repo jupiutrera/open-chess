@@ -343,7 +343,10 @@
     "dueCount_one": "{{count}} à réviser",
     "dueCount_other": "{{count}} à réviser",
     "positions_one": "{{count}} position",
-    "positions_other": "{{count}} positions"
+    "positions_other": "{{count}} positions",
+    "badToken": "Lichess n'a pas accepté ton jeton. Vérifie-le dans",
+    "rateLimited": "Trop de requêtes vers Lichess. Réessaie dans une minute ; ouvertures connues affichées.",
+    "explorerError": "Impossible de charger les statistiques Lichess. Ouvertures connues affichées."
   },
   "lessons": {
     "title": "Leçons",

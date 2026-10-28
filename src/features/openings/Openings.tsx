@@ -12,7 +12,7 @@ import { useGame } from '../../chess/useGame'
 import { parseUci } from '../../chess/util'
 import { Panel, Segmented, Sheet, Skeleton, toast, useOnline } from '../../ui/kit'
 import { latestOpening, namedContinuations, searchOpenings, type Opening } from './openingsData'
-import { fetchExplorer, type ExplorerDb, type ExplorerResult } from './explorerApi'
+import { ExplorerError, cachedExplorer, fetchExplorer, type ExplorerDb, type ExplorerErrorKind, type ExplorerResult } from './explorerApi'
 import { addLine, removeLine } from './repertoire'
 import { db } from '../../db/db'
 import { fmtCompact } from '../../i18n/format'
@@ -25,8 +25,9 @@ export default function Openings() {
   const game = useGame()
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [source, setSource] = useState<ExplorerDb | 'local'>('local')
-  const [stats, setStats] = useState<ExplorerResult | null>(null)
-  const [statsError, setStatsError] = useState(false)
+  // results and errors carry the position they belong to, so a new one never shows the last one's
+  const [statsFor, setStatsFor] = useState<{ key: string; data: ExplorerResult } | null>(null)
+  const [errorFor, setErrorFor] = useState<{ key: string; kind: ExplorerErrorKind } | null>(null)
   const [named, setNamed] = useState<{ san: string; uci: string; opening: Opening }[]>([])
   const [opening, setOpening] = useState<Opening | undefined>()
   const [search, setSearch] = useState(false)
@@ -42,22 +43,28 @@ export default function Openings() {
     }
   }, [game.fen, game.fens, game.ply])
 
+  const statsKey = `${source}|${game.fen}`
+  const remote = source !== 'local' && online
+  const cached = source !== 'local' ? cachedExplorer(game.fen, source) : undefined
+  const stats = cached ?? (statsFor?.key === statsKey ? statsFor.data : null)
+  const statsError = errorFor?.key === statsKey ? errorFor.kind : null
+
   useEffect(() => {
-    if (source === 'local' || !online) {
-      setStats(null)
-      return
-    }
-    let alive = true
-    setStatsError(false)
-    fetchExplorer(game.fen, source)
-      .then((r) => alive && setStats(r))
-      .catch(() => {
-        if (!alive) return
-        setStats(null)
-        setStatsError(true)
-      })
+    if (source === 'local' || !online || cachedExplorer(game.fen, source)) return
+    // stepping through a line fires one request for where it stops, not one per move
+    const ctrl = new AbortController()
+    const key = `${source}|${game.fen}`
+    const timer = setTimeout(() => {
+      fetchExplorer(game.fen, source, ctrl.signal)
+        .then((data) => !ctrl.signal.aborted && setStatsFor({ key, data }))
+        .catch((e: unknown) => {
+          if (ctrl.signal.aborted) return
+          setErrorFor({ key, kind: e instanceof ExplorerError ? e.kind : 'other' })
+        })
+    }, 300)
     return () => {
-      alive = false
+      clearTimeout(timer)
+      ctrl.abort()
     }
   }, [game.fen, source, online])
 
@@ -124,14 +131,28 @@ export default function Openings() {
                   ))}
                 </div>
                 <div className="min-h-[160px] flex-1 overflow-y-auto">
-                  {source !== 'local' && stats ? (
+                  {remote && stats ? (
                     <StatsTable stats={stats} onPlay={play} />
+                  ) : remote && !statsError ? (
+                    <div className="grid gap-2 p-3" aria-busy>
+                      <Skeleton className="h-5 rounded-sm" />
+                      <Skeleton className="h-5 rounded-sm" />
+                      <Skeleton className="h-5 rounded-sm" />
+                    </div>
                   ) : (
                     <>
                       {source !== 'local' && (statsError || !online) && (
                         <p className="px-4 pt-3 text-[13px] text-fg-3">
-                          {online ? t('openings.needToken') : t('openings.offlineStats')}{' '}
-                          {online && (
+                          {!online
+                            ? t('openings.offlineStats')
+                            : statsError === 'no-token'
+                              ? t('openings.needToken')
+                              : statsError === 'unauthorized'
+                                ? t('openings.badToken')
+                                : statsError === 'rate-limited'
+                                  ? t('openings.rateLimited')
+                                  : t('openings.explorerError')}{' '}
+                          {online && (statsError === 'no-token' || statsError === 'unauthorized') && (
                             <Link to="/settings" className="font-semibold text-accent underline underline-offset-2">
                               {t('nav.settings')}
                             </Link>

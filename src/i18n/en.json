@@ -343,7 +343,10 @@
     "dueCount_one": "{{count}} due",
     "dueCount_other": "{{count}} due",
     "positions_one": "{{count}} position",
-    "positions_other": "{{count}} positions"
+    "positions_other": "{{count}} positions",
+    "badToken": "Lichess didn't accept your token. Check it in",
+    "rateLimited": "Too many requests to Lichess. Try again in a minute; showing known openings.",
+    "explorerError": "Couldn't load Lichess stats. Showing known openings."
   },
   "lessons": {
     "title": "Lessons",

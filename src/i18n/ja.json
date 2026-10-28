@@ -343,7 +343,10 @@
     "dueCount_one": "復習 {{count}} 件",
     "dueCount_other": "復習 {{count}} 件",
     "positions_one": "{{count}} 局面",
-    "positions_other": "{{count}} 局面"
+    "positions_other": "{{count}} 局面",
+    "badToken": "Lichess がトークンを受け付けませんでした。確認してください：",
+    "rateLimited": "Lichess へのリクエストが多すぎます。1 分後にもう一度お試しください。既知のオープニングを表示しています。",
+    "explorerError": "Lichess の統計を読み込めませんでした。既知のオープニングを表示しています。"
   },
   "lessons": {
     "title": "レッスン",
