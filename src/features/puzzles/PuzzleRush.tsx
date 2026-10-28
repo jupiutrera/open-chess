@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { X, Lightning, Fire, Trophy, Eye, ArrowCounterClockwise, MagnifyingGlass, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { X, Lightning, Fire, Trophy, Eye, ArrowCounterClockwise, MagnifyingGlass, CaretLeft, CaretRight, SkipForward } from '@phosphor-icons/react'
 import { Chess } from 'chess.js'
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
 import { Panel, Skeleton } from '../../ui/kit'
-import { getPuzzleRating, nextPuzzle, rushPuzzle, recordAttempt, type Puzzle } from './puzzlesData'
+import { getPuzzleRating, runPuzzle, rushPuzzle, recordAttempt, type Puzzle } from './puzzlesData'
 import { streakTarget } from './streak'
 import { usePuzzle } from './usePuzzle'
 import { StatusBlock } from './PuzzleRated'
@@ -21,8 +21,16 @@ interface Played {
   solved: boolean
 }
 
+const MODES = ['3', '5', 'survival', 'streak']
+
 export default function PuzzleRush() {
   const { mode = '3' } = useParams()
+  // an unknown mode would run untimed under a made-up best-score key
+  if (!MODES.includes(mode)) return <Navigate to="/puzzles" replace />
+  return <RushRun key={mode} mode={mode} />
+}
+
+function RushRun({ mode }: { mode: string }) {
   const { t } = useTranslation()
   const nav = useNavigate()
   // 'streak' is Puzzle Streak: untimed, harder from the user's own rating, one miss ends it
@@ -39,6 +47,8 @@ export default function PuzzleRush() {
   /** a missed puzzle opened from the end screen, and a counter to restart it */
   const [reviewing, setReviewing] = useState<Puzzle | null>(null)
   const [reviewKey, setReviewKey] = useState(0)
+  /** a streak may skip one puzzle per run */
+  const [skipped, setSkipped] = useState(false)
   const seen = useRef(new Set<string>())
   /** puzzle rating when the streak started; its ladder is built from it */
   const streakBase = useRef(0)
@@ -48,38 +58,6 @@ export default function PuzzleRush() {
   useEffect(() => () => clearTimeout(nextTimer.current), [])
   const strikes = played.filter((r) => !r.solved).length
   const missed = played.filter((r) => !r.solved).map((r) => r.puzzle)
-
-  const advance = useCallback(async (n: number) => {
-    const p = streak ? await nextPuzzle(streakTarget(streakBase.current, n), { exclude: seen.current }) : await rushPuzzle(n, seen.current)
-    if (over.current) return
-    if (!p) {
-      // nothing left to play (e.g. offline with no cached puzzles): end the run instead of hanging
-      setPhase('over')
-      over.current = true
-      return
-    }
-    seen.current.add(p.id)
-    setPuzzle(p)
-  }, [streak])
-
-  const start = async () => {
-    over.current = false
-    seen.current = new Set()
-    setScore(0)
-    setPlayed([])
-    setReviewing(null)
-    setLeft(seconds * 1000)
-    setRecord(false)
-    setPuzzle(null)
-    setPhase('running')
-    play('start')
-    if (streak) streakBase.current = (await getPuzzleRating()).rating
-    void advance(0)
-  }
-
-  useEffect(() => {
-    void kvGet<Record<string, number>>('rushBest', {}).then((r) => setBest(r[mode] ?? 0))
-  }, [mode])
 
   const end = useCallback(
     async (finalScore: number) => {
@@ -97,6 +75,49 @@ export default function PuzzleRush() {
     },
     [mode],
   )
+
+  const advance = useCallback(
+    async (n: number, currentScore: number) => {
+      const p = streak ? await runPuzzle(streakTarget(streakBase.current, n), seen.current) : await rushPuzzle(n, seen.current)
+      if (over.current) return
+      if (!p) {
+        // nothing left to play (e.g. offline with no cached puzzles): end the run, keeping its score
+        void end(currentScore)
+        return
+      }
+      seen.current.add(p.id)
+      setPuzzle(p)
+    },
+    [streak, end],
+  )
+
+  const start = async () => {
+    over.current = false
+    seen.current = new Set()
+    setScore(0)
+    setPlayed([])
+    setReviewing(null)
+    setLeft(seconds * 1000)
+    setRecord(false)
+    setSkipped(false)
+    setPuzzle(null)
+    setPhase('running')
+    play('start')
+    if (streak) streakBase.current = (await getPuzzleRating()).rating
+    void advance(0, 0)
+  }
+
+  const skip = () => {
+    if (skipped || over.current) return
+    setSkipped(true)
+    setPuzzle(null)
+    // same rung of the ladder: a skip neither scores nor makes the next one harder
+    void advance(played.length, score)
+  }
+
+  useEffect(() => {
+    void kvGet<Record<string, number>>('rushBest', {}).then((r) => setBest(r[mode] ?? 0))
+  }, [mode])
 
   // timer
   useEffect(() => {
@@ -128,7 +149,7 @@ export default function PuzzleRush() {
         void end(nextScore)
         return
       }
-      nextTimer.current = setTimeout(() => void advance(next.length), solved ? 250 : 500)
+      nextTimer.current = setTimeout(() => void advance(next.length, nextScore), solved ? 250 : 500)
     },
   })
   // replay of a missed puzzle: nothing is recorded
@@ -235,6 +256,11 @@ export default function PuzzleRush() {
                   <span key={i} className={`h-2.5 w-2.5 rounded-sm ${r.solved ? 'bg-accent' : 'bg-danger'}`} />
                 ))}
               </div>
+              {streak && (
+                <button className="btn mt-4 w-full" onClick={skip} disabled={skipped || !puzzle || pz.status !== 'playing'}>
+                  <SkipForward size={20} weight="bold" /> {skipped ? t('puzzles.skipUsed') : t('puzzles.skip')}
+                </button>
+              )}
             </div>
           )}
 
