@@ -1,35 +1,34 @@
 // Generates the bot portraits in src/assets/bots/: one SVG per bot and mood.
-// People use DiceBear's Toon Head (Johan Melin, CC BY 4.0); Stockfish uses
+// People use DiceBear's Open Peeps (Pablo Stanley, CC0 1.0); Stockfish uses
 // Bottts (Pablo Stanley, free for personal and commercial use). See README.
 // Run with `npm run data:avatars` after changing a look.
 import { createAvatar } from '@dicebear/core'
-import * as toonHead from '@dicebear/toon-head'
+import * as openPeeps from '@dicebear/open-peeps'
 import * as bottts from '@dicebear/bottts'
 import { mkdirSync, writeFileSync } from 'node:fs'
 
-const SKIN = { light: 'f1c3a5', fair: 'c68e7a', tan: 'b98e6a', brown: 'a36b4f', dark: '5c3829' }
-const GREY = 'b8b4ad'
+const SKIN = { light: 'ffdbb4', fair: 'edb98a', tan: 'd08b5b', brown: 'ae5d29', dark: '694d3d' }
 
-/** Each bot's look; `eyes`/`brows` are their resting expression. */
+/** Each bot's look; `face` is their resting expression. */
 const LOOKS = {
-  pip: { skin: SKIN.light, hair: 'spiky', hairColor: 'a55728', clothes: 'tShirt', clothesColor: 'f97316', eyes: 'wide', brows: 'raised' },
-  lola: { skin: SKIN.light, hair: 'sideComed', rear: 'longWavy', hairColor: 'a55728', clothes: 'dress', clothesColor: 'ec4899', eyes: 'wink', brows: 'happy' },
-  teo: { skin: SKIN.tan, hair: 'undercut', hairColor: 'd6b370', clothes: 'tShirt', clothesColor: '0b3286', eyes: 'happy', brows: 'neutral' },
-  marga: { skin: SKIN.light, hair: 'bun', hairColor: GREY, clothes: 'turtleNeck', clothesColor: '147f3c', eyes: 'happy', brows: 'neutral' },
-  ivan: { skin: SKIN.fair, hair: 'spiky', hairColor: '2c1b18', clothes: 'openJacket', clothesColor: 'b11f1f', eyes: 'wide', brows: 'angry' },
-  noa: { skin: SKIN.brown, hair: 'sideComed', rear: 'shoulderHigh', hairColor: '2c1b18', clothes: 'shirt', clothesColor: 'eab308', eyes: 'wide', brows: 'raised' },
-  rafa: { skin: SKIN.tan, hair: 'undercut', hairColor: '724133', beard: 'chin', clothes: 'shirt', clothesColor: '545454', eyes: 'wide', brows: 'neutral' },
-  kira: { skin: SKIN.light, hair: 'sideComed', rear: 'longStraight', hairColor: '2c1b18', clothes: 'turtleNeck', clothesColor: '151613', eyes: 'wide', brows: 'neutral' },
-  oscar: { skin: SKIN.fair, hair: 'sideComed', hairColor: '724133', beard: 'moustacheTwirl', clothes: 'openJacket', clothesColor: '0b3286', eyes: 'wide', brows: 'raised' },
-  vera: { skin: SKIN.dark, hair: 'bun', hairColor: '2c1b18', clothes: 'turtleNeck', clothesColor: '731ac3', eyes: 'happy', brows: 'neutral' },
-  boris: { skin: SKIN.light, hair: 'undercut', hairColor: GREY, beard: 'longBeard', clothes: 'openJacket', clothesColor: '545454', eyes: 'wide', brows: 'angry' },
-  elena: { skin: SKIN.light, hair: 'bun', rear: 'longStraight', hairColor: '724133', clothes: 'dress', clothesColor: '151613', eyes: 'wide', brows: 'raised' },
+  pip: { skin: SKIN.light, head: 'short5', hair: 'a55728', clothes: 'f97316', face: 'cute' },
+  lola: { skin: SKIN.fair, head: 'longCurly', hair: 'c93305', clothes: 'ec4899', face: 'cheeky' },
+  teo: { skin: SKIN.tan, head: 'short2', hair: '4a312c', clothes: '3b82f6', face: 'smile' },
+  marga: { skin: SKIN.light, head: 'grayBun', hair: 'e8e1e1', clothes: '22a05a', face: 'calm', accessory: 'glasses2' },
+  ivan: { skin: SKIN.fair, head: 'mohawk', hair: '2c1b18', clothes: 'dc2626', face: 'driven' },
+  noa: { skin: SKIN.brown, head: 'bangs', hair: '2c1b18', clothes: 'eab308', face: 'explaining', accessory: 'glasses' },
+  rafa: { skin: SKIN.tan, head: 'short3', hair: '724133', clothes: '64748b', face: 'serious', facialHair: 'goatee1' },
+  kira: { skin: SKIN.light, head: 'long', hair: '2c1b18', clothes: '1f2937', face: 'calm' },
+  oscar: { skin: SKIN.fair, head: 'pomp', hair: '724133', clothes: '1d4ed8', face: 'suspicious', facialHair: 'moustache2' },
+  vera: { skin: SKIN.dark, head: 'bun2', hair: '2c1b18', clothes: '7c3aed', face: 'solemn' },
+  boris: { skin: SKIN.light, head: 'grayShort', hair: 'e8e1e1', clothes: '57534e', face: 'old', facialHair: 'full3' },
+  elena: { skin: SKIN.light, head: 'mediumStraight', hair: '724133', clothes: '111827', face: 'serious', accessory: 'glasses4' },
 }
 
 const MOODS = {
-  neutral: (l) => ({ eyes: [l.eyes], eyebrows: [l.brows], mouth: ['smile'] }),
-  happy: () => ({ eyes: ['happy'], eyebrows: ['happy'], mouth: ['laugh'] }),
-  sad: () => ({ eyes: ['humble'], eyebrows: ['sad'], mouth: ['sad'] }),
+  neutral: (l) => l.face,
+  happy: () => 'smileLOL',
+  sad: () => 'solemn',
 }
 
 const out = 'src/assets/bots'
@@ -37,19 +36,21 @@ mkdirSync(out, { recursive: true })
 
 for (const [id, l] of Object.entries(LOOKS)) {
   for (const [mood, face] of Object.entries(MOODS)) {
-    const svg = createAvatar(toonHead, {
+    const svg = createAvatar(openPeeps, {
       seed: id,
       skinColor: [l.skin],
-      hair: [l.hair],
-      hairColor: [l.hairColor],
-      hairProbability: 100,
-      rearHair: l.rear ? [l.rear] : undefined,
-      rearHairProbability: l.rear ? 100 : 0,
-      beard: l.beard ? [l.beard] : undefined,
-      beardProbability: l.beard ? 100 : 0,
-      clothes: [l.clothes],
-      clothesColor: [l.clothesColor],
-      ...face(l),
+      head: [l.head],
+      headContrastColor: [l.hair],
+      clothingColor: [l.clothes],
+      face: [face(l)],
+      facialHair: l.facialHair ? [l.facialHair] : undefined,
+      facialHairProbability: l.facialHair ? 100 : 0,
+      accessories: l.accessory ? [l.accessory] : undefined,
+      accessoriesProbability: l.accessory ? 100 : 0,
+      maskProbability: 0,
+      // a little smaller and lower, so the shoulders sit on the tile's bottom edge
+      scale: 90,
+      translateY: 4,
     }).toString()
     writeFileSync(`${out}/${id}-${mood}.svg`, svg)
   }
@@ -57,17 +58,17 @@ for (const [id, l] of Object.entries(LOOKS)) {
 
 // Stockfish: a robot, whose eyes and mouth change with the mood
 const ROBOT = {
-  neutral: { eyes: ['roundFrame02'], mouth: ['smile01'] },
-  happy: { eyes: ['happy'], mouth: ['smile02'] },
+  neutral: { eyes: ['eva'], mouth: ['smile02'] },
+  happy: { eyes: ['happy'], mouth: ['smile01'] },
   sad: { eyes: ['dizzy'], mouth: ['square01'] },
 }
 for (const [mood, face] of Object.entries(ROBOT)) {
   const svg = createAvatar(bottts, {
     seed: 'stockfish',
     baseColor: ['43a047'],
-    face: ['round01'],
-    top: ['antenna'],
-    sides: ['antenna01'],
+    face: ['square04'],
+    top: ['lights'],
+    sides: ['round'],
     texture: [],
     textureProbability: 0,
     ...face,
