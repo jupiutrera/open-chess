@@ -88,10 +88,11 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
           {
-            // puzzle buckets can be regenerated: serve the cached copy, refresh it in the background
+            // puzzle buckets are ~0.5 MB each: keep the cached copy instead of refetching it on every
+            // first open (stale-while-revalidate did); a regenerated bucket is picked up after a month
             urlPattern: /\/data\/.*\.json$/,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'chess-data', expiration: { maxEntries: 400 } },
+            handler: 'CacheFirst',
+            options: { cacheName: 'chess-data', expiration: { maxEntries: 400, maxAgeSeconds: 30 * 24 * 3600 } },
           },
           {
             urlPattern: /\/(assets\/pieces-|sounds\/)|\.woff2$/,
