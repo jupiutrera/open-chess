@@ -10,6 +10,7 @@ export function customStartFen(param: string | null | undefined): string | null 
   const fen = param?.trim()
   if (!fen || positionProblem(fen)) return null
   const c = new Chess(fen)
-  if (c.isGameOver() || epd(c.fen()) === epd(START_FEN)) return null
+  // not isGameOver(): past the 50-move mark the game goes on until someone claims it
+  if (c.isCheckmate() || c.isStalemate() || c.isInsufficientMaterial() || epd(c.fen()) === epd(START_FEN)) return null
   return c.fen()
 }

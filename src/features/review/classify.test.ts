@@ -131,6 +131,16 @@ describe('classifyMoves', () => {
     expect(at({ mate: 2 }, { mate: 3 })).toBe('excellent')
     // throwing the whole game away stays a blunder
     expect(at({ mate: 2 }, { cp: -400 })).toBe('blunder')
+    // the engine's own move is never a miss, even if the search after it lost sight of the mate
+    const own = classifyMoves(
+      [
+        { fen: kq, score: { mate: 4 }, lines: [{ multipv: 1, depth: 20, score: { mate: 4 }, pv: ['a1a2'] }] },
+        { fen: after, score: { cp: 1500 }, lines: [] },
+      ],
+      [{ san: 'Qa2', uci: 'a1a2' }],
+      () => false,
+    )
+    expect(own[0].quality).toBe('best')
     // a long mate the engine may lose at another depth is judged on the evaluation
     expect(at({ mate: 12 }, { cp: 1500 })).not.toBe('miss')
   })

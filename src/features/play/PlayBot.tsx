@@ -53,8 +53,9 @@ export default function PlayBot() {
   const pickColor = useCallback(() => {
     const c = params.get('color')
     if (c === 'w' || c === 'b') return c
-    // from a given position the user takes the side to move, as on the analysis board
-    if (startFen !== START_FEN) return new Chess(startFen).turn()
+    // from a given position the user takes the side to move, as on the analysis board,
+    // unless they chose random
+    if (c !== 'r' && startFen !== START_FEN) return new Chess(startFen).turn()
     return Math.random() < 0.5 ? 'w' : 'b'
   }, [params, startFen])
   const [userColor, setUserColor] = useState<'w' | 'b'>(() => resumed?.userColor ?? pickColor())

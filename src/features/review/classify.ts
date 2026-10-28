@@ -41,8 +41,9 @@ export const QUALITY_SYMBOL: Partial<Record<Quality, string>> = {
 export function terminalScore(fen: string): Score | null {
   const c = new Chess(fen)
   if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 } // side to move is mated
-  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched
-  if (c.isStalemate() || c.isInsufficientMaterial() || c.isThreefoldRepetition()) return { cp: 0 }
+  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched.
+  // A bare FEN has no history, so repetition is left to the engine
+  if (c.isStalemate() || c.isInsufficientMaterial()) return { cp: 0 }
   return null
 }
 
@@ -254,7 +255,7 @@ export function classifyMoves(
       // only, as long mates come and go with search depth. Ending up worse than equal stays a blunder
       const mateBefore = before.score.mate !== undefined ? before.score.mate * (color === 'w' ? 1 : -1) : undefined
       const stillMates = after.score.mate !== undefined && moverCp(after.score, color) > 0
-      if (quality !== 'forced' && mateBefore !== undefined && mateBefore > 0 && mateBefore <= MISSED_MATE_MAX && !stillMates && winAfter >= 50) {
+      if (quality !== 'forced' && uci !== best && mateBefore !== undefined && mateBefore > 0 && mateBefore <= MISSED_MATE_MAX && !stillMates && winAfter >= 50) {
         quality = 'miss'
       }
 

@@ -30,6 +30,7 @@ import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
 import { BoardEditor } from './BoardEditor'
 import { TablebasePanel } from './TablebasePanel'
 import { useAssist } from '../play/useAssist'
+import { customStartFen } from '../play/startPosition'
 
 const RATE_ONLY = { eval: false, threats: false, suggest: false, feedback: true, engine: false }
 const RATE_OFF = { ...RATE_ONLY, feedback: false }
@@ -289,7 +290,8 @@ export default function Analysis() {
               <button
                 className="btn w-full"
                 disabled={!!outcome}
-                onClick={() => navigate(`/play?fen=${encodeURIComponent(game.fen)}`)}
+                // the usual start position is just a normal game
+                onClick={() => navigate(customStartFen(game.fen) ? `/play?fen=${encodeURIComponent(game.fen)}` : '/play')}
               >
                 <Robot size={20} weight="bold" /> {t('analysis.playFromHere')}
               </button>

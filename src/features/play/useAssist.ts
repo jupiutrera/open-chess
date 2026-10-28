@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Chess, type Move } from 'chess.js'
 import { Engine, type PvLine, type Score } from '../../engine/engine'
-import { classifyMoves, type PositionEval, type Quality } from '../review/classify'
+import { classifyMoves, terminalScore, type PositionEval, type Quality } from '../review/classify'
 import { bookChecker } from '../openings/openingsData'
 import type { AssistSettings } from '../../settings'
 
 const DEPTH = 13
-
-function terminalScore(c: Chess): Score | null {
-  if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 }
-  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched
-  if (c.isStalemate() || c.isInsufficientMaterial() || c.isThreefoldRepetition()) return { cp: 0 }
-  return null
-}
 
 /** The same position with the other side to move, for "what does my opponent threaten". */
 function nullMoveFen(fen: string): string | null {
@@ -107,7 +100,7 @@ export function useAssist({
   const evaluate = (f: string): Promise<PositionEval> => {
     let p = evals.current.get(f)
     if (!p) {
-      const term = terminalScore(new Chess(f))
+      const term = terminalScore(f)
       p = term
         ? Promise.resolve({ fen: f, lines: [], score: term })
         : run((e) => e.search(f, { depth: DEPTH, multipv })).then((r) => {
