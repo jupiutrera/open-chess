@@ -161,6 +161,8 @@
     "last": "Fin",
     "evalGraph": "Graphique d’évaluation",
     "bestWas": "Le meilleur était {{san}}",
+    "engineLines": "Lignes du moteur",
+    "engineLinesHint": "Relancez l'analyse de la partie pour voir les lignes du moteur",
     "opening": "Ouverture",
     "depth": "Profondeur {{d}}",
     "reanalyze": "Analyser à nouveau",

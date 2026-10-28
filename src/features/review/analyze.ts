@@ -25,6 +25,8 @@ export function parseGame(pgn: string): ParsedGame {
   }
 }
 
+const PV_KEEP = 8
+
 /** Runs Stockfish over every position and stores the review on the game row. */
 export async function analyzeGame(
   game: GameRow,
@@ -57,7 +59,9 @@ export async function analyzeGame(
   }
   const moves = classifyMoves(positions, parsed.moves, (fen, ply) => ply <= 30 && isBook(fen))
   const curve = positions.map((p) => winPercent(p.score))
-  const review = { depth, accuracy: gameAccuracy(curve, parsed.startFen.split(' ')[1] === 'b' ? 'b' : 'w'), moves, curve }
+  // short PVs are all the lines panel shows, and keep the synced row small
+  const lines = positions.map((p) => p.lines.map((l) => ({ ...l, pv: l.pv.slice(0, PV_KEEP) })))
+  const review = { depth, accuracy: gameAccuracy(curve, parsed.startFen.split(' ')[1] === 'b' ? 'b' : 'w'), moves, curve, lines }
   await put<GameRow>('games', { ...game, review })
   clearPartial(game.id)
   return review
