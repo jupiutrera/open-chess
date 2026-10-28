@@ -19,7 +19,18 @@ export function Home() {
   const { t } = useTranslation()
   const games = useLiveQuery(() => recentGames(5), [])
   const rating = useLiveQuery(() => getPuzzleRating(), [])
-  const due = useLiveQuery(() => db.repertoire.where('due').below(Date.now()).filter((r) => !r.deleted).count(), [])
+  // cards fall due as time passes, not only when the table changes
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    const tick = () => document.visibilityState === 'visible' && setNow(Date.now())
+    const timer = setInterval(tick, 60_000)
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', tick)
+    }
+  }, [])
+  const due = useLiveQuery(() => db.repertoire.where('due').below(now).filter((r) => !r.deleted).count(), [now])
   const [daily, setDaily] = useState<{ p: Puzzle; fen: string; color: 'white' | 'black' } | null>(null)
   const [dailyFailed, setDailyFailed] = useState(false)
 
