@@ -25,6 +25,11 @@
       "intro": "Un pezzo che attacca due bersagli insieme lascia all'avversario la possibilità di salvarne solo uno. Il cavallo è il re delle forchette.",
       "steps": ["Dai scacco attaccando anche la torre.", "Un altro scacco di cavallo vince la donna."]
     },
+    "pin": {
+      "title": "Inchiodatura",
+      "intro": "Un pezzo inchiodato non può lasciare la sua linea senza esporre un pezzo più prezioso dietro di lui. Se dietro c'è il re, lasciare la linea non è nemmeno legale.",
+      "steps": ["Metti la torre sulla colonna del re: la donna resta inchiodata e il tuo re difende la torre.", "Inchioda la donna sulla diagonale del re. Il pedone in b3 difende il tuo alfiere.", "Il cavallo è inchiodato e non può muoversi. Attaccalo con un pedone, poi catturalo."]
+    },
     "skewer": {
       "title": "Infilata",
       "intro": "Attacca un pezzo di valore in modo che, quando si sposta, resti esposto un altro pezzo dietro di lui sulla stessa linea.",
