@@ -32,8 +32,11 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install --with-deps chromium
-      - run: npm run e2e
+      # build once: the e2e tests serve this same dist/, which is what gets deployed
       - run: npm run build
+      - run: npm run e2e
+        env:
+          E2E_PREBUILT: '1'
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+# a new push to a pull request supersedes its running checks; runs on main all finish
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check:
     runs-on: ubuntu-latest
