@@ -20,7 +20,7 @@ import { BoardLayout } from '../../board/BoardLayout'
 import { MoveList } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
-import { gameResultText, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
+import { gameResultText, normalizeFen, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import { formatScore } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
@@ -46,7 +46,8 @@ export default function Analysis() {
   const [rateMoves, setRateMoves] = useState(true)
 
   useEffect(() => {
-    const fen = params.get('fen')
+    const raw = params.get('fen')
+    const fen = raw && normalizeFen(raw)
     const pgn = params.get('pgn')
     try {
       if (pgn) game.loadPgn(pgn)
@@ -295,9 +296,10 @@ function Loader({
         <button
           className="btn"
           onClick={() => {
-            const problem = positionProblem(fenText.trim())
+            const f = normalizeFen(fenText)
+            const problem = positionProblem(f)
             if (problem) toast(t(`analysis.illegal.${problem}`), 'error')
-            else onFen(fenText.trim())
+            else onFen(f)
           }}
         >
           {t('analysis.loadFen')}
