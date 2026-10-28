@@ -377,7 +377,18 @@
     "vs": "contre",
     "delete": "Supprimer la partie",
     "all": "Toutes",
-    "filter": "Filtrer"
+    "filter": "Filtrer",
+    "search": "Rechercher un joueur ou une ouverture",
+    "result": "Résultat",
+    "color": "Couleur",
+    "anyResult": "Tous les résultats",
+    "wins": "Victoires",
+    "draws": "Nulles",
+    "losses": "Défaites",
+    "anyColor": "Les deux couleurs",
+    "loadMore": "Charger plus",
+    "noMatch": "Aucune partie ne correspond à ces filtres.",
+    "clearFilters": "Effacer les filtres"
   },
   "import": {
     "title": "Importer des parties",

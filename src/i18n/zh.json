@@ -377,7 +377,18 @@
     "vs": "对",
     "delete": "删除棋局",
     "all": "全部",
-    "filter": "筛选"
+    "filter": "筛选",
+    "search": "搜索棋手或开局",
+    "result": "结果",
+    "color": "执子",
+    "anyResult": "全部结果",
+    "wins": "胜",
+    "draws": "和",
+    "losses": "负",
+    "anyColor": "黑白均可",
+    "loadMore": "加载更多",
+    "noMatch": "没有符合这些筛选条件的对局。",
+    "clearFilters": "清除筛选"
   },
   "import": {
     "title": "导入棋局",

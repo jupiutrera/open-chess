@@ -377,7 +377,18 @@
     "vs": "contra",
     "delete": "Borrar partida",
     "all": "Todas",
-    "filter": "Filtrar"
+    "filter": "Filtrar",
+    "search": "Buscar jugador o apertura",
+    "result": "Resultado",
+    "color": "Color",
+    "anyResult": "Todos los resultados",
+    "wins": "Victorias",
+    "draws": "Tablas",
+    "losses": "Derrotas",
+    "anyColor": "Ambos colores",
+    "loadMore": "Cargar más",
+    "noMatch": "Ninguna partida coincide con estos filtros.",
+    "clearFilters": "Quitar filtros"
   },
   "import": {
     "title": "Importar partidas",

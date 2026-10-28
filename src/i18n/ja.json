@@ -377,7 +377,18 @@
     "vs": "対",
     "delete": "対局を削除",
     "all": "すべて",
-    "filter": "絞り込み"
+    "filter": "絞り込み",
+    "search": "プレイヤーまたはオープニングを検索",
+    "result": "結果",
+    "color": "手番の色",
+    "anyResult": "すべての結果",
+    "wins": "勝ち",
+    "draws": "引き分け",
+    "losses": "負け",
+    "anyColor": "両方の色",
+    "loadMore": "さらに読み込む",
+    "noMatch": "この条件に一致する対局はありません。",
+    "clearFilters": "フィルターを解除"
   },
   "import": {
     "title": "対局をインポート",

@@ -377,7 +377,18 @@
     "vs": "vs",
     "delete": "Delete game",
     "all": "All",
-    "filter": "Filter"
+    "filter": "Filter",
+    "search": "Search player or opening",
+    "result": "Result",
+    "color": "Color",
+    "anyResult": "All results",
+    "wins": "Wins",
+    "draws": "Draws",
+    "losses": "Losses",
+    "anyColor": "Both colors",
+    "loadMore": "Load more",
+    "noMatch": "No games match these filters.",
+    "clearFilters": "Clear filters"
   },
   "import": {
     "title": "Import games",
