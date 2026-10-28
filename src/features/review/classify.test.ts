@@ -83,6 +83,36 @@ describe('classifyMoves', () => {
     const blunder = classifyMoves([pos(start, 30, ['e2e4']), pos(afterA3, -600)], [{ san: 'a3', uci: 'a2a3' }], () => false)
     expect(blunder[0].quality).toBe('blunder')
   })
+  it('does not call every move best once the game is decided', () => {
+    const kq = '7k/8/5K2/8/8/8/8/Q7 w - - 0 1'
+    const after = '7k/8/5K2/8/8/8/Q7/8 b - - 1 1'
+    const at = (before: PositionEval['score'], afterScore: PositionEval['score']) =>
+      classifyMoves(
+        [
+          { fen: kq, score: before, lines: [{ multipv: 1, depth: 20, score: before, pv: ['a1h1'] }] },
+          { fen: after, score: afterScore, lines: [] },
+        ],
+        [{ san: 'Qa2', uci: 'a1a2' }],
+        () => false,
+      )[0].quality
+    // mate in 5 kept at the same pace, slightly slower, much slower
+    expect(at({ mate: 5 }, { mate: 4 })).toBe('best')
+    expect(at({ mate: 5 }, { mate: 6 })).toBe('excellent')
+    expect(at({ mate: 5 }, { mate: 9 })).toBe('good')
+    // +15 to +14.8 is fine; +15 to +11 throws away material although win% stays ~97
+    expect(at({ cp: 1500 }, { cp: 1480 })).toBe('best')
+    expect(at({ cp: 1500 }, { cp: 1100 })).toBe('good')
+    // the losing side: the longest defence is best, hurrying the mate is not
+    const black = classifyMoves(
+      [
+        { fen: '7k/8/5K2/8/8/8/8/Q7 b - - 0 1', score: { mate: 4 }, lines: [{ multipv: 1, depth: 20, score: { mate: 4 }, pv: ['h8g8'] }] },
+        { fen: after, score: { mate: 1 }, lines: [] },
+      ],
+      [{ san: 'Kh7', uci: 'h8h7' }],
+      () => false,
+    )
+    expect(black[0].quality).toBe('good')
+  })
   it('uses book while the game follows theory', () => {
     const r = classifyMoves(
       [

@@ -171,6 +171,42 @@ export interface MoveReview {
   scoreAfter: Score
 }
 
+/** A score as centipawns from `color`'s side, with a forced mate beyond any material count. */
+function moverCp(s: Score, color: 'w' | 'b'): number {
+  const sign = color === 'w' ? 1 : -1
+  if (s.mate !== undefined) {
+    const whiteMates = s.mate > 0 || (s.mate === 0 && (s.cp ?? 0) > 0)
+    return (whiteMates ? 1 : -1) * sign * (10000 - Math.abs(s.mate) * 10)
+  }
+  return sign * (s.cp ?? 0)
+}
+
+/**
+ * Win% saturates in decided positions (+10 and +20 are both ~97%, any mate is 100%), so in a
+ * won or lost endgame almost every move "loses" nothing. For a move that isn't the engine's
+ * choice, compare the raw evaluations instead: a slower mate or a dropped piece is not "best".
+ */
+function saturatedQuality(before: Score, after: Score, color: 'w' | 'b'): Quality {
+  const sign = color === 'w' ? 1 : -1
+  // mover's mate in N before; the opponent, now to move, is mated in N-1 after the best move
+  const mateBefore = before.mate !== undefined ? before.mate * sign : undefined
+  const mateAfter = after.mate !== undefined ? after.mate * sign : undefined
+  if (mateBefore !== undefined && mateBefore > 0 && mateAfter !== undefined) {
+    if (mateAfter === 0) return 'best' // delivered mate
+    if (mateAfter > 0) {
+      const slower = mateAfter - (mateBefore - 1)
+      return slower <= 0 ? 'best' : slower <= 2 ? 'excellent' : 'good'
+    }
+  }
+  if (mateBefore !== undefined && mateBefore < 0 && mateAfter !== undefined && mateAfter < 0) {
+    // getting mated: the best defence lasts as long as the engine's line
+    const faster = -mateBefore - -mateAfter
+    return faster <= 0 ? 'best' : faster <= 2 ? 'excellent' : 'good'
+  }
+  const cpLoss = moverCp(before, color) - moverCp(after, color)
+  return cpLoss < 50 ? 'best' : cpLoss < 150 ? 'excellent' : 'good'
+}
+
 export function classifyMoves(
   positions: PositionEval[],
   moves: { san: string; uci: string }[],
@@ -197,7 +233,8 @@ export function classifyMoves(
     } else {
       bookRun = false
       if (legal === 1) quality = 'forced'
-      else if (uci === best || loss < 0.5) quality = 'best'
+      else if (uci === best) quality = 'best'
+      else if (loss < 0.5) quality = saturatedQuality(before.score, after.score, color)
       else if (loss < 2) quality = 'excellent'
       else if (loss < 5) quality = 'good'
       else if (loss < 10) quality = 'inaccuracy'
