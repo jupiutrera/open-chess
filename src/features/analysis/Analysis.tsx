@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
@@ -33,6 +33,32 @@ import { useAssist } from '../play/useAssist'
 const RATE_ONLY = { eval: false, threats: false, suggest: false, feedback: true, engine: false }
 const RATE_OFF = { ...RATE_ONLY, feedback: false }
 
+const SAVE_KEY = 'oc-analysis'
+
+interface SavedAnalysis {
+  startFen: string
+  /** SAN moves from startFen */
+  moves: string[]
+  ply: number
+  orientation: 'white' | 'black'
+}
+
+/** The analysis left open last time, if it is still readable. */
+function loadSaved(): SavedAnalysis | null {
+  try {
+    const s = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as Partial<SavedAnalysis> | null
+    if (!s || typeof s.startFen !== 'string' || !Array.isArray(s.moves) || positionProblem(s.startFen)) return null
+    return {
+      startFen: s.startFen,
+      moves: s.moves.filter((m): m is string => typeof m === 'string'),
+      ply: typeof s.ply === 'number' ? s.ply : s.moves.length,
+      orientation: s.orientation === 'black' ? 'black' : 'white',
+    }
+  } catch {
+    return null
+  }
+}
+
 export default function Analysis() {
   const { t } = useTranslation()
   const [params] = useSearchParams()
@@ -44,6 +70,9 @@ export default function Analysis() {
   const [loader, setLoader] = useState(false)
   const [opening, setOpening] = useState<Opening | undefined>()
   const [rateMoves, setRateMoves] = useState(true)
+  // read once, before the save effect below overwrites it
+  const [saved] = useState(loadSaved)
+  const mountParams = useRef(params)
 
   useEffect(() => {
     const raw = params.get('fen')
@@ -59,12 +88,27 @@ export default function Analysis() {
         }
         game.reset(fen)
         if (fen.split(' ')[1] === 'b') setOrientation('black')
+      } else if (saved && params === mountParams.current) {
+        // only on arrival: a later bare /analysis link keeps the line on screen
+        game.replay(saved.moves, saved.startFen)
+        game.goto(saved.ply)
+        setOrientation(saved.orientation)
       }
     } catch {
       toast(t('analysis.invalidFen'), 'error')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
+
+  // keep the line across navigation and reloads
+  useEffect(() => {
+    const state: SavedAnalysis = { startFen: game.startFen, moves: game.sans, ply: game.ply, orientation }
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(state))
+    } catch {
+      // storage full or blocked: the analysis just isn't kept
+    }
+  }, [game.startFen, game.sans, game.ply, orientation])
 
   // the latest named position up to the viewed ply; stale lookups are dropped
   useEffect(() => {
