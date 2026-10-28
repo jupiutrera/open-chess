@@ -1,10 +1,23 @@
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Trophy, Handshake, SmileySad, MagnifyingGlass } from '@phosphor-icons/react'
 import { Sheet } from '../../ui/kit'
 
 export interface GameEnd {
   result: '1-0' | '0-1' | '1/2-1/2'
   reason: string
+}
+
+/** "You won!", "Draw", "White wins"… for the finished game; userColor is undefined for two-player games. */
+export function endTitle(end: GameEnd, userColor: 'w' | 'b' | undefined, t: TFunction): string {
+  if (end.result === '1/2-1/2') return t('play.draw_')
+  if (userColor) return (end.result === '1-0') === (userColor === 'w') ? t('play.youWin') : t('play.youLose')
+  return end.result === '1-0' ? t('play.whiteWins') : t('play.blackWins')
+}
+
+/** The result as a sentence, for screen readers: "You won! by checkmate". */
+export function endAnnouncement(end: GameEnd, userColor: 'w' | 'b' | undefined, t: TFunction): string {
+  return `${endTitle(end, userColor, t)} ${t(`play.by.${end.reason}`)}`
 }
 
 export function GameOverDialog({
@@ -30,15 +43,7 @@ export function GameOverDialog({
   const { t } = useTranslation()
   const draw = end.result === '1/2-1/2'
   const userWon = userColor && !draw && (end.result === '1-0') === (userColor === 'w')
-  const title = draw
-    ? t('play.draw_')
-    : userColor
-      ? userWon
-        ? t('play.youWin')
-        : t('play.youLose')
-      : end.result === '1-0'
-        ? t('play.whiteWins')
-        : t('play.blackWins')
+  const title = endTitle(end, userColor, t)
   const Icon = draw ? Handshake : userColor && !userWon ? SmileySad : Trophy
   return (
     <Sheet open={open} onClose={onClose} label={title}>

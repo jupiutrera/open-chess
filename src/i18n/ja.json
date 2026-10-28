@@ -45,7 +45,15 @@
       "pawn": "ポーン",
       "king": "キング"
     },
-    "promotion": "成る駒を選択"
+    "promotion": "成る駒を選択",
+    "speech": {
+      "takes": "取る",
+      "castleShort": "キング側キャスリング",
+      "castleLong": "クイーン側キャスリング",
+      "promotion": "{{piece}}に成る",
+      "check": "チェック",
+      "checkmate": "チェックメイト"
+    }
   },
   "home": {
     "greeting": "今日は何を練習しますか？",

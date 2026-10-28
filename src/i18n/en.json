@@ -45,7 +45,15 @@
       "pawn": "Pawn",
       "king": "King"
     },
-    "promotion": "Choose a promotion piece"
+    "promotion": "Choose a promotion piece",
+    "speech": {
+      "takes": "takes",
+      "castleShort": "castles kingside",
+      "castleLong": "castles queenside",
+      "promotion": "promotes to {{piece}}",
+      "check": "check",
+      "checkmate": "checkmate"
+    }
   },
   "home": {
     "greeting": "What are we training today?",

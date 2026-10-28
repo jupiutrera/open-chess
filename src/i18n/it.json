@@ -45,7 +45,15 @@
       "pawn": "Pedone",
       "king": "Re"
     },
-    "promotion": "Scegli il pezzo di promozione"
+    "promotion": "Scegli il pezzo di promozione",
+    "speech": {
+      "takes": "prende",
+      "castleShort": "arrocco corto",
+      "castleLong": "arrocco lungo",
+      "promotion": "promuove a {{piece}}",
+      "check": "scacco",
+      "checkmate": "scacco matto"
+    }
   },
   "home": {
     "greeting": "Cosa alleniamo oggi?",

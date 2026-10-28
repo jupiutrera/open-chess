@@ -18,7 +18,8 @@ import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
 import { timeControl } from './timeControl'
-import { GameOverDialog, type GameEnd } from './GameOver'
+import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
+import { GameAnnouncer } from '../../board/GameAnnouncer'
 import { saveGame } from '../../db/games'
 import { clearLiveGame, loadLiveGame, saveLiveGame } from './liveGame'
 import { winPercent } from '../review/classify'
@@ -388,6 +389,7 @@ export default function PlayBot() {
 
   return (
     <>
+      <GameAnnouncer moves={game.moves} result={end ? endAnnouncement(end, userColor, t) : null} />
       <BoardLayout
         above={assist.eval ? <EvalStrip score={help.score} orientation={orientation} /> : undefined}
         top={flipped ? userBar : botBar}

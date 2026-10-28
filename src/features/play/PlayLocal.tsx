@@ -12,7 +12,8 @@ import { useClock } from '../../chess/useClock'
 import { capturedPieces, gameResultText, timeoutResult } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { saveGame } from '../../db/games'
-import { GameOverDialog, type GameEnd } from './GameOver'
+import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
+import { GameAnnouncer } from '../../board/GameAnnouncer'
 import { timeControl } from './timeControl'
 import { TimeControlPicker } from './TimeControlPicker'
 import { Panel, Toggle } from '../../ui/kit'
@@ -172,6 +173,7 @@ export default function PlayLocal() {
 
   return (
     <>
+      <GameAnnouncer moves={game.moves} result={end ? endAnnouncement(end, undefined, t) : null} />
       <BoardLayout
         top={orientation === 'white' ? bar('b') : bar('w')}
         bottom={orientation === 'white' ? bar('w') : bar('b')}

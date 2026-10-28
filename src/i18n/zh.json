@@ -45,7 +45,15 @@
       "pawn": "兵",
       "king": "王"
     },
-    "promotion": "选择升变的棋子"
+    "promotion": "选择升变的棋子",
+    "speech": {
+      "takes": "吃",
+      "castleShort": "王翼易位",
+      "castleLong": "后翼易位",
+      "promotion": "升变为{{piece}}",
+      "check": "将军",
+      "checkmate": "将死"
+    }
   },
   "home": {
     "greeting": "今天练什么？",

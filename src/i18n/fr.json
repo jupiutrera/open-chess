@@ -45,7 +45,15 @@
       "pawn": "Pion",
       "king": "Roi"
     },
-    "promotion": "Choisissez la pièce de promotion"
+    "promotion": "Choisissez la pièce de promotion",
+    "speech": {
+      "takes": "prend",
+      "castleShort": "petit roque",
+      "castleLong": "grand roque",
+      "promotion": "promotion en {{piece}}",
+      "check": "échec",
+      "checkmate": "échec et mat"
+    }
   },
   "home": {
     "greeting": "On s’entraîne à quoi aujourd’hui ?",

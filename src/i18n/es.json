@@ -45,7 +45,15 @@
       "pawn": "Peón",
       "king": "Rey"
     },
-    "promotion": "Elige la pieza de promoción"
+    "promotion": "Elige la pieza de promoción",
+    "speech": {
+      "takes": "captura",
+      "castleShort": "enroque corto",
+      "castleLong": "enroque largo",
+      "promotion": "promociona a {{piece}}",
+      "check": "jaque",
+      "checkmate": "jaque mate"
+    }
   },
   "home": {
     "greeting": "¿Qué entrenamos hoy?",
