@@ -81,4 +81,6 @@ export function applyDocumentSettings(s: Pick<Settings, 'theme' | 'board' | 'lan
   root.dataset.board = s.board
   root.dataset.pieces = s.pieces
   root.lang = s.lang
+  // browser chrome (address bar, PWA title bar) follows the rail colour of the theme
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', s.theme === 'light' ? '#ffffff' : '#262421')
 }
