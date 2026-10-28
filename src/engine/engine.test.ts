@@ -26,6 +26,14 @@ describe('formatScore', () => {
     expect(formatScore({ mate: -2 })).toBe('-M2')
     expect(formatScore(undefined)).toBe('0.0')
   })
+
+  it('never prints a signed zero and rounds before picking the precision', () => {
+    expect(formatScore({ cp: -4 })).toBe('0.0')
+    expect(formatScore({ cp: 3 })).toBe('0.0')
+    expect(formatScore({ cp: -5 })).toBe('-0.1')
+    expect(formatScore({ cp: 996 })).toBe('+10')
+    expect(formatScore({ cp: -994 })).toBe('-9.9')
+  })
 })
 
 describe('legalMoveCount', () => {
