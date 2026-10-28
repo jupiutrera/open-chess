@@ -161,6 +161,8 @@
     "last": "结束",
     "evalGraph": "评估曲线",
     "bestWas": "最佳着法是 {{san}}",
+    "engineLines": "引擎变化",
+    "engineLinesHint": "重新分析这盘棋以查看引擎变化",
     "opening": "开局",
     "depth": "深度 {{d}}",
     "reanalyze": "重新分析",

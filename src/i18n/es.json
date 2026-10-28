@@ -161,6 +161,8 @@
     "last": "Final",
     "evalGraph": "Gráfica de evaluación",
     "bestWas": "La mejor era {{san}}",
+    "engineLines": "Líneas del motor",
+    "engineLinesHint": "Vuelve a analizar la partida para ver las líneas del motor",
     "opening": "Apertura",
     "depth": "Profundidad {{d}}",
     "reanalyze": "Volver a analizar",

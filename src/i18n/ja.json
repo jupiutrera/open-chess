@@ -161,6 +161,8 @@
     "last": "最後",
     "evalGraph": "評価グラフ",
     "bestWas": "最善手は {{san}} でした",
+    "engineLines": "エンジンの読み筋",
+    "engineLinesHint": "エンジンの読み筋を見るには対局を再解析してください",
     "opening": "オープニング",
     "depth": "深さ {{d}}",
     "reanalyze": "再解析",

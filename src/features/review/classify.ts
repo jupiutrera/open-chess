@@ -37,6 +37,15 @@ export const QUALITY_SYMBOL: Partial<Record<Quality, string>> = {
   blunder: '??',
 }
 
+/** Score of a game-over position (no engine needed), or null when there are moves to search. */
+export function terminalScore(fen: string): Score | null {
+  const c = new Chess(fen)
+  if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 } // side to move is mated
+  // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched
+  if (c.isStalemate() || c.isInsufficientMaterial() || c.isThreefoldRepetition()) return { cp: 0 }
+  return null
+}
+
 /** Lichess win probability (0-100) from White's point of view. */
 export function winPercent(s: Score): number {
   if (s.mate !== undefined) return s.mate > 0 || (s.mate === 0 && (s.cp ?? 0) > 0) ? 100 : 0
@@ -60,8 +69,9 @@ function stdev(xs: number[]): number {
  * Game accuracy per colour, Lichess style: volatility-weighted mean averaged
  * with the harmonic mean of per-move accuracies.
  * @param whiteWins win% (White POV) for every position, length = moves + 1
+ * @param firstMover side to move in the first position (games set up from a FEN may start with Black)
  */
-export function gameAccuracy(whiteWins: number[]): { white: number; black: number } {
+export function gameAccuracy(whiteWins: number[], firstMover: 'w' | 'b' = 'w'): { white: number; black: number } {
   const n = whiteWins.length - 1
   if (n < 1) return { white: 100, black: 100 }
   const windowSize = Math.max(2, Math.min(8, Math.floor(n / 10)))
@@ -74,7 +84,7 @@ export function gameAccuracy(whiteWins: number[]): { white: number; black: numbe
   const acc = { w: [] as number[], b: [] as number[] }
   const wts = { w: [] as number[], b: [] as number[] }
   for (let i = 0; i < n; i++) {
-    const white = i % 2 === 0
+    const white = (i % 2 === 0) === (firstMover === 'w')
     const before = white ? whiteWins[i] : 100 - whiteWins[i]
     const after = white ? whiteWins[i + 1] : 100 - whiteWins[i + 1]
     const a = moveAccuracy(before, after)

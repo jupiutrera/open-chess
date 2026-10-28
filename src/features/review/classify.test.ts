@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
+import { terminalScore, winPercent, moveAccuracy, gameAccuracy, isSacrifice, classifyMoves, estimateRating, type PositionEval } from './classify'
 import { parseInfo } from '../../engine/engine'
 
 describe('winPercent', () => {
@@ -32,8 +32,29 @@ describe('accuracy', () => {
     const a = gameAccuracy(curve)
     expect(a.white).toBeLessThan(a.black)
   })
+  it('attributes moves correctly when Black moves first', () => {
+    // White's win% jumps at index 4 -> 5: a Black blunder when Black moves first
+    const curve = [48, 47, 48, 46, 47, 85, 86, 87, 88, 90, 91]
+    const a = gameAccuracy(curve, 'b')
+    expect(a.black).toBeLessThan(a.white)
+    // read as a White-first game the same jump is a White gain, so nobody erred
+    const wrong = gameAccuracy(curve)
+    expect(wrong.black).toBeGreaterThan(a.black)
+  })
   it('rating estimate grows with accuracy', () => {
     expect(estimateRating(90)).toBeGreaterThan(estimateRating(70))
+  })
+})
+
+describe('terminalScore', () => {
+  it('scores mate and stalemate without the engine', () => {
+    expect(terminalScore('rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3')).toEqual({ mate: 0, cp: -1 })
+    expect(terminalScore('7k/5Q2/6K1/8/8/8/8/8 b - - 0 1')).toEqual({ cp: 0 })
+    expect(terminalScore('8/8/4k3/8/8/4K3/8/8 w - - 0 1')).toEqual({ cp: 0 })
+  })
+  it('still searches positions past the 50-move mark', () => {
+    expect(terminalScore('8/8/4k3/8/8/4K3/4Q3/8 w - - 120 90')).toBeNull()
+    expect(terminalScore('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBeNull()
   })
 })
 

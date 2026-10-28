@@ -161,6 +161,8 @@
     "last": "End",
     "evalGraph": "Evaluation graph",
     "bestWas": "Best was {{san}}",
+    "engineLines": "Engine lines",
+    "engineLinesHint": "Re-analyze the game to see engine lines",
     "opening": "Opening",
     "depth": "Depth {{d}}",
     "reanalyze": "Analyze again",
