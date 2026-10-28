@@ -123,10 +123,16 @@ function BoardView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // the position a premove was last tried on: playPremove() drops a premove it can't play,
+  // so other config changes (arrows landing while the bot thinks) mustn't call it
+  const premoveAt = useRef(fen)
   useEffect(() => {
     api.current?.set(config)
     // premoves fire as soon as it's our turn again
-    if (premoves) api.current?.playPremove()
+    if (premoves && premoveAt.current !== config.fen) {
+      premoveAt.current = config.fen as string
+      api.current?.playPremove()
+    }
   }, [config, premoves])
 
   // Badge position as a percentage of the board
