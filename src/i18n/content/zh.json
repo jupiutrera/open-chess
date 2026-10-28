@@ -134,20 +134,20 @@
       }
     },
     "stockfish": { "bio": "全力运转的引擎。没人能赢它。" },
-    "sf-fading": { "name": "衰退的Stockfish", "bio": "从3200起步，每走一步掉50 Elo。" },
-    "sf-rising": { "name": "成长的Stockfish", "bio": "从0 Elo起步，每走一步涨50，直到3200。" },
-    "sf-jealous": { "name": "嫉妒的Stockfish", "bio": "你每走出最佳着法，它就掉300 Elo。" },
-    "sf-kind": { "name": "心软的Stockfish", "bio": "你每走出最差着法，它就掉500 Elo。" },
-    "sf-ticklish": { "name": "怕痒的Stockfish", "bio": "你每将它一军，它就掉300 Elo。" },
+    "sf-fading": { "name": "Meltfish", "bio": "从3200起步，每走一步掉50 Elo。" },
+    "sf-rising": { "name": "Growfish", "bio": "从0 Elo起步，每走一步涨50，直到3200。" },
+    "sf-jealous": { "name": "Envyfish", "bio": "你每走出最佳着法，它就掉300 Elo。" },
+    "sf-kind": { "name": "Pityfish", "bio": "你每走出最差着法，它就掉500 Elo。" },
+    "sf-ticklish": { "name": "Ticklefish", "bio": "你每将它一军，它就掉300 Elo。" },
     "drawfish": { "name": "Drawfish", "bio": "总是走评估最接近0.00的着法，并接受任何和棋提议。" },
     "checkfish": { "name": "Checkfish", "bio": "能将军就将军，否则走最佳着法。" },
-    "sf-glutton": { "name": "贪吃的Stockfish", "bio": "能吃子就吃子，而且总是吃最值钱的那个。" },
-    "sf-clumsy": { "name": "冒失的Stockfish", "bio": "全力出击，但每步有5%的概率走出最差着法。" },
-    "sf-indecisive": { "name": "犹豫不决的Stockfish", "bio": "从它最好的三步中随机选一步。" },
-    "sf-halfhearted": { "name": "半心半意的Stockfish", "bio": "一半时间走最佳着法，四分之一时间走次佳，依此类推。" },
-    "sf-rollercoaster": { "name": "过山车Stockfish", "bio": "无论谁吃子，每次吃子都会在3200和250 Elo之间切换。" },
-    "sf-mirror": { "name": "镜子Stockfish", "bio": "模仿你上一步的质量：你失误它也失误，你走得好它也走得好。" },
-    "sf-queenless": { "name": "无后Stockfish", "bio": "全力的Stockfish，但开局没有后。你执白。" }
+    "sf-glutton": { "name": "Greedfish", "bio": "能吃子就吃子，而且总是吃最值钱的那个。" },
+    "sf-clumsy": { "name": "Oopsfish", "bio": "全力出击，但每步有5%的概率走出最差着法。" },
+    "sf-indecisive": { "name": "Dicefish", "bio": "从它最好的三步中随机选一步。" },
+    "sf-halfhearted": { "name": "Coinfish", "bio": "一半时间走最佳着法，四分之一时间走次佳，依此类推。" },
+    "sf-rollercoaster": { "name": "Yoyofish", "bio": "无论谁吃子，每次吃子都会在3200和250 Elo之间切换。" },
+    "sf-mirror": { "name": "Copyfish", "bio": "模仿你上一步的质量：你失误它也失误，你走得好它也走得好。" },
+    "sf-queenless": { "name": "Oddsfish", "bio": "全力的Stockfish，但开局没有后。你执白。" }
   },
   "chat": {
     "kid": {
