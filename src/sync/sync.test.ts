@@ -62,3 +62,14 @@ describe('mergeRow for games', () => {
     expect(kept.review).toEqual({ depth: 14 })
   })
 })
+
+describe('mergeRow push-backs', () => {
+  it('stamp the merge newer than both copies, even when the other clock runs ahead', () => {
+    const ahead = Date.now() + 3_600_000
+    const p = (stepsDone: number, updatedAt: number) => ({ id: 'l1', lessonId: 'l1', stepsDone, completed: false, updatedAt }) as unknown as SyncRow
+    const kept = mergeRow('lessonProgress', p(5, 1), p(2, ahead)) as SyncRow
+    expect(kept.updatedAt).toBeGreaterThan(ahead)
+    const best = mergeRow('kv', kv({ '3': 30 }, 1), kv({ '3': 20 }, ahead)) as SyncRow
+    expect(best.updatedAt).toBeGreaterThan(ahead)
+  })
+})
