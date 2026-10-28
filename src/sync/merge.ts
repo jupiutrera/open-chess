@@ -1,4 +1,4 @@
-import type { SyncRow } from '../db/db'
+import type { LessonProgressRow, SyncRow } from '../db/db'
 
 /** kv rows holding records ("best of"): merged by taking the max per key instead of last write wins. */
 const MAX_MERGED = new Set(['rushBest'])
@@ -25,6 +25,18 @@ export function mergeRow(tbl: string, local: SyncRow | undefined, remote: SyncRo
       // the server copy lost to ours: push ours back
       return local.updatedAt < remote.updatedAt ? { ...local, updatedAt: Date.now() } : null
     }
+  }
+  if (local && tbl === 'lessonProgress' && !local.deleted && !remote.deleted) {
+    // progress only moves forward, like LessonPlayer's own save
+    const l = local as LessonProgressRow
+    const r = remote as LessonProgressRow
+    const stepsDone = Math.max(l.stepsDone ?? 0, r.stepsDone ?? 0)
+    const completed = !!l.completed || !!r.completed
+    const sameAsRemote = stepsDone === r.stepsDone && completed === !!r.completed
+    const sameAsLocal = stepsDone === l.stepsDone && completed === !!l.completed
+    if (sameAsRemote && !sameAsLocal) return remote
+    // the server copy is behind: the merge gets a fresh timestamp so it is pushed back
+    if (!sameAsRemote) return { ...(sameAsLocal ? l : r), stepsDone, completed, updatedAt: Date.now() } as SyncRow
   }
   if (tbl === 'games' && local && !local.deleted && !remote.deleted) {
     // the same game imported on two devices shares its id: keep a review either side has

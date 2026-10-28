@@ -34,6 +34,22 @@ describe('mergeRow for the puzzle rating', () => {
   })
 })
 
+describe('mergeRow for lesson progress', () => {
+  const p = (stepsDone: number, completed: boolean, updatedAt: number) => ({ id: 'l1', lessonId: 'l1', stepsDone, completed, updatedAt }) as unknown as SyncRow
+  it('never moves progress backwards', () => {
+    const kept = mergeRow('lessonProgress', p(5, true, 1), p(2, false, 9)) as unknown as { stepsDone: number; completed: boolean; updatedAt: number }
+    expect(kept).toMatchObject({ stepsDone: 5, completed: true })
+    expect(kept.updatedAt).toBeGreaterThan(9)
+  })
+  it('combines steps from one side with completion from the other', () => {
+    expect(mergeRow('lessonProgress', p(1, true, 1), p(4, false, 9))).toMatchObject({ stepsDone: 4, completed: true })
+  })
+  it('takes a remote copy that is ahead, and ignores an identical one', () => {
+    expect(mergeRow('lessonProgress', p(2, false, 9), p(4, false, 1))).toEqual(p(4, false, 1))
+    expect(mergeRow('lessonProgress', p(4, false, 9), p(4, false, 1))).toBeNull()
+  })
+})
+
 describe('mergeRow for games', () => {
   const g = (updatedAt: number, review?: object) => ({ id: 'x-1', pgn: '1. e4 *', updatedAt, ...(review ? { review } : {}) }) as unknown as SyncRow
   it('keeps a local review when the same game is re-imported elsewhere', () => {
