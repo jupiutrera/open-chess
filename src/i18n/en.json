@@ -150,7 +150,11 @@
     "aborted": "Game aborted",
     "confirmDraw": "Do both players agree to a draw?",
     "acceptDraw": "Agree to a draw",
-    "confirmResignSide": "{{side}} resigns. Are you sure?"
+    "confirmResignSide": "{{side}} resigns. Are you sure?",
+    "challenge_best": "{{delta}} Elo: you played the best move",
+    "challenge_worst": "{{delta}} Elo: you played the worst move",
+    "challenge_check": "{{delta}} Elo: you gave check",
+    "challengeCapture": "Capture: it now plays at {{elo}} Elo"
   },
   "bots": {
     "group": {
@@ -158,7 +162,8 @@
       "intermediate": "Intermediate",
       "advanced": "Advanced",
       "master": "Masters",
-      "engine": "Engine"
+      "engine": "Engine",
+      "challenge": "Challenges"
     }
   },
   "review": {

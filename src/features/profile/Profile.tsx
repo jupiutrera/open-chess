@@ -5,7 +5,7 @@ import { CloudArrowUp, SignOut, GoogleLogo, EnvelopeSimple, DownloadSimple, Uplo
 import { PageHeader, Panel, Skeleton, SkeletonText, toast, timeAgo } from '../../ui/kit'
 import { db, kvGet } from '../../db/db'
 import { getPuzzleRating } from '../puzzles/puzzlesData'
-import { BOTS } from '../play/bots'
+import { BOTS, botName } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
 import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
@@ -115,7 +115,7 @@ export default function Profile() {
                 <li key={r.bot.id} className="flex items-center gap-3 px-4 py-2.5">
                   <BotAvatar bot={r.bot} size={32} />
                   <span className="flex-1 font-semibold">
-                    {r.bot.name} <span className="tabular font-normal text-fg-3">{r.bot.elo}</span>
+                    {botName(r.bot, lang)} <span className="tabular font-normal text-fg-3">{r.bot.elo}</span>
                   </span>
                   <span className="tabular text-[14px]">
                     <b className="text-accent">{r.w}</b> / <span className="text-fg-2">{r.d}</span> / <b className="text-danger">{r.l}</b>

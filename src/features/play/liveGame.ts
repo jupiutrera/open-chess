@@ -2,6 +2,7 @@
  * The game in progress, saved after every move so leaving the screen, the Android
  * back button or a reload never loses it. One slot per mode; finished games move to the DB.
  */
+import type { ChallengePly } from './challenges'
 
 export interface LiveGame {
   kind: 'bot' | 'local'
@@ -15,6 +16,8 @@ export interface LiveGame {
   fen?: string
   sans: string[]
   clock?: { w: number; b: number }
+  /** challenge bots: their state after each ply (see challenges.ts) */
+  challenge?: ChallengePly[]
   savedAt: number
 }
 

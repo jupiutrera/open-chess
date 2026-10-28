@@ -150,7 +150,11 @@
     "aborted": "Partida abortada",
     "confirmDraw": "¿Están de acuerdo ambos jugadores en hacer tablas?",
     "acceptDraw": "Aceptar tablas",
-    "confirmResignSide": "¿Seguro que quieres abandonar con {{side}}?"
+    "confirmResignSide": "¿Seguro que quieres abandonar con {{side}}?",
+    "challenge_best": "{{delta}} Elo: has jugado la mejor jugada",
+    "challenge_worst": "{{delta}} Elo: has jugado la peor jugada",
+    "challenge_check": "{{delta}} Elo: le has dado jaque",
+    "challengeCapture": "Captura: ahora juega a {{elo}} de Elo"
   },
   "bots": {
     "group": {
@@ -158,7 +162,8 @@
       "intermediate": "Intermedios",
       "advanced": "Avanzados",
       "master": "Maestros",
-      "engine": "Motor"
+      "engine": "Motor",
+      "challenge": "Retos"
     }
   },
   "review": {

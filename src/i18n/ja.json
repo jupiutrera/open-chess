@@ -150,7 +150,11 @@
     "aborted": "対局を中止しました",
     "confirmDraw": "両者とも引き分けに同意しますか？",
     "acceptDraw": "引き分けに同意",
-    "confirmResignSide": "{{side}}が投了します。よろしいですか？"
+    "confirmResignSide": "{{side}}が投了します。よろしいですか？",
+    "challenge_best": "{{delta}} Elo：最善手を指しました",
+    "challenge_worst": "{{delta}} Elo：最悪手を指しました",
+    "challenge_check": "{{delta}} Elo：王手をかけました",
+    "challengeCapture": "駒取り：今は Elo {{elo}} で指します"
   },
   "bots": {
     "group": {
@@ -158,7 +162,8 @@
       "intermediate": "中級者",
       "advanced": "上級者",
       "master": "マスター",
-      "engine": "エンジン"
+      "engine": "エンジン",
+      "challenge": "チャレンジ"
     }
   },
   "review": {

@@ -150,7 +150,11 @@
     "aborted": "对局已中止",
     "confirmDraw": "双方都同意和棋吗？",
     "acceptDraw": "同意和棋",
-    "confirmResignSide": "{{side}}认输，确定吗？"
+    "confirmResignSide": "{{side}}认输，确定吗？",
+    "challenge_best": "{{delta}} Elo：你走了最佳着法",
+    "challenge_worst": "{{delta}} Elo：你走了最差着法",
+    "challenge_check": "{{delta}} Elo：你将了它一军",
+    "challengeCapture": "吃子：它现在以 {{elo}} Elo 下棋"
   },
   "bots": {
     "group": {
@@ -158,7 +162,8 @@
       "intermediate": "中级",
       "advanced": "高级",
       "master": "大师",
-      "engine": "引擎"
+      "engine": "引擎",
+      "challenge": "挑战"
     }
   },
   "review": {

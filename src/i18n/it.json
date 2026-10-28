@@ -150,7 +150,11 @@
     "aborted": "Partita annullata",
     "confirmDraw": "Entrambi i giocatori accettano la patta?",
     "acceptDraw": "Accetta la patta",
-    "confirmResignSide": "Vuoi davvero abbandonare con il {{side}}?"
+    "confirmResignSide": "Vuoi davvero abbandonare con il {{side}}?",
+    "challenge_best": "{{delta}} Elo: hai giocato la mossa migliore",
+    "challenge_worst": "{{delta}} Elo: hai giocato la mossa peggiore",
+    "challenge_check": "{{delta}} Elo: gli hai dato scacco",
+    "challengeCapture": "Cattura: ora gioca a {{elo}} Elo"
   },
   "bots": {
     "group": {
@@ -158,7 +162,8 @@
       "intermediate": "Intermedi",
       "advanced": "Avanzati",
       "master": "Maestri",
-      "engine": "Motore"
+      "engine": "Motore",
+      "challenge": "Sfide"
     }
   },
   "review": {
