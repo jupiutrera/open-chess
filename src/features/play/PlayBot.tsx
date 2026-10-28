@@ -235,18 +235,25 @@ export default function PlayBot() {
   const userTurn = turn === userColor && game.atLive && !end
   const help = useAssist({ assist, fen: game.fen, moves: game.moves, ply: game.ply, rate: userColor, userTurn })
 
+  // the clock re-renders this screen every 100ms: keep the board's props stable so its memo holds
+  // (help.lines is a new empty array on every render while the position is unevaluated)
+  const suggestion = help.lines[0]?.pv[0]
   const shapes = useMemo(() => {
     const out: DrawShape[] = [...hint]
     const arrow = (uci: string, brush: string): DrawShape => ({ orig: uci.slice(0, 2) as never, dest: uci.slice(2, 4) as never, brush })
-    if (assist.suggest && userTurn && help.lines[0]?.pv[0] && !hint.length) out.push(arrow(help.lines[0].pv[0], 'green'))
+    if (assist.suggest && userTurn && suggestion && !hint.length) out.push(arrow(suggestion, 'green'))
     if (assist.threats && userTurn && help.threat) out.push(arrow(help.threat, 'red'))
     return out
-  }, [hint, assist.suggest, assist.threats, userTurn, help.lines, help.threat])
+  }, [hint, assist.suggest, assist.threats, userTurn, suggestion, help.threat])
 
   const viewedMove = game.ply > 0 ? game.moves[game.ply - 1] : undefined
   const viewedQuality = assist.feedback ? help.quality(viewedMove) : undefined
-  const badge = viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null
-  const qualities = game.moves.map((m) => help.quality(m))
+  const badge = useMemo(() => (viewedMove && viewedQuality ? { square: viewedMove.to, quality: viewedQuality } : null), [viewedMove, viewedQuality])
+  // help.quality is a new function every render; the ratings only change as moves get rated
+  const qualityList = game.moves.map((m) => help.quality(m))
+  const qualityKey = qualityList.join()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const qualities = useMemo(() => qualityList, [game.moves, qualityKey])
 
   const lastFeedback = help.quality(game.moves[moveCount - 1])
   useEffect(() => {
