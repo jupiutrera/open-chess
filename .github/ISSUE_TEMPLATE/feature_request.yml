@@ -1,0 +1,14 @@
+name: Feature request
+description: An idea to make training better
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What would you like to do in the app, and why?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Online play against other people is out of scope on purpose.
