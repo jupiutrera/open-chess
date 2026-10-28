@@ -66,9 +66,15 @@ export default function Analysis() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
 
+  // the latest named position up to the viewed ply; stale lookups are dropped
   useEffect(() => {
-    void lookupOpening(game.fen).then((o) => o && setOpening(o))
-  }, [game.fen])
+    let alive = true
+    const fens = game.fens.slice(0, game.ply + 1).reverse()
+    void Promise.all(fens.map(lookupOpening)).then((os) => alive && setOpening(os.find(Boolean)))
+    return () => {
+      alive = false
+    }
+  }, [game.fens, game.ply])
 
   const { lines, depth } = useAnalysis(game.fen, engineOn, multipv)
 

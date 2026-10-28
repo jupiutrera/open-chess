@@ -33,10 +33,15 @@ export default function Openings() {
   const online = useOnline()
 
   useEffect(() => {
-    void lookupOpening(game.fen).then((o) => o && setOpening(o))
-    void namedContinuations(game.fen).then(setNamed)
-    if (game.ply === 0) setOpening(undefined)
-  }, [game.fen, game.ply])
+    // the latest named position up to the viewed ply; stale lookups are dropped
+    let alive = true
+    const fens = game.fens.slice(0, game.ply + 1).reverse()
+    void Promise.all(fens.map(lookupOpening)).then((os) => alive && setOpening(os.find(Boolean)))
+    void namedContinuations(game.fen).then((n) => alive && setNamed(n))
+    return () => {
+      alive = false
+    }
+  }, [game.fen, game.fens, game.ply])
 
   useEffect(() => {
     if (source === 'local' || !online) {
