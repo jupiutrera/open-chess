@@ -38,12 +38,15 @@ function loadBucket(b: number): Promise<Puzzle[]> {
   let p = bucketCache.get(b)
   if (!p) {
     p = fetch(`${base}r${b}.json`)
-      .then((r) => (r.ok ? r.json() : []))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then((rows: [string, string, string, number, string][]) =>
         rows.map(([id, fen, moves, rating, themes]) => ({ id, fen, moves: moves.split(' '), rating, themes: themes.split(' ') })),
       )
       .catch(() => {
-        bucketCache.delete(b) // offline: try again next time
+        bucketCache.delete(b) // offline or a failed response: try again next time
         return []
       })
     bucketCache.set(b, p)
@@ -125,23 +128,27 @@ export async function getPuzzleRating(): Promise<Glicko> {
 }
 
 export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAttemptRow['mode'], rated: boolean) {
-  let ratingAfter: number | undefined
-  if (rated) {
-    const g = await getPuzzleRating()
-    const next = updateGlicko(g, p.rating, 80, solved ? 1 : 0)
-    await kvSet('puzzleRating', next)
-    ratingAfter = next.rating
-  }
-  await put<PuzzleAttemptRow>('puzzleAttempts', {
-    id: uid(),
-    puzzleId: p.id,
-    rating: p.rating,
-    solved,
-    mode,
-    date: Date.now(),
-    ratingAfter,
+  // read-modify-write of the rating: a sync pull or another tab must not slip in between
+  return db.transaction('rw', db.kv, db.puzzleAttempts, async () => {
+    let ratingAfter: number | undefined
+    if (rated) {
+      const g: Glicko & { games?: number } = await getPuzzleRating()
+      // `games` lets sync keep the copy that has seen more results (see mergeRow)
+      const next = { ...updateGlicko(g, p.rating, 80, solved ? 1 : 0), games: (g.games ?? 0) + 1 }
+      await kvSet('puzzleRating', next)
+      ratingAfter = next.rating
+    }
+    await put<PuzzleAttemptRow>('puzzleAttempts', {
+      id: uid(),
+      puzzleId: p.id,
+      rating: p.rating,
+      solved,
+      mode,
+      date: Date.now(),
+      ratingAfter,
+    })
+    return ratingAfter
   })
-  return ratingAfter
 }
 
 export const THEMES = [

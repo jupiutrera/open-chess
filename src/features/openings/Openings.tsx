@@ -13,8 +13,8 @@ import { parseUci } from '../../chess/util'
 import { Panel, Segmented, Sheet, Skeleton, toast, useOnline } from '../../ui/kit'
 import { lookupOpening, namedContinuations, searchOpenings, type Opening } from './openingsData'
 import { fetchExplorer, type ExplorerDb, type ExplorerResult } from './explorerApi'
-import { addLine } from './repertoire'
-import { db, softDelete } from '../../db/db'
+import { addLine, removeLine } from './repertoire'
+import { db } from '../../db/db'
 import { fmtCompact } from '../../i18n/format'
 
 type Tab = 'explorer' | 'repertoire'
@@ -271,13 +271,8 @@ function RepertoirePanel({ onShow }: { onShow: (line: string, color: 'w' | 'b') 
   const rows = useLiveQuery(() => db.repertoire.filter((r) => !r.deleted).toArray(), [])
   const now = Date.now()
   const lines = useMemo(() => {
-    const m = new Map<string, { line: string; color: 'w' | 'b'; ids: string[] }>()
-    for (const r of rows ?? []) {
-      const k = `${r.color}|${r.line}`
-      const e = m.get(k) ?? { line: r.line, color: r.color, ids: [] }
-      e.ids.push(r.id)
-      m.set(k, e)
-    }
+    const m = new Map<string, { line: string; color: 'w' | 'b' }>()
+    for (const r of rows ?? []) m.set(`${r.color}|${r.line}`, { line: r.line, color: r.color })
     return [...m.values()]
   }, [rows])
 
@@ -323,7 +318,7 @@ function RepertoirePanel({ onShow }: { onShow: (line: string, color: 'w' | 'b') 
               <button
                 className="btn btn-ghost btn-icon"
                 aria-label={t('openings.remove')}
-                onClick={() => l.ids.forEach((id) => void softDelete('repertoire', id))}
+                onClick={() => window.confirm(t('openings.removeConfirm', { line: l.line })) && void removeLine(l.line, l.color)}
               >
                 <Trash size={16} />
               </button>

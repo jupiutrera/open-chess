@@ -74,6 +74,42 @@ export const useSettings = create<Settings>()(
   ),
 )
 
+/** Settings that go into a backup: everything but the Lichess token, a personal credential. */
+export type BackupSettings = Omit<Settings, 'set' | 'lichessToken'>
+
+export function backupSettings(s: Settings = useSettings.getState()): BackupSettings {
+  const out: Record<string, unknown> = { ...s }
+  delete out.set
+  delete out.lichessToken
+  return out as unknown as BackupSettings
+}
+
+const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
+  lang: LANGS,
+  theme: ['dark', 'light'],
+  board: ['green', 'brown', 'blue', 'gray', 'purple'] satisfies BoardTheme[],
+  pieces: PIECE_SETS,
+  soundSet: SOUND_SETS,
+}
+
+/** The valid part of backed-up settings, as a patch over `current`; unknown or mistyped values are dropped. */
+export function settingsPatch(raw: unknown, current: Settings): Partial<BackupSettings> {
+  const patch: Record<string, unknown> = {}
+  if (!raw || typeof raw !== 'object') return patch
+  for (const [k, v] of Object.entries(raw)) {
+    const key = k as keyof Settings
+    const now = current[key]
+    if (key === 'set' || key === 'lichessToken' || !(key in current) || typeof v !== typeof now) continue
+    if (CHOICES[key] && !CHOICES[key].includes(v as string)) continue
+    if (typeof now === 'object' && now) {
+      // nested flags (assist): only known keys of the same type
+      const sub = Object.fromEntries(Object.entries(v as object).filter(([sk, sv]) => sk in now && typeof sv === typeof (now as unknown as Record<string, unknown>)[sk]))
+      patch[key] = { ...now, ...sub }
+    } else patch[key] = v
+  }
+  return patch as Partial<BackupSettings>
+}
+
 export function applyDocumentSettings(s: Pick<Settings, 'theme' | 'board' | 'lang' | 'pieces' | 'highContrast'>) {
   const root = document.documentElement
   root.dataset.theme = s.theme
