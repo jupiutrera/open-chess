@@ -17,6 +17,23 @@ describe('mergeRow', () => {
   })
 })
 
+describe('mergeRow for the puzzle rating', () => {
+  const rating = (r: number, updatedAt: number, games?: number) =>
+    ({ id: 'puzzleRating', value: { rating: r, rd: 80, vol: 0.06, ...(games === undefined ? {} : { games }) }, updatedAt }) as unknown as SyncRow
+  it('keeps the copy that counted more games, even if older', () => {
+    expect(mergeRow('kv', rating(1500, 1, 30), rating(1400, 9, 31))).toEqual(rating(1400, 9, 31))
+    const kept = mergeRow('kv', rating(1500, 1, 40), rating(1400, 9, 31)) as unknown as { value: { rating: number }; updatedAt: number }
+    expect(kept.value.rating).toBe(1500)
+    // re-stamped so it is pushed over the server copy
+    expect(kept.updatedAt).toBeGreaterThan(9)
+    expect(mergeRow('kv', rating(1500, 9, 40), rating(1400, 1, 31))).toBeNull()
+  })
+  it('falls back to last write wins without a count', () => {
+    expect(mergeRow('kv', rating(1500, 1), rating(1400, 9, 3))).toEqual(rating(1400, 9, 3))
+    expect(mergeRow('kv', rating(1500, 9, 3), rating(1400, 1))).toBeNull()
+  })
+})
+
 describe('mergeRow for games', () => {
   const g = (updatedAt: number, review?: object) => ({ id: 'x-1', pgn: '1. e4 *', updatedAt, ...(review ? { review } : {}) }) as unknown as SyncRow
   it('keeps a local review when the same game is re-imported elsewhere', () => {

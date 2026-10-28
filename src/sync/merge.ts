@@ -14,6 +14,18 @@ export function mergeRow(tbl: string, local: SyncRow | undefined, remote: SyncRo
     // a merge that differs from the server must be pushed back, so it gets a fresh timestamp
     return { ...remote, value, updatedAt: sameAsRemote ? remote.updatedAt : Date.now() } as SyncRow
   }
+  if (local && tbl === 'kv' && remote.id === 'puzzleRating' && !local.deleted && !remote.deleted) {
+    // the rating is one Glicko state, so two devices' results can't be combined: keep the copy that has
+    // counted more games (each device starts from the last synced one). Without a count: last write wins.
+    const games = (r: SyncRow) => (r as unknown as { value?: { games?: unknown } }).value?.games
+    const l = games(local)
+    const r = games(remote)
+    if (typeof l === 'number' && typeof r === 'number' && l !== r) {
+      if (r > l) return remote
+      // the server copy lost to ours: push ours back
+      return local.updatedAt < remote.updatedAt ? { ...local, updatedAt: Date.now() } : null
+    }
+  }
   if (tbl === 'games' && local && !local.deleted && !remote.deleted) {
     // the same game imported on two devices shares its id: keep a review either side has
     const l = local as SyncRow & { review?: unknown; pgn?: string }
