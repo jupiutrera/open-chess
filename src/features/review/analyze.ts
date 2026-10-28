@@ -26,6 +26,7 @@ export function parseGame(pgn: string): ParsedGame {
 }
 
 const PV_KEEP = 8
+const SAVE_EVERY = 8
 
 /** Runs Stockfish over every position and stores the review on the game row. */
 export async function analyzeGame(
@@ -42,8 +43,12 @@ export async function analyzeGame(
   const positions: PositionEval[] = loadPartial(game.id, depth, game.pgn, parsed.fens)
   const total = parsed.fens.length
   if (positions.length) onProgress(positions.length, total)
+  const stop = () => {
+    savePartial(game.id, depth, game.pgn, positions)
+    return null
+  }
   for (let i = positions.length; i < total; i++) {
-    if (signal?.cancelled) return null
+    if (signal?.cancelled) return stop()
     const fen = parsed.fens[i]
     const term = terminalScore(fen)
     if (term) {
@@ -51,16 +56,19 @@ export async function analyzeGame(
     } else {
       // depth is the target; the time cap keeps a long game on a slow phone from taking minutes
       const r = await engine.search(fen, { depth, multipv: 2, movetime: 1200 })
-      if (signal?.cancelled) return null
-      positions.push({ fen, lines: r.lines, score: r.lines[0]?.score ?? { cp: 0 } })
-      savePartial(game.id, depth, game.pgn, positions)
+      if (signal?.cancelled) return stop()
+      // short PVs are all the review keeps, and they keep the resume save small
+      const lines = r.lines.map((l) => ({ ...l, pv: l.pv.slice(0, PV_KEEP) }))
+      positions.push({ fen, lines, score: r.lines[0]?.score ?? { cp: 0 } })
+      // every few positions: the whole array is rewritten each time, and at most a few get redone
+      if (positions.length % SAVE_EVERY === 0) savePartial(game.id, depth, game.pgn, positions)
     }
     onProgress(i + 1, total)
   }
   const moves = classifyMoves(positions, parsed.moves, (fen, ply) => ply <= 30 && isBook(fen))
   const curve = positions.map((p) => winPercent(p.score))
   // short PVs are all the lines panel shows, and keep the synced row small
-  const lines = positions.map((p) => p.lines.map((l) => ({ ...l, pv: l.pv.slice(0, PV_KEEP) })))
+  const lines = positions.map((p) => p.lines)
   const review = { depth, accuracy: gameAccuracy(curve, parsed.startFen.split(' ')[1] === 'b' ? 'b' : 'w'), moves, curve, lines }
   await put<GameRow>('games', { ...game, review })
   clearPartial(game.id)
