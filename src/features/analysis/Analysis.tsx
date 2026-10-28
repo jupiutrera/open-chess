@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Chess } from 'chess.js'
 import {
@@ -12,6 +12,7 @@ import {
   Copy,
   UploadSimple,
   Cpu,
+  Robot,
 } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
@@ -62,6 +63,7 @@ function loadSaved(): SavedAnalysis | null {
 export default function Analysis() {
   const { t } = useTranslation()
   const [params] = useSearchParams()
+  const navigate = useNavigate()
   const game = useGame()
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [engineOn, setEngineOn] = useState(true)
@@ -282,6 +284,15 @@ export default function Analysis() {
               <IconAction label={t('analysis.copyPgn')} onClick={() => void copy(game.moves.length ? game.chess.pgn() : game.fen)}>
                 <Copy size={20} weight="bold" />
               </IconAction>
+            </div>
+            <div className="border-t border-line p-2.5 pt-0 lg:pt-2.5">
+              <button
+                className="btn w-full"
+                disabled={!!outcome}
+                onClick={() => navigate(`/play?fen=${encodeURIComponent(game.fen)}`)}
+              >
+                <Robot size={20} weight="bold" /> {t('analysis.playFromHere')}
+              </button>
             </div>
           </Panel>
         }

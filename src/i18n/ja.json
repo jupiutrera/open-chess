@@ -346,6 +346,7 @@
     "eraser": "消しゴム",
     "castling": "キャスリング",
     "editorShort": "エディター",
+    "playFromHere": "この局面からボットと対局",
     "illegal": {
       "invalid": "無効なFENです",
       "kings": "両陣営にキングがちょうど1つずつ必要です",
