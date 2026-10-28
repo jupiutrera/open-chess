@@ -293,6 +293,7 @@
     "search": "搜索开局",
     "known": "已命名的后续",
     "remove": "移除",
+    "removeConfirm": "要从你的开局库中移除 {{line}} 这条变例吗？与其他变例共用的局面会保留。",
     "needToken": "Lichess 统计需要一个免费的个人令牌。请在此添加：",
     "dueCount_one": "{{count}} 个待复习",
     "dueCount_other": "{{count}} 个待复习",

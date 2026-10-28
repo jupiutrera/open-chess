@@ -293,6 +293,7 @@
     "search": "Search openings",
     "known": "Named continuations",
     "remove": "Remove",
+    "removeConfirm": "Remove the line {{line}} from your repertoire? Positions it shares with other lines are kept.",
     "needToken": "Lichess stats need a free personal token. Add it in",
     "dueCount_one": "{{count}} due",
     "dueCount_other": "{{count}} due",

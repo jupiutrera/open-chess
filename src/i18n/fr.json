@@ -293,6 +293,7 @@
     "search": "Rechercher une ouverture",
     "known": "Suites connues",
     "remove": "Retirer",
+    "removeConfirm": "Retirer la ligne {{line}} de votre répertoire ? Les positions qu'elle partage avec d'autres lignes sont conservées.",
     "needToken": "Les statistiques Lichess nécessitent un jeton personnel gratuit. Ajoutez-le dans",
     "dueCount_one": "{{count}} à réviser",
     "dueCount_other": "{{count}} à réviser",

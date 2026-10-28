@@ -293,6 +293,7 @@
     "search": "Cerca aperture",
     "known": "Continuazioni note",
     "remove": "Rimuovi",
+    "removeConfirm": "Rimuovere la linea {{line}} dal tuo repertorio? Le posizioni in comune con altre linee vengono mantenute.",
     "needToken": "Le statistiche di Lichess richiedono un token personale gratuito. Aggiungilo in",
     "dueCount_one": "{{count}} da ripassare",
     "dueCount_other": "{{count}} da ripassare",

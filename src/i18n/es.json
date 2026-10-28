@@ -293,6 +293,7 @@
     "search": "Buscar apertura",
     "known": "Continuaciones con nombre",
     "remove": "Quitar",
+    "removeConfirm": "¿Quitar la línea {{line}} de tu repertorio? Las posiciones que comparte con otras líneas se conservan.",
     "needToken": "Las estadísticas de Lichess necesitan un token personal gratuito. Añádelo en",
     "dueCount_one": "{{count}} pendiente",
     "dueCount_other": "{{count}} pendientes",

@@ -293,6 +293,7 @@
     "search": "オープニングを検索",
     "known": "名前のある続き",
     "remove": "削除",
+    "removeConfirm": "レパートリーからライン {{line}} を削除しますか？他のラインと共通の局面は残ります。",
     "needToken": "Lichess の統計には無料の個人トークンが必要です。追加はこちら：",
     "dueCount_one": "復習 {{count}} 件",
     "dueCount_other": "復習 {{count}} 件",
