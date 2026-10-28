@@ -199,6 +199,8 @@ async function hasLocalData() {
 export async function signOut() {
   let clear = !!useSync.getState().user && window.confirm(i18n.t('profile.signOutClear'))
   if (clear) {
+    // a sync already running may be past its push: make it rerun so the last push covers everything
+    runner.invalidate()
     await syncNow()
     if (useSync.getState().error) {
       window.alert(i18n.t('profile.signOutKept'))

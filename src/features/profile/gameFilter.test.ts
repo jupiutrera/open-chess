@@ -40,6 +40,9 @@ describe('gameMatcher', () => {
   })
   it('searches names and opening ignoring case and accents', () => {
     expect(gameMatcher({ ...NO_FILTER, query: 'martin' })(g({}))).toBe(true)
+    // the search sees names as they are shown
+    const shown = gameMatcher({ ...NO_FILTER, query: 'tu' }, (n) => (n === 'You' ? 'Tú' : n))
+    expect(shown(g({ white: 'You' }))).toBe(true)
     expect(gameMatcher({ ...NO_FILTER, query: 'sicilian' })(g({ opening: 'B20 Sicilian Defense' }))).toBe(true)
     expect(gameMatcher({ ...NO_FILTER, query: 'french' })(g({ opening: 'B20 Sicilian Defense' }))).toBe(false)
   })

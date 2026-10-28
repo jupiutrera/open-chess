@@ -8,6 +8,7 @@ import { DownloadSimple, MagnifyingGlass } from '@phosphor-icons/react'
 import { GameRowItem } from './GameRowItem'
 import { gameMatcher, NO_FILTER, type GameFilter } from './gameFilter'
 import { gamesPgn } from '../review/pgnExport'
+import { playerName } from '../play/playerName'
 import { saveTextFile } from '../../ui/files'
 
 const PAGE = 50
@@ -18,7 +19,11 @@ export default function Games() {
   const [limit, setLimit] = useState(PAGE)
   // typing shouldn't re-scan the table on every keystroke before React catches up
   const query = useDeferredValue(filter.query)
-  const match = useMemo(() => gameMatcher({ ...filter, query }), [filter, query])
+  const { source, result, color } = filter
+  const match = useMemo(
+    () => gameMatcher({ source, result, color, query }, (name, g) => playerName(name, g.source, t)),
+    [source, result, color, query, t],
+  )
   const filtered = filter.source !== 'all' || filter.result !== 'all' || filter.color !== 'all' || !!filter.query.trim()
 
   // one extra row tells whether there is another page

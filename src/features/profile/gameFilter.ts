@@ -21,8 +21,11 @@ export function gameOutcome(g: Pick<GameRow, 'result' | 'userColor'>): Outcome |
 
 const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
 
-/** A predicate for Dexie's `filter`, deleted rows excluded. */
-export function gameMatcher(f: GameFilter): (g: GameRow) => boolean {
+/**
+ * A predicate for Dexie's `filter`, deleted rows excluded. `shownName` gives a player's name
+ * as the list displays it ("Tú" for a stored "You"), so the search finds what is on screen.
+ */
+export function gameMatcher(f: GameFilter, shownName: (name: string, g: GameRow) => string = (n) => n): (g: GameRow) => boolean {
   const q = fold(f.query.trim())
   return (g) => {
     if (g.deleted) return false
@@ -31,7 +34,7 @@ export function gameMatcher(f: GameFilter): (g: GameRow) => boolean {
     if (f.source === 'imported' && played) return false
     if (f.color !== 'all' && g.userColor !== f.color) return false
     if (f.result !== 'all' && gameOutcome(g) !== f.result) return false
-    if (q && !fold(`${g.white}\n${g.black}\n${g.opening ?? ''}`).includes(q)) return false
+    if (q && !fold(`${shownName(g.white, g)}\n${shownName(g.black, g)}\n${g.opening ?? ''}`).includes(q)) return false
     return true
   }
 }
