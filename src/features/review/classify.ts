@@ -42,9 +42,29 @@ export function terminalScore(fen: string): Score | null {
   const c = new Chess(fen)
   if (c.isCheckmate()) return { mate: 0, cp: c.turn() === 'w' ? -1 : 1 } // side to move is mated
   // not isDraw(): a 50-move position is only drawn if claimed, so it still gets searched.
-  // A bare FEN has no history, so repetition is left to the engine
+  // A bare FEN has no history: repetitions are found along the game by repetitionDraws
   if (c.isStalemate() || c.isInsufficientMaterial()) return { cp: 0 }
   return null
+}
+
+/** Position identity for repetition: placement, side to move, castling and en passant. */
+const positionKey = (fen: string) => fen.split(' ').slice(0, 4).join(' ')
+
+/** For each position of a game, whether it is the third (or later) occurrence: a draw by repetition. */
+export function repetitionDraws(fens: string[]): boolean[] {
+  const seen = new Map<string, number>()
+  return fens.map((f) => {
+    const k = positionKey(f)
+    const n = (seen.get(k) ?? 0) + 1
+    seen.set(k, n)
+    return n >= 3
+  })
+}
+
+/** Inverse of winPercent, for positions whose score was only kept as a win%. */
+export function scoreFromWin(win: number): Score {
+  const w = Math.max(0.01, Math.min(99.99, win)) / 100
+  return { cp: Math.round(-Math.log(1 / w - 1) / 0.00368208) }
 }
 
 /** Lichess win probability (0-100) from White's point of view. */
@@ -288,6 +308,19 @@ export function classifyMoves(
     })
   }
   return out
+}
+
+/** Qualities a retried move must reach to count as found: the same bar as the review's own grading. */
+const RETRY_GOOD: Quality[] = ['brilliant', 'great', 'best', 'excellent']
+
+/**
+ * Grades a retry of a reviewed move with the classifier itself, so a retry that lets a short
+ * mate go (still "+12") is not accepted, nor is the move that was played in the game.
+ */
+export function retryAccepted(before: PositionEval, after: PositionEval, uci: string, playedUci: string): boolean {
+  if (uci === playedUci) return false
+  const [r] = classifyMoves([before, after], [{ san: '', uci }], () => false)
+  return RETRY_GOOD.includes(r.quality)
 }
 
 export function countQualities(reviews: MoveReview[], color: 'w' | 'b'): Record<Quality, number> {
