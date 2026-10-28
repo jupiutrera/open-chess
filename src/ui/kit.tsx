@@ -57,7 +57,9 @@ export function PageHeader({ title, back, right }: { title: string; back?: boole
           <ArrowLeft size={22} weight="bold" />
         </button>
       )}
-      <h1 className="text-[22px] font-extrabold tracking-tight lg:text-[26px]">{title}</h1>
+      <h1 tabIndex={-1} className="text-[22px] font-extrabold tracking-tight lg:text-[26px]">
+        {title}
+      </h1>
       <div className="ml-auto flex items-center gap-2">{right}</div>
     </header>
   )

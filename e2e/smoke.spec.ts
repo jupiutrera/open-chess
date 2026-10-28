@@ -40,15 +40,51 @@ test('play a bot, resign, review the game', async ({ page }) => {
   await expect(page.locator('.q-badge')).toBeVisible()
 })
 
-test('every page renders without errors', async ({ page }) => {
+// the browser runs in English (playwright.config.ts); null: the screen has no h1 of its own yet
+const PAGES: [string, RegExp | null][] = [
+  ['/', /What are we training today/],
+  ['/play', /^Play$/],
+  ['/play/local', /Two players/],
+  ['/puzzles', /^Puzzles$/],
+  ['/puzzles/rated', /Rated puzzles/],
+  ['/openings', null],
+  ['/lessons', /^Lessons$/],
+  ['/lessons/forks', /./],
+  ['/analysis', /Analysis board/],
+  ['/games', /My games/],
+  ['/import', /Import games/],
+  ['/profile', /^Profile$/],
+  ['/settings', /^Settings$/],
+]
+
+test('every page renders without errors', { tag: '@mobile' }, async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  for (const r of ['/', '/play', '/play/local', '/puzzles', '/puzzles/rated', '/openings', '/lessons', '/lessons/forks', '/analysis', '/games', '/import', '/profile', '/settings']) {
+  for (const [r, h1] of PAGES) {
     await page.goto(`/#${r}`)
-    await page.waitForTimeout(400)
     await expect(page.locator('main')).toBeVisible()
+    if (h1) await expect(page.locator('main h1').first(), r).toHaveText(h1)
+    await expect(page).toHaveTitle(/Open Chess/)
   }
   expect(errors).toEqual([])
+})
+
+test('an unknown link shows a way home', { tag: '@mobile' }, async ({ page }) => {
+  await page.goto('/#/no/such/page')
+  await expect(page.locator('main h1')).toHaveText('Page not found')
+  await expect(page).toHaveTitle(/Page not found/)
+  await page.getByRole('link', { name: 'Go to home' }).click()
+  await expect(page.locator('main h1')).toHaveText(/What are we training today/)
+})
+
+test('navigating names the tab and focuses the new heading', { tag: '@mobile' }, async ({ page }) => {
+  await page.goto('/#/')
+  await expect(page.locator('main h1')).toBeVisible()
+  // rail on desktop, bottom bar on phones: whichever is showing
+  await page.locator('nav a:visible', { hasText: /^Puzzles$/ }).click()
+  await expect(page.locator('main h1')).toHaveText('Puzzles')
+  await expect(page.locator('main h1')).toBeFocused()
+  await expect(page).toHaveTitle('Puzzles · Open Chess')
 })
 
 test('a game left in the middle can be continued, clock included', async ({ page }) => {

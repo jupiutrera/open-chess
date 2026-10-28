@@ -73,7 +73,7 @@ Open Chess junta esas piezas en una app con la experiencia de chess.com que ya c
 
 **🎯 Cinco ayudas opcionales.** Barra de evaluación, flechas de amenaza, flechas de sugerencia, valoración de cada jugada en directo y líneas del motor. Actívalas antes o durante la partida.
 
-**🧩 Puzzles.** 104.000 puzzles de Lichess con puntuación Glicko-2, 21 temas, puzzle del día y **Puzzle Rush** (3 min, 5 min y supervivencia).
+**🧩 Puzzles.** 104.000 puzzles de Lichess con puntuación Glicko-2, 47 temas, puzzle del día, **Puzzle Rush** (3 min, 5 min y supervivencia), **Racha de problemas** (sin reloj, cada vez más difíciles, un fallo y se acaba) y **puzzles de tus errores**, sacados de tus propias partidas revisadas.
 
 **📖 Aperturas.** Explorador con 3.865 aperturas con nombre, estadísticas de maestros y Lichess, y un **entrenador de repertorio** con repetición espaciada (SM-2).
 
@@ -83,7 +83,7 @@ Open Chess junta esas piezas en una app con la experiencia de chess.com que ya c
 
 **📥 Importa tus partidas** de chess.com o Lichess con tu nombre de usuario, o pegando un PGN.
 
-**🎨 A tu gusto.** 9 juegos de piezas, 5 tableros, tema claro y oscuro, 5 juegos de sonidos grabados, flechas de caballo en L y vibración en Android.
+**🎨 A tu gusto.** 9 juegos de piezas, 5 tableros, tema claro, oscuro o el del sistema, 5 juegos de sonidos grabados, flechas de caballo en L y vibración en Android.
 
 **🌍 En tu idioma.** Español, English, Français, Italiano, 中文 y 日本語, incluidos las lecciones y lo que dicen los bots.
 

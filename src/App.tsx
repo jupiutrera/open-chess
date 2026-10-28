@@ -1,13 +1,14 @@
 import { lazy, useEffect } from 'react'
-import { HashRouter, Route, Routes, useNavigate } from 'react-router-dom'
+import { HashRouter, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { App as CapApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { Layout } from './ui/Layout'
 import { UpdateBanner } from './ui/UpdateBanner'
+import { NotFound } from './ui/NotFound'
 import { requestPersistentStorage } from './ui/files'
 import { Toaster, closeTopOverlay } from './ui/kit'
-import { applyDocumentSettings, useSettings } from './settings'
+import { applyDocumentSettings, useResolvedTheme, useSettings } from './settings'
 import { startSync } from './sync/sync'
 import { preloadSounds } from './chess/sounds'
 import { Home } from './features/home/Home'
@@ -30,6 +31,12 @@ const Import = lazy(() => import('./features/import/Import'))
 const Profile = lazy(() => import('./features/profile/Profile'))
 const SettingsPage = lazy(() => import('./features/profile/SettingsPage'))
 
+/** A fresh player per lesson: going back/forward between lessons must not carry the last one's state. */
+function LessonRoute() {
+  const { id } = useParams()
+  return <LessonPlayer key={id} />
+}
+
 /** Android hardware back button closes the open sheet or menu first, then follows router history. */
 function BackButton() {
   const nav = useNavigate()
@@ -46,7 +53,7 @@ function BackButton() {
 }
 
 export function App() {
-  const theme = useSettings((s) => s.theme)
+  const theme = useResolvedTheme()
   const board = useSettings((s) => s.board)
   const lang = useSettings((s) => s.lang)
   const pieces = useSettings((s) => s.pieces)
@@ -90,12 +97,13 @@ export function App() {
             <Route path="openings" element={<Openings />} />
             <Route path="openings/trainer/:color" element={<OpeningTrainer />} />
             <Route path="lessons" element={<Lessons />} />
-            <Route path="lessons/:id" element={<LessonPlayer />} />
+            <Route path="lessons/:id" element={<LessonRoute />} />
             <Route path="analysis" element={<Analysis />} />
             <Route path="games" element={<Games />} />
             <Route path="import" element={<Import />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       <Toaster />

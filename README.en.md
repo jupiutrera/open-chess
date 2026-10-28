@@ -73,7 +73,7 @@ Open Chess puts those pieces together in an app with the chess.com experience yo
 
 **🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.
 
-**🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 21 themes, a daily puzzle and **Puzzle Rush** (3 min, 5 min and survival).
+**🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 47 themes, a daily puzzle, **Puzzle Rush** (3 min, 5 min and survival), **Puzzle Streak** (no clock, each one harder, one miss ends it) and **mistake puzzles** taken from your own reviewed games.
 
 **📖 Openings.** An explorer with 3,865 named openings, masters and Lichess stats, and a **repertoire trainer** with spaced repetition (SM-2).
 
@@ -83,7 +83,7 @@ Open Chess puts those pieces together in an app with the chess.com experience yo
 
 **📥 Import your games** from chess.com or Lichess by username, or by pasting a PGN.
 
-**🎨 Your way.** 9 piece sets, 5 boards, light and dark themes, 5 recorded sound sets, L-shaped knight arrows and haptics on Android.
+**🎨 Your way.** 9 piece sets, 5 boards, light, dark or system theme, 5 recorded sound sets, L-shaped knight arrows and haptics on Android.
 
 **🌍 In your language.** Español, English, Français, Italiano, 中文 and 日本語, including the lessons and everything the bots say.
 

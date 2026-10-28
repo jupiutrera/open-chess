@@ -67,12 +67,16 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ['icon.svg'],
       manifest: {
+        // a stable identity, so a future change of start_url doesn't install a second app
+        id: './',
         name: 'Open Chess',
         short_name: 'Open Chess',
         description: 'Entrena ajedrez gratis: bots, revisión de partidas, puzzles, aperturas y lecciones.',
         theme_color: '#262421',
         background_color: '#302e2b',
         display: 'standalone',
+        // the manifest text is Spanish; the app itself follows the user's language
+        lang: 'es',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },

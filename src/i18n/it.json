@@ -5,7 +5,6 @@
     "puzzles": "Problemi",
     "learn": "Impara",
     "openings": "Aperture",
-    "lessons": "Lezioni",
     "analysis": "Analisi",
     "games": "Partite",
     "import": "Importa",
@@ -53,7 +52,13 @@
       "promotion": "promuove a {{piece}}",
       "check": "scacco",
       "checkmate": "scacco matto"
-    }
+    },
+    "notFoundTitle": "Pagina non trovata",
+    "notFoundBody": "Questo link non porta da nessuna parte in Open Chess.",
+    "goHome": "Vai alla home",
+    "errorTitle": "Qualcosa è andato storto",
+    "errorBody": "Questa schermata ha avuto un errore. Ricaricare di solito risolve; le tue partite e i tuoi progressi sono salvati.",
+    "reload": "Ricarica"
   },
   "home": {
     "greeting": "Cosa alleniamo oggi?",
@@ -63,7 +68,6 @@
     "puzzles": "Risolvi problemi",
     "rush": "Puzzle Rush",
     "review": "Rivedi la mia ultima partita",
-    "reviewSub": "Trova i tuoi errori con Stockfish",
     "import": "Importa da chess.com o Lichess",
     "recent": "Partite recenti",
     "noGames": "Ancora nessuna partita. Gioca contro un bot o importa le tue partite per analizzarle.",
@@ -75,10 +79,7 @@
   },
   "play": {
     "title": "Gioca",
-    "chooseBot": "Scegli un avversario",
-    "botsTitle": "Bot",
     "local": "Due giocatori",
-    "localSub": "Sullo stesso dispositivo",
     "color": "Giochi con",
     "time": "Tempo",
     "noTime": "Senza orologio",
@@ -111,7 +112,6 @@
       "timeoutVsInsufficient": "per tempo contro materiale insufficiente"
     },
     "confirmResign": "Vuoi davvero abbandonare?",
-    "level": "Livello",
     "record": "Il tuo bilancio: {{w}} V · {{d}} P · {{l}} S",
     "autoFlip": "Ruota la scacchiera a ogni turno",
     "assistOpt": {
@@ -234,7 +234,6 @@
     "yourTurn": "Muove il Bianco",
     "yourTurnBlack": "Muove il Nero",
     "findBest": "Trova la mossa migliore",
-    "correct": "Corretto!",
     "keepGoing": "Bene, continua",
     "incorrect": "Sbagliato",
     "solved": "Risolto!",
@@ -244,7 +243,6 @@
     "solution": "Mostra soluzione",
     "analyze": "Analizza",
     "hint": "Suggerimento",
-    "ratingChange": "{{delta}} punti",
     "puzzleRating": "Problema {{rating}}",
     "noData": "Nessun problema scaricato. Esegui “npm run data:puzzles” per generarli.",
     "streak": "Serie",
@@ -258,7 +256,6 @@
     "rushOver": "Rush finito",
     "newRecord": "Nuovo record!",
     "playAgain": "Gioca ancora",
-    "allThemes": "Tutti i temi",
     "history": "Cronologia",
     "mistakes": "I tuoi errori",
     "mistakesSub": "Rigioca le posizioni sbagliate nelle tue partite analizzate",
@@ -382,7 +379,6 @@
   },
   "analysis": {
     "title": "Scacchiera di analisi",
-    "engine": "Motore",
     "lines": "Linee",
     "editor": "Editor di posizione",
     "loadFen": "Carica FEN",
@@ -427,11 +423,9 @@
     "title": "Le mie partite",
     "empty": "Ancora nessuna partita salvata.",
     "review": "Analizza",
-    "reviewed": "Analizzata",
     "vs": "vs",
     "delete": "Elimina partita",
     "all": "Tutte",
-    "filter": "Filtra",
     "search": "Cerca giocatore o apertura",
     "result": "Risultato",
     "color": "Colore",
@@ -466,11 +460,8 @@
     "file": "oppure carica un file .pgn",
     "notFound": "Utente non trovato",
     "none": "Nessuna partita in quel periodo",
-    "importReview": "Importa e analizza",
     "importAll": "Importa tutto",
     "loadMore": "Carica partite precedenti",
-    "already": "Già importata",
-    "remember": "Ricorda questo utente",
     "imported_one": "{{count}} partita importata",
     "imported_other": "{{count}} partite importate",
     "failed_one": "{{count}} partita non leggibile",
@@ -482,7 +473,6 @@
   },
   "profile": {
     "title": "Profilo",
-    "stats": "Statistiche",
     "puzzleRating": "Punteggio problemi",
     "puzzlesSolved": "Problemi risolti",
     "gamesPlayed": "Partite giocate",
@@ -493,7 +483,6 @@
     "noData": "Ancora nessun dato",
     "sync": "Sincronizzazione",
     "syncOff": "La sincronizzazione non è configurata. Aggiungi VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY a .env.",
-    "signIn": "Accedi",
     "signOut": "Esci",
     "signOutClear": "Rimuovere anche i dati sincronizzati da questo dispositivo? Restano salvati nel tuo account. Annulla li mantiene qui.",
     "signOutKept": "Impossibile sincronizzare prima di uscire, quindi i tuoi dati sono rimasti su questo dispositivo.",
@@ -556,6 +545,7 @@
       "futuristic": "Futuristico"
     },
     "highContrast": "Contrasto elevato",
-    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)"
+    "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)",
+    "system": "Sistema"
   }
 }
