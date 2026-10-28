@@ -31,6 +31,11 @@ export interface SearchOptions {
   elo?: number
   /** Skill Level 0-20 */
   skill?: number
+  /**
+   * How the game reached `fen` (UCI moves from `startFen`), sent so the engine sees repetitions.
+   * `fen` must be the position after those moves.
+   */
+  history?: { startFen: string; moves: string[] }
   onInfo?: (lines: PvLine[], depth: number) => void
 }
 
@@ -195,7 +200,8 @@ export class Engine {
       this.pending.add(reject)
     })
 
-    this.send(`position fen ${fen}`)
+    const h = opts.history
+    this.send(h?.moves.length ? `position fen ${h.startFen} moves ${h.moves.join(' ')}` : `position fen ${fen}`)
     if (opts.movetime) this.send(`go movetime ${opts.movetime}${opts.depth ? ` depth ${opts.depth}` : ''}`)
     else if (opts.depth) this.send(`go depth ${opts.depth}`)
     else this.send('go infinite')
