@@ -78,6 +78,7 @@
     "due_other": "{{count}} mosse da ripassare"
   },
   "play": {
+    "botsTab": "Bot",
     "title": "Gioca",
     "local": "Due giocatori",
     "color": "Giochi con",

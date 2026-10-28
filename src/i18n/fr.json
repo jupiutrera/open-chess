@@ -78,6 +78,7 @@
     "due_other": "{{count}} coups à réviser"
   },
   "play": {
+    "botsTab": "Bots",
     "title": "Jouer",
     "local": "Deux joueurs",
     "color": "Vous jouez",

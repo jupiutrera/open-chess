@@ -78,6 +78,7 @@
     "due_other": "復習する手が {{count}} 個あります"
   },
   "play": {
+    "botsTab": "ボット",
     "title": "対局",
     "local": "2人で対局",
     "color": "あなたの色",
