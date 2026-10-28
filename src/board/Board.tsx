@@ -73,7 +73,9 @@ function BoardView({
 
   const config: Config = useMemo(() => {
     const turn = chess?.turn() === 'b' ? 'black' : 'white'
-    const canMove = movable !== 'none' && chess && !chess.isGameOver()
+    // a bare FEN has no history, and the 50-move rule needs a claim: only a position with no
+    // legal play locks the board (games that ended otherwise pass movable 'none')
+    const canMove = movable !== 'none' && chess && !chess.isCheckmate() && !chess.isStalemate() && !chess.isInsufficientMaterial()
     return {
       fen,
       orientation,
