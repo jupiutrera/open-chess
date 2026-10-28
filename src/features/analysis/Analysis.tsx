@@ -219,13 +219,14 @@ export default function Analysis() {
                     </button>
                   )
                 })}
-                <div className="flex items-center gap-2 px-3 py-1.5 text-[12px] text-fg-3">
-                  {t('analysis.lines')}
+                <div className="flex items-center gap-1 px-3 py-1 text-[12px] text-fg-3" role="group" aria-label={t('analysis.lines')}>
+                  <span className="mr-1">{t('analysis.lines')}</span>
                   {[1, 2, 3].map((n) => (
                     <button
                       key={n}
                       onClick={() => setMultipv(n)}
-                      className={`tabular h-6 w-6 rounded font-bold ${multipv === n ? 'bg-raise-2 text-fg' : 'hover:bg-raise'}`}
+                      aria-pressed={multipv === n}
+                      className={`tabular h-10 w-10 rounded font-bold ${multipv === n ? 'bg-raise-2 text-fg' : 'hover:bg-raise'}`}
                     >
                       {n}
                     </button>
