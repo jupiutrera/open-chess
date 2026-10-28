@@ -504,6 +504,13 @@
     "dark": "深色",
     "light": "浅色",
     "board": "棋盘",
+    "boardColors": {
+      "green": "绿色",
+      "brown": "棕色",
+      "blue": "蓝色",
+      "gray": "灰色",
+      "purple": "紫色"
+    },
     "sound": "声音",
     "coords": "坐标",
     "showDests": "显示合法着法",

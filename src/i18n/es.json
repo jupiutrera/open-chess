@@ -504,6 +504,13 @@
     "dark": "Oscuro",
     "light": "Claro",
     "board": "Tablero",
+    "boardColors": {
+      "green": "Verde",
+      "brown": "Marrón",
+      "blue": "Azul",
+      "gray": "Gris",
+      "purple": "Morado"
+    },
     "sound": "Sonido",
     "coords": "Coordenadas",
     "showDests": "Mostrar jugadas legales",

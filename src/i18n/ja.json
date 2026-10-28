@@ -504,6 +504,13 @@
     "dark": "ダーク",
     "light": "ライト",
     "board": "盤",
+    "boardColors": {
+      "green": "グリーン",
+      "brown": "ブラウン",
+      "blue": "ブルー",
+      "gray": "グレー",
+      "purple": "パープル"
+    },
     "sound": "サウンド",
     "coords": "座標",
     "showDests": "合法手を表示",

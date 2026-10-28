@@ -504,6 +504,13 @@
     "dark": "Scuro",
     "light": "Chiaro",
     "board": "Scacchiera",
+    "boardColors": {
+      "green": "Verde",
+      "brown": "Marrone",
+      "blue": "Blu",
+      "gray": "Grigio",
+      "purple": "Viola"
+    },
     "sound": "Suono",
     "coords": "Coordinate",
     "showDests": "Mostra le mosse legali",

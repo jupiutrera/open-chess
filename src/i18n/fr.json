@@ -504,6 +504,13 @@
     "dark": "Sombre",
     "light": "Clair",
     "board": "Échiquier",
+    "boardColors": {
+      "green": "Vert",
+      "brown": "Marron",
+      "blue": "Bleu",
+      "gray": "Gris",
+      "purple": "Violet"
+    },
     "sound": "Son",
     "coords": "Coordonnées",
     "showDests": "Afficher les coups légaux",

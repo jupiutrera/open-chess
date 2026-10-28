@@ -504,6 +504,13 @@
     "dark": "Dark",
     "light": "Light",
     "board": "Board",
+    "boardColors": {
+      "green": "Green",
+      "brown": "Brown",
+      "blue": "Blue",
+      "gray": "Gray",
+      "purple": "Purple"
+    },
     "sound": "Sound",
     "coords": "Coordinates",
     "showDests": "Show legal moves",
