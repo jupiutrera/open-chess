@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
-import { canMate, gameResultText, normalizeFen, positionProblem, timeoutResult } from './util'
+import { START_FEN, canMate, gameResultText, moveNumbering, normalizeFen, positionProblem, timeoutResult } from './util'
 
 describe('timeoutResult', () => {
   it('is a loss when the opponent has mating material', () => {
@@ -73,5 +73,15 @@ describe('gameResultText', () => {
   })
   it('still reports checkmate without the 50-move rule', () => {
     expect(gameResultText(new Chess('R3k3/8/4K3/8/8/8/8/8 b - - 100 80'), { fiftyMoves: false })?.reason).toBe('checkmate')
+  })
+})
+
+describe('moveNumbering', () => {
+  it('reads the move number and side to move', () => {
+    expect(moveNumbering(START_FEN)).toEqual({ startNumber: 1, blackFirst: false })
+    expect(moveNumbering('4k3/8/8/8/8/8/8/R3K3 b - - 0 34')).toEqual({ startNumber: 34, blackFirst: true })
+  })
+  it('falls back to move 1 without counters', () => {
+    expect(moveNumbering('4k3/8/8/8/8/8/8/R3K3 w - -')).toEqual({ startNumber: 1, blackFirst: false })
   })
 })
