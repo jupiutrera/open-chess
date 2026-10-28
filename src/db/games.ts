@@ -61,6 +61,6 @@ export async function openingName(c: Chess): Promise<string | undefined> {
 }
 
 export async function recentGames(limit = 20): Promise<GameRow[]> {
-  const rows = await db.games.orderBy('date').reverse().limit(limit * 2).toArray()
-  return rows.filter((r) => !r.deleted).slice(0, limit)
+  // filter before limit so tombstones don't eat into the page
+  return db.games.orderBy('date').reverse().filter((r) => !r.deleted).limit(limit).toArray()
 }
