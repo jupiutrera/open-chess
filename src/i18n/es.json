@@ -78,6 +78,7 @@
     "due_other": "{{count}} jugadas pendientes de repaso"
   },
   "play": {
+    "botsTab": "Bots",
     "title": "Jugar",
     "local": "Dos jugadores",
     "color": "Juegas con",

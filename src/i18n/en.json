@@ -78,6 +78,7 @@
     "due_other": "{{count}} moves due for review"
   },
   "play": {
+    "botsTab": "Bots",
     "title": "Play",
     "local": "Two players",
     "color": "You play",

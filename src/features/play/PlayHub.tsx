@@ -5,6 +5,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
 import { Users, Shuffle, PuzzlePiece } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
+
+const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
 import { CHALLENGES } from './challenges'
 import { clearLiveGame, loadLiveGame } from './liveGame'
 import { TimeControlPicker } from './TimeControlPicker'
@@ -43,7 +45,13 @@ export default function PlayHub() {
   // "play this position" from analysis links here with ?fen=
   const fenParam = params.get('fen')
   const startFen = useMemo(() => customStartFen(fenParam), [fenParam])
-  const [selected, setSelected] = useState<Bot>(BOTS[4])
+  // challenges get their own tab (?tab=challenges links straight to it)
+  const [tab, setTab] = useState<'bots' | 'challenges'>(() => (params.get('tab') === 'challenges' ? 'challenges' : 'bots'))
+  const [selected, setSelected] = useState<Bot>(() => (tab === 'challenges' ? CHALLENGE_BOTS[0] : BOTS[4]))
+  const pickTab = (next: 'bots' | 'challenges') => {
+    setTab(next)
+    if ((next === 'challenges') !== !!selected.challenge) setSelected(next === 'challenges' ? CHALLENGE_BOTS[0] : BOTS[4])
+  }
   // from a given position the user takes the side to move by default
   const [color, setColor] = useState<'w' | 'b' | 'r'>(() => (startFen ? new Chess(startFen).turn() : 'w'))
   const [tc, setTc] = useState('none')
@@ -149,28 +157,60 @@ export default function PlayHub() {
             </div>
           </div>
 
+          <div className="border-b border-line p-3">
+            <Segmented
+              value={tab}
+              onChange={pickTab}
+              options={[
+                { value: 'bots', label: t('play.botsTab') },
+                { value: 'challenges', label: t('bots.group.challenge') },
+              ]}
+            />
+          </div>
           <div className="max-h-[42dvh] overflow-y-auto p-3 lg:max-h-[340px]">
-            {BOT_GROUPS.map((g) => (
-              <div key={g} className="mb-3">
-                <h2 className="mb-1.5 px-1 text-[13px] font-bold text-fg-3">{t(`bots.group.${g}`)}</h2>
-                <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 lg:grid-cols-5">
-                  {BOTS.filter((b) => b.group === g).map((b) => (
-                    <button
-                      key={b.id}
-                      onClick={() => setSelected(b)}
-                      className={`flex flex-col items-center gap-1 rounded-lg p-1.5 transition-[background-color,transform] duration-150 active:scale-[0.97] ${
-                        b.id === selected.id ? 'bg-raise-2 ring-2 ring-accent' : 'hover:bg-raise'
-                      }`}
-                      aria-pressed={b.id === selected.id}
-                    >
-                      <BotAvatar bot={b} size={48} />
-                      <span className="w-full truncate text-center text-[12px] font-semibold">{botName(b, lang)}</span>
-                      <span className="tabular -mt-1 text-[11px] text-fg-3">{b.elo}</span>
-                    </button>
-                  ))}
+            {tab === 'bots' ? (
+              BOT_GROUPS.filter((g) => g !== 'challenge').map((g) => (
+                <div key={g} className="mb-3">
+                  <h2 className="mb-1.5 px-1 text-[13px] font-bold text-fg-3">{t(`bots.group.${g}`)}</h2>
+                  <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 lg:grid-cols-5">
+                    {BOTS.filter((b) => b.group === g).map((b) => (
+                      <button
+                        key={b.id}
+                        onClick={() => setSelected(b)}
+                        className={`flex flex-col items-center gap-1 rounded-lg p-1.5 transition-[background-color,transform] duration-150 active:scale-[0.97] ${
+                          b.id === selected.id ? 'bg-raise-2 ring-2 ring-accent' : 'hover:bg-raise'
+                        }`}
+                        aria-pressed={b.id === selected.id}
+                      >
+                        <BotAvatar bot={b} size={48} />
+                        <span className="w-full truncate text-center text-[12px] font-semibold">{botName(b, lang)}</span>
+                        <span className="tabular -mt-1 text-[11px] text-fg-3">{b.elo}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              ))
+            ) : (
+              // challenge names are long and the rule is the point: a list, never truncated
+              <div className="space-y-1">
+                {CHALLENGE_BOTS.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => setSelected(b)}
+                    className={`flex w-full items-center gap-3 rounded-lg p-2 text-left transition-[background-color,transform] duration-150 active:scale-[0.99] ${
+                      b.id === selected.id ? 'bg-raise-2 ring-2 ring-accent' : 'hover:bg-raise'
+                    }`}
+                    aria-pressed={b.id === selected.id}
+                  >
+                    <BotAvatar bot={b} size={40} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[14px] font-bold leading-tight">{botName(b, lang)}</span>
+                      <span className="block text-[12px] leading-snug text-fg-2">{localize(b.bio, lang, `bots.${b.id}.bio`)}</span>
+                    </span>
+                  </button>
+                ))}
               </div>
-            ))}
+            )}
           </div>
 
           <div className="space-y-3 border-t border-line p-4">

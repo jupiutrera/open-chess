@@ -510,7 +510,8 @@ export default function PlayBot() {
                     {challenge.elo}
                   </span>
                 </div>
-                <p key={chat?.key} className="enter truncate text-[13px] text-fg-2" title={chat?.text}>
+                {/* a challenge's rule is what the game is about: let it wrap instead of cutting it off */}
+                <p key={chat?.key} className={`enter text-[13px] text-fg-2 ${bot.challenge ? 'line-clamp-3' : 'truncate'}`} title={chat?.text}>
                   {chat?.text ?? localize(bot.bio, lang, `bots.${bot.id}.bio`)}
                 </p>
               </div>
