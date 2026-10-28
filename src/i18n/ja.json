@@ -130,7 +130,10 @@
     "custom": "カスタム",
     "minutes": "持ち時間（分）",
     "increment": "加算（秒）",
-    "replaceSaved": "{{name}}との対局が途中です。新しく始めると破棄されます。"
+    "replaceSaved": "{{name}}との対局が途中です。新しく始めると破棄されます。",
+    "customStart": "カスタム局面から開始",
+    "standardStart": "通常の初期配置",
+    "invalidStart": "この局面は対局できないため、通常の初期配置から始めます。"
   },
   "bots": {
     "group": {

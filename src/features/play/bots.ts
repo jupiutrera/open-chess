@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js'
 import type { Engine, PvLine } from '../../engine/engine'
+import { epd } from '../../chess/util'
 import { winPercent } from '../review/classify'
 import type { ChatEvent, ChatStyle } from './botChat'
 
@@ -245,6 +246,15 @@ function bookMove(bot: Bot, chess: Chess, hist: string[]): string | null {
       return null
     }
   }
+  if (hist.length > 1) return null
+  // a game from a custom position: the book only knows the standard start
+  const fromStart = new Chess()
+  try {
+    for (const san of hist) fromStart.move(san)
+  } catch {
+    return null
+  }
+  if (epd(fromStart.fen()) !== epd(chess.fen())) return null
   if (hist.length === 0) return pick(bot.book?.white)
   if (hist.length === 1) {
     if (hist[0] === 'e4') return pick(bot.book?.vsE4)

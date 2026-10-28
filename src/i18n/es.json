@@ -130,7 +130,10 @@
     "custom": "Otro",
     "minutes": "Minutos",
     "increment": "Incremento (s)",
-    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará."
+    "replaceSaved": "Tienes una partida sin terminar contra {{name}}. Si empiezas otra, se descartará.",
+    "customStart": "Partida desde una posición personalizada",
+    "standardStart": "Posición inicial",
+    "invalidStart": "Esa posición no se puede jugar; la partida empezará desde la posición inicial."
   },
   "bots": {
     "group": {

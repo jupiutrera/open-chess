@@ -130,7 +130,10 @@
     "custom": "Custom",
     "minutes": "Minutes",
     "increment": "Increment (s)",
-    "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it."
+    "replaceSaved": "You have an unfinished game against {{name}}. Starting a new one will discard it.",
+    "customStart": "Starting from a custom position",
+    "standardStart": "Standard start",
+    "invalidStart": "That position can't be played, so the game starts from the usual position."
   },
   "bots": {
     "group": {

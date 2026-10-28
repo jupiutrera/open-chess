@@ -13,7 +13,7 @@ import { MoveList, MoveStrip } from '../../board/MoveList'
 import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { useClock } from '../../chess/useClock'
-import { capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
+import { START_FEN, capturedPieces, gameResultText, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove } from './bots'
@@ -29,6 +29,7 @@ import { AssistToggles } from './AssistToggles'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { localize } from '../../i18n/content'
 import { PLAYER } from './playerName'
+import { customStartFen } from './startPosition'
 
 export default function PlayBot() {
   const { t } = useTranslation()
@@ -40,18 +41,23 @@ export default function PlayBot() {
   const assist = useSettings((s) => s.assist)
   const lang = useSettings((s) => s.lang)
 
-  const pickColor = useCallback(() => {
-    const c = params.get('color')
-    return c === 'b' ? 'b' : c === 'w' ? 'w' : Math.random() < 0.5 ? 'w' : 'b'
-  }, [params])
-  // a saved game in progress against this bot, when coming from "Continue"
+  // a saved game in progress against this bot, when coming from "Continue" or reloading
   const [resumed] = useState(() => {
     const g = params.get('resume') ? loadLiveGame('bot') : null
     return g && g.botId === bot.id ? g : null
   })
+  // a game from a given position ("play this position" from analysis); kept for rematches
+  const [startFen] = useState(() => customStartFen(resumed ? resumed.fen : params.get('fen')) ?? START_FEN)
+  const pickColor = useCallback(() => {
+    const c = params.get('color')
+    if (c === 'w' || c === 'b') return c
+    // from a given position the user takes the side to move, as on the analysis board
+    if (startFen !== START_FEN) return new Chess(startFen).turn()
+    return Math.random() < 0.5 ? 'w' : 'b'
+  }, [params, startFen])
   const [userColor, setUserColor] = useState<'w' | 'b'>(() => resumed?.userColor ?? pickColor())
   const [orientation, setOrientation] = useState<'white' | 'black'>(userColor === 'w' ? 'white' : 'black')
-  const game = useGame()
+  const game = useGame(startFen)
   const [end, setEnd] = useState<GameEnd | null>(null)
   const [dialog, setDialog] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
@@ -107,7 +113,7 @@ export default function PlayBot() {
   // put a resumed game back on the board, clock included
   useEffect(() => {
     if (!resumed) return
-    game.replay(resumed.sans)
+    game.replay(resumed.sans, startFen)
     if (resumed.clock) clock.restore(resumed.clock, game.chess.turn())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -155,6 +161,7 @@ export default function PlayBot() {
       botId: bot.id,
       userColor,
       tc: tc.id,
+      fen: startFen !== START_FEN ? startFen : undefined,
       sans: game.chess.history(),
       clock: clock.enabled ? { w: clock.left('w'), b: clock.left('b') } : undefined,
     })
@@ -331,7 +338,7 @@ export default function PlayBot() {
     lastChatPly.current = -10
     clearLiveGame('bot')
     setTimeout(() => say('greet'), 500)
-    game.reset()
+    game.reset(startFen)
     clock.reset()
     setUserColor(c)
     setOrientation(c === 'w' ? 'white' : 'black')
