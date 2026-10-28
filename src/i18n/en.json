@@ -250,7 +250,7 @@
     "analyze": "Analyze",
     "hint": "Hint",
     "puzzleRating": "Puzzle {{rating}}",
-    "noData": "No puzzles downloaded. Run “npm run data:puzzles” to generate them.",
+    "noData": "Puzzles aren't included in this version of the app.",
     "streak": "Streak",
     "best": "Best",
     "rush3": "3 minutes",
@@ -273,7 +273,14 @@
     "results": "Results",
     "streakMode": "Puzzle Streak",
     "streakSub": "No clock. Each puzzle is a little harder and one miss ends the run.",
-    "streakOver": "Streak over"
+    "streakOver": "Streak over",
+    "checking": "Checking your move…",
+    "offline": "Couldn't load puzzles. Check your connection and try again; puzzles you open online stay available offline.",
+    "exhausted": "You've played every puzzle around your rating.",
+    "themeExhausted": "You've played every puzzle of this theme around your rating.",
+    "includePlayed": "Include puzzles already played",
+    "skip": "Skip this puzzle (once per run)",
+    "skipUsed": "Skip used"
   },
   "themes": {
     "mateIn1": "Mate in 1",
@@ -352,7 +359,11 @@
     "dueCount_one": "{{count}} due",
     "dueCount_other": "{{count}} due",
     "positions_one": "{{count}} position",
-    "positions_other": "{{count}} positions"
+    "positions_other": "{{count}} positions",
+    "badToken": "Lichess didn't accept your token. Check it in",
+    "rateLimited": "Too many requests to Lichess. Try again in a minute; showing known openings.",
+    "explorerError": "Couldn't load Lichess stats. Showing known openings.",
+    "playShown": "Play the arrow's move to continue."
   },
   "lessons": {
     "title": "Lessons",

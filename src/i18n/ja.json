@@ -250,7 +250,7 @@
     "analyze": "解析",
     "hint": "ヒント",
     "puzzleRating": "パズル {{rating}}",
-    "noData": "パズルがダウンロードされていません。「npm run data:puzzles」を実行して生成してください。",
+    "noData": "このバージョンのアプリにはパズルが含まれていません。",
     "streak": "連続正解",
     "best": "ベスト",
     "rush3": "3分",
@@ -273,7 +273,14 @@
     "results": "結果",
     "streakMode": "パズルストリーク",
     "streakSub": "時間制限なし。問題は少しずつ難しくなり、1問でも間違えると終了です。",
-    "streakOver": "ストリーク終了"
+    "streakOver": "ストリーク終了",
+    "checking": "手を確認しています…",
+    "offline": "パズルを読み込めませんでした。接続を確認してもう一度お試しください。オンラインで開いたパズルはオフラインでも使えます。",
+    "exhausted": "あなたのレーティング付近のパズルはすべてプレイしました。",
+    "themeExhausted": "このテーマで、あなたのレーティング付近のパズルはすべてプレイしました。",
+    "includePlayed": "プレイ済みのパズルも含める",
+    "skip": "このパズルをスキップ（1 回のみ）",
+    "skipUsed": "スキップ使用済み"
   },
   "themes": {
     "mateIn1": "1手詰め",
@@ -352,7 +359,11 @@
     "dueCount_one": "復習 {{count}} 件",
     "dueCount_other": "復習 {{count}} 件",
     "positions_one": "{{count}} 局面",
-    "positions_other": "{{count}} 局面"
+    "positions_other": "{{count}} 局面",
+    "badToken": "Lichess がトークンを受け付けませんでした。確認してください：",
+    "rateLimited": "Lichess へのリクエストが多すぎます。1 分後にもう一度お試しください。既知のオープニングを表示しています。",
+    "explorerError": "Lichess の統計を読み込めませんでした。既知のオープニングを表示しています。",
+    "playShown": "矢印の手を指して続けましょう。"
   },
   "lessons": {
     "title": "レッスン",

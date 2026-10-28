@@ -250,7 +250,7 @@
     "analyze": "Analizza",
     "hint": "Suggerimento",
     "puzzleRating": "Problema {{rating}}",
-    "noData": "Nessun problema scaricato. Esegui “npm run data:puzzles” per generarli.",
+    "noData": "I puzzle non sono inclusi in questa versione dell'app.",
     "streak": "Serie",
     "best": "Record",
     "rush3": "3 minuti",
@@ -273,7 +273,14 @@
     "results": "Risultati",
     "streakMode": "Serie di problemi",
     "streakSub": "Senza orologio. Ogni problema è un po' più difficile e un solo errore chiude la serie.",
-    "streakOver": "Serie terminata"
+    "streakOver": "Serie terminata",
+    "checking": "Verifica della tua mossa…",
+    "offline": "Impossibile caricare i puzzle. Controlla la connessione e riprova; i puzzle aperti online restano disponibili offline.",
+    "exhausted": "Hai giocato tutti i puzzle vicini al tuo punteggio.",
+    "themeExhausted": "Hai giocato tutti i puzzle di questo tema vicini al tuo punteggio.",
+    "includePlayed": "Includi i puzzle già giocati",
+    "skip": "Salta questo puzzle (una volta per serie)",
+    "skipUsed": "Salto usato"
   },
   "themes": {
     "mateIn1": "Matto in 1",
@@ -352,7 +359,11 @@
     "dueCount_one": "{{count}} da ripassare",
     "dueCount_other": "{{count}} da ripassare",
     "positions_one": "{{count}} posizione",
-    "positions_other": "{{count}} posizioni"
+    "positions_other": "{{count}} posizioni",
+    "badToken": "Lichess non ha accettato il tuo token. Controllalo in",
+    "rateLimited": "Troppe richieste a Lichess. Riprova tra un minuto; vengono mostrate le aperture note.",
+    "explorerError": "Impossibile caricare le statistiche di Lichess. Vengono mostrate le aperture note.",
+    "playShown": "Gioca la mossa della freccia per continuare."
   },
   "lessons": {
     "title": "Lezioni",

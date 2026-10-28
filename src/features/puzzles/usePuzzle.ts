@@ -1,16 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Chess } from 'chess.js'
+import { Chess, type Move } from 'chess.js'
 import { parseUci, playUci } from '../../chess/util'
 import { play, playMoveSound } from '../../chess/sounds'
+import { useSettings } from '../../settings'
+import { pickPromotion } from './promotion'
 import type { Puzzle } from './puzzlesData'
 
-export type PuzzleStatus = 'loading' | 'playing' | 'correct' | 'wrong' | 'solved' | 'failed'
+export type PuzzleStatus = 'loading' | 'playing' | 'correct' | 'wrong' | 'checking' | 'solved' | 'failed'
+
+export interface PuzzleOptions {
+  stopOnWrong?: boolean
+  onDone?: (solved: boolean) => void
+  /**
+   * Asked when the final move isn't the expected one: resolves true to accept it anyway
+   * (an engine finds it as good). `fen` is the position before the move.
+   */
+  acceptAlternative?: (fen: string, uci: string) => Promise<boolean>
+}
 
 /**
  * Drives one puzzle: plays the opponent's setup move, validates the solver's
  * moves (any mate on the final move counts), replies automatically.
  */
-export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; onDone?: (solved: boolean) => void } = {}) {
+export function usePuzzle(puzzle: Puzzle | null, opts: PuzzleOptions = {}) {
   const [fen, setFen] = useState(puzzle?.fen ?? '8/8/8/8/8/8/8/8 w - - 0 1')
   const [lastMove, setLastMove] = useState<[string, string] | null>(null)
   const [status, setStatus] = useState<PuzzleStatus>('loading')
@@ -21,16 +33,22 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
   const optsRef = useRef(opts)
   optsRef.current = opts
   const timers = useRef<number[]>([])
+  /** bumped to drop an alternative-move check still running */
+  const checkId = useRef(0)
 
   const later = (fn: () => void, ms: number) => {
     timers.current.push(window.setTimeout(fn, ms))
+  }
+  const clearTimers = () => {
+    timers.current.forEach(clearTimeout)
+    timers.current = []
   }
 
   const sync = () => setFen(chess.current.fen())
 
   useEffect(() => {
-    timers.current.forEach(clearTimeout)
-    timers.current = []
+    clearTimers()
+    checkId.current++
     if (!puzzle) return
     chess.current = new Chess(puzzle.fen)
     step.current = 0
@@ -49,7 +67,7 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
       sync()
       setStatus('playing')
     }, 550)
-    return () => timers.current.forEach(clearTimeout)
+    return clearTimers
   }, [puzzle])
 
   /** The solver's colour (the side to move after the setup move). */
@@ -65,12 +83,12 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
       if (!puzzle || (status !== 'playing' && status !== 'correct' && status !== 'wrong')) return
       const expected = puzzle.moves[step.current]
       const trial = new Chess(chess.current.fen())
-      const m = playUci(trial, from + to + (promotion ?? (expected?.length === 5 && expected.slice(0, 4) === from + to ? expected[4] : '')))
+      const m = playUci(trial, from + to + pickPromotion(from, to, promotion, expected, useSettings.getState().autoQueen))
       if (!m) return
       const uci = m.from + m.to + (m.promotion ?? '')
       const isLast = step.current === puzzle.moves.length - 1
-      const ok = uci === expected || (isLast && trial.isCheckmate())
-      if (ok) {
+
+      const accept = (m: Move) => {
         chess.current = trial
         playMoveSound(m)
         setLastMove([m.from, m.to])
@@ -94,7 +112,9 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
           sync()
           setStatus('playing')
         }, 380)
-      } else {
+      }
+
+      const reject = (m: Move) => {
         play('wrong')
         setHighlights(new Map([[m.to, 'wrong']]))
         setFen(trial.fen())
@@ -116,6 +136,22 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
           setStatus('playing')
         }, 650)
       }
+
+      if (uci === expected || (isLast && trial.isCheckmate())) return accept(m)
+      const alt = optsRef.current.acceptAlternative
+      if (!isLast || !alt) return reject(m)
+      // show the move while it is checked; the board stays locked until the answer
+      const id = ++checkId.current
+      setFen(trial.fen())
+      setLastMove([m.from, m.to])
+      setStatus('checking')
+      void alt(chess.current.fen(), uci)
+        .catch(() => false)
+        .then((good) => {
+          if (id !== checkId.current) return
+          if (good) accept(m)
+          else reject(m)
+        })
     },
     [puzzle, status, failed, finish],
   )
@@ -130,11 +166,16 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
   /** Plays out the rest of the solution move by move. */
   const showSolution = useCallback(() => {
     if (!puzzle) return
-    if (!failed) {
-      setFailed(true)
-      if (status !== 'solved' && status !== 'failed') finish(false)
-    }
+    // drop pending replies, snap-backs and checks: the replay below plays everything from the real
+    // position, an opponent reply still waiting after a correct move included
+    clearTimers()
+    checkId.current++
+    setFailed(true)
+    if (status !== 'solved' && status !== 'failed') finish(false)
     setHighlights(undefined)
+    sync()
+    const prev = chess.current.history({ verbose: true }).at(-1)
+    setLastMove(prev ? [prev.from, prev.to] : null)
     const rest = puzzle.moves.slice(step.current)
     rest.forEach((u, i) =>
       later(() => {
@@ -147,7 +188,7 @@ export function usePuzzle(puzzle: Puzzle | null, opts: { stopOnWrong?: boolean; 
         sync()
       }, 500 * (i + 1)),
     )
-  }, [puzzle, failed, status, finish])
+  }, [puzzle, status, finish])
 
   return { fen, lastMove, status, highlights, solverColor, failed, onMove, hint, showSolution }
 }

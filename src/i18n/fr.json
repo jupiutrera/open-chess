@@ -250,7 +250,7 @@
     "analyze": "Analyser",
     "hint": "Indice",
     "puzzleRating": "Problème {{rating}}",
-    "noData": "Aucun problème téléchargé. Lancez « npm run data:puzzles » pour les générer.",
+    "noData": "Les puzzles ne sont pas inclus dans cette version de l'application.",
     "streak": "Série",
     "best": "Record",
     "rush3": "3 minutes",
@@ -273,7 +273,14 @@
     "results": "Résultats",
     "streakMode": "Série de problèmes",
     "streakSub": "Sans pendule. Chaque problème est un peu plus dur et une seule erreur met fin à la série.",
-    "streakOver": "Série terminée"
+    "streakOver": "Série terminée",
+    "checking": "Vérification de ton coup…",
+    "offline": "Impossible de charger les puzzles. Vérifie ta connexion et réessaie ; les puzzles ouverts en ligne restent disponibles hors ligne.",
+    "exhausted": "Tu as joué tous les puzzles proches de ton classement.",
+    "themeExhausted": "Tu as joué tous les puzzles de ce thème proches de ton classement.",
+    "includePlayed": "Inclure les puzzles déjà joués",
+    "skip": "Passer ce puzzle (une fois par série)",
+    "skipUsed": "Passe utilisée"
   },
   "themes": {
     "mateIn1": "Mat en 1",
@@ -352,7 +359,11 @@
     "dueCount_one": "{{count}} à réviser",
     "dueCount_other": "{{count}} à réviser",
     "positions_one": "{{count}} position",
-    "positions_other": "{{count}} positions"
+    "positions_other": "{{count}} positions",
+    "badToken": "Lichess n'a pas accepté ton jeton. Vérifie-le dans",
+    "rateLimited": "Trop de requêtes vers Lichess. Réessaie dans une minute ; ouvertures connues affichées.",
+    "explorerError": "Impossible de charger les statistiques Lichess. Ouvertures connues affichées.",
+    "playShown": "Joue le coup de la flèche pour continuer."
   },
   "lessons": {
     "title": "Leçons",
