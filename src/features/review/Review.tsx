@@ -57,7 +57,13 @@ export default function Review() {
   }, [id])
 
   const retryTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  useEffect(() => () => clearTimeout(retryTimer.current), [])
+  // bumped whenever the retry is abandoned, so a pending engine check or reset timer is dropped
+  const retryGen = useRef(0)
+  const cancelRetry = useCallback(() => {
+    retryGen.current++
+    clearTimeout(retryTimer.current)
+  }, [])
+  useEffect(() => cancelRetry, [cancelRetry])
 
   // analyze when missing
   useEffect(() => {
@@ -112,6 +118,7 @@ export default function Review() {
     (p: number) => {
       if (!parsed) return
       const next = Math.max(0, Math.min(total, p))
+      cancelRetry()
       setVariation(null)
       setRetry(null)
       setPly((cur) => {
@@ -123,7 +130,7 @@ export default function Review() {
         return next
       })
     },
-    [parsed, total],
+    [parsed, total, cancelRetry],
   )
 
   useBoardKeys({ ply, total, goto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
@@ -190,11 +197,13 @@ export default function Review() {
     const m = playUci(c, current.bestUci)
     if (!m) return
     playMoveSound(m)
+    cancelRetry()
     setRetry(null)
     setVariation({ fen: c.fen(), lastMove: [m.from, m.to], quality: 'best' })
   }
 
   const startRetry = () => {
+    cancelRetry()
     setVariation(null)
     setRetry('waiting')
   }
@@ -206,6 +215,8 @@ export default function Review() {
     const m = playUci(c, from + to + (promotion ?? ''))
     if (!m) return
     playMoveSound(m)
+    cancelRetry()
+    const gen = retryGen.current
     const uci = m.from + m.to + (m.promotion ?? '')
     let good = uci === current.bestUci
     if (!good) {
@@ -216,6 +227,8 @@ export default function Review() {
       const prevBest = review!.curve[ply - 1]
       const loss = mover === 'w' ? prevBest - w : w - prevBest
       good = loss < 3
+      // the user moved on (or moved again) while the engine was thinking
+      if (gen !== retryGen.current) return
     }
     if (good) {
       play('correct')
