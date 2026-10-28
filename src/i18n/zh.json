@@ -244,7 +244,10 @@
     "seeGame": "查看对局",
     "missed": "做错的谜题",
     "view": "查看谜题",
-    "results": "结果"
+    "results": "结果",
+    "streakMode": "谜题连胜",
+    "streakSub": "不计时。谜题逐渐变难，错一题即结束。",
+    "streakOver": "连胜结束"
   },
   "themes": {
     "mateIn1": "一步杀",

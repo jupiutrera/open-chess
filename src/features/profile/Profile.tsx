@@ -76,7 +76,8 @@ export default function Profile() {
       solved,
       gamesPlayed,
       avgAcc: accN ? accSum / accN : null,
-      rushBest: Math.max(0, ...Object.values(rush)),
+      // the Puzzle Streak record shares the rushBest row but isn't a Rush score
+      rushBest: Math.max(0, ...Object.entries(rush).flatMap(([k, v]) => (k === 'streak' ? [] : [v]))),
       history,
       vsBots,
       openings,

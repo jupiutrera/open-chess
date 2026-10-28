@@ -244,7 +244,10 @@
     "seeGame": "Vedi partita",
     "missed": "Problemi sbagliati",
     "view": "Vedi il problema",
-    "results": "Risultati"
+    "results": "Risultati",
+    "streakMode": "Serie di problemi",
+    "streakSub": "Senza orologio. Ogni problema è un po' più difficile e un solo errore chiude la serie.",
+    "streakOver": "Serie terminata"
   },
   "themes": {
     "mateIn1": "Matto in 1",

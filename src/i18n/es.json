@@ -244,7 +244,10 @@
     "seeGame": "Ver partida",
     "missed": "Problemas fallados",
     "view": "Ver problema",
-    "results": "Resultados"
+    "results": "Resultados",
+    "streakMode": "Racha de problemas",
+    "streakSub": "Sin reloj. Cada problema es más difícil y un solo fallo termina la racha.",
+    "streakOver": "Fin de la racha"
   },
   "themes": {
     "mateIn1": "Mate en 1",

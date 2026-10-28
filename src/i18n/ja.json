@@ -244,7 +244,10 @@
     "seeGame": "対局を見る",
     "missed": "間違えたパズル",
     "view": "パズルを見る",
-    "results": "結果"
+    "results": "結果",
+    "streakMode": "パズルストリーク",
+    "streakSub": "時間制限なし。問題は少しずつ難しくなり、1問でも間違えると終了です。",
+    "streakOver": "ストリーク終了"
   },
   "themes": {
     "mateIn1": "1手詰め",
