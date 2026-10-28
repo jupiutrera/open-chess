@@ -134,8 +134,8 @@ export const LESSONS: Lesson[] = [
     category: 'tactics',
     title: { es: 'Clavada', en: 'Pin' },
     intro: {
-      es: 'Una pieza clavada no puede moverse sin dejar expuesta a otra más valiosa que está detrás. Si detrás está el rey, moverla ni siquiera es legal.',
-      en: 'A pinned piece cannot move without exposing a more valuable piece behind it. If the king is behind it, moving it is not even legal.',
+      es: 'Una pieza clavada no puede salir de su línea sin dejar expuesta a otra más valiosa que está detrás. Si detrás está el rey, salir de la línea ni siquiera es legal.',
+      en: 'A pinned piece cannot leave its line without exposing a more valuable piece behind it. If the king is behind it, leaving the line is not even legal.',
     },
     steps: [
       {

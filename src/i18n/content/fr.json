@@ -27,7 +27,7 @@
     },
     "pin": {
       "title": "Clouage",
-      "intro": "Une pièce clouée ne peut pas bouger sans exposer une pièce plus précieuse derrière elle. Si c’est le roi qui est derrière, la déplacer n’est même pas légal.",
+      "intro": "Une pièce clouée ne peut pas quitter sa ligne sans exposer une pièce plus précieuse derrière elle. Si c’est le roi qui est derrière, quitter la ligne n’est même pas légal.",
       "steps": ["Placez la tour sur la colonne du roi : la dame est clouée et votre roi protège la tour.", "Clouez la dame sur la diagonale du roi. Le pion b3 protège votre fou.", "Le cavalier est cloué et ne peut pas bouger. Attaquez-le avec un pion, puis prenez-le."]
     },
     "skewer": {

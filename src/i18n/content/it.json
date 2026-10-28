@@ -27,7 +27,7 @@
     },
     "pin": {
       "title": "Inchiodatura",
-      "intro": "Un pezzo inchiodato non può muoversi senza esporre un pezzo più prezioso dietro di lui. Se dietro c’è il re, muoverlo non è nemmeno legale.",
+      "intro": "Un pezzo inchiodato non può lasciare la sua linea senza esporre un pezzo più prezioso dietro di lui. Se dietro c'è il re, lasciare la linea non è nemmeno legale.",
       "steps": ["Metti la torre sulla colonna del re: la donna resta inchiodata e il tuo re difende la torre.", "Inchioda la donna sulla diagonale del re. Il pedone in b3 difende il tuo alfiere.", "Il cavallo è inchiodato e non può muoversi. Attaccalo con un pedone, poi catturalo."]
     },
     "skewer": {
