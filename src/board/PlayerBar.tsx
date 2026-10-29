@@ -60,12 +60,12 @@ export function PlayerBar({
   return (
     <div className="relative flex h-12 items-center gap-2.5 px-0.5">
       {avatar ?? <Avatar label={name} hue={hue} size={40} />}
-      {bubble && <SpeechBubble key={bubble.key} text={bubble.text} />}
       {/* the bubble remounts for every line, which screen readers miss: they hear this region, which stays */}
       <span role="status" aria-live="polite" className="sr-only">
         {bubble ? `${name}: ${bubble.text}` : ''}
       </span>
-      <div className="min-w-0 flex-1">
+      <div className="relative min-w-0 flex-1">
+        {bubble && <SpeechBubble key={bubble.key} text={bubble.text} />}
         <div className="flex items-baseline gap-1.5 truncate text-[15px] font-bold">
           <span className="truncate">{name}</span>
           {rating !== undefined && <span className="tabular font-normal text-fg-3">({rating})</span>}
@@ -103,7 +103,7 @@ function SpeechBubble({ text }: { text: string }) {
   }, [text])
   return (
     <div className={`speech ${shown ? '' : 'speech-out'}`} aria-hidden>
-      {text}
+      <span>{text}</span>
     </div>
   )
 }

@@ -87,6 +87,26 @@ test('navigating names the tab and focuses the new heading', { tag: '@mobile' },
   await expect(page).toHaveTitle('Puzzles · Open Chess')
 })
 
+test('a bot game starts without scrolling and the bot never talks over the board', { tag: '@mobile' }, async ({ page }) => {
+  // a small phone: the whole setup has to fit above the bottom bar
+  await page.setViewportSize({ width: 360, height: 640 })
+  await page.goto('/#/play')
+  const play = page.getByRole('button', { name: /^Play$/ })
+  await expect(play).toBeInViewport({ ratio: 1 })
+  await page.getByRole('button', { name: /^Time:/ }).click()
+  await page.getByRole('dialog').getByRole('button', { name: '5 min' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await play.click()
+  await expect(page).toHaveURL(/tc=5%2B0/)
+
+  // the greeting bubble sits in the bot's bar, above the board's top edge
+  const bubble = page.locator('.speech')
+  await expect(bubble).toBeVisible()
+  const b = (await bubble.boundingBox())!
+  const board = (await page.locator('cg-board').boundingBox())!
+  expect(b.y + b.height).toBeLessThanOrEqual(board.y + 1)
+})
+
 test('a game left in the middle can be continued, clock included', async ({ page }) => {
   // as Black against Pip: the bot opens, then it's our move
   await page.goto('/#/play/bot/pip?color=b&tc=5%2B0')

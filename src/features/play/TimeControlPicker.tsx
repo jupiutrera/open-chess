@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TIME_CONTROLS, timeControl } from './timeControl'
 
-/** Presets plus a custom minutes + increment clock. */
-export function TimeControlPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+/** Presets plus a custom minutes + increment clock. `onPreset` fires when a preset is tapped (a sheet can close then). */
+export function TimeControlPicker({ value, onChange, onPreset }: { value: string; onChange: (id: string) => void; onPreset?: () => void }) {
   const { t } = useTranslation()
   const isPreset = TIME_CONTROLS.some((c) => c.id === value)
   const [custom, setCustom] = useState(!isPreset)
@@ -40,6 +40,7 @@ export function TimeControlPicker({ value, onChange }: { value: string; onChange
             onClick={() => {
               setCustom(false)
               onChange(c.id)
+              onPreset?.()
             }}
             className={chip(!custom && value === c.id)}
             aria-pressed={!custom && value === c.id}

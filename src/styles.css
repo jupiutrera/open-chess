@@ -501,40 +501,51 @@ cg-board square.right {
   }
 }
 
-/* Bot speech bubble: hangs from the avatar over the board's top edge */
+/* Bot speech bubble: sits in the player bar beside the avatar, over the name, so it never
+   covers the board. Its parent is the bar's text area (position: relative). */
 .speech {
   position: absolute;
   left: 2px;
-  top: calc(100% - 2px);
+  top: 0;
+  bottom: 0;
+  height: fit-content;
+  margin-block: auto;
   z-index: 30;
-  max-width: min(320px, 80%);
-  padding: 8px 12px;
-  border-radius: 12px;
-  border-top-left-radius: 4px;
+  max-width: calc(100% - 2px);
+  padding: 5px 10px;
+  border-radius: 10px;
   background: #fff;
   color: #22201d;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.35;
-  box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  line-height: 1.25;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.28);
   pointer-events: none;
-  transform-origin: 14px 0;
+  transform-origin: 0 50%;
   transition:
     opacity 220ms var(--ease-out),
     transform 220ms var(--ease-out);
   @starting-style {
     opacity: 0;
-    transform: scale(0.9) translateY(-4px);
+    transform: scale(0.9) translateX(-4px);
   }
+}
+/* two lines fit the 48px bar; the whole line is also in the side panel and the live region */
+.speech > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 .speech::before {
   content: '';
   position: absolute;
-  left: 12px;
-  top: -6px;
+  left: -6px;
+  top: 50%;
+  margin-top: -6px;
   border: 6px solid transparent;
-  border-top: 0;
-  border-bottom-color: #fff;
+  border-left: 0;
+  border-right-color: #fff;
 }
 .speech-out {
   opacity: 0;
