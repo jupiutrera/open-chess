@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
-import { Users, Shuffle, PuzzlePiece } from '@phosphor-icons/react'
+import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
 
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
 import { CHALLENGES } from './challenges'
 import { clearLiveGame, loadLiveGame } from './liveGame'
 import { TimeControlPicker } from './TimeControlPicker'
+import { timeControl } from './timeControl'
 import { BotAvatar } from './BotAvatar'
 import { botLine } from './botChat'
 import { PieceIcon } from '../../board/QualityIcon'
@@ -55,6 +56,8 @@ export default function PlayHub() {
   // from a given position the user takes the side to move by default
   const [color, setColor] = useState<'w' | 'b' | 'r'>(() => (startFen ? new Chess(startFen).turn() : 'w'))
   const [tc, setTc] = useState('none')
+  const [timeOpen, setTimeOpen] = useState(false)
+  const [assistOpen, setAssistOpen] = useState(false)
   const record = useBotRecord(selected.id)
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
   const [live, setLive] = useState(() => loadLiveGame('bot'))
@@ -62,6 +65,8 @@ export default function PlayHub() {
   // a challenge may fix the start position and the user's side
   const rules = selected.challenge ? CHALLENGES[selected.challenge] : undefined
   const side = rules?.userColor ?? color
+  const timeLabel = tc === 'none' ? t('play.noTime') : timeControl(tc).label
+  const helps = Object.values(useSettings((s) => s.assist)).filter(Boolean).length
 
   // a new game would replace the saved one: ask first
   const [confirmNew, setConfirmNew] = useState(false)
@@ -74,10 +79,18 @@ export default function PlayHub() {
   const start = () => (live && liveBot ? setConfirmNew(true) : begin())
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <PageHeader title={t('play.title')} />
+    // the page fills the screen: the bot list scrolls on its own so the play button never leaves it
+    <div className="mx-auto flex h-full max-w-6xl flex-col">
+      <PageHeader
+        title={t('play.title')}
+        right={
+          <Link to="/play/local" className="btn min-h-9 px-3 text-[14px]">
+            <Users size={18} weight="bold" /> {t('play.local')}
+          </Link>
+        }
+      />
       {fenParam && (
-        <div className="px-4 pb-4 lg:px-6">
+        <div className="shrink-0 px-4 pb-3 lg:px-6">
           <Panel className="flex flex-wrap items-center gap-3 p-3">
             <PuzzlePiece size={22} weight="bold" className="shrink-0 text-fg-3" />
             <div className="min-w-0 flex-1 text-[14px] font-semibold">{startFen ? t('play.customStart') : t('play.invalidStart')}</div>
@@ -101,7 +114,7 @@ export default function PlayHub() {
         </div>
       )}
       {live && liveBot && (
-        <div className="px-4 pb-4 lg:px-6">
+        <div className="shrink-0 px-4 pb-3 lg:px-6">
           <Panel className="flex flex-wrap items-center gap-3 p-3">
             <BotAvatar bot={liveBot} size={40} />
             <div className="min-w-0 flex-1">
@@ -126,38 +139,40 @@ export default function PlayHub() {
           </Panel>
         </div>
       )}
-      <div className="grid gap-5 px-4 pb-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-6">
+      <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-5 px-4 pb-4 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-6 lg:pb-6">
         <div className="hidden lg:block">
-          <div className="mx-auto max-w-[min(100%,calc(100dvh-180px))]">
-            <div className="relative mb-2 flex h-12 items-center gap-2.5">
+          <div className="mx-auto max-w-[min(100%,calc(100dvh-160px))]">
+            <div className="mb-2 flex h-12 items-center gap-2.5">
               <BotAvatar bot={selected} size={40} />
-              <span className="font-bold">
-                {botName(selected, lang)} <span className="font-normal text-fg-3">({selected.elo})</span>
-              </span>
-              <div key={selected.id} className="speech">
-                {greeting}
+              <div className="relative min-w-0 flex-1">
+                <span className="font-bold">
+                  {botName(selected, lang)} <span className="font-normal text-fg-3">({selected.elo})</span>
+                </span>
+                <div key={selected.id} className="speech">
+                  <span>{greeting}</span>
+                </div>
               </div>
             </div>
             <Board fen={rules?.startFen ?? startFen ?? START_FEN} orientation={side === 'b' ? 'black' : 'white'} />
           </div>
         </div>
 
-        <Panel className="flex flex-col overflow-hidden">
-          <div className="flex items-center gap-4 border-b border-line p-4">
-            <BotAvatar bot={selected} size={64} />
+        <Panel className="flex min-h-0 flex-col overflow-hidden">
+          <div className="flex shrink-0 items-center gap-3 border-b border-line p-3 lg:gap-4 lg:p-4">
+            <BotAvatar bot={selected} size={56} />
             <div className="min-w-0">
-              <div className="text-[20px] font-extrabold">
+              <div className="text-[18px] font-extrabold lg:text-[20px]">
                 {botName(selected, lang)} <span className="tabular font-semibold text-fg-3">{selected.elo}</span>
               </div>
               {selected.challenge && <div className="text-[12px] font-bold uppercase tracking-wide text-accent">{t('bots.group.challenge')}</div>}
-              <p className="text-[14px] text-fg-2">{localize(selected.bio, lang, `bots.${selected.id}.bio`)}</p>
+              <p className="line-clamp-3 text-[14px] leading-snug text-fg-2">{localize(selected.bio, lang, `bots.${selected.id}.bio`)}</p>
               {record && record.w + record.d + record.l > 0 && (
                 <p className="tabular mt-1 text-[13px] text-fg-3">{t('play.record', record)}</p>
               )}
             </div>
           </div>
 
-          <div className="border-b border-line p-3">
+          <div className="shrink-0 border-b border-line p-2 lg:p-3">
             <Segmented
               value={tab}
               onChange={pickTab}
@@ -167,7 +182,7 @@ export default function PlayHub() {
               ]}
             />
           </div>
-          <div className="max-h-[42dvh] overflow-y-auto p-3 lg:max-h-[340px]">
+          <div className="min-h-[132px] flex-1 overflow-y-auto p-3">
             {tab === 'bots' ? (
               BOT_GROUPS.filter((g) => g !== 'challenge').map((g) => (
                 <div key={g} className="mb-3">
@@ -213,36 +228,63 @@ export default function PlayHub() {
             )}
           </div>
 
-          <div className="space-y-3 border-t border-line p-4">
-            <div>
-              <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.color')}</div>
+          {/* colour, clock and helps stay one row each; the clock and helps open in sheets */}
+          <div className="shrink-0 space-y-3 border-t border-line p-3 lg:p-4">
+            <div className="grid grid-cols-2 gap-2">
               <Segmented
+                label={t('play.color')}
                 value={side}
                 onChange={(c) => !rules?.userColor && setColor(c)}
                 options={[
-                  { value: 'w', label: <PieceIcon piece="k" color="w" size={26} /> },
-                  { value: 'r', label: <Shuffle size={22} weight="bold" aria-label={t('common.random')} /> },
-                  { value: 'b', label: <PieceIcon piece="k" color="b" size={26} /> },
+                  { value: 'w', label: <PieceIcon piece="k" color="w" size={24} /> },
+                  { value: 'r', label: <Shuffle size={20} weight="bold" aria-label={t('common.random')} /> },
+                  { value: 'b', label: <PieceIcon piece="k" color="b" size={24} /> },
                 ]}
               />
+              <button
+                className="btn min-w-0 px-3"
+                onClick={() => setTimeOpen(true)}
+                aria-haspopup="dialog"
+                aria-label={`${t('play.time')}: ${timeLabel}`}
+              >
+                <Timer size={20} weight="bold" className="shrink-0 text-fg-3" />
+                <span className="tabular truncate">{timeLabel}</span>
+              </button>
             </div>
-            <div>
-              <div className="mb-1.5 text-[13px] font-bold text-fg-3">{t('play.time')}</div>
-              <TimeControlPicker value={tc} onChange={setTc} />
+            <div className="flex gap-2">
+              <button className="btn btn-primary btn-lg min-w-0 flex-1" onClick={start}>
+                {t('play.play')}
+              </button>
+              <button
+                className="btn btn-lg btn-icon relative w-14"
+                onClick={() => setAssistOpen(true)}
+                aria-haspopup="dialog"
+                aria-label={helps ? `${t('play.assist')} (${helps})` : t('play.assist')}
+              >
+                <SlidersHorizontal size={24} weight="bold" />
+                {/* the helps hide in a sheet now: show at a glance how many are on */}
+                {helps > 0 && (
+                  <span className="tabular absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
+                    {helps}
+                  </span>
+                )}
+              </button>
             </div>
-            <details className="group">
-              <summary className="cursor-pointer list-none text-[13px] font-bold text-fg-3 hover:text-fg">{t('play.assist')} ›</summary>
-              <AssistToggles />
-            </details>
-            <button className="btn btn-primary btn-lg w-full" onClick={start}>
-              {t('play.play')}
-            </button>
-            <Link to="/play/local" className="btn w-full">
-              <Users size={20} weight="bold" /> {t('play.local')}
-            </Link>
           </div>
         </Panel>
       </div>
+      <Sheet open={timeOpen} onClose={() => setTimeOpen(false)} title={t('play.time')}>
+        <TimeControlPicker value={tc} onChange={setTc} onPreset={() => setTimeOpen(false)} />
+        <button className="btn mt-4 w-full" onClick={() => setTimeOpen(false)}>
+          {t('common.close')}
+        </button>
+      </Sheet>
+      <Sheet open={assistOpen} onClose={() => setAssistOpen(false)} title={t('play.assist')}>
+        <AssistToggles />
+        <button className="btn mt-4 w-full" onClick={() => setAssistOpen(false)}>
+          {t('common.close')}
+        </button>
+      </Sheet>
       <Sheet open={confirmNew} onClose={() => setConfirmNew(false)} title={t('play.newGame')}>
         <p className="mb-4 text-fg-2">{t('play.replaceSaved', { name: liveBot ? botName(liveBot, lang) : '' })}</p>
         <div className="grid grid-cols-2 gap-2">

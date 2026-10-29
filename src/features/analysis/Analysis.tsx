@@ -268,7 +268,8 @@ export default function Analysis() {
               startNumber={startNumber}
               className="min-h-[120px] flex-1 py-1"
             />
-            <div className="grid grid-cols-4 gap-1.5 border-t border-line p-2.5">
+            {/* on phones the move buttons sit right under the board, not after the whole panel */}
+            <div className="grid grid-cols-4 gap-1.5 border-t border-line p-2.5 max-lg:order-first max-lg:border-b max-lg:border-t-0">
               <button className="btn px-0" onClick={() => game.goto(0)} aria-label={t('review.first')}>
                 <CaretDoubleLeft size={20} weight="bold" />
               </button>
@@ -282,7 +283,7 @@ export default function Analysis() {
                 <CaretDoubleRight size={20} weight="bold" />
               </button>
             </div>
-            <div className="grid grid-cols-4 gap-1.5 border-t border-line p-2.5 pt-0 lg:pt-2.5">
+            <div className="grid grid-cols-4 gap-1.5 border-t border-line p-2.5">
               <IconAction label={t('common.flip')} onClick={() => setOrientation((o) => (o === 'white' ? 'black' : 'white'))}>
                 <ArrowsDownUp size={20} weight="bold" />
               </IconAction>

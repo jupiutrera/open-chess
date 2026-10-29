@@ -425,7 +425,8 @@ export default function Review() {
             </>
           )}
 
-          <div className="grid grid-cols-5 gap-1.5 border-t border-line p-2.5">
+          {/* on phones the move buttons sit right under the board, not after the whole panel */}
+          <div className="grid grid-cols-5 gap-1.5 border-t border-line p-2.5 max-lg:order-first max-lg:border-b max-lg:border-t-0">
             <NavBtn onClick={() => goto(0)} label={t('review.first')}>
               <CaretDoubleLeft size={22} weight="bold" />
             </NavBtn>

@@ -74,11 +74,14 @@ export function Segmented<T extends string | number>({
   options,
   onChange,
   className = '',
+  label,
 }: {
   value: T
   options: { value: T; label: ReactNode }[]
   onChange: (v: T) => void
   className?: string
+  /** accessible name when no visible heading names the choice */
+  label?: string
 }) {
   // radio-group keys: arrows move the choice (and keep them from stepping a board behind it)
   const onKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -92,7 +95,7 @@ export function Segmented<T extends string | number>({
     ;(e.currentTarget.children[next] as HTMLElement | undefined)?.focus()
   }
   return (
-    <div className={`flex gap-1 rounded-lg bg-panel-2 p-1 ${className}`} role="radiogroup" onKeyDown={onKeyDown}>
+    <div className={`flex gap-1 rounded-lg bg-panel-2 p-1 ${className}`} role="radiogroup" aria-label={label} onKeyDown={onKeyDown}>
       {options.map((o) => (
         <button
           key={String(o.value)}
