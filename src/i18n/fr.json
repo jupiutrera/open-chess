@@ -168,7 +168,8 @@
       "advanced": "Avancés",
       "master": "Maîtres",
       "engine": "Moteur",
-      "challenge": "Défis"
+      "challenge": "Défis",
+      "clone": "Clones"
     }
   },
   "review": {
@@ -621,5 +622,55 @@
     "noOpenings": "Pas encore d’ouverture jouée dans au moins deux parties.",
     "games_one": "{{count}} partie",
     "games_other": "{{count}} parties"
+  },
+  "clone": {
+    "title": "Clones",
+    "intro": "Créez un bot qui joue comme n’importe qui : ses ouvertures viennent de ses vraies parties et ses erreurs de sa façon de se tromper à chaque phase. Essayez avec un ami, un grand maître ou vous-même il y a un an.",
+    "source": "D’où viennent les parties",
+    "local": "Mes parties",
+    "period": "Parties de",
+    "periods": {
+      "recent": "ces 3 derniers mois",
+      "year": "la dernière année",
+      "yearAgo": "il y a un an (de 12 à 24 mois)",
+      "all": "toujours"
+    },
+    "sources": {
+      "chesscom": "chess.com",
+      "lichess": "Lichess",
+      "local": "Vos parties"
+    },
+    "selfName": {
+      "recent": "Moi (ces derniers mois)",
+      "year": "Moi (cette année)",
+      "yearAgo": "Moi (il y a un an)",
+      "all": "Moi"
+    },
+    "create": "Créer le clone",
+    "downloading_one": "Téléchargement des parties : {{count}}",
+    "downloading_other": "Téléchargement des parties : {{count}}",
+    "analysing": "Mesure de ses erreurs : partie {{done}} sur {{total}}",
+    "noGames": "Aucune partie de ce joueur sur cette période.",
+    "note": "Seules les parties publiques sont utilisées, et elles restent sur cet appareil. Open Chess n’est affilié ni à chess.com ni à Lichess.",
+    "yours": "Vos clones",
+    "empty": "Vous n’avez encore créé aucun clone.",
+    "emptyHub": "Créez le clone de n’importe quel joueur à partir de ses parties.",
+    "manage": "Créer ou gérer des clones",
+    "ready": "Clone de {{name}} prêt",
+    "deleteTitle": "Supprimer le clone",
+    "deleteConfirm": "Supprimer le clone de {{name}} ? Vous pourrez le recréer.",
+    "games_one": "{{count}} partie",
+    "games_other": "{{count}} parties",
+    "bio_one": "Joue comme {{name}} : ses ouvertures et ses erreurs, tirées de {{count}} partie.",
+    "bio_other": "Joue comme {{name}} : ses ouvertures et ses erreurs, tirées de {{count}} parties.",
+    "asWhite": "Avec les Blancs :",
+    "vsE4": "Contre 1.e4 :",
+    "vsD4": "Contre 1.d4 :",
+    "errors": "Erreurs :",
+    "errorRates": "{{blunders}} gaffes et {{mistakes}} erreurs pour 100 coups",
+    "noErrors": "pas de données ; il joue à son Elo",
+    "play": "Jouer",
+    "update": "Mettre à jour",
+    "missing": "Ce clone n’existe plus sur cet appareil."
   }
 }

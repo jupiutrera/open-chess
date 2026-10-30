@@ -70,6 +70,33 @@ export interface LessonProgressRow extends SyncRow {
   completed: boolean
 }
 
+/** How often a player errs in one phase of the game, counted over their moves. */
+export interface ErrorCounts {
+  moves: number
+  inaccuracy: number
+  mistake: number
+  blunder: number
+}
+
+/**
+ * A bot that plays like someone: their opening moves and how often they err. Local only (not
+ * synced): it is rebuilt from public games whenever wanted.
+ */
+export interface CloneRow {
+  id: string
+  name: string
+  source: 'chesscom' | 'lichess' | 'local'
+  username: string
+  period: 'all' | 'recent' | 'year' | 'yearAgo'
+  createdAt: number
+  games: number
+  elo: number
+  /** EPD of a position where the player was to move → UCI → times played */
+  book: Record<string, Record<string, number>>
+  /** errors per phase; missing when no game could be analysed */
+  errors?: Record<'opening' | 'middlegame' | 'endgame', ErrorCounts>
+}
+
 /** Small key/value records: ratings, settings, rush records, bot results. */
 export interface KvRow extends SyncRow {
   value: unknown
@@ -81,6 +108,7 @@ export class OpenChessDB extends Dexie {
   repertoire!: EntityTable<RepertoireRow, 'id'>
   lessonProgress!: EntityTable<LessonProgressRow, 'id'>
   kv!: EntityTable<KvRow, 'id'>
+  clones!: EntityTable<CloneRow, 'id'>
 
   constructor() {
     super('open-chess')
@@ -91,6 +119,7 @@ export class OpenChessDB extends Dexie {
       lessonProgress: 'id, updatedAt, lessonId',
       kv: 'id, updatedAt',
     })
+    this.version(2).stores({ clones: 'id, createdAt' })
   }
 }
 

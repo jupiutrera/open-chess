@@ -5,9 +5,10 @@ import { winPercent } from '../review/classify'
 import type { ChatEvent, ChatStyle } from './botChat'
 import type { ChallengeKind } from './challenges'
 import type { Lang } from '../../settings'
+import type { CloneRow } from '../../db/db'
 import { localize } from '../../i18n/content'
 
-export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine' | 'challenge'
+export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine' | 'challenge' | 'clone'
 
 type Lines = { es: string[]; en: string[] }
 
@@ -30,6 +31,8 @@ export interface Bot {
   title?: { es: string; en: string }
   /** whose portrait to wear, when not its own */
   avatar?: string
+  /** clone bots: the player they imitate (see clone.ts) */
+  clone?: CloneRow
 }
 
 /** The bot's name in the given language. */

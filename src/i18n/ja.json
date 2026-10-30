@@ -168,7 +168,8 @@
       "advanced": "上級者",
       "master": "マスター",
       "engine": "エンジン",
-      "challenge": "チャレンジ"
+      "challenge": "チャレンジ",
+      "clone": "クローン"
     }
   },
   "review": {
@@ -621,5 +622,55 @@
     "noOpenings": "2局以上指したオープニングはまだありません。",
     "games_one": "{{count}} 局",
     "games_other": "{{count}} 局"
+  },
+  "clone": {
+    "title": "クローン",
+    "intro": "誰とでも同じように指すボットを作れます。オープニングは実際の対局から、ミスは各段階での間違え方から再現します。友達、グランドマスター、あるいは1年前の自分と対戦してみましょう。",
+    "source": "対局の取得元",
+    "local": "自分の対局",
+    "period": "対象期間",
+    "periods": {
+      "recent": "直近3か月",
+      "year": "直近1年",
+      "yearAgo": "1年前（12〜24か月前）",
+      "all": "すべて"
+    },
+    "sources": {
+      "chesscom": "chess.com",
+      "lichess": "Lichess",
+      "local": "あなたの対局"
+    },
+    "selfName": {
+      "recent": "自分（最近）",
+      "year": "自分（今年）",
+      "yearAgo": "自分（1年前）",
+      "all": "自分"
+    },
+    "create": "クローンを作成",
+    "downloading_one": "対局をダウンロード中：{{count}}",
+    "downloading_other": "対局をダウンロード中：{{count}}",
+    "analysing": "ミスを測定中：{{total}}局中{{done}}局目",
+    "noGames": "その期間にそのプレイヤーの対局はありません。",
+    "note": "公開されている対局だけを使い、この端末に保存します。Open Chess は chess.com とも Lichess とも提携していません。",
+    "yours": "あなたのクローン",
+    "empty": "まだクローンを作成していません。",
+    "emptyHub": "対局をもとに、どんなプレイヤーのクローンでも作れます。",
+    "manage": "クローンを作成・管理",
+    "ready": "{{name}} のクローンができました",
+    "deleteTitle": "クローンを削除",
+    "deleteConfirm": "{{name}} のクローンを削除しますか？あとで作り直せます。",
+    "games_one": "{{count}} 局",
+    "games_other": "{{count}} 局",
+    "bio_one": "{{name}} のように指します。オープニングもミスも {{count}} 局の対局から。",
+    "bio_other": "{{name}} のように指します。オープニングもミスも {{count}} 局の対局から。",
+    "asWhite": "白番：",
+    "vsE4": "1.e4 に対して：",
+    "vsD4": "1.d4 に対して：",
+    "errors": "ミス：",
+    "errorRates": "100手あたり大悪手 {{blunders}} 回、悪手 {{mistakes}} 回",
+    "noErrors": "データなし。レーティング通りに指します",
+    "play": "対局する",
+    "update": "更新",
+    "missing": "そのクローンはこの端末にはもうありません。"
   }
 }

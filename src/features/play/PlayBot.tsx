@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
 import { Lightbulb, ArrowCounterClockwise, Flag, Handshake, ArrowsDownUp, CaretLeft, CaretRight, SlidersHorizontal, X } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
@@ -16,7 +17,9 @@ import { useClock } from '../../chess/useClock'
 import { START_FEN, capturedPieces, gameResultText, moveNumbering, parseUci, timeoutResult, uciLineToSan } from '../../chess/util'
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
-import { botAcceptsDraw, botById, botMove, botName } from './bots'
+import { botAcceptsDraw, botById, botMove, botName, type Bot } from './bots'
+import { cloneBot, cloneMove } from '../clone/clone'
+import { db, type CloneRow } from '../../db/db'
 import { CHALLENGES, challengeClock, challengeMove, useChallenge, validPlies, type EloChange } from './challenges'
 import { timeControl } from './timeControl'
 import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
@@ -25,7 +28,7 @@ import { MoveInput } from '../../board/MoveInput'
 import { saveGame } from '../../db/games'
 import { clearLiveGame, loadLiveGame, saveLiveGame } from './liveGame'
 import { winPercent } from '../review/classify'
-import { Panel, Sheet, toast } from '../../ui/kit'
+import { BoardScreenSkeleton, Panel, Sheet, toast } from '../../ui/kit'
 import { useSettings } from '../../settings'
 import { useAssist } from './useAssist'
 import { AssistToggles } from './AssistToggles'
@@ -37,12 +40,37 @@ import { customStartFen } from './startPosition'
 /** chess.js piece letters to their `common.piece.*` names */
 const PIECE_NAMES: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
 
+/** The bot from the URL: a built-in one, or a clone read from the database. */
 export default function PlayBot() {
   const { t } = useTranslation()
-  const nav = useNavigate()
   const { botId = 'ivan' } = useParams()
+  const cloneId = botId.startsWith('clone-') ? botId.slice('clone-'.length) : null
+  const live = useLiveQuery(async () => (cloneId ? ((await db.clones.get(cloneId)) ?? null) : null), [cloneId])
+  // a clone deleted (or rebuilt) mid-game keeps playing as it was loaded
+  const kept = useRef<CloneRow | null>(null)
+  if (live) kept.current = live
+  const clone = live ?? (live === null ? kept.current : undefined)
+  const bio = clone ? t('clone.bio', { name: clone.name, count: clone.games }) : ''
+  // one Bot per clone row, so the game's effects do not restart on every render
+  const bot = useMemo(() => (clone ? cloneBot(clone, bio) : (botById(botId) ?? botById('ivan')!)), [clone, bio, botId])
+  if (cloneId && clone === undefined) return <BoardScreenSkeleton />
+  if (cloneId && !clone)
+    return (
+      <div className="flex flex-col items-start gap-3 p-6">
+        <p className="text-fg-2">{t('clone.missing')}</p>
+        <Link to="/clones" className="btn">
+          {t('clone.manage')}
+        </Link>
+      </div>
+    )
+  // a new bot is a new game: nothing carries over from the previous one
+  return <PlayBotGame key={bot.id} bot={bot} />
+}
+
+function PlayBotGame({ bot }: { bot: Bot }) {
+  const { t } = useTranslation()
+  const nav = useNavigate()
   const [params, setParams] = useSearchParams()
-  const bot = botById(botId) ?? botById('ivan')!
   const assist = useSettings((s) => s.assist)
   const lang = useSettings((s) => s.lang)
   const name = botName(bot, lang)
@@ -259,6 +287,7 @@ export default function PlayBot() {
     const botClock = clock.enabled ? { left: clock.left(turn), inc: tc.inc * 1000, base: tc.base * 1000 } : undefined
     const history = { startFen: game.startFen, moves: game.moves }
     const think = async () => {
+      if (bot.clone) return cloneMove(bot.clone, sharedEngine(), liveFen, history, botClock)
       if (!challenge.kind) return botMove(bot, sharedEngine(), liveFen, history, botClock)
       // count the user's move first (rating it when the rules need it), then play by the new state
       const state = await challenge.catchUp(sharedEngine(), history, userColor, announce, () => !cancelled, botClock)

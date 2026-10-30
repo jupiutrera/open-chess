@@ -19,6 +19,7 @@ const PlayLocal = lazy(() => import('./features/play/PlayLocal'))
 const Review = lazy(() => import('./features/review/Review'))
 const PuzzlesHub = lazy(() => import('./features/puzzles/PuzzlesHub'))
 const Training = lazy(() => import('./features/weaknesses/Training'))
+const CloneManager = lazy(() => import('./features/clone/CloneManager'))
 const PuzzleRated = lazy(() => import('./features/puzzles/PuzzleRated'))
 const PuzzleRush = lazy(() => import('./features/puzzles/PuzzleRush'))
 const PuzzleMistakes = lazy(() => import('./features/puzzles/PuzzleMistakes'))
@@ -92,6 +93,7 @@ export function App() {
             <Route path="review/:id" element={<Review />} />
             <Route path="puzzles" element={<PuzzlesHub />} />
             <Route path="training" element={<Training />} />
+            <Route path="clones" element={<CloneManager />} />
             <Route path="puzzles/rated" element={<PuzzleRated />} />
             <Route path="puzzles/daily" element={<PuzzleRated daily />} />
             <Route path="puzzles/rush/:mode" element={<PuzzleRush />} />

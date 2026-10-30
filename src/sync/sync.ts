@@ -226,7 +226,8 @@ export async function signOut() {
   if (clear) {
     localStorage.removeItem(CURSOR_USER_KEY)
     clearDeviceState()
-    await db.transaction('rw', SYNC_TABLES.map(table), () => Promise.all(SYNC_TABLES.map((name) => table(name).clear())))
+    // clones are local only, but they are still this account's
+    await db.transaction('rw', [...SYNC_TABLES.map(table), db.clones], () => Promise.all([...SYNC_TABLES.map((name) => table(name).clear()), db.clones.clear()]))
     // in-memory caches (seen puzzles, live queries) still hold the old data
     location.reload()
   }

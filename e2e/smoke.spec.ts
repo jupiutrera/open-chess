@@ -47,6 +47,7 @@ const PAGES: [string, RegExp | null][] = [
   ['/play/local', /Two players/],
   ['/puzzles', /^Puzzles$/],
   ['/training', /^Your weak spots$/],
+  ['/clones', /^Clones$/],
   ['/puzzles/rated', /Rated puzzles/],
   ['/openings', /Openings/],
   ['/lessons', /^Lessons$/],
@@ -125,4 +126,38 @@ test('a game left in the middle can be continued, clock included', async ({ page
   // Black (us) is to move, so Black's clock is the one running
   await expect(page.locator('[data-clock="b"][data-running]')).toBeVisible()
   await expect(page.locator('[data-clock="w"][data-running]')).toHaveCount(0)
+})
+
+test('a clone plays its own opening moves', async ({ page }) => {
+  await page.goto('/#/clones')
+  await expect(page.locator('main h1')).toHaveText('Clones')
+  // a clone as the builder leaves it, without going to the network: 1.Nf3 is its only first move
+  await page.evaluate(
+    () =>
+      new Promise((resolve, reject) => {
+        const req = indexedDB.open('open-chess')
+        req.onsuccess = () => {
+          const tx = req.result.transaction('clones', 'readwrite')
+          tx.objectStore('clones').put({
+            id: 'e2e',
+            name: 'Friend',
+            source: 'lichess',
+            username: 'friend',
+            period: 'year',
+            createdAt: Date.now(),
+            games: 12,
+            elo: 1500,
+            book: { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -': { g1f3: 3 } },
+          })
+          tx.oncomplete = resolve
+          tx.onerror = reject
+        }
+      }),
+  )
+  // written behind Dexie's back: a reload makes the app read it
+  await page.goto('/#/play?tab=clones')
+  await page.reload()
+  await expect(page.getByRole('button', { name: /Friend/ })).toBeVisible()
+  await page.goto('/#/play/bot/clone-e2e?color=b&tc=none')
+  await expect(page.locator('.tabular button:visible').first()).toHaveText('Nf3', { timeout: 20_000 })
 })

@@ -168,7 +168,8 @@
       "advanced": "Advanced",
       "master": "Masters",
       "engine": "Engine",
-      "challenge": "Challenges"
+      "challenge": "Challenges",
+      "clone": "Clones"
     }
   },
   "review": {
@@ -621,5 +622,55 @@
     "noOpenings": "No opening with at least two games yet.",
     "games_one": "{{count}} game",
     "games_other": "{{count}} games"
+  },
+  "clone": {
+    "title": "Clones",
+    "intro": "Build a bot that plays like anyone: its openings come from their real games and its mistakes from how they go wrong in each phase. Try a friend, a grandmaster or yourself a year ago.",
+    "source": "Where the games come from",
+    "local": "My games",
+    "period": "Games from",
+    "periods": {
+      "recent": "the last 3 months",
+      "year": "the last year",
+      "yearAgo": "a year ago (12 to 24 months back)",
+      "all": "all time"
+    },
+    "sources": {
+      "chesscom": "chess.com",
+      "lichess": "Lichess",
+      "local": "Your games"
+    },
+    "selfName": {
+      "recent": "Me (recent months)",
+      "year": "Me (this year)",
+      "yearAgo": "Me (a year ago)",
+      "all": "Me"
+    },
+    "create": "Create clone",
+    "downloading_one": "Downloading games: {{count}}",
+    "downloading_other": "Downloading games: {{count}}",
+    "analysing": "Measuring their mistakes: game {{done}} of {{total}}",
+    "noGames": "No games of that player in that period.",
+    "note": "Only public games are used, and they stay on this device. Open Chess is not affiliated with chess.com or Lichess.",
+    "yours": "Your clones",
+    "empty": "You have not created any clone yet.",
+    "emptyHub": "Create a clone of any player from their games.",
+    "manage": "Create or manage clones",
+    "ready": "Clone of {{name}} ready",
+    "deleteTitle": "Delete clone",
+    "deleteConfirm": "Delete the clone of {{name}}? You can create it again.",
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games",
+    "bio_one": "Plays like {{name}}: their openings and their mistakes, from {{count}} game.",
+    "bio_other": "Plays like {{name}}: their openings and their mistakes, from {{count}} games.",
+    "asWhite": "As White:",
+    "vsE4": "Against 1.e4:",
+    "vsD4": "Against 1.d4:",
+    "errors": "Mistakes:",
+    "errorRates": "{{blunders}} blunders and {{mistakes}} mistakes per 100 moves",
+    "noErrors": "no data; it plays at its rating",
+    "play": "Play",
+    "update": "Update",
+    "missing": "That clone no longer exists on this device."
   }
 }

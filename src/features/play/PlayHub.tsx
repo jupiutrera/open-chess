@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
-import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal } from '@phosphor-icons/react'
+import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal, UsersThree } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
 
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
@@ -22,6 +22,10 @@ import { useSettings } from '../../settings'
 import { localize } from '../../i18n/content'
 import { START_FEN } from '../../chess/util'
 import { customStartFen } from './startPosition'
+import { cloneBot } from '../clone/clone'
+
+type Tab = 'bots' | 'challenges' | 'clones'
+const TABS: Tab[] = ['bots', 'challenges', 'clones']
 
 
 export function useBotRecord(botId: string) {
@@ -46,13 +50,23 @@ export default function PlayHub() {
   // "play this position" from analysis links here with ?fen=
   const fenParam = params.get('fen')
   const startFen = useMemo(() => customStartFen(fenParam), [fenParam])
-  // challenges get their own tab (?tab=challenges links straight to it)
-  const [tab, setTab] = useState<'bots' | 'challenges'>(() => (params.get('tab') === 'challenges' ? 'challenges' : 'bots'))
+  // challenges and clones get their own tabs (?tab=challenges / ?tab=clones link straight to them)
+  const [tab, setTab] = useState<Tab>(() => TABS.find((x) => x === params.get('tab')) ?? 'bots')
+  const cloneRows = useLiveQuery(() => db.clones.orderBy('createdAt').reverse().toArray(), [])
+  const cloneBots = useMemo(() => (cloneRows ?? []).map((c) => cloneBot(c, t('clone.bio', { name: c.name, count: c.games }))), [cloneRows, t])
   const [selected, setSelected] = useState<Bot>(() => (tab === 'challenges' ? CHALLENGE_BOTS[0] : BOTS[4]))
-  const pickTab = (next: 'bots' | 'challenges') => {
+  const pickTab = (next: Tab) => {
     setTab(next)
-    if ((next === 'challenges') !== !!selected.challenge) setSelected(next === 'challenges' ? CHALLENGE_BOTS[0] : BOTS[4])
+    const fits = next === 'challenges' ? !!selected.challenge : next === 'clones' ? !!selected.clone : !selected.challenge && !selected.clone
+    if (fits) return
+    if (next === 'challenges') setSelected(CHALLENGE_BOTS[0])
+    else if (next === 'bots') setSelected(BOTS[4])
+    else if (cloneBots[0]) setSelected(cloneBots[0])
   }
+  // clones load after the first render: pick one once they are there
+  useEffect(() => {
+    if (tab === 'clones' && !selected.clone && cloneBots[0]) setSelected(cloneBots[0])
+  }, [tab, selected, cloneBots])
   // from a given position the user takes the side to move by default
   const [color, setColor] = useState<'w' | 'b' | 'r'>(() => (startFen ? new Chess(startFen).turn() : 'w'))
   const [tc, setTc] = useState('none')
@@ -61,7 +75,7 @@ export default function PlayHub() {
   const record = useBotRecord(selected.id)
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
   const [live, setLive] = useState(() => loadLiveGame('bot'))
-  const liveBot = live?.botId ? botById(live.botId) : undefined
+  const liveBot = live?.botId ? (botById(live.botId) ?? cloneBots.find((b) => b.id === live.botId)) : undefined
   // a challenge may fix the start position and the user's side
   const rules = selected.challenge ? CHALLENGES[selected.challenge] : undefined
   const side = rules?.userColor ?? color
@@ -181,6 +195,7 @@ export default function PlayHub() {
               options={[
                 { value: 'bots', label: t('play.botsTab') },
                 { value: 'challenges', label: t('bots.group.challenge') },
+                { value: 'clones', label: t('bots.group.clone') },
               ]}
             />
           </div>
@@ -207,6 +222,31 @@ export default function PlayHub() {
                   </div>
                 </div>
               ))
+            ) : tab === 'clones' ? (
+              <div className="space-y-1">
+                {cloneBots.length === 0 && cloneRows && <p className="p-1 text-[14px] text-fg-2">{t('clone.emptyHub')}</p>}
+                {cloneBots.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => setSelected(b)}
+                    className={`flex w-full items-center gap-3 rounded-lg p-2 text-left transition-[background-color,transform] duration-150 active:scale-[0.99] ${
+                      b.id === selected.id ? 'bg-raise-2 ring-2 ring-accent' : 'hover:bg-raise'
+                    }`}
+                    aria-pressed={b.id === selected.id}
+                  >
+                    <BotAvatar bot={b} size={40} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] font-bold leading-tight">{b.name}</span>
+                      <span className="tabular block text-[12px] leading-snug text-fg-2">
+                        {b.elo} · {t('clone.games', { count: b.clone!.games })}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+                <Link to="/clones" className="btn mt-2 w-full">
+                  <UsersThree size={20} weight="bold" /> {t(cloneBots.length ? 'clone.manage' : 'clone.create')}
+                </Link>
+              </div>
             ) : (
               // challenge names are long and the rule is the point: a list, never truncated
               <div className="space-y-1">
@@ -254,7 +294,7 @@ export default function PlayHub() {
               </button>
             </div>
             <div className="flex gap-2">
-              <button className="btn btn-primary btn-lg min-w-0 flex-1" onClick={start}>
+              <button className="btn btn-primary btn-lg min-w-0 flex-1" onClick={start} disabled={tab === 'clones' && !selected.clone}>
                 {t('play.play')}
               </button>
               <button
