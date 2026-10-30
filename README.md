@@ -6,7 +6,7 @@
 
 ### Serious chess training, free and on your own device.
 
-Stockfish game review, 13 bots with personality, 14 challenge bots, 104,000 puzzles, an opening trainer and lessons.<br/>
+Stockfish game review, 13 bots with personality, 17 challenge bots, 104,000 puzzles, an opening trainer and lessons.<br/>
 In the browser or as an Android app. **No ads, no subscription and no account.**
 
 [![Release](https://img.shields.io/github/v/release/jupiutrera/open-chess?style=for-the-badge&label=version&color=81b64c)](https://github.com/jupiutrera/open-chess/releases/latest)
@@ -37,10 +37,10 @@ In the browser or as an Android app. **No ads, no subscription and no account.**
 
 <table align="center">
   <tr>
-    <td align="center"><b>13 + 14</b><br/><sub>bots and challenges</sub></td>
+    <td align="center"><b>13 + 17</b><br/><sub>bots and challenges</sub></td>
     <td align="center"><b>104,000</b><br/><sub>Lichess puzzles</sub></td>
     <td align="center"><b>3,865</b><br/><sub>named openings</sub></td>
-    <td align="center"><b>11</b><br/><sub>interactive lessons</sub></td>
+    <td align="center"><b>16</b><br/><sub>interactive lessons</sub></td>
     <td align="center"><b>6</b><br/><sub>languages</sub></td>
     <td align="center"><b>$0</b><br/><sub>forever</sub></td>
   </tr>
@@ -67,21 +67,23 @@ Open Chess puts those pieces together in one app with a clean, familiar interfac
 
 ## ✨ Features
 
-**🔍 Game review.** Stockfish analyses every move and gives it one of ten labels: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss and blunder. You get each player's accuracy, an estimated performance and the evaluation graph. You can see the best move and **retry your mistakes** to learn from them.
+**🔍 Game review.** Stockfish analyses every move and gives it one of ten labels: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss and blunder. You get each player's accuracy, an estimated performance and the evaluation graph. It tells you **why** a move was bad (a fork, a pin, a trapped piece, a back-rank mate) and draws the reply it allows. You can see the best move, **retry your mistakes** to learn from them, and **export the review as a vertical video** to share.
 
-**🤖 13 bots with personality.** Pip, the kid who just discovered the knight; Iván, who will sacrifice whatever it takes; Boris, the old-school FIDE master… Each one has a portrait, favourite openings and their own voice: they greet you, react to your captures and blunders, and celebrate (or regret) the result. They play like people, not like a broken engine.
+**🤖 13 bots with personality.** Pip, the kid who just discovered the knight; Iván, who will sacrifice whatever it takes; Boris, the old-school FIDE master… Each one has a portrait, favourite openings and their own voice: they greet you, react to your captures and blunders, and celebrate (or regret) the result. They play like people, not like a broken engine. And with **clone bots** you can face any chess.com or Lichess player: the clone plays their openings and at their level, from their own games. Even you, a year ago.
 
-**🐟 14 challenges.** Stockfish, but with a silly rule: **Meltfish** loses 50 Elo every move, **Growfish** starts at 0 and climbs, **Envyfish** drops 300 Elo whenever you find the best move, **Drawfish** plays for 0.00, **Checkfish** checks whenever it can, **Greedfish** grabs everything, **Coinfish** picks its n-th best move with probability ½ⁿ, **Yoyofish** swings between 250 and 3200 on every capture, **Copyfish** copies the quality of your last move… The bot's Elo changes live as you play.
+**🐟 17 challenges.** Stockfish, but with a silly rule: **Meltfish** loses 50 Elo every move, **Growfish** starts at 0 and climbs, **Envyfish** drops 300 Elo whenever you find the best move, **Drawfish** plays for 0.00, **Checkfish** checks whenever it can, **Greedfish** grabs everything, **Coinfish** picks its n-th best move with probability ½ⁿ, **Yoyofish** swings between 250 and 3200 on every capture, **Copyfish** copies the quality of your last move, **Mirrorfish** mirrors your moves, **Panicfish** gets weaker as its clock runs down, **Grudgefish** hunts the piece type you took from it… The bot's Elo changes live as you play.
 
 **🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.
 
 **🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 47 themes, a daily puzzle, **Puzzle Sprint** (3 min, 5 min and survival), **Puzzle Streak** (no clock, each one harder, one miss ends it) and **mistake puzzles** taken from your own reviewed games.
 
+**🩺 Your weak spots.** A profile of the mistakes in your reviewed games, by phase, tactical theme and opening, with a trend over time and **a week of puzzles** aimed at what you get wrong most.
+
 **📖 Openings.** An explorer with 3,865 named openings, masters and Lichess stats, and a **repertoire trainer** with spaced repetition (SM-2).
 
 **🧠 Analysis.** Live Stockfish with up to three lines, move-by-move ratings, a position editor, and FEN and PGN import and export.
 
-**🎓 Lessons.** Tactics, basic mates and endgames that you practise against the engine until they stick.
+**🎓 16 lessons.** Tactics, basic mates and endgames (the opposition, the rule of the square, Lucena and Philidor) that you practise against the engine until they stick.
 
 **📥 Import your games** from chess.com or Lichess by username, or by pasting a PGN.
 
