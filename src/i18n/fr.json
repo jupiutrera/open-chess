@@ -405,7 +405,8 @@
     "practiceGoal": "Objectif : {{goal}}",
     "goal": {
       "win": "gagner",
-      "draw": "faire nulle"
+      "draw": "faire nulle",
+      "promote": "promouvoir le pion"
     },
     "success": "Objectif atteint !",
     "failure": "Pas tout à fait. Réessayez",

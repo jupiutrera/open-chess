@@ -405,7 +405,8 @@
     "practiceGoal": "Goal: {{goal}}",
     "goal": {
       "win": "win",
-      "draw": "draw"
+      "draw": "draw",
+      "promote": "promote the pawn"
     },
     "success": "Goal achieved!",
     "failure": "Not quite. Try again",

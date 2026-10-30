@@ -16,6 +16,8 @@ import { localize } from '../../i18n/content'
 import { pickPromotion } from '../puzzles/promotion'
 
 type State = 'playing' | 'wrong' | 'stepDone' | 'failed' | 'thinking'
+/** An engine score below this (centipawns, for the attacker) means a held draw is really held. */
+const HOLD_MARGIN = 150
 
 export default function LessonPlayer() {
   const { id } = useParams()
@@ -96,7 +98,18 @@ export default function LessonPlayer() {
       if (step.goal === 'draw' && !chess.current.isCheckmate()) return stepComplete()
       play('wrong')
       setState('failed')
-    } else setState('playing')
+      return
+    }
+    // a drawn ending rarely ends by itself: after holding long enough, ask the engine whether it still sees a win
+    if (step.goal === 'draw' && step.hold && Math.ceil(chess.current.history().length / 2) >= step.hold) {
+      const check = await sharedEngine().search(chess.current.fen(), { depth: 16 })
+      if (mine !== round.current) return
+      const score = check.lines[0]?.score
+      const sign = solver === 'w' ? -1 : 1
+      const attackerWins = score && (score.mate !== undefined ? score.mate * sign > 0 : (score.cp ?? 0) * sign > HOLD_MARGIN)
+      if (score && !attackerWins) return stepComplete()
+    }
+    setState('playing')
   }
 
   const onMove = (from: string, to: string, promotion?: string) => {
@@ -108,7 +121,7 @@ export default function LessonPlayer() {
       if (!m) return
       const uci = m.from + m.to + (m.promotion ?? '')
       const last = ply.current === step.moves.length - 1
-      if (uci === expected || (last && trial.isCheckmate())) {
+      if (uci === expected || (last && (trial.isCheckmate() || !!step.also?.includes(uci)))) {
         chess.current = trial
         playMoveSound(m)
         setFen(trial.fen())
@@ -152,6 +165,8 @@ export default function LessonPlayer() {
       play('wrong')
       return setState('failed')
     }
+    // a promotion the defender cannot capture at once is the point of a promote goal
+    if (step.goal === 'promote' && m.promotion === 'q' && !chess.current.moves({ verbose: true }).some((x) => x.to === m.to)) return stepComplete()
     void engineReply()
   }
 

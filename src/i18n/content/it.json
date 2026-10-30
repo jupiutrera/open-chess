@@ -59,6 +59,26 @@
       "title": "Promuovi il pedone",
       "intro": "Con il tuo re sulla sesta traversa davanti al pedone, la vittoria è assicurata. Prendi l'opposizione e accompagna il pedone fino alla promozione.",
       "steps": ["Promuovi il pedone e vinci la partita."]
+    },
+    "opposition": {
+      "title": "L’opposizione",
+      "intro": "Quando i due re si fronteggiano con una casa in mezzo, chi non deve muovere ha l’opposizione: l’altro deve spostarsi e lasciarlo passare. Chi attacca punta alle case chiave davanti al pedone; chi difende si mette davanti.",
+      "steps": ["Le case chiave del pedone in e4 sono d6, e6 e f6: appena il tuo re ne occupa una, la partita è vinta. Arrivaci subito.", "Mettiti davanti al re nero con una casa in mezzo. Così tocca al Nero muovere e dovrà lasciarti passare.", "Ora difendi con il Nero. Prendi tu l’opposizione così il re bianco non può avanzare.", "Difendi con il Nero: resta davanti al pedone e riprendi l’opposizione ogni volta che il re bianco si avvicina. Resisti 12 mosse senza lasciarlo passare."]
+    },
+    "rule-of-the-square": {
+      "title": "La regola del quadrato",
+      "intro": "Il tuo re arriva in tempo a fermare un pedone da solo? Immagina un quadrato con un lato che va dal pedone alla casa di promozione. Se il tuo re può entrare nel quadrato quando tocca a lui, raggiunge il pedone; altrimenti il pedone promuove.",
+      "steps": ["Giochi con il Nero. Il pedone in a4 ha bisogno di quattro mosse per promuovere, quindi il suo quadrato va da a4 a e8. Entra con il re.", "Il re nero è fuori dal quadrato. Non perdere neanche un tempo: spingi il pedone e nessuno lo raggiungerà.", "Con il Nero: raggiungi il pedone con il re e catturalo."]
+    },
+    "lucena": {
+      "title": "La posizione di Lucena",
+      "intro": "Torre e pedone contro torre, con il tuo pedone in settima e il re davanti: si vince costruendo un ponte. Allontana il re avversario con uno scacco, porta la torre in quarta traversa e fai uscire il re; quando la torre avversaria dà scacco, la tua torre si interpone.",
+      "steps": ["Prima dai scacco con la torre per allontanare il re nero di un’altra colonna.", "Porta la torre in quarta traversa. È il ponte che proteggerà il tuo re dagli scacchi.", "Fai uscire il re da davanti al pedone. Quando la torre nera dà scacco, continua a scendere verso la tua torre.", "Ora gioca tutto il piano contro il motore e promuovi il pedone."]
+    },
+    "philidor": {
+      "title": "La difesa Philidor",
+      "intro": "Con torre contro torre e pedone, la difesa Philidor tiene la patta. Finché il pedone non è arrivato alla tua terza traversa, la torre resta lì e non lascia passare il re. Quando il pedone avanza, il re avversario non ha più riparo: la tua torre va in fondo e dà scacco da dietro.",
+      "steps": ["Giochi con il Nero. Porta la torre sulla tua terza traversa (la sesta) così il re bianco non può avanzare.", "Il pedone è avanzato. Ora porta la torre in prima traversa: da lì darai scacco da dietro e il re bianco non avrà riparo."]
     }
   },
   "bots": {

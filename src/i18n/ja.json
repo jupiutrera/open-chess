@@ -405,7 +405,8 @@
     "practiceGoal": "目標：{{goal}}",
     "goal": {
       "win": "勝つ",
-      "draw": "引き分ける"
+      "draw": "引き分ける",
+      "promote": "ポーンを昇格させる"
     },
     "success": "目標達成！",
     "failure": "あと少し。もう一度",

@@ -405,7 +405,8 @@
     "practiceGoal": "目标：{{goal}}",
     "goal": {
       "win": "获胜",
-      "draw": "和棋"
+      "draw": "和棋",
+      "promote": "让兵升变"
     },
     "success": "目标达成！",
     "failure": "还差一点，再试一次",

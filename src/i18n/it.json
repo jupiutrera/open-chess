@@ -405,7 +405,8 @@
     "practiceGoal": "Obiettivo: {{goal}}",
     "goal": {
       "win": "vincere",
-      "draw": "pattare"
+      "draw": "pattare",
+      "promote": "promuovere il pedone"
     },
     "success": "Obiettivo raggiunto!",
     "failure": "Non ancora. Riprova",
