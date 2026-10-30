@@ -256,7 +256,28 @@
     "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
     "linePrev": "Coup précédent de la ligne",
     "lineNext": "Coup suivant de la ligne",
-    "lineStep": "Suite {{n}}/{{total}}"
+    "lineStep": "Suite {{n}}/{{total}}",
+    "video": {
+      "button": "Exporter en vidéo",
+      "title": "Vidéo verticale",
+      "intro": "Un clip 9:16 de la partie avec la barre d’évaluation et la qualité de chaque coup, prêt à partager.",
+      "what": "Quels coups",
+      "key": "Moments clés",
+      "all": "Toute la partie",
+      "speed": "Vitesse",
+      "slow": "Lente",
+      "normal": "Normale",
+      "fast": "Rapide",
+      "sound": "Avec le son des coups",
+      "create": "Créer la vidéo",
+      "recording": "Enregistrement : {{percent}} %. Gardez cet écran ouvert.",
+      "saved": "Vidéo enregistrée",
+      "failed": "Impossible de créer la vidéo",
+      "accuracy": "Précision {{value}}",
+      "wins": "{{name}} gagne",
+      "draw": "Nulle",
+      "hidden": "Enregistrement arrêté : l’écran n’était plus visible. Réessayez sans le quitter."
+    }
   },
   "puzzles": {
     "title": "Problèmes",

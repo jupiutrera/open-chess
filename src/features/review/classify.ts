@@ -28,6 +28,9 @@ export const QUALITY_ORDER: Quality[] = [
   'blunder',
 ]
 
+/** Every quality, forced moves included (they are not listed in the summary). */
+export const QUALITIES: Quality[] = [...QUALITY_ORDER, 'forced']
+
 /** Text annotation for qualities that have one; the rest render as icons. */
 export const QUALITY_SYMBOL: Partial<Record<Quality, string>> = {
   brilliant: '!!',

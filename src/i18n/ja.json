@@ -256,7 +256,28 @@
     "graphValue": "{{move}} {{san}}、{{score}}、{{quality}}",
     "linePrev": "ラインの前の手",
     "lineNext": "ラインの次の手",
-    "lineStep": "続き {{n}}/{{total}}"
+    "lineStep": "続き {{n}}/{{total}}",
+    "video": {
+      "button": "動画を書き出す",
+      "title": "縦型動画",
+      "intro": "評価バーと各手の評価付きの、9:16 の対局クリップです。そのまま共有できます。",
+      "what": "どの手を入れるか",
+      "key": "重要な局面",
+      "all": "対局全体",
+      "speed": "速さ",
+      "slow": "ゆっくり",
+      "normal": "普通",
+      "fast": "速い",
+      "sound": "着手音あり",
+      "create": "動画を作成",
+      "recording": "録画中：{{percent}}%。この画面を開いたままにしてください。",
+      "saved": "動画を保存しました",
+      "failed": "動画を作成できませんでした",
+      "accuracy": "精度 {{value}}",
+      "wins": "{{name}} の勝ち",
+      "draw": "引き分け",
+      "hidden": "録画を中止しました：画面が表示されなくなりました。画面を開いたままもう一度お試しください。"
+    }
   },
   "puzzles": {
     "title": "パズル",

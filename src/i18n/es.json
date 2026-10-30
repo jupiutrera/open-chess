@@ -256,7 +256,28 @@
     "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
     "linePrev": "Jugada anterior de la línea",
     "lineNext": "Siguiente jugada de la línea",
-    "lineStep": "Continuación {{n}}/{{total}}"
+    "lineStep": "Continuación {{n}}/{{total}}",
+    "video": {
+      "button": "Exportar vídeo",
+      "title": "Vídeo vertical",
+      "intro": "Un clip 9:16 de la partida con la barra de evaluación y la calidad de cada jugada, listo para compartir.",
+      "what": "Qué jugadas",
+      "key": "Momentos clave",
+      "all": "Partida entera",
+      "speed": "Velocidad",
+      "slow": "Lento",
+      "normal": "Normal",
+      "fast": "Rápido",
+      "sound": "Con sonido de las jugadas",
+      "create": "Crear vídeo",
+      "recording": "Grabando: {{percent}} %. Deja esta pantalla abierta.",
+      "saved": "Vídeo guardado",
+      "failed": "No se pudo crear el vídeo",
+      "accuracy": "Precisión {{value}}",
+      "wins": "Gana {{name}}",
+      "draw": "Tablas",
+      "hidden": "Grabación detenida: la pantalla dejó de estar visible. Vuelve a intentarlo sin salir de ella."
+    }
   },
   "puzzles": {
     "title": "Puzzles",

@@ -15,6 +15,37 @@ async function move(page: Page, from: string, to: string) {
   await clickSquare(page, to)
 }
 
+/** Writes rows straight into the app's database, once the app has created the store. */
+async function seed(page: Page, store: string, rows: object[]) {
+  await page.evaluate(
+    ({ store, rows }) =>
+      new Promise<void>((resolve, reject) => {
+        const attempt = (left: number) => {
+          const req = indexedDB.open('open-chess')
+          req.onerror = () => reject(req.error)
+          req.onsuccess = () => {
+            const db = req.result
+            if (!db.objectStoreNames.contains(store)) {
+              // not created yet: let go at once, or the app's own upgrade would be blocked
+              db.close()
+              if (!left) return reject(new Error(`no ${store} store`))
+              return setTimeout(() => attempt(left - 1), 250)
+            }
+            const tx = db.transaction(store, 'readwrite')
+            for (const r of rows) tx.objectStore(store).put(r)
+            tx.oncomplete = () => {
+              db.close()
+              resolve()
+            }
+            tx.onerror = () => reject(tx.error)
+          }
+        }
+        attempt(40)
+      }),
+    { store, rows },
+  )
+}
+
 test('play a bot, resign, review the game', async ({ page }) => {
   await page.goto('/#/play/bot/pip?color=w&tc=none&hints=1&undo=1&eval=0')
   await expect(page.locator('cg-board')).toBeVisible()
@@ -132,32 +163,69 @@ test('a clone plays its own opening moves', async ({ page }) => {
   await page.goto('/#/clones')
   await expect(page.locator('main h1')).toHaveText('Clones')
   // a clone as the builder leaves it, without going to the network: 1.Nf3 is its only first move
-  await page.evaluate(
-    () =>
-      new Promise((resolve, reject) => {
-        const req = indexedDB.open('open-chess')
-        req.onsuccess = () => {
-          const tx = req.result.transaction('clones', 'readwrite')
-          tx.objectStore('clones').put({
-            id: 'e2e',
-            name: 'Friend',
-            source: 'lichess',
-            username: 'friend',
-            period: 'year',
-            createdAt: Date.now(),
-            games: 12,
-            elo: 1500,
-            book: { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -': { g1f3: 3 } },
-          })
-          tx.oncomplete = resolve
-          tx.onerror = reject
-        }
-      }),
-  )
+  await seed(page, 'clones', [
+    {
+      id: 'e2e',
+      name: 'Friend',
+      source: 'lichess',
+      username: 'friend',
+      period: 'year',
+      createdAt: Date.now(),
+      games: 12,
+      elo: 1500,
+      book: { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -': { g1f3: 3 } },
+    },
+  ])
   // written behind Dexie's back: a reload makes the app read it
   await page.goto('/#/play?tab=clones')
   await page.reload()
   await expect(page.getByRole('button', { name: /Friend/ })).toBeVisible()
   await page.goto('/#/play/bot/clone-e2e?color=b&tc=none')
   await expect(page.locator('.tabular button:visible').first()).toHaveText('Nf3', { timeout: 20_000 })
+})
+
+test('a reviewed game exports as a vertical video', async ({ page }) => {
+  await page.goto('/#/games')
+  await expect(page.locator('main h1')).toBeVisible()
+  // a reviewed game written straight to the database: 3.Qxe5+?? is the one key moment
+  const sans = ['e4', 'e5', 'Qh5', 'Nc6', 'Qxe5+', 'Nxe5']
+  const ucis = ['e2e4', 'e7e5', 'd1h5', 'b8c6', 'h5e5', 'c6e5']
+  const moves = sans.map((san, i) => ({
+    ply: i + 1,
+    san,
+    uci: ucis[i],
+    color: i % 2 ? 'b' : 'w',
+    quality: i === 4 ? 'blunder' : 'good',
+    loss: i === 4 ? 60 : 1,
+    accuracy: 80,
+    bestUci: null,
+    bestSan: null,
+    scoreAfter: { cp: i >= 4 ? -900 : 20 },
+  }))
+  await seed(page, 'games', [
+    {
+      id: 'video',
+      updatedAt: Date.now(),
+      source: 'pgn',
+      pgn: '1. e4 e5 2. Qh5 Nc6 3. Qxe5+ Nxe5 0-1',
+      white: 'White',
+      black: 'Black',
+      result: '0-1',
+      userColor: 'w',
+      date: Date.now(),
+      review: { depth: 12, accuracy: { white: 40, black: 90 }, moves, curve: [52, 52, 51, 50, 50, 8, 8] },
+    },
+  ])
+  await page.goto('/#/review/video')
+  await page.reload()
+  await page.getByRole('button', { name: 'Export video' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByRole('radio', { name: 'Fast' }).click()
+  const download = page.waitForEvent('download', { timeout: 60_000 })
+  await dialog.getByRole('button', { name: 'Create video' }).click()
+  const file = await download
+  expect(file.suggestedFilename()).toMatch(/^White-Black-.*\.(webm|mp4)$/)
+  const path = await file.path()
+  const { statSync } = await import('node:fs')
+  expect(statSync(path).size).toBeGreaterThan(10_000)
 })
