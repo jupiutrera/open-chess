@@ -75,7 +75,9 @@
     "openings": "复习你的开局库",
     "puzzleRating": "谜题",
     "due_one": "{{count}} 步待复习",
-    "due_other": "{{count}} 步待复习"
+    "due_other": "{{count}} 步待复习",
+    "training": "你的薄弱环节",
+    "trainingSub": "你最常犯的错误，以及本周的针对性谜题计划"
   },
   "play": {
     "botsTab": "机器人",
@@ -591,5 +593,33 @@
     "highContrast": "高对比度",
     "highContrastHint": "按钮和次要文字更易读（WCAG AA）",
     "system": "跟随系统"
+  },
+  "training": {
+    "title": "你的薄弱环节",
+    "basedOn_one": "基于 {{count}} 盘已复盘的对局（你走了 {{moves}} 步）。",
+    "basedOn_other": "基于 {{count}} 盘已复盘的对局（你走了 {{moves}} 步）。",
+    "empty": "至少需要 {{count}} 盘你已复盘的对局才能找出薄弱环节。去复盘几盘棋，或导入你的对局。",
+    "toGames": "查看我的对局",
+    "toImport": "导入对局",
+    "weakTitle": "你最常犯的错误",
+    "noThemes": "你的错误不属于某个明确的战术主题。看看按阶段和按开局的数据。",
+    "times_one": "{{count}} 次",
+    "times_other": "{{count}} 次",
+    "example": "{{date}} 的对局",
+    "train": "练习这个主题",
+    "trendBetter": "有进步：最近 {{games}} 盘每 100 步出错 {{recent}} 次，之前是 {{before}} 次。",
+    "trendWorse": "注意：最近 {{games}} 盘每 100 步出错 {{recent}} 次，之前是 {{before}} 次。",
+    "planTitle": "本周计划",
+    "regenerate": "重新生成",
+    "mistakesDay": "来自你错误的谜题",
+    "today": "今天",
+    "progress": "{{done}}/{{count}}",
+    "dayDone": "已完成",
+    "phaseTitle": "按对局阶段",
+    "per100": "你每 100 步的错误数",
+    "openingTitle": "按开局",
+    "noOpenings": "还没有至少下过两盘的开局。",
+    "games_one": "{{count}} 盘",
+    "games_other": "{{count}} 盘"
   }
 }

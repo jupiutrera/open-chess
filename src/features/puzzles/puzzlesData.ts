@@ -185,7 +185,7 @@ export async function getPuzzleRating(): Promise<Glicko> {
   return kvGet<Glicko>('puzzleRating', DEFAULT_GLICKO)
 }
 
-export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAttemptRow['mode'], rated: boolean) {
+export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAttemptRow['mode'], rated: boolean, theme?: string) {
   // read-modify-write of the rating: a sync pull or another tab must not slip in between
   return db.transaction('rw', db.kv, db.puzzleAttempts, async () => {
     let ratingAfter: number | undefined
@@ -202,6 +202,7 @@ export async function recordAttempt(p: Puzzle, solved: boolean, mode: PuzzleAtte
       rating: p.rating,
       solved,
       mode,
+      theme,
       date: Date.now(),
       ratingAfter,
     })

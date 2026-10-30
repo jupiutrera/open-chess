@@ -75,7 +75,9 @@
     "openings": "Repasa tu repertorio",
     "puzzleRating": "Puzzles",
     "due_one": "{{count}} jugada pendiente de repaso",
-    "due_other": "{{count}} jugadas pendientes de repaso"
+    "due_other": "{{count}} jugadas pendientes de repaso",
+    "training": "Tu talón de Aquiles",
+    "trainingSub": "Lo que más fallas y un plan de puzzles para esta semana"
   },
   "play": {
     "botsTab": "Bots",
@@ -591,5 +593,33 @@
     "highContrast": "Contraste alto",
     "highContrastHint": "Botones y textos secundarios más legibles (WCAG AA)",
     "system": "Sistema"
+  },
+  "training": {
+    "title": "Tu talón de Aquiles",
+    "basedOn_one": "Basado en {{count}} partida revisada ({{moves}} jugadas tuyas).",
+    "basedOn_other": "Basado en {{count}} partidas revisadas ({{moves}} jugadas tuyas).",
+    "empty": "Necesito al menos {{count}} partidas tuyas revisadas para encontrar tus puntos débiles. Revisa partidas o importa las tuyas.",
+    "toGames": "Ir a mis partidas",
+    "toImport": "Importar partidas",
+    "weakTitle": "Lo que más fallas",
+    "noThemes": "Tus errores no encajan en un tema táctico concreto. Mira los datos por fase y por apertura.",
+    "times_one": "{{count}} vez",
+    "times_other": "{{count}} veces",
+    "example": "Partida del {{date}}",
+    "train": "Entrenar este tema",
+    "trendBetter": "Mejoras: en tus últimas {{games}} partidas cometes {{recent}} errores cada 100 jugadas, antes {{before}}.",
+    "trendWorse": "Cuidado: en tus últimas {{games}} partidas cometes {{recent}} errores cada 100 jugadas, antes {{before}}.",
+    "planTitle": "Plan de la semana",
+    "regenerate": "Rehacer",
+    "mistakesDay": "Puzzles de tus errores",
+    "today": "Hoy",
+    "progress": "{{done}}/{{count}}",
+    "dayDone": "Hecho",
+    "phaseTitle": "Por fase de la partida",
+    "per100": "Errores cada 100 jugadas tuyas",
+    "openingTitle": "Por apertura",
+    "noOpenings": "Aún no hay al menos dos partidas de una misma apertura.",
+    "games_one": "{{count}} partida",
+    "games_other": "{{count}} partidas"
   }
 }

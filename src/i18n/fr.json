@@ -75,7 +75,9 @@
     "openings": "Réviser votre répertoire",
     "puzzleRating": "Problèmes",
     "due_one": "{{count}} coup à réviser",
-    "due_other": "{{count}} coups à réviser"
+    "due_other": "{{count}} coups à réviser",
+    "training": "Vos points faibles",
+    "trainingSub": "Ce que vous ratez le plus, et une semaine de puzzles pour y remédier"
   },
   "play": {
     "botsTab": "Bots",
@@ -591,5 +593,33 @@
     "highContrast": "Contraste élevé",
     "highContrastHint": "Boutons et textes secondaires plus lisibles (WCAG AA)",
     "system": "Système"
+  },
+  "training": {
+    "title": "Vos points faibles",
+    "basedOn_one": "D’après {{count}} partie analysée ({{moves}} de vos coups).",
+    "basedOn_other": "D’après {{count}} parties analysées ({{moves}} de vos coups).",
+    "empty": "Il me faut au moins {{count}} de vos parties analysées pour trouver vos points faibles. Analysez des parties ou importez les vôtres.",
+    "toGames": "Voir mes parties",
+    "toImport": "Importer des parties",
+    "weakTitle": "Ce que vous ratez le plus",
+    "noThemes": "Vos erreurs ne relèvent pas d’un thème tactique précis. Regardez les chiffres par phase et par ouverture.",
+    "times_one": "{{count}} fois",
+    "times_other": "{{count}} fois",
+    "example": "Partie du {{date}}",
+    "train": "Travailler ce thème",
+    "trendBetter": "En progrès : {{recent}} erreurs pour {{games}}0 coups sur vos 10 dernières parties, contre {{before}} avant.",
+    "trendWorse": "Attention : {{recent}} erreurs pour {{games}}0 coups sur vos 10 dernières parties, contre {{before}} avant.",
+    "planTitle": "Plan de la semaine",
+    "regenerate": "Refaire",
+    "mistakesDay": "Puzzles de vos erreurs",
+    "today": "Aujourd’hui",
+    "progress": "{{done}}/{{count}}",
+    "dayDone": "Fait",
+    "phaseTitle": "Par phase de jeu",
+    "per100": "Erreurs pour 100 de vos coups",
+    "openingTitle": "Par ouverture",
+    "noOpenings": "Pas encore d’ouverture jouée dans au moins deux parties.",
+    "games_one": "{{count}} partie",
+    "games_other": "{{count}} parties"
   }
 }

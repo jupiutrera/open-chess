@@ -1,9 +1,10 @@
 import { Chess, type PieceSymbol, type Square } from 'chess.js'
 import type { Score } from '../../engine/engine'
+import type { GameRow } from '../../db/db'
 import type { THEMES } from '../puzzles/puzzlesData'
 import { playUci } from '../../chess/util'
 import { backRankMate, forkAfter, pinAfter, trappedAfter, tradeIntoEndgame, type Target } from '../../chess/tactics'
-import { isSacrifice, winPercent, type MoveReview } from './classify'
+import { isSacrifice, scoreFromWin, winPercent, type MoveReview } from './classify'
 
 export type Explanation =
   | { key: 'allowsMate'; n: number }
@@ -16,6 +17,28 @@ export type Explanation =
   | { key: 'losingTrade' }
 
 export type Theme = (typeof THEMES)[number]
+
+export type StoredReview = NonNullable<GameRow['review']>
+
+/** Score of the game's position `i`; the first one comes from its stored lines, or older reviews' win%. */
+export function positionScore(review: StoredReview, i: number): Score {
+  if (i > 0) return review.moves[i - 1].scoreAfter
+  return review.lines?.[0]?.[0]?.score ?? scoreFromWin(review.curve[0] ?? 50)
+}
+
+/** The engine's best line from position `i`, or just its best move for reviews made before lines were kept. */
+export function bestLineAt(review: StoredReview, i: number): string[] | undefined {
+  const stored = review.lines?.[i]?.[0]?.pv
+  if (stored?.length) return stored
+  const best = review.moves[i]?.bestUci
+  return best ? [best] : undefined
+}
+
+/** explainMove for the move that led to position `ply` of a reviewed game; `fens` are the game's positions. */
+export function explainPly(review: StoredReview, fens: string[], ply: number): Explanation | null {
+  const move = review.moves[ply - 1]
+  return move ? explainMove(move, fens[ply - 1], positionScore(review, ply - 1), bestLineAt(review, ply)) : null
+}
 
 const BAD = ['inaccuracy', 'mistake', 'miss', 'blunder']
 

@@ -75,7 +75,9 @@
     "openings": "Review your repertoire",
     "puzzleRating": "Puzzles",
     "due_one": "{{count}} move due for review",
-    "due_other": "{{count}} moves due for review"
+    "due_other": "{{count}} moves due for review",
+    "training": "Your weak spots",
+    "trainingSub": "What you get wrong most, and a week of puzzles for it"
   },
   "play": {
     "botsTab": "Bots",
@@ -591,5 +593,33 @@
     "highContrast": "High contrast",
     "highContrastHint": "More readable buttons and secondary text (WCAG AA)",
     "system": "System"
+  },
+  "training": {
+    "title": "Your weak spots",
+    "basedOn_one": "Based on {{count}} reviewed game ({{moves}} of your moves).",
+    "basedOn_other": "Based on {{count}} reviewed games ({{moves}} of your moves).",
+    "empty": "I need at least {{count}} of your games reviewed to find your weak spots. Review some games or import yours.",
+    "toGames": "Go to my games",
+    "toImport": "Import games",
+    "weakTitle": "What you get wrong most",
+    "noThemes": "Your mistakes do not fit a clear tactical theme. Look at the phase and opening figures.",
+    "times_one": "{{count}} time",
+    "times_other": "{{count}} times",
+    "example": "Game of {{date}}",
+    "train": "Train this theme",
+    "trendBetter": "Getting better: {{recent}} mistakes per {{games}}0 moves in your last 10 games, {{before}} before.",
+    "trendWorse": "Watch out: {{recent}} mistakes per {{games}}0 moves in your last 10 games, {{before}} before.",
+    "planTitle": "This week’s plan",
+    "regenerate": "Redo",
+    "mistakesDay": "Puzzles from your mistakes",
+    "today": "Today",
+    "progress": "{{done}}/{{count}}",
+    "dayDone": "Done",
+    "phaseTitle": "By game phase",
+    "per100": "Mistakes per 100 of your moves",
+    "openingTitle": "By opening",
+    "noOpenings": "No opening with at least two games yet.",
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games"
   }
 }

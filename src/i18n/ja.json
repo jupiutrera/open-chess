@@ -75,7 +75,9 @@
     "openings": "レパートリーを復習",
     "puzzleRating": "パズル",
     "due_one": "復習する手が {{count}} 個あります",
-    "due_other": "復習する手が {{count}} 個あります"
+    "due_other": "復習する手が {{count}} 個あります",
+    "training": "あなたの弱点",
+    "trainingSub": "よくあるミスと、それを鍛える今週のパズル計画"
   },
   "play": {
     "botsTab": "ボット",
@@ -591,5 +593,33 @@
     "highContrast": "ハイコントラスト",
     "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）",
     "system": "システム"
+  },
+  "training": {
+    "title": "あなたの弱点",
+    "basedOn_one": "検討済みの対局 {{count}} 局（あなたの指し手 {{moves}} 手）にもとづきます。",
+    "basedOn_other": "検討済みの対局 {{count}} 局（あなたの指し手 {{moves}} 手）にもとづきます。",
+    "empty": "弱点を見つけるには、検討済みの対局が少なくとも {{count}} 局必要です。対局を検討するか、インポートしてください。",
+    "toGames": "自分の対局へ",
+    "toImport": "対局をインポート",
+    "weakTitle": "よくあるミス",
+    "noThemes": "あなたのミスは特定の戦術テーマに当てはまりません。局面の段階別・オープニング別の数字を見てみましょう。",
+    "times_one": "{{count}} 回",
+    "times_other": "{{count}} 回",
+    "example": "{{date}} の対局",
+    "train": "このテーマを練習",
+    "trendBetter": "上達しています：直近{{games}}局は100手あたり {{recent}} 回のミス、以前は {{before}} 回でした。",
+    "trendWorse": "注意：直近{{games}}局は100手あたり {{recent}} 回のミス、以前は {{before}} 回でした。",
+    "planTitle": "今週の計画",
+    "regenerate": "作り直す",
+    "mistakesDay": "自分のミスから作ったパズル",
+    "today": "今日",
+    "progress": "{{done}}/{{count}}",
+    "dayDone": "完了",
+    "phaseTitle": "対局の段階別",
+    "per100": "あなたの指し手100手あたりのミス",
+    "openingTitle": "オープニング別",
+    "noOpenings": "2局以上指したオープニングはまだありません。",
+    "games_one": "{{count}} 局",
+    "games_other": "{{count}} 局"
   }
 }

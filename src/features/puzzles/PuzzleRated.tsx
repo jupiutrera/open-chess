@@ -53,7 +53,7 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
       // the daily puzzle counts once: coming back to it later is practice
       if (daily && (await triedIn(puzzle.id, 'daily'))) return
       const before = rating ?? 0
-      const after = await recordAttempt(puzzle, solved, daily ? 'daily' : theme ? 'theme' : 'rated', !daily)
+      const after = await recordAttempt(puzzle, solved, daily ? 'daily' : theme ? 'theme' : 'rated', !daily, daily ? undefined : theme)
       if (after !== undefined) {
         setDelta(after - before)
         setRating(after)
