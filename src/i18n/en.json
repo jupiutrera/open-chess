@@ -155,6 +155,8 @@
     "challenge_best": "{{delta}} Elo: you played the best move",
     "challenge_worst": "{{delta}} Elo: you played the worst move",
     "challenge_check": "{{delta}} Elo: you gave check",
+    "challenge_broken": "It can no longer copy you: now it thinks for itself",
+    "challenge_grudge": "Grudge: now it goes after your {{piece}} pieces",
     "challengeCapture": "Capture: it now plays at {{elo}} Elo"
   },
   "bots": {

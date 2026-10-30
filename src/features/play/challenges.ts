@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
-import { Chess, type Move } from 'chess.js'
+import { Chess, type Move, type PieceSymbol, type Square } from 'chess.js'
 import type { Engine } from '../../engine/engine'
-import { uciOf } from '../../chess/util'
-import { budgetMs, engineHistory, playAtElo, rankMoves, type Bot, type GameHistory, type RankedMove } from './bots'
+import { START_FEN, playUci, uciOf } from '../../chess/util'
+import { budgetMs, engineHistory, playAtElo, rankMoves, type Bot, type BotClock, type GameHistory, type RankedMove } from './bots'
+import { timeControl } from './timeControl'
 
 /**
  * Challenges: Stockfish with a funny handicap, after the "Stockfish, but…" videos. The rules
@@ -25,6 +26,9 @@ export type ChallengeKind =
   | 'captureSwing'
   | 'mirror'
   | 'noQueen'
+  | 'symmetry'
+  | 'panic'
+  | 'grudge'
 
 export interface ChallengeRules {
   startElo: number
@@ -36,10 +40,18 @@ export interface ChallengeRules {
   /** a fixed start position, and the side the user takes in it */
   startFen?: string
   userColor?: 'w' | 'b'
+  /** a clock it needs, used when the game was set up without one */
+  clock?: string
 }
 
 export const MAX_ELO = 3200
 const LOW_ELO = 250
+/** Mirrorfish's strength once it cannot copy you */
+const SYMMETRY_ELO = 1800
+/** Panicfish's strength with its flag about to fall */
+const PANIC_FLOOR = 400
+/** how much win% Grudgefish gives up to go after its grudge */
+const GRUDGE_MARGIN = 8
 
 export const CHALLENGES: Record<ChallengeKind, ChallengeRules> = {
   drain: { startElo: MAX_ELO, dynamic: true },
@@ -56,6 +68,16 @@ export const CHALLENGES: Record<ChallengeKind, ChallengeRules> = {
   captureSwing: { startElo: MAX_ELO, dynamic: true },
   mirror: { startElo: MAX_ELO, rates: true },
   noQueen: { startElo: MAX_ELO, startFen: 'rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', userColor: 'w' },
+  // copying needs the symmetric start, with the user moving first
+  symmetry: { startElo: SYMMETRY_ELO, startFen: START_FEN, userColor: 'w' },
+  panic: { startElo: MAX_ELO, dynamic: true, clock: '5+0' },
+  grudge: { startElo: MAX_ELO },
+}
+
+/** The time control a game against `kind` is played at: its own clock when it needs one and `tc` has none. */
+export function challengeClock(kind: ChallengeKind | undefined, tc: string | null): string | null {
+  const own = kind && CHALLENGES[kind].clock
+  return own && timeControl(tc).base === 0 ? own : tc
 }
 
 /** The challenge's state after a ply. */
@@ -63,6 +85,10 @@ export interface ChallengePly {
   elo: number
   /** after a user move the mirror rated: the win% it lost */
   loss?: number
+  /** Mirrorfish has failed to copy a move at least once */
+  broken?: boolean
+  /** Grudgefish: the type of the last piece the user took from it */
+  grudge?: PieceSymbol
 }
 
 /** How the engine judged one of the user's moves. */
@@ -77,22 +103,29 @@ export interface PlyFacts {
   byBot: boolean
   capture: boolean
   check: boolean
+  /** the piece type taken, if any */
+  captured?: PieceSymbol
   rating?: MoveRating
+  /** a bot move that copies the user's previous move in the mirror */
+  mirrored?: boolean
 }
 
-export type EloReason = 'move' | 'best' | 'worst' | 'check' | 'capture'
+/** What changed; `broken` and `grudge` keep the Elo and only announce a new mood. */
+export type EloReason = 'move' | 'best' | 'worst' | 'check' | 'capture' | 'broken' | 'grudge'
 export interface EloChange {
   from: number
   to: number
   reason: EloReason
+  /** grudge: the piece type it now goes after */
+  piece?: PieceSymbol
 }
 
 export function initialPly(kind: ChallengeKind): ChallengePly {
   return { elo: CHALLENGES[kind].startElo }
 }
 
-export function factsOf(m: { color: 'w' | 'b'; san: string; captured?: string }, userColor: 'w' | 'b'): PlyFacts {
-  return { byBot: m.color !== userColor, capture: !!m.captured, check: /[+#]/.test(m.san) }
+export function factsOf(m: { color: 'w' | 'b'; san: string; captured?: PieceSymbol }, userColor: 'w' | 'b'): PlyFacts {
+  return { byBot: m.color !== userColor, capture: !!m.captured, check: /[+#]/.test(m.san), captured: m.captured }
 }
 
 const clamp = (elo: number) => Math.max(0, Math.min(MAX_ELO, elo))
@@ -118,6 +151,15 @@ export function nextPly(kind: ChallengeKind, prev: ChallengePly, f: PlyFacts): {
       return f.capture ? to(prev.elo >= MAX_ELO ? LOW_ELO : MAX_ELO, 'capture') : { ply: { elo: prev.elo } }
     case 'mirror':
       return { ply: !f.byBot && f.rating ? { elo: prev.elo, loss: f.rating.loss } : { elo: prev.elo } }
+    case 'symmetry':
+      // announced once: after that it keeps trying to copy, but the spell is broken
+      return f.byBot && f.mirrored === false && !prev.broken
+        ? { ply: { ...prev, broken: true }, change: { from: prev.elo, to: prev.elo, reason: 'broken' } }
+        : { ply: { ...prev } }
+    case 'grudge':
+      return !f.byBot && f.captured
+        ? { ply: { ...prev, grudge: f.captured }, change: { from: prev.elo, to: prev.elo, reason: 'grudge', piece: f.captured } }
+        : { ply: { ...prev } }
     default:
       return { ply: { elo: prev.elo } }
   }
@@ -146,7 +188,7 @@ export async function rateUserMove(
   fenBefore: string,
   uci: string,
   history?: GameHistory,
-  clock?: { left: number; inc: number },
+  clock?: BotClock,
 ): Promise<MoveRating | null> {
   if (new Chess(fenBefore).moves().length <= 1) return { best: false, worst: false, loss: 0 }
   const { moves, complete } = await rankMoves(engine, fenBefore, { history, depth: 8, movetime: budgetMs(1500, clock) })
@@ -172,6 +214,43 @@ export function pickHalving(moves: RankedMove[], rnd = Math.random): RankedMove 
 export function pickMirror(moves: RankedMove[], loss: number): RankedMove {
   const top = moves[0].win
   return moves.reduce((a, m) => (Math.abs(top - m.win - loss) < Math.abs(top - a.win - loss) ? m : a))
+}
+
+/** The same move seen in the mirror between the two sides: e2e4 becomes e7e5. */
+export function mirrorUci(uci: string): string {
+  const flip = (rank: string) => String(9 - Number(rank))
+  return uci[0] + flip(uci[1]) + uci[2] + flip(uci[3]) + uci.slice(4)
+}
+
+/** Panicfish's Elo for the time it has left: full strength with a full clock, rounded to 50. */
+export function panicElo(left: number, base: number): number {
+  const share = base > 0 ? Math.min(1, Math.max(0, left / base)) : 1
+  return Math.round((PANIC_FLOOR + (MAX_ELO - PANIC_FLOOR) * share) / 50) * 50
+}
+
+/**
+ * Grudgefish's move from a ranking: among the moves that give up little, one that takes a piece
+ * of the grudge type, else one that attacks such a piece, else the best.
+ */
+export function pickGrudge(fen: string, moves: RankedMove[], piece: PieceSymbol): RankedMove {
+  const c = new Chess(fen)
+  const me = c.turn()
+  const fine = moves.filter((m) => moves[0].win - m.win <= GRUDGE_MARGIN)
+  // what each capture takes, en passant included
+  const takes = new Map(c.moves({ verbose: true }).flatMap((m) => (m.captured ? [[uciOf(m), m.captured] as const] : [])))
+  const take = fine.find((m) => takes.get(m.uci) === piece)
+  if (take) return take
+  const targets = c
+    .board()
+    .flat()
+    .filter((p) => p && p.color !== me && p.type === piece)
+    .map((p) => p!.square)
+  const hunt = fine.find((m) => {
+    const next = new Chess(fen)
+    const mv = playUci(next, m.uci)
+    return !!mv && targets.some((sq) => next.attackers(sq, me).includes(mv.to as Square))
+  })
+  return hunt ?? moves[0]
 }
 
 const PIECE_VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9 }
@@ -201,7 +280,7 @@ export async function challengeMove(
   fen: string,
   state: ChallengePly,
   history?: GameHistory,
-  clock?: { left: number; inc: number },
+  clock?: BotClock,
   rnd = Math.random,
 ): Promise<string | null> {
   if (!new Chess(fen).moves().length) return null
@@ -244,6 +323,18 @@ export async function challengeMove(
       const moves = await rank()
       return moves.length ? pickMirror(moves, state.loss).uci : null
     }
+    case 'symmetry': {
+      // copy the user's last move when the mirror allows it, otherwise think for itself
+      const last = history?.moves.at(-1)
+      const copy = last && mirrorUci(uciOf(last))
+      if (copy && playUci(new Chess(fen), copy)) return copy
+      return playAtElo(engine, fen, state.elo, history, clock)
+    }
+    case 'grudge': {
+      if (!state.grudge) return full()
+      const moves = await rank()
+      return moves.length ? pickGrudge(fen, moves, state.grudge).uci : null
+    }
     default:
       return playAtElo(engine, fen, state.elo, history, clock)
   }
@@ -252,7 +343,9 @@ export async function challengeMove(
 /** A resumed game's saved challenge states, when they look sound. */
 export function validPlies(v: unknown): ChallengePly[] | undefined {
   if (!Array.isArray(v) || !v.length) return undefined
-  return v.every((p) => p && typeof p === 'object' && typeof p.elo === 'number') ? (v as ChallengePly[]) : undefined
+  const sound = (p: { elo?: unknown; grudge?: unknown }) =>
+    typeof p.elo === 'number' && (p.grudge === undefined || (typeof p.grudge === 'string' && 'pnbrqk'.includes(p.grudge) && p.grudge.length === 1))
+  return v.every((p) => p && typeof p === 'object' && sound(p)) ? (v as ChallengePly[]) : undefined
 }
 
 /**
@@ -287,7 +380,7 @@ export function useChallenge(bot: Bot, resumed?: ChallengePly[]) {
       userColor: 'w' | 'b',
       notify: (c: EloChange) => void,
       alive: () => boolean = () => true,
-      clock?: { left: number; inc: number },
+      clock?: BotClock,
     ): Promise<ChallengePly | null> {
       const moves = game.moves
       if (!kind) return { elo: bot.elo }
@@ -297,6 +390,7 @@ export function useChallenge(bot: Bot, resumed?: ChallengePly[]) {
       for (let k = cur.length - 1; k < moves.length; k++) {
         const m = moves[k]
         const facts = factsOf(m, userColor)
+        if (kind === 'symmetry' && facts.byBot) facts.mirrored = k > 0 && uciOf(m) === mirrorUci(uciOf(moves[k - 1]))
         if (!facts.byBot && CHALLENGES[kind].rates) {
           const rating = await rateUserMove(engine, m.before, uciOf(m),{ startFen: game.startFen, moves: moves.slice(0, k) }, clock)
           if (!rating || !alive()) return null
@@ -306,6 +400,8 @@ export function useChallenge(bot: Bot, resumed?: ChallengePly[]) {
         cur = [...cur, ply]
         if (change) changes.push(change)
       }
+      // Panicfish plays by its clock, read at the start of its turn
+      if (kind === 'panic' && clock?.base) cur = [...cur.slice(0, -1), { elo: panicElo(clock.left, clock.base) }]
       set(cur)
       for (const c of changes) notify(c)
       return cur[cur.length - 1]

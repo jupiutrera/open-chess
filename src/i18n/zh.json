@@ -155,6 +155,8 @@
     "challenge_best": "{{delta}} Elo：你走了最佳着法",
     "challenge_worst": "{{delta}} Elo：你走了最差着法",
     "challenge_check": "{{delta}} Elo：你将了它一军",
+    "challenge_broken": "它没法再模仿你了：现在开始自己思考",
+    "challenge_grudge": "记仇：现在它专找你的{{piece}}下手",
     "challengeCapture": "吃子：它现在以 {{elo}} Elo 下棋"
   },
   "bots": {

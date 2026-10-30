@@ -241,6 +241,9 @@ export const BOTS: Bot[] = [
     ['sf-rollercoaster', 'captureSwing', 3200, 300, 'Yoyofish', 'Yoyofish', 'Cambia entre 3200 y 250 de Elo con cada captura, sea de quien sea.', 'Switches between 3200 and 250 Elo on every capture, by either side.'],
     ['sf-mirror', 'mirror', 3200, 190, 'Copyfish', 'Copyfish', 'Copia la calidad de tu última jugada: si fallas, falla; si aciertas, acierta.', 'Copies the quality of your last move: blunder and it blunders, play well and so does it.'],
     ['sf-queenless', 'noQueen', 3200, 120, 'Oddsfish', 'Oddsfish', 'Stockfish a tope, pero empieza sin dama. Tú llevas blancas.', 'Full-strength Stockfish, but it starts without its queen. You play White.'],
+    ['sf-symmetry', 'symmetry', 1800, 210, 'Mirrorfish', 'Mirrorfish', 'Copia tus jugadas en espejo mientras sean legales. Cuando no puede, piensa por su cuenta a 1800. Tú llevas blancas.', 'Copies your moves in the mirror while they are legal. When it cannot, it thinks for itself at 1800. You play White.'],
+    ['sf-panic', 'panic', 3200, 10, 'Panicfish', 'Panicfish', 'Juega a 3200 con el reloj lleno y peor cuanto menos tiempo le queda. Siempre con reloj: 5 minutos si no eliges otro.', 'Plays at 3200 with a full clock and worse the less time it has left. Always on a clock: 5 minutes unless you pick another.'],
+    ['sf-grudge', 'grudge', 3200, 350, 'Grudgefish', 'Grudgefish', 'Si le capturas una pieza, irá a por tus piezas de ese tipo siempre que no le cueste demasiado.', 'Take one of its pieces and it goes after yours of that type, as long as it does not cost too much.'],
   ]),
 ]
 
@@ -354,9 +357,16 @@ function bookMove(bot: Bot, chess: Chess, hist: string[]): string | null {
 }
 
 /** Thinking time for a search, shrunk so the bot never flags: about 1/30 of its clock plus the increment. */
-export function budgetMs(wanted: number, clock?: { left: number; inc: number }): number {
+export function budgetMs(wanted: number, clock?: BotClock): number {
   if (!clock) return wanted
   return Math.max(50, Math.min(wanted, clock.left / 30 + clock.inc * 0.8))
+}
+
+/** The bot's clock in ms: what is left, the increment, and the starting time when known. */
+export interface BotClock {
+  left: number
+  inc: number
+  base?: number
 }
 
 /** How the game got to the position: the start and the moves played (chess.js moves fit). */
@@ -413,7 +423,7 @@ export async function playAtElo(
   fen: string,
   elo: number,
   history?: GameHistory,
-  clock?: { left: number; inc: number },
+  clock?: BotClock,
 ): Promise<string | null> {
   const chess = new Chess(fen)
   const legal = chess.moves({ verbose: true })
@@ -450,7 +460,7 @@ export async function botMove(
   engine: Engine,
   fen: string,
   history?: GameHistory,
-  clock?: { left: number; inc: number },
+  clock?: BotClock,
 ): Promise<string | null> {
   const chess = new Chess(fen)
   if (!chess.moves().length) return null

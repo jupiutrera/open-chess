@@ -155,6 +155,8 @@
     "challenge_best": "{{delta}} Elo: has jugado la mejor jugada",
     "challenge_worst": "{{delta}} Elo: has jugado la peor jugada",
     "challenge_check": "{{delta}} Elo: le has dado jaque",
+    "challenge_broken": "Ya no puede copiarte: ahora piensa por su cuenta",
+    "challenge_grudge": "Rencor: ahora va a por tus piezas de tipo {{piece}}",
     "challengeCapture": "Captura: ahora juega a {{elo}} de Elo"
   },
   "bots": {
