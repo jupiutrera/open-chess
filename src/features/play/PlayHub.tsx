@@ -7,7 +7,7 @@ import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal } from '@phosphor
 import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
 
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
-import { CHALLENGES } from './challenges'
+import { CHALLENGES, challengeClock } from './challenges'
 import { clearLiveGame, loadLiveGame } from './liveGame'
 import { TimeControlPicker } from './TimeControlPicker'
 import { timeControl } from './timeControl'
@@ -65,14 +65,16 @@ export default function PlayHub() {
   // a challenge may fix the start position and the user's side
   const rules = selected.challenge ? CHALLENGES[selected.challenge] : undefined
   const side = rules?.userColor ?? color
-  const timeLabel = tc === 'none' ? t('play.noTime') : timeControl(tc).label
+  // a challenge that needs a clock gets one when none was picked
+  const clockTc = challengeClock(selected.challenge, tc) ?? tc
+  const timeLabel = clockTc === 'none' ? t('play.noTime') : timeControl(clockTc).label
   const helps = Object.values(useSettings((s) => s.assist)).filter(Boolean).length
 
   // a new game would replace the saved one: ask first
   const [confirmNew, setConfirmNew] = useState(false)
   const begin = () => {
     clearLiveGame('bot')
-    const q = new URLSearchParams({ color: side, tc })
+    const q = new URLSearchParams({ color: side, tc: clockTc })
     if (startFen) q.set('fen', startFen)
     nav(`/play/bot/${selected.id}?${q}`)
   }

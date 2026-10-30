@@ -5,6 +5,7 @@ import { START_FEN } from '../../chess/util'
 import type { RankedMove } from './bots'
 import {
   CHALLENGES,
+  challengeClock,
   challengeMove,
   checkingMoves,
   factsOf,
@@ -14,6 +15,9 @@ import {
   pickDrawish,
   pickHalving,
   pickMirror,
+  mirrorUci,
+  panicElo,
+  pickGrudge,
   rateFromRanking,
   rateUserMove,
   validPlies,
@@ -88,7 +92,7 @@ describe('factsOf', () => {
   it('reads who moved, captures and checks', () => {
     const c = new Chess('4k3/8/8/8/8/8/3q4/R3K3 w - - 0 1')
     const m = c.move('Kxd2')
-    expect(factsOf(m, 'w')).toEqual({ byBot: false, capture: true, check: false })
+    expect(factsOf(m, 'w')).toEqual({ byBot: false, capture: true, check: false, captured: 'q' })
     expect(factsOf(c.move('Ke7'), 'w').byBot).toBe(true)
   })
 })
@@ -192,5 +196,82 @@ describe('validPlies', () => {
     expect(validPlies([{ elo: 'x' }])).toBeUndefined()
     expect(validPlies(null)).toBeUndefined()
     expect(validPlies([])).toBeUndefined()
+  })
+})
+
+describe('Mirrorfish', () => {
+  it('mirrors a move between the two sides, castling and promotion included', () => {
+    expect(mirrorUci('e2e4')).toBe('e7e5')
+    expect(mirrorUci('g1f3')).toBe('g8f6')
+    expect(mirrorUci('e1g1')).toBe('e8g8')
+    expect(mirrorUci('a7a8q')).toBe('a2a1q')
+  })
+  it('copies the last move when it is legal, without asking the engine', async () => {
+    const { engine, calls } = fakeEngine([pv('d7d5', 0)])
+    const fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
+    const history = { startFen: START_FEN, moves: [{ san: 'e4', from: 'e2', to: 'e4' } as const] }
+    expect(await challengeMove('symmetry', engine, fen, { elo: 1800 }, history)).toBe('e7e5')
+    expect(calls).toHaveLength(0)
+  })
+  it('thinks for itself when the mirror move is illegal', async () => {
+    // its d-pawn already stands on d6, so 2.d3 cannot be copied with ...d6
+    const { engine } = fakeEngine([pv('g8f6', 0)])
+    const fen = 'rnbqkbnr/ppp1pppp/3p4/8/8/3P4/PPP1PPPP/RNBQKBNR b KQkq - 0 2'
+    const history = { startFen: START_FEN, moves: [{ san: 'd3', from: 'd2', to: 'd3' } as const] }
+    expect(await challengeMove('symmetry', engine, fen, { elo: 1800 }, history)).toBe('g8f6')
+  })
+  it('announces once that the spell is broken', () => {
+    const first = nextPly('symmetry', { elo: 1800 }, { ...bot, mirrored: false })
+    expect(first.change?.reason).toBe('broken')
+    expect(first.ply.broken).toBe(true)
+    expect(nextPly('symmetry', first.ply, { ...bot, mirrored: false }).change).toBeUndefined()
+    expect(nextPly('symmetry', { elo: 1800 }, { ...bot, mirrored: true }).change).toBeUndefined()
+  })
+})
+
+describe('Panicfish', () => {
+  it('plays weaker the less time it has', () => {
+    expect(panicElo(300_000, 300_000)).toBe(3200)
+    expect(panicElo(150_000, 300_000)).toBe(1800)
+    expect(panicElo(0, 300_000)).toBe(400)
+    // increments can push it past its starting time; no clock means full strength
+    expect(panicElo(320_000, 300_000)).toBe(3200)
+    expect(panicElo(1000, 0)).toBe(3200)
+  })
+  it('gets a clock when the game was set up without one', () => {
+    expect(challengeClock('panic', 'none')).toBe('5+0')
+    expect(challengeClock('panic', '3+2')).toBe('3+2')
+    expect(challengeClock('drain', 'none')).toBe('none')
+  })
+})
+
+describe('Grudgefish', () => {
+  // Black (the bot) has a bishop on b4; White has a knight on c3 and a bishop on f4
+  const fen = '4k3/8/8/8/1b3B2/2N5/8/4K3 b - - 0 1'
+  const moves = [ranked('e8d7', 0, 50), ranked('b4c3', -10, 46), ranked('b4d6', -20, 44)]
+  it('takes a piece of the grudge type when it costs little', () => {
+    expect(pickGrudge(fen, moves, 'n').uci).toBe('b4c3')
+  })
+  it('otherwise attacks one', () => {
+    expect(pickGrudge(fen, moves, 'b').uci).toBe('b4d6')
+  })
+  it('does not throw the game away for it', () => {
+    expect(pickGrudge(fen, [ranked('e8d7', 0, 50), ranked('b4c3', -300, 30)], 'n').uci).toBe('e8d7')
+  })
+  it('holds a grudge for the last piece the user took', () => {
+    const taken = nextPly('grudge', { elo: 3200 }, { ...user, capture: true, captured: 'n' })
+    expect(taken.ply.grudge).toBe('n')
+    expect(taken.change).toMatchObject({ reason: 'grudge', piece: 'n' })
+    expect(nextPly('grudge', taken.ply, bot).ply.grudge).toBe('n')
+    expect(factsOf({ color: 'w', san: 'Bxc6', captured: 'n' }, 'w').captured).toBe('n')
+  })
+  it('counts an en passant capture as taking a pawn', () => {
+    // the black pawn on d4 can take e3 en passant after White's e2-e4
+    const ep = '4k3/8/8/8/3pP3/8/8/4K3 b - e3 0 1'
+    expect(pickGrudge(ep, [ranked('e8d7', 0, 50), ranked('d4e3', -5, 48)], 'p').uci).toBe('d4e3')
+  })
+  it('resumes with its grudge, and drops a mangled one', () => {
+    expect(validPlies([{ elo: 3200 }, { elo: 3200, grudge: 'n' }])).toHaveLength(2)
+    expect(validPlies([{ elo: 3200, grudge: 'x' }])).toBeUndefined()
   })
 })

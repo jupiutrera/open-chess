@@ -155,6 +155,8 @@
     "challenge_best": "{{delta}} Elo：最善手を指しました",
     "challenge_worst": "{{delta}} Elo：最悪手を指しました",
     "challenge_check": "{{delta}} Elo：王手をかけました",
+    "challenge_broken": "もう真似できません。ここからは自分で考えます",
+    "challenge_grudge": "恨み：あなたの{{piece}}を狙ってきます",
     "challengeCapture": "駒取り：今は Elo {{elo}} で指します"
   },
   "bots": {

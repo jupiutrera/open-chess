@@ -172,7 +172,10 @@
     "sf-halfhearted": { "name": "Coinfish", "bio": "最善手は2回に1回、次善手は4回に1回、という具合に指す。" },
     "sf-rollercoaster": { "name": "Yoyofish", "bio": "どちらが駒を取っても、取るたびにElo 3200と250が入れ替わる。" },
     "sf-mirror": { "name": "Copyfish", "bio": "あなたの直前の手の質をまねる。悪手には悪手、好手には好手。" },
-    "sf-queenless": { "name": "Oddsfish", "bio": "全力のStockfishだが、クイーンなしで始まる。あなたは白番。" }
+    "sf-queenless": { "name": "Oddsfish", "bio": "全力のStockfishだが、クイーンなしで始まる。あなたは白番。" },
+    "sf-symmetry": { "name": "Mirrorfish", "bio": "合法な限り、あなたの指し手を鏡のように真似します。真似できないときはレート1800で自分で考えます。あなたは白番です。" },
+    "sf-panic": { "name": "Panicfish", "bio": "持ち時間が満タンならレート3200、残り時間が減るほど弱くなります。必ず時計あり：選ばなければ5分です。" },
+    "sf-grudge": { "name": "Grudgefish", "bio": "駒を1つ取られると、損をしすぎない範囲であなたの同じ種類の駒を狙ってきます。" }
   },
   "chat": {
     "kid": {

@@ -155,6 +155,8 @@
     "challenge_best": "{{delta}} Elo: hai giocato la mossa migliore",
     "challenge_worst": "{{delta}} Elo: hai giocato la mossa peggiore",
     "challenge_check": "{{delta}} Elo: gli hai dato scacco",
+    "challenge_broken": "Non può più copiarti: ora pensa da solo",
+    "challenge_grudge": "Rancore: ora punta ai tuoi pezzi di tipo {{piece}}",
     "challengeCapture": "Cattura: ora gioca a {{elo}} Elo"
   },
   "bots": {

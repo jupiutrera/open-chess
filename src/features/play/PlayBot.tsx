@@ -17,7 +17,7 @@ import { START_FEN, capturedPieces, gameResultText, moveNumbering, parseUci, tim
 import { play } from '../../chess/sounds'
 import { formatScore, sharedEngine, type SearchResult } from '../../engine/engine'
 import { botAcceptsDraw, botById, botMove, botName } from './bots'
-import { CHALLENGES, challengeMove, useChallenge, validPlies, type EloChange } from './challenges'
+import { CHALLENGES, challengeClock, challengeMove, useChallenge, validPlies, type EloChange } from './challenges'
 import { timeControl } from './timeControl'
 import { GameOverDialog, endAnnouncement, type GameEnd } from './GameOver'
 import { GameAnnouncer } from '../../board/GameAnnouncer'
@@ -34,18 +34,21 @@ import { localize } from '../../i18n/content'
 import { PLAYER } from './playerName'
 import { customStartFen } from './startPosition'
 
+/** chess.js piece letters to their `common.piece.*` names */
+const PIECE_NAMES: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
+
 export default function PlayBot() {
   const { t } = useTranslation()
   const nav = useNavigate()
   const { botId = 'ivan' } = useParams()
   const [params, setParams] = useSearchParams()
   const bot = botById(botId) ?? botById('ivan')!
-  const tc = timeControl(params.get('tc'))
   const assist = useSettings((s) => s.assist)
   const lang = useSettings((s) => s.lang)
   const name = botName(bot, lang)
   // a challenge may fix the start position and the user's side
   const rules = bot.challenge ? CHALLENGES[bot.challenge] : undefined
+  const tc = timeControl(challengeClock(bot.challenge, params.get('tc')))
 
   // a saved game in progress against this bot, when coming from "Continue" or reloading
   const [resumed] = useState(() => {
@@ -101,7 +104,8 @@ export default function PlayBot() {
     // the per-move drift shows on the rating alone
     if (c.reason === 'move') return
     const delta = `${c.to > c.from ? '+' : '−'}${Math.abs(c.to - c.from)}`
-    toast(c.reason === 'capture' ? t('play.challengeCapture', { elo: c.to }) : t(`play.challenge_${c.reason}`, { delta }))
+    const piece = c.piece && t(`common.piece.${PIECE_NAMES[c.piece]}`).toLocaleLowerCase()
+    toast(c.reason === 'capture' ? t('play.challengeCapture', { elo: c.to }) : t(`play.challenge_${c.reason}`, { delta, piece }))
   }
 
   const finish = useCallback(
@@ -252,7 +256,7 @@ export default function PlayBot() {
     setBotFailed(false)
     setThinking(true)
     const started = performance.now()
-    const botClock = clock.enabled ? { left: clock.left(turn), inc: tc.inc * 1000 } : undefined
+    const botClock = clock.enabled ? { left: clock.left(turn), inc: tc.inc * 1000, base: tc.base * 1000 } : undefined
     const history = { startFen: game.startFen, moves: game.moves }
     const think = async () => {
       if (!challenge.kind) return botMove(bot, sharedEngine(), liveFen, history, botClock)

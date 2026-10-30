@@ -172,7 +172,10 @@
     "sf-halfhearted": { "name": "Coinfish", "bio": "Gioca la mossa migliore metà delle volte, la seconda una volta su quattro, e così via." },
     "sf-rollercoaster": { "name": "Yoyofish", "bio": "Passa da 3200 a 250 Elo e viceversa a ogni cattura, di chiunque sia." },
     "sf-mirror": { "name": "Copyfish", "bio": "Copia la qualità della tua ultima mossa: se sbagli sbaglia, se giochi bene anche lui." },
-    "sf-queenless": { "name": "Oddsfish", "bio": "Stockfish al massimo, ma parte senza donna. Tu giochi con il Bianco." }
+    "sf-queenless": { "name": "Oddsfish", "bio": "Stockfish al massimo, ma parte senza donna. Tu giochi con il Bianco." },
+    "sf-symmetry": { "name": "Mirrorfish", "bio": "Copia le tue mosse allo specchio finché sono legali. Quando non può, pensa da solo a 1800. Giochi con il Bianco." },
+    "sf-panic": { "name": "Panicfish", "bio": "Gioca a 3200 con l’orologio pieno e sempre peggio man mano che il tempo finisce. Sempre con l’orologio: 5 minuti se non ne scegli un altro." },
+    "sf-grudge": { "name": "Grudgefish", "bio": "Se gli catturi un pezzo, punterà ai tuoi pezzi dello stesso tipo, purché non gli costi troppo." }
   },
   "chat": {
     "kid": {

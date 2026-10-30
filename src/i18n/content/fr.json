@@ -172,7 +172,10 @@
     "sf-halfhearted": { "name": "Coinfish", "bio": "Joue son meilleur coup une fois sur deux, le deuxième une fois sur quatre, et ainsi de suite." },
     "sf-rollercoaster": { "name": "Yoyofish", "bio": "Passe de 3200 à 250 Elo et inversement à chaque prise, de n’importe quel camp." },
     "sf-mirror": { "name": "Copyfish", "bio": "Copie la qualité de votre dernier coup : gaffez et il gaffe, jouez bien et lui aussi." },
-    "sf-queenless": { "name": "Oddsfish", "bio": "Stockfish à pleine puissance, mais il commence sans sa dame. Vous jouez les Blancs." }
+    "sf-queenless": { "name": "Oddsfish", "bio": "Stockfish à pleine puissance, mais il commence sans sa dame. Vous jouez les Blancs." },
+    "sf-symmetry": { "name": "Mirrorfish", "bio": "Copie vos coups en miroir tant qu’ils sont légaux. Quand il ne peut pas, il réfléchit seul à 1800. Vous avez les Blancs." },
+    "sf-panic": { "name": "Panicfish", "bio": "Joue à 3200 avec une pendule pleine, et de plus en plus mal à mesure que son temps file. Toujours avec pendule : 5 minutes si vous n’en choisissez pas." },
+    "sf-grudge": { "name": "Grudgefish", "bio": "Prenez-lui une pièce et il s’en prendra à vos pièces du même type, tant que ça ne lui coûte pas trop." }
   },
   "chat": {
     "kid": {

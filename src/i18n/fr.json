@@ -155,6 +155,8 @@
     "challenge_best": "{{delta}} Elo : vous avez joué le meilleur coup",
     "challenge_worst": "{{delta}} Elo : vous avez joué le pire coup",
     "challenge_check": "{{delta}} Elo : vous lui avez fait échec",
+    "challenge_broken": "Il ne peut plus vous copier : il réfléchit désormais seul",
+    "challenge_grudge": "Rancune : il s’en prend maintenant à vos pièces de type {{piece}}",
     "challengeCapture": "Prise : il joue maintenant à {{elo}} Elo"
   },
   "bots": {
