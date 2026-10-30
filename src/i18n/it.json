@@ -224,11 +224,27 @@
     "nextKey": "Momento chiave successivo",
     "exportPgn": "Esporta PGN",
     "why": {
-      "hangs": "Lascia il pezzo ({{piece}}) in {{square}} indifeso.",
+      "hangs": "Lascia senza difesa {{piece}}.",
       "allowsMate_one": "Concede matto in {{count}}.",
       "allowsMate_other": "Concede matto in {{count}}.",
       "missedMate_one": "C'era matto in {{count}} con {{san}}.",
-      "missedMate_other": "C'era matto in {{count}} a partire da {{san}}."
+      "missedMate_other": "C'era matto in {{count}} a partire da {{san}}.",
+      "backRank_one": "Concede un matto sull’ultima traversa: il re non ha case di fuga.",
+      "backRank_other": "Concede un matto in {{count}} sull’ultima traversa: il re non ha case di fuga.",
+      "allowsFork": "Concede la forchetta {{san}}, che attacca insieme {{targets}}.",
+      "missedFork": "{{san}} era una forchetta su {{targets}}.",
+      "allowsPin": "Concede {{san}}, che inchioda {{pinned}} (dietro c’è {{behind}}).",
+      "missedPin": "{{san}} inchiodava {{pinned}} (dietro c’era {{behind}}).",
+      "trapped": "Dopo {{san}}, {{piece}} resta senza case sicure.",
+      "losingTrade": "Il cambio porta a un finale che non è più vinto."
+    },
+    "pieceOn": {
+      "p": "il pedone in {{square}}",
+      "n": "il cavallo in {{square}}",
+      "b": "l’alfiere in {{square}}",
+      "r": "la torre in {{square}}",
+      "q": "la donna in {{square}}",
+      "k": "il re in {{square}}"
     },
     "retryFailed": "Impossibile verificare la mossa. Riprova.",
     "graphStart": "Posizione iniziale",

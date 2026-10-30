@@ -224,11 +224,27 @@
     "nextKey": "下一个关键时刻",
     "exportPgn": "导出 PGN",
     "why": {
-      "hangs": "{{square}} 的{{piece}}无人保护。",
+      "hangs": "{{piece}}无人保护。",
       "allowsMate_one": "让对方 {{count}} 步杀。",
       "allowsMate_other": "让对方 {{count}} 步杀。",
       "missedMate_one": "{{san}} 可以 {{count}} 步杀。",
-      "missedMate_other": "从 {{san}} 开始可以 {{count}} 步杀。"
+      "missedMate_other": "从 {{san}} 开始可以 {{count}} 步杀。",
+      "backRank_one": "让对方底线杀：王没有逃跑的格子。",
+      "backRank_other": "让对方 {{count}} 步底线杀：王没有逃跑的格子。",
+      "allowsFork": "让对方走 {{san}} 形成捉双，同时攻击{{targets}}。",
+      "missedFork": "{{san}} 可以捉双{{targets}}。",
+      "allowsPin": "让对方走 {{san}}，把{{pinned}}牵制在{{behind}}前面。",
+      "missedPin": "{{san}} 可以把{{pinned}}牵制在{{behind}}前面。",
+      "trapped": "对方走 {{san}} 后，{{piece}}已无安全格可去。",
+      "losingTrade": "这次兑换进入的残局已经赢不了了。"
+    },
+    "pieceOn": {
+      "p": "{{square}} 的兵",
+      "n": "{{square}} 的马",
+      "b": "{{square}} 的象",
+      "r": "{{square}} 的车",
+      "q": "{{square}} 的后",
+      "k": "{{square}} 的王"
     },
     "retryFailed": "无法检查这步棋，请重试。",
     "graphStart": "初始局面",

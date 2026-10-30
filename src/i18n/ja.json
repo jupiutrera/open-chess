@@ -224,11 +224,27 @@
     "nextKey": "次の重要局面",
     "exportPgn": "PGNを書き出す",
     "why": {
-      "hangs": "{{square}}の{{piece}}がただ取りになります。",
+      "hangs": "{{piece}}がただ取りになります。",
       "allowsMate_one": "{{count}}手詰めを許します。",
       "allowsMate_other": "{{count}}手詰めを許します。",
       "missedMate_one": "{{san}}で{{count}}手詰めがありました。",
-      "missedMate_other": "{{san}}から{{count}}手詰めがありました。"
+      "missedMate_other": "{{san}}から{{count}}手詰めがありました。",
+      "backRank_one": "バックランクメイトを許します。キングに逃げ場がありません。",
+      "backRank_other": "{{count}}手のバックランクメイトを許します。キングに逃げ場がありません。",
+      "allowsFork": "{{san}}のフォークを許し、{{targets}}が同時に狙われます。",
+      "missedFork": "{{san}}で{{targets}}へのフォークがありました。",
+      "allowsPin": "{{san}}を許し、{{pinned}}が{{behind}}の前でピンされます。",
+      "missedPin": "{{san}}で{{pinned}}を{{behind}}の前にピンできました。",
+      "trapped": "{{san}}の後、{{piece}}に安全なマスがなくなります。",
+      "losingTrade": "この交換で、もう勝てない終盤に入ります。"
+    },
+    "pieceOn": {
+      "p": "{{square}}のポーン",
+      "n": "{{square}}のナイト",
+      "b": "{{square}}のビショップ",
+      "r": "{{square}}のルーク",
+      "q": "{{square}}のクイーン",
+      "k": "{{square}}のキング"
     },
     "retryFailed": "その手を確認できませんでした。もう一度お試しください。",
     "graphStart": "開始局面",
