@@ -77,7 +77,9 @@
     "due_one": "{{count}} move due for review",
     "due_other": "{{count}} moves due for review",
     "training": "Your weak spots",
-    "trainingSub": "What you get wrong most, and a week of puzzles for it"
+    "trainingSub": "What you get wrong most, and a week of puzzles for it",
+    "openSource": "Open Chess is free and open source.",
+    "star": "Star it on GitHub"
   },
   "play": {
     "botsTab": "Bots",
@@ -614,7 +616,8 @@
     },
     "highContrast": "High contrast",
     "highContrastHint": "More readable buttons and secondary text (WCAG AA)",
-    "system": "System"
+    "system": "System",
+    "source": "Source code on GitHub"
   },
   "training": {
     "title": "Your weak spots",

@@ -88,7 +88,8 @@ export default defineConfig({
         // the opening book and puzzle index are small and needed everywhere; puzzle buckets (15 MB) cache as they load
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,wasm,mp3}', 'data/openings.json', 'data/puzzles/index.json'],
         // other piece and sound sets, and scripts the app's languages don't use, load on demand
-        globIgnores: ['**/assets/pieces-*/**', ...otherSoundSets.map((d) => `**/sounds/${d}/**`), '**/*-{cyrillic,cyrillic-ext,vietnamese}-*.woff2'],
+        // og.png is only for link previews
+        globIgnores: ['og.png', '**/assets/pieces-*/**',...otherSoundSets.map((d) => `**/sounds/${d}/**`), '**/*-{cyrillic,cyrillic-ext,vietnamese}-*.woff2'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         runtimeCaching: [
           {
