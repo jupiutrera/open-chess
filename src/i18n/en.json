@@ -224,11 +224,27 @@
     "nextKey": "Next key moment",
     "exportPgn": "Export PGN",
     "why": {
-      "hangs": "It leaves the {{piece}} on {{square}} hanging.",
+      "hangs": "It leaves {{piece}} hanging.",
       "allowsMate_one": "It allows mate in {{count}}.",
       "allowsMate_other": "It allows mate in {{count}}.",
       "missedMate_one": "There was mate in {{count}} with {{san}}.",
-      "missedMate_other": "There was mate in {{count}} starting with {{san}}."
+      "missedMate_other": "There was mate in {{count}} starting with {{san}}.",
+      "backRank_one": "It allows a back-rank mate: the king has no escape square.",
+      "backRank_other": "It allows a back-rank mate in {{count}}: the king has no escape square.",
+      "allowsFork": "It allows the fork {{san}}, hitting {{targets}} at once.",
+      "missedFork": "{{san}} was a fork on {{targets}}.",
+      "allowsPin": "It allows {{san}}, pinning {{pinned}} to {{behind}}.",
+      "missedPin": "{{san}} would have pinned {{pinned}} to {{behind}}.",
+      "trapped": "After {{san}}, {{piece}} has no safe square left.",
+      "losingTrade": "The trade leads to an ending that is no longer winning."
+    },
+    "pieceOn": {
+      "p": "the pawn on {{square}}",
+      "n": "the knight on {{square}}",
+      "b": "the bishop on {{square}}",
+      "r": "the rook on {{square}}",
+      "q": "the queen on {{square}}",
+      "k": "the king on {{square}}"
     },
     "retryFailed": "Couldn't check that move. Try again.",
     "graphStart": "Start position",

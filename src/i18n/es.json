@@ -224,11 +224,27 @@
     "nextKey": "Siguiente momento clave",
     "exportPgn": "Exportar PGN",
     "why": {
-      "hangs": "Deja el {{piece}} de {{square}} sin defensa.",
+      "hangs": "Deja {{piece}} sin defensa.",
       "allowsMate_one": "Permite mate en {{count}}.",
       "allowsMate_other": "Permite mate en {{count}}.",
       "missedMate_one": "Había mate en {{count}} con {{san}}.",
-      "missedMate_other": "Había mate en {{count}} empezando por {{san}}."
+      "missedMate_other": "Había mate en {{count}} empezando por {{san}}.",
+      "backRank_one": "Permite un mate en la última fila: el rey no tiene casillas de escape.",
+      "backRank_other": "Permite un mate en {{count}} en la última fila: el rey no tiene casillas de escape.",
+      "allowsFork": "Permite la horquilla {{san}}: {{targets}} quedan bajo ataque a la vez.",
+      "missedFork": "{{san}} era una horquilla sobre {{targets}}.",
+      "allowsPin": "Permite {{san}}, que clava {{pinned}} contra {{behind}}.",
+      "missedPin": "{{san}} clavaba {{pinned}} contra {{behind}}.",
+      "trapped": "Tras {{san}}, {{piece}} se queda sin casillas seguras.",
+      "losingTrade": "El cambio lleva a un final que ya no está ganado."
+    },
+    "pieceOn": {
+      "p": "el peón de {{square}}",
+      "n": "el caballo de {{square}}",
+      "b": "el alfil de {{square}}",
+      "r": "la torre de {{square}}",
+      "q": "la dama de {{square}}",
+      "k": "el rey de {{square}}"
     },
     "retryFailed": "No se pudo comprobar esa jugada. Inténtalo de nuevo.",
     "graphStart": "Posición inicial",

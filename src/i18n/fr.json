@@ -224,11 +224,27 @@
     "nextKey": "Moment clé suivant",
     "exportPgn": "Exporter le PGN",
     "why": {
-      "hangs": "La pièce ({{piece}}) en {{square}} reste en prise.",
+      "hangs": "Elle laisse {{piece}} en prise.",
       "allowsMate_one": "Elle permet un mat en {{count}}.",
       "allowsMate_other": "Elle permet un mat en {{count}}.",
       "missedMate_one": "Il y avait mat en {{count}} avec {{san}}.",
-      "missedMate_other": "Il y avait mat en {{count}} en commençant par {{san}}."
+      "missedMate_other": "Il y avait mat en {{count}} en commençant par {{san}}.",
+      "backRank_one": "Elle permet un mat du couloir : le roi n’a aucune case de fuite.",
+      "backRank_other": "Elle permet un mat du couloir en {{count}} : le roi n’a aucune case de fuite.",
+      "allowsFork": "Elle permet la fourchette {{san}}, qui attaque à la fois {{targets}}.",
+      "missedFork": "{{san}} était une fourchette sur {{targets}}.",
+      "allowsPin": "Elle permet {{san}}, qui cloue {{pinned}} devant {{behind}}.",
+      "missedPin": "{{san}} clouait {{pinned}} devant {{behind}}.",
+      "trapped": "Après {{san}}, {{piece}} n’a plus de case sûre.",
+      "losingTrade": "L’échange mène à une finale qui n’est plus gagnante."
+    },
+    "pieceOn": {
+      "p": "le pion en {{square}}",
+      "n": "le cavalier en {{square}}",
+      "b": "le fou en {{square}}",
+      "r": "la tour en {{square}}",
+      "q": "la dame en {{square}}",
+      "k": "le roi en {{square}}"
     },
     "retryFailed": "Impossible de vérifier ce coup. Réessayez.",
     "graphStart": "Position initiale",

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Chess } from 'chess.js'
 import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, ChartLineUp, Crown, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, ArrowsClockwise } from '@phosphor-icons/react'
 import type { DrawShape } from '@lichess-org/chessground/draw'
@@ -28,7 +29,7 @@ import { fmtDecimal } from '../../i18n/format'
 import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
 import { annotatedPgn } from './pgnExport'
-import { explainMove } from './explain'
+import { aboutReply, explainMove, type Explanation } from './explain'
 import { playLine } from './line'
 
 type Mode = 'summary' | 'moves'
@@ -144,6 +145,14 @@ export default function Review() {
     [parsed, total, cancelRetry],
   )
 
+  // why the viewed move was bad; the line after it starts with the opponent's reply
+  const { why, replyLine } = useMemo(() => {
+    const move = review && ply > 0 ? review.moves[ply - 1] : undefined
+    if (!review || !move || !parsed) return { why: null, replyLine: undefined }
+    const line = positionLinesFor(review, ply, review.moves[ply]?.bestUci ?? null)[0]?.pv
+    return { why: explainMove(move, parsed.fens[ply - 1], positionScore(review, ply - 1), line), replyLine: line }
+  }, [review, parsed, ply])
+
   const keyGoto = useCallback((p: number) => lineKeys.current?.(p) || goto(p), [goto])
   useBoardKeys({ ply, total, goto: keyGoto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
@@ -197,6 +206,8 @@ export default function Review() {
         : null
   const score: Score | undefined = current ? current.scoreAfter : review ? positionScore(review, 0) : undefined
 
+  // the reply the explanation is about, drawn in red next to the green best move
+  const threat = why && aboutReply(why) ? replyLine?.[0] : undefined
   const showArrow =
     mode === 'moves' && !variation && !retry && current?.bestUci && !['best', 'book', 'forced', 'brilliant', 'great'].includes(current.quality)
   // the line's next move
@@ -204,7 +215,10 @@ export default function Review() {
   const shapes: DrawShape[] = pickedUci
     ? [{ orig: pickedUci.slice(0, 2) as never, dest: pickedUci.slice(2, 4) as never, brush: 'paleBlue' }]
     : showArrow
-      ? [{ orig: current!.bestUci!.slice(0, 2) as never, dest: current!.bestUci!.slice(2, 4) as never, brush: 'green' }]
+      ? [
+          { orig: current!.bestUci!.slice(0, 2) as never, dest: current!.bestUci!.slice(2, 4) as never, brush: 'green' },
+          ...(threat ? [{ orig: threat.slice(0, 2) as never, dest: threat.slice(2, 4) as never, brush: 'red' }] : []),
+        ]
       : []
   const badge =
     mode === 'moves' && !retry
@@ -366,8 +380,7 @@ export default function Review() {
             <>
               <Coach
                 move={current}
-                fenBefore={parsed.fens[ply - 1]}
-                scoreBefore={ply > 0 ? positionScore(review, ply - 1) : undefined}
+                why={why}
                 retry={retry}
                 variation={!!variation && !retry}
                 onBest={showBest}
@@ -641,22 +654,20 @@ function QualityRow({ q, w, b }: { q: Quality; w: number; b: number }) {
 
 function Coach({
   move,
-  fenBefore,
-  scoreBefore,
+  why,
   retry,
   variation,
   onBest,
   onRetry,
 }: {
   move?: MoveReview
-  fenBefore?: string
-  scoreBefore?: Score
+  why: Explanation | null
   retry: null | 'waiting' | 'wrong' | 'right'
   variation: boolean
   onBest: () => void
   onRetry?: () => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   if (!move)
     return (
       <div className="border-b border-line p-4 text-fg-2">
@@ -671,14 +682,7 @@ function Coach({
         : retry === 'right'
           ? t('review.retryRight')
           : t(`review.explain.${move.quality}`, { san: move.san })
-  const why = !retry && fenBefore ? explainMove(move, fenBefore, scoreBefore) : null
-  const whyText = why
-    ? why.key === 'hangs'
-      ? t('review.why.hangs', { piece: t(`common.piece.${PIECE_NAME[why.piece]}`).toLocaleLowerCase(), square: why.square })
-      : why.key === 'missedMate'
-        ? t('review.why.missedMate', { count: why.n, san: why.best })
-        : t('review.why.allowsMate', { count: why.n })
-    : null
+  const whyText = why && !retry ? describeWhy(why, t, i18n.language) : null
   const showBestLine = !retry && move.bestSan && !['best', 'book', 'forced', 'brilliant', 'great'].includes(move.quality)
   return (
     <div key={move.ply + (retry ?? '')} className="enter border-b border-line p-4">
@@ -796,4 +800,26 @@ function EngineLines({
   )
 }
 
-const PIECE_NAME: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
+/** The coach's sentence for an explanation, with pieces named as "the knight on c6" in each language. */
+function describeWhy(why: Explanation, t: TFunction, lang: string): string {
+  const on = (x: { piece: string; square: string }) => t(`review.pieceOn.${x.piece}`, { square: x.square })
+  switch (why.key) {
+    case 'hangs':
+      return t('review.why.hangs', { piece: on(why) })
+    case 'allowsMate':
+    case 'backRank':
+      return t(`review.why.${why.key}`, { count: why.n })
+    case 'missedMate':
+      return t('review.why.missedMate', { count: why.n, san: why.best })
+    case 'allowsFork':
+    case 'missedFork':
+      return t(`review.why.${why.key}`, { san: why.san, targets: new Intl.ListFormat(lang, { type: 'conjunction' }).format(why.targets.map(on)) })
+    case 'allowsPin':
+    case 'missedPin':
+      return t(`review.why.${why.key}`, { san: why.san, pinned: on(why.pinned), behind: on(why.behind) })
+    case 'trapped':
+      return t('review.why.trapped', { san: why.san, piece: on(why.piece) })
+    case 'losingTrade':
+      return t('review.why.losingTrade')
+  }
+}
