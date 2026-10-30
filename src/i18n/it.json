@@ -75,7 +75,9 @@
     "openings": "Ripassa il tuo repertorio",
     "puzzleRating": "Problemi",
     "due_one": "{{count}} mossa da ripassare",
-    "due_other": "{{count}} mosse da ripassare"
+    "due_other": "{{count}} mosse da ripassare",
+    "training": "I tuoi punti deboli",
+    "trainingSub": "Cosa sbagli di più, e una settimana di puzzle per rimediare"
   },
   "play": {
     "botsTab": "Bot",
@@ -591,5 +593,33 @@
     "highContrast": "Contrasto elevato",
     "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)",
     "system": "Sistema"
+  },
+  "training": {
+    "title": "I tuoi punti deboli",
+    "basedOn_one": "In base a {{count}} partita analizzata ({{moves}} tue mosse).",
+    "basedOn_other": "In base a {{count}} partite analizzate ({{moves}} tue mosse).",
+    "empty": "Mi servono almeno {{count}} tue partite analizzate per trovare i tuoi punti deboli. Analizza qualche partita o importa le tue.",
+    "toGames": "Vai alle mie partite",
+    "toImport": "Importa partite",
+    "weakTitle": "Cosa sbagli di più",
+    "noThemes": "I tuoi errori non rientrano in un tema tattico preciso. Guarda i dati per fase e per apertura.",
+    "times_one": "{{count}} volta",
+    "times_other": "{{count}} volte",
+    "example": "Partita del {{date}}",
+    "train": "Allena questo tema",
+    "trendBetter": "Stai migliorando: {{recent}} errori ogni {{games}}0 mosse nelle ultime 10 partite, prima {{before}}.",
+    "trendWorse": "Attenzione: {{recent}} errori ogni {{games}}0 mosse nelle ultime 10 partite, prima {{before}}.",
+    "planTitle": "Piano della settimana",
+    "regenerate": "Rifai",
+    "mistakesDay": "Puzzle dai tuoi errori",
+    "today": "Oggi",
+    "progress": "{{done}}/{{count}}",
+    "dayDone": "Fatto",
+    "phaseTitle": "Per fase della partita",
+    "per100": "Errori ogni 100 tue mosse",
+    "openingTitle": "Per apertura",
+    "noOpenings": "Non c’è ancora un’apertura giocata in almeno due partite.",
+    "games_one": "{{count}} partita",
+    "games_other": "{{count}} partite"
   }
 }

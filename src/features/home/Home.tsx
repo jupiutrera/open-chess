@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DownloadSimple, CaretRight } from '@phosphor-icons/react'
+import { DownloadSimple, CaretRight, Target } from '@phosphor-icons/react'
 import { AppIcon, type AppIconName } from '../../ui/AppIcon'
 import { PieceIcon } from '../../board/QualityIcon'
 import { Chess } from 'chess.js'
@@ -100,6 +100,19 @@ export function Home() {
               </Panel>
             </Link>
           )}
+
+          <Link to="/training" className="group">
+            <Panel className="flex items-center gap-4 p-4 transition-colors duration-150 group-hover:bg-raise">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-raise text-accent">
+                <Target size={30} weight="duotone" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[17px] font-extrabold">{t('home.training')}</div>
+                <div className="text-[14px] text-fg-2">{t('home.trainingSub')}</div>
+              </div>
+              <CaretRight size={22} className="text-fg-3" />
+            </Panel>
+          </Link>
 
           <Panel className="overflow-hidden">
             <div className="flex items-center justify-between border-b border-line px-4 py-3">

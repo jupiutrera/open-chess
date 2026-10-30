@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Chess } from 'chess.js'
@@ -14,7 +14,7 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { QualityIcon, qualityColor } from '../../board/QualityIcon'
 import { EvalGraph } from './EvalGraph'
 import { analyzeGame, getGame, parseGame } from './analyze'
-import { QUALITY_ORDER, countQualities, estimateRating, repetitionDraws, retryAccepted, scoreFromWin, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { QUALITY_ORDER, countQualities, estimateRating, repetitionDraws, retryAccepted, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
 import { moveNumberLabel } from './moveNumber'
 import { capturedPieces, playUci, uciLineToSan } from '../../chess/util'
 import { playMoveSound, play } from '../../chess/sounds'
@@ -29,7 +29,7 @@ import { fmtDecimal } from '../../i18n/format'
 import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
 import { annotatedPgn } from './pgnExport'
-import { aboutReply, explainMove, type Explanation } from './explain'
+import { aboutReply, bestLineAt, explainPly, positionScore, type Explanation, type StoredReview } from './explain'
 import { playLine } from './line'
 
 type Mode = 'summary' | 'moves'
@@ -42,8 +42,11 @@ export default function Review() {
   const [game, setGame] = useState<GameRow | null | undefined>(undefined)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [engineFailed, setEngineFailed] = useState(false)
-  const [mode, setMode] = useState<Mode>('summary')
-  const [ply, setPly] = useState(0)
+  // ?ply=N opens the moves view on that move
+  const [search] = useSearchParams()
+  const startPly = Math.max(0, Math.floor(Number(search.get('ply')) || 0))
+  const [mode, setMode] = useState<Mode>(startPly ? 'moves' : 'summary')
+  const [ply, setPly] = useState(startPly)
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [variation, setVariation] = useState<{ fen: string; lastMove: [string, string]; quality?: Quality } | null>(null)
   const [retry, setRetry] = useState<null | 'waiting' | 'wrong' | 'right'>(null)
@@ -147,16 +150,20 @@ export default function Review() {
 
   // why the viewed move was bad; the line after it starts with the opponent's reply
   const { why, replyLine } = useMemo(() => {
-    const move = review && ply > 0 ? review.moves[ply - 1] : undefined
-    if (!review || !move || !parsed) return { why: null, replyLine: undefined }
-    const line = positionLinesFor(review, ply, review.moves[ply]?.bestUci ?? null)[0]?.pv
-    return { why: explainMove(move, parsed.fens[ply - 1], positionScore(review, ply - 1), line), replyLine: line }
+    if (!review || !parsed || ply === 0) return { why: null, replyLine: undefined }
+    return { why: explainPly(review, parsed.fens, ply), replyLine: bestLineAt(review, ply) }
   }, [review, parsed, ply])
 
   const keyGoto = useCallback((p: number) => lineKeys.current?.(p) || goto(p), [goto])
   useBoardKeys({ ply, total, goto: keyGoto, flip: () => setOrientation((o) => (o === 'white' ? 'black' : 'white')) })
 
+  // a ?ply past the end of the game lands on its last move
+  useEffect(() => {
+    if (parsed && ply > parsed.moves.length) setPly(parsed.moves.length)
+  }, [parsed, ply])
+
   if (game === undefined) return <BoardScreenSkeleton />
+  if (parsed && ply > parsed.moves.length) return <BoardScreenSkeleton />
   if (game === null || !parsed)
     return (
       <div className="p-6 text-fg-2">
@@ -470,14 +477,6 @@ export default function Review() {
       }
     />
   )
-}
-
-type StoredReview = NonNullable<GameRow['review']>
-
-/** Score of the game's position `i`; the first one comes from its stored lines, or older reviews' win%. */
-function positionScore(review: StoredReview, i: number): Score {
-  if (i > 0) return review.moves[i - 1].scoreAfter
-  return review.lines?.[0]?.[0]?.score ?? scoreFromWin(review.curve[0] ?? 50)
 }
 
 /** Stored engine lines of position `i`, or just the best move for reviews made before lines were kept. */
