@@ -59,6 +59,26 @@
       "title": "Promouvoir le pion",
       "intro": "Avec votre roi sur la sixième rangée devant le pion, la victoire est assurée. Prenez l’opposition et escortez le pion jusqu’à la promotion.",
       "steps": ["Promouvez le pion et gagnez la partie."]
+    },
+    "opposition": {
+      "title": "L’opposition",
+      "intro": "Quand les deux rois se font face avec une case entre eux, le camp qui n’a pas à jouer a l’opposition : l’autre doit s’écarter et le laisser passer. L’attaquant vise les cases clés devant son pion ; le défenseur se place en face.",
+      "steps": ["Les cases clés du pion e4 sont d6, e6 et f6 : dès que votre roi en occupe une, la partie est gagnée. Allez-y maintenant.", "Placez-vous face au roi noir avec une case entre vous. C’est alors aux Noirs de jouer et de vous laisser passer.", "Vous défendez maintenant avec les Noirs. Prenez vous-même l’opposition pour que le roi blanc ne puisse pas avancer.", "Défendez avec les Noirs : restez devant le pion et reprenez l’opposition chaque fois que le roi blanc s’approche. Tenez 12 coups sans le laisser passer."]
+    },
+    "rule-of-the-square": {
+      "title": "La règle du carré",
+      "intro": "Votre roi rattrapera-t-il un pion isolé à temps ? Imaginez un carré dont un côté va du pion à sa case de promotion. Si votre roi peut entrer dans ce carré à son tour de jouer, il rattrape le pion ; sinon, le pion va à dame.",
+      "steps": ["Vous jouez les Noirs. Le pion a4 a besoin de quatre coups pour aller à dame, donc son carré va de a4 à e8. Entrez dedans.", "Le roi noir est hors du carré. Ne perdez pas un seul temps : poussez le pion et personne ne le rattrapera.", "Avec les Noirs : rattrapez le pion avec votre roi et prenez-le."]
+    },
+    "lucena": {
+      "title": "La position de Lucena",
+      "intro": "Tour et pion contre tour, avec votre pion en septième et votre roi devant lui : on gagne en construisant un pont. Éloignez le roi adverse par un échec, montez votre tour sur la quatrième rangée et sortez votre roi ; quand la tour adverse donne des échecs, votre tour s’interpose.",
+      "steps": ["Donnez d’abord un échec avec la tour pour éloigner le roi noir d’une colonne de plus.", "Montez la tour sur la quatrième rangée. C’est le pont qui protégera votre roi des échecs.", "Sortez le roi de devant le pion. Quand la tour noire donne échec, continuez à descendre vers votre tour.", "Jouez maintenant tout le plan contre le moteur et promouvez le pion."]
+    },
+    "philidor": {
+      "title": "La défense Philidor",
+      "intro": "Avec tour contre tour et pion, la défense Philidor tient la nulle. Tant que le pion n’a pas atteint votre troisième rangée, votre tour y reste et empêche le roi d’avancer. Quand le pion avance, le roi adverse n’a plus d’abri : votre tour part au fond et donne des échecs par derrière.",
+      "steps": ["Vous jouez les Noirs. Placez la tour sur votre troisième rangée (la sixième) pour que le roi blanc ne puisse pas avancer.", "Le pion a avancé. Mettez maintenant la tour sur la première rangée : de là, vous donnerez des échecs par derrière et le roi blanc n’aura aucun abri."]
     }
   },
   "bots": {
