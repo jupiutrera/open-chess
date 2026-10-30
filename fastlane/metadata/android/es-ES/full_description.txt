@@ -1,0 +1,26 @@
+Entrenamiento de ajedrez en serio, gratis y en tu propio dispositivo. Sin anuncios, sin suscripción y sin cuenta.
+
+Open Chess ejecuta Stockfish 19 en tu móvil: el análisis, los bots y tus datos no salen de él. Funciona sin conexión.
+
+<b>Revisión de partidas</b>
+Stockfish califica cada jugada: brillante, genial, mejor, excelente, buena, de libro, imprecisión, error, oportunidad perdida o error grave. Ves la precisión de cada jugador, la gráfica de evaluación y una explicación de qué salió mal (horquillas, clavadas, piezas atrapadas, mates en la última fila). Repite tus errores hasta dar con la jugada buena y exporta la revisión como vídeo vertical.
+
+<b>13 bots con personalidad</b>
+Desde un niño que acaba de descubrir el caballo hasta un maestro de la vieja escuela. Cada uno tiene sus aperturas favoritas y te habla durante la partida. Por debajo de 1400 cometen errores humanos, no de motor roto. También puedes crear un bot clon que juega como cualquier jugador, a partir de sus partidas.
+
+<b>17 retos</b>
+Stockfish con una regla absurda: Meltfish pierde 50 de Elo en cada jugada, Growfish empieza en 0 y sube, Mirrorfish copia tus jugadas, Panicfish se debilita a medida que se le acaba el reloj…
+
+<b>104.000 puzzles</b>
+Puzzles de Lichess con rating Glicko-2, 47 temas, puzzle del día, sprints contrarreloj, rachas y puzzles sacados de tus propios errores. Un plan semanal ataca tus puntos débiles.
+
+<b>Aperturas</b>
+Un explorador con 3.865 aperturas con nombre y un entrenador de repertorio con repetición espaciada.
+
+<b>Lecciones</b>
+Táctica, mates básicos y finales (oposición, Lucena, Philidor) que practicas contra el motor.
+
+<b>Además</b>
+Análisis en directo con hasta tres líneas del motor, editor de posiciones, importación y exportación de FEN y PGN, e importación de partidas de chess.com o Lichess por nombre de usuario. 9 juegos de piezas, 5 tableros, 5 juegos de sonidos, tema claro y oscuro. En español, inglés, francés, italiano, chino y japonés.
+
+Open Chess es software libre (GPL-3.0) y no está afiliado a chess.com ni a Lichess.

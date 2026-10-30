@@ -6,7 +6,7 @@
 
 ### Entrenamiento de ajedrez en serio, gratis y en tu dispositivo.
 
-Revisión de partidas con Stockfish, 13 bots con personalidad, 14 retos, 104.000 puzzles, entrenador de aperturas y lecciones.<br/>
+Revisión de partidas con Stockfish, 13 bots con personalidad, 17 retos, 104.000 puzzles, entrenador de aperturas y lecciones.<br/>
 En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cuenta.**
 
 [![Release](https://img.shields.io/github/v/release/jupiutrera/open-chess?style=for-the-badge&label=versi%C3%B3n&color=81b64c)](https://github.com/jupiutrera/open-chess/releases/latest)
@@ -37,10 +37,10 @@ En el navegador o como app de Android. **Sin anuncios, sin suscripción y sin cu
 
 <table align="center">
   <tr>
-    <td align="center"><b>13 + 14</b><br/><sub>bots y retos</sub></td>
+    <td align="center"><b>13 + 17</b><br/><sub>bots y retos</sub></td>
     <td align="center"><b>104.000</b><br/><sub>puzzles de Lichess</sub></td>
     <td align="center"><b>3.865</b><br/><sub>aperturas con nombre</sub></td>
-    <td align="center"><b>11</b><br/><sub>lecciones interactivas</sub></td>
+    <td align="center"><b>16</b><br/><sub>lecciones interactivas</sub></td>
     <td align="center"><b>6</b><br/><sub>idiomas</sub></td>
     <td align="center"><b>0 €</b><br/><sub>para siempre</sub></td>
   </tr>
@@ -67,21 +67,23 @@ Open Chess junta esas piezas en una sola app, con una interfaz limpia y familiar
 
 ## ✨ Funcionalidades
 
-**🔍 Revisión de partidas.** Stockfish analiza cada jugada y le pone una de diez etiquetas: brillante, gran jugada, mejor, excelente, buena, teoría, imprecisión, error, oportunidad perdida y error grave. Ves la precisión de cada jugador, un rendimiento estimado y la gráfica de evaluación. Puedes ver la mejor jugada y **reintentar tus errores** para aprender de ellos.
+**🔍 Revisión de partidas.** Stockfish analiza cada jugada y le pone una de diez etiquetas: brillante, gran jugada, mejor, excelente, buena, teoría, imprecisión, error, oportunidad perdida y error grave. Ves la precisión de cada jugador, un rendimiento estimado y la gráfica de evaluación. Te explica **por qué** una jugada fue mala (una horquilla, una clavada, una pieza atrapada, un mate en la última fila) y dibuja la respuesta que permite. Puedes ver la mejor jugada, **reintentar tus errores** para aprender de ellos y **exportar la revisión como vídeo vertical** para compartirla.
 
-**🤖 13 bots con personalidad.** Pip, el niño que acaba de descubrir el caballo; Iván, que sacrifica lo que haga falta; Boris, el maestro FIDE de la vieja escuela… Cada uno tiene avatar, aperturas favoritas y su propia forma de hablar: te saluda, reacciona a tus capturas y errores y celebra (o lamenta) el resultado. Juegan como personas, no como un motor roto.
+**🤖 13 bots con personalidad.** Pip, el niño que acaba de descubrir el caballo; Iván, que sacrifica lo que haga falta; Boris, el maestro FIDE de la vieja escuela… Cada uno tiene avatar, aperturas favoritas y su propia forma de hablar: te saluda, reacciona a tus capturas y errores y celebra (o lamenta) el resultado. Juegan como personas, no como un motor roto. Y con los **bots clon** te enfrentas a cualquier jugador de chess.com o Lichess: el clon juega sus aperturas y a su nivel, a partir de sus propias partidas. Incluso tú hace un año.
 
-**🐟 14 retos.** Stockfish, pero con una regla absurda: **Meltfish** pierde 50 de Elo por jugada, **Growfish** empieza en 0 y va subiendo, **Envyfish** baja 300 cada vez que encuentras la mejor jugada, **Drawfish** juega a por el 0.00, **Checkfish** da jaque siempre que puede, **Greedfish** se lo come todo, **Coinfish** elige su n-ésima mejor jugada con probabilidad ½ⁿ, **Yoyofish** salta entre 250 y 3200 en cada captura, **Copyfish** copia la calidad de tu última jugada… El Elo del bot cambia en directo mientras juegas.
+**🐟 17 retos.** Stockfish, pero con una regla absurda: **Meltfish** pierde 50 de Elo por jugada, **Growfish** empieza en 0 y va subiendo, **Envyfish** baja 300 cada vez que encuentras la mejor jugada, **Drawfish** juega a por el 0.00, **Checkfish** da jaque siempre que puede, **Greedfish** se lo come todo, **Coinfish** elige su n-ésima mejor jugada con probabilidad ½ⁿ, **Yoyofish** salta entre 250 y 3200 en cada captura, **Copyfish** copia la calidad de tu última jugada, **Mirrorfish** te copia las jugadas en espejo, **Panicfish** juega peor cuanto menos reloj le queda, **Grudgefish** va a por el tipo de pieza que le quitaste… El Elo del bot cambia en directo mientras juegas.
 
 **🎯 Cinco ayudas opcionales.** Barra de evaluación, flechas de amenaza, flechas de sugerencia, valoración de cada jugada en directo y líneas del motor. Actívalas antes o durante la partida.
 
 **🧩 Puzzles.** 104.000 puzzles de Lichess con puntuación Glicko-2, 47 temas, puzzle del día, **Sprint de puzzles** (3 min, 5 min y supervivencia), **Racha de problemas** (sin reloj, cada vez más difíciles, un fallo y se acaba) y **puzzles de tus errores**, sacados de tus propias partidas revisadas.
 
+**🩺 Tu talón de Aquiles.** Un perfil de los errores de tus partidas revisadas, por fase, tema táctico y apertura, con su tendencia y **una semana de puzzles** dirigida a lo que más fallas.
+
 **📖 Aperturas.** Explorador con 3.865 aperturas con nombre, estadísticas de maestros y Lichess, y un **entrenador de repertorio** con repetición espaciada (SM-2).
 
 **🧠 Análisis.** Stockfish en directo con hasta tres líneas, valoración de cada jugada, editor de posición y carga y copia de FEN y PGN.
 
-**🎓 Lecciones.** Táctica, mates básicos y finales, que practicas contra el motor hasta que te salen.
+**🎓 16 lecciones.** Táctica, mates básicos y finales (la oposición, la regla del cuadrado, Lucena y Philidor), que practicas contra el motor hasta que te salen.
 
 **📥 Importa tus partidas** de chess.com o Lichess con tu nombre de usuario, o pegando un PGN.
 

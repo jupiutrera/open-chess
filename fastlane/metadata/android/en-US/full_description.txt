@@ -1,0 +1,26 @@
+Serious chess training, free and on your own device. No ads, no subscription and no account.
+
+Open Chess runs Stockfish 19 on your phone, so the analysis, the bots and your data never leave it. It works offline.
+
+<b>Game review</b>
+Stockfish rates every move: brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss or blunder. You get each player's accuracy, the evaluation graph and an explanation of what went wrong (forks, pins, trapped pieces, back-rank mates). Retry your mistakes until you find the right move, and export the review as a vertical video.
+
+<b>13 bots with personality</b>
+From a kid who just discovered the knight to an old-school master. Each one has favourite openings and talks to you during the game. Below 1400 they make human mistakes, not broken-engine ones. You can also make a clone bot that plays like any player, from their own games.
+
+<b>17 challenges</b>
+Stockfish with a silly rule: Meltfish loses 50 Elo every move, Growfish starts at 0 and climbs, Mirrorfish copies your moves, Panicfish gets weaker as its clock runs down…
+
+<b>104,000 puzzles</b>
+Lichess puzzles with a Glicko-2 rating, 47 themes, a daily puzzle, timed sprints, streaks, and puzzles made from your own mistakes. A weekly plan targets your weak spots.
+
+<b>Openings</b>
+An explorer with 3,865 named openings and a repertoire trainer with spaced repetition.
+
+<b>Lessons</b>
+Tactics, basic mates and endgames (opposition, Lucena, Philidor) that you practise against the engine.
+
+<b>Also</b>
+Live analysis with up to three engine lines, a position editor, FEN and PGN import and export, and game import from chess.com or Lichess by username. 9 piece sets, 5 boards, 5 sound sets, light and dark themes. In English, Spanish, French, Italian, Chinese and Japanese.
+
+Open Chess is free software (GPL-3.0) and is not affiliated with chess.com or Lichess.
