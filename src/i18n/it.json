@@ -256,7 +256,28 @@
     "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
     "linePrev": "Mossa precedente della linea",
     "lineNext": "Mossa successiva della linea",
-    "lineStep": "Seguito {{n}}/{{total}}"
+    "lineStep": "Seguito {{n}}/{{total}}",
+    "video": {
+      "button": "Esporta video",
+      "title": "Video verticale",
+      "intro": "Una clip 9:16 della partita con la barra di valutazione e la qualità di ogni mossa, pronta da condividere.",
+      "what": "Quali mosse",
+      "key": "Momenti chiave",
+      "all": "Tutta la partita",
+      "speed": "Velocità",
+      "slow": "Lenta",
+      "normal": "Normale",
+      "fast": "Veloce",
+      "sound": "Con il suono delle mosse",
+      "create": "Crea video",
+      "recording": "Registrazione: {{percent}}%. Tieni aperta questa schermata.",
+      "saved": "Video salvato",
+      "failed": "Impossibile creare il video",
+      "accuracy": "Precisione {{value}}",
+      "wins": "Vince {{name}}",
+      "draw": "Patta",
+      "hidden": "Registrazione interrotta: la schermata non era più visibile. Riprova senza uscirne."
+    }
   },
   "puzzles": {
     "title": "Problemi",

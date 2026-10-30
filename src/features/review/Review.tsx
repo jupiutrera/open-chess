@@ -3,7 +3,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Chess } from 'chess.js'
-import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, ChartLineUp, Crown, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, ArrowsClockwise } from '@phosphor-icons/react'
+import { CaretDoubleLeft, CaretLeft, CaretRight, CaretDoubleRight, ArrowsDownUp, ChartLineUp, Crown, ArrowCounterClockwise, MagnifyingGlass, DownloadSimple, ArrowsClockwise, FilmStrip } from '@phosphor-icons/react'
+import { VideoExport, canExportVideo } from './video/VideoExport'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { Board } from '../../board/Board'
 import { useBoardKeys } from '../../board/useBoardKeys'
@@ -54,6 +55,7 @@ export default function Review() {
   const [lineArrow, setLineArrow] = useState<number | null>(null)
   // moves of that line played out on the board ("show follow-up")
   const [lineStep, setLineStep] = useState(0)
+  const [videoOpen, setVideoOpen] = useState(false)
   // set each render while a line is picked: the board keys step through it instead of the game
   const lineKeys = useRef<((p: number) => boolean) | null>(null)
 
@@ -240,8 +242,10 @@ export default function Review() {
 
   const cap = capturedPieces(fen)
   const bot = game.botId ? botById(game.botId) : undefined
-  const whiteName = playerName(h.White ?? game.white, game.source, t)
-  const blackName = playerName(h.Black ?? game.black, game.source, t)
+  // chess.js fills missing headers with "?": the names stored with the game are better then
+  const header = (v: string | undefined) => (v && v !== '?' ? v : undefined)
+  const whiteName = playerName(header(h.White) ?? game.white, game.source, t)
+  const blackName = playerName(header(h.Black) ?? game.black, game.source, t)
   const bar = (c: 'w' | 'b') => (
     <PlayerBar
       name={c === 'w' ? whiteName : blackName}
@@ -382,6 +386,7 @@ export default function Review() {
               startFen={parsed.startFen}
               onExport={exportPgn}
               onReanalyze={reanalyze}
+              onVideo={canExportVideo() ? () => setVideoOpen(true) : undefined}
             />
           ) : (
             <>
@@ -473,6 +478,18 @@ export default function Review() {
               <MagnifyingGlass size={22} weight="bold" />
             </NavBtn>
           </div>
+          {/* a sheet: fixed on screen, so it can live in the panel */}
+          {review && (
+            <VideoExport
+              open={videoOpen}
+              onClose={() => setVideoOpen(false)}
+              game={game}
+              parsed={parsed}
+              whiteName={whiteName}
+              blackName={blackName}
+              orientation={orientation}
+            />
+          )}
         </Panel>
       }
     />
@@ -547,11 +564,14 @@ function Summary({
   startFen,
   onExport,
   onReanalyze,
+  onVideo,
 }: {
   keyMoments: MoveReview[]
   startFen: string
   onExport: () => void
   onReanalyze: () => void
+  /** absent where the browser cannot record video */
+  onVideo?: () => void
   game: GameRow
   whiteName: string
   blackName: string
@@ -630,6 +650,11 @@ function Summary({
         <button className="btn" onClick={onReanalyze}>
           <ArrowsClockwise size={18} weight="bold" /> {t('review.reanalyze')}
         </button>
+        {onVideo && (
+          <button className="btn col-span-2" onClick={onVideo}>
+            <FilmStrip size={18} weight="bold" /> {t('review.video.button')}
+          </button>
+        )}
       </div>
     </div>
   )

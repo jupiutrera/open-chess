@@ -256,7 +256,28 @@
     "graphValue": "{{move}} {{san}}，{{score}}，{{quality}}",
     "linePrev": "变化中的上一步",
     "lineNext": "变化中的下一步",
-    "lineStep": "后续 {{n}}/{{total}}"
+    "lineStep": "后续 {{n}}/{{total}}",
+    "video": {
+      "button": "导出视频",
+      "title": "竖屏视频",
+      "intro": "一段 9:16 的对局短片，带评估条和每步棋的质量，可直接分享。",
+      "what": "哪些着法",
+      "key": "关键时刻",
+      "all": "整盘棋",
+      "speed": "速度",
+      "slow": "慢",
+      "normal": "正常",
+      "fast": "快",
+      "sound": "带落子音效",
+      "create": "生成视频",
+      "recording": "正在录制：{{percent}}%。请保持此页面打开。",
+      "saved": "视频已保存",
+      "failed": "无法生成视频",
+      "accuracy": "准确率 {{value}}",
+      "wins": "{{name}} 获胜",
+      "draw": "和棋",
+      "hidden": "录制已停止：页面不再可见。请保持在此页面再试一次。"
+    }
   },
   "puzzles": {
     "title": "谜题",

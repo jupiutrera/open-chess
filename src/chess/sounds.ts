@@ -71,6 +71,23 @@ function load(set: SoundSet, kind: SoundKind): Promise<AudioBuffer | null> {
   return p
 }
 
+/** The shared audio context and a decoded sound of the chosen set, for mixing into a recording. */
+export function soundContext(): AudioContext | null {
+  return audio()
+}
+export function soundBuffer(kind: SoundKind, set: SoundSet = useSettings.getState().soundSet): Promise<AudioBuffer | null> {
+  return load(set, kind)
+}
+
+/** The sound of a move read from its SAN alone (for moves replayed without flags). */
+export function sanSound(san: string): SoundKind {
+  if (/[+#]/.test(san)) return 'check'
+  if (san.includes('=')) return 'promote'
+  if (san.startsWith('O-O')) return 'castle'
+  if (san.includes('x')) return 'capture'
+  return 'move'
+}
+
 /** Fetches and decodes a whole set ahead of time. */
 export function preloadSounds(set: SoundSet = useSettings.getState().soundSet) {
   for (const k of KINDS) void load(set, k)

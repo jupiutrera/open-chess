@@ -256,7 +256,28 @@
     "graphValue": "{{move}} {{san}}, {{score}}, {{quality}}",
     "linePrev": "Previous move in the line",
     "lineNext": "Next move in the line",
-    "lineStep": "Follow-up {{n}}/{{total}}"
+    "lineStep": "Follow-up {{n}}/{{total}}",
+    "video": {
+      "button": "Export video",
+      "title": "Vertical video",
+      "intro": "A 9:16 clip of the game with the eval bar and the quality of each move, ready to share.",
+      "what": "Which moves",
+      "key": "Key moments",
+      "all": "Whole game",
+      "speed": "Speed",
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast",
+      "sound": "With move sounds",
+      "create": "Create video",
+      "recording": "Recording: {{percent}}%. Keep this screen open.",
+      "saved": "Video saved",
+      "failed": "Could not create the video",
+      "accuracy": "Accuracy {{value}}",
+      "wins": "{{name}} wins",
+      "draw": "Draw",
+      "hidden": "Recording stopped: the screen was no longer visible. Try again without leaving it."
+    }
   },
   "puzzles": {
     "title": "Puzzles",
