@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DownloadSimple, CaretRight, Target } from '@phosphor-icons/react'
+import { DownloadSimple, CaretRight, Target, GithubLogo } from '@phosphor-icons/react'
 import { AppIcon, type AppIconName } from '../../ui/AppIcon'
 import { PieceIcon } from '../../board/QualityIcon'
 import { Chess } from 'chess.js'
@@ -15,6 +15,7 @@ import { dailyPuzzle, getPuzzleRating, type Puzzle } from '../puzzles/puzzlesDat
 import { playUci } from '../../chess/util'
 import { GameRowItem } from '../profile/GameRowItem'
 import { playerName } from '../play/playerName'
+import { REPO_URL } from '../../ui/links'
 
 export function Home() {
   const { t } = useTranslation()
@@ -161,6 +162,12 @@ export function Home() {
               <CaretRight size={20} className="text-fg-3" />
             </Panel>
           </Link>
+          <p className="px-1 text-[13px] text-fg-3">
+            {t('home.openSource')}{' '}
+            <a href={REPO_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-fg-2 underline underline-offset-2 hover:text-fg">
+              <GithubLogo size={15} weight="fill" /> {t('home.star')}
+            </a>
+          </p>
         </div>
       </div>
     </div>

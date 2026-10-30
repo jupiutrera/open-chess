@@ -77,7 +77,9 @@
     "due_one": "{{count}} mossa da ripassare",
     "due_other": "{{count}} mosse da ripassare",
     "training": "I tuoi punti deboli",
-    "trainingSub": "Cosa sbagli di più, e una settimana di puzzle per rimediare"
+    "trainingSub": "Cosa sbagli di più, e una settimana di puzzle per rimediare",
+    "openSource": "Open Chess è gratuito e open source.",
+    "star": "Lascia una stella su GitHub"
   },
   "play": {
     "botsTab": "Bot",
@@ -614,7 +616,8 @@
     },
     "highContrast": "Contrasto elevato",
     "highContrastHint": "Pulsanti e testi secondari più leggibili (WCAG AA)",
-    "system": "Sistema"
+    "system": "Sistema",
+    "source": "Codice sorgente su GitHub"
   },
   "training": {
     "title": "I tuoi punti deboli",

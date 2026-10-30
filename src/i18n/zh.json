@@ -77,7 +77,9 @@
     "due_one": "{{count}} 步待复习",
     "due_other": "{{count}} 步待复习",
     "training": "你的薄弱环节",
-    "trainingSub": "你最常犯的错误，以及本周的针对性谜题计划"
+    "trainingSub": "你最常犯的错误，以及本周的针对性谜题计划",
+    "openSource": "Open Chess 免费且开源。",
+    "star": "在 GitHub 上点个星"
   },
   "play": {
     "botsTab": "机器人",
@@ -614,7 +616,8 @@
     },
     "highContrast": "高对比度",
     "highContrastHint": "按钮和次要文字更易读（WCAG AA）",
-    "system": "跟随系统"
+    "system": "跟随系统",
+    "source": "GitHub 上的源代码"
   },
   "training": {
     "title": "你的薄弱环节",

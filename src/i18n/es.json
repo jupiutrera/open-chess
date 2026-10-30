@@ -77,7 +77,9 @@
     "due_one": "{{count}} jugada pendiente de repaso",
     "due_other": "{{count}} jugadas pendientes de repaso",
     "training": "Tu talón de Aquiles",
-    "trainingSub": "Lo que más fallas y un plan de puzzles para esta semana"
+    "trainingSub": "Lo que más fallas y un plan de puzzles para esta semana",
+    "openSource": "Open Chess es gratis y de código abierto.",
+    "star": "Dale una estrella en GitHub"
   },
   "play": {
     "botsTab": "Bots",
@@ -614,7 +616,8 @@
     },
     "highContrast": "Contraste alto",
     "highContrastHint": "Botones y textos secundarios más legibles (WCAG AA)",
-    "system": "Sistema"
+    "system": "Sistema",
+    "source": "Código fuente en GitHub"
   },
   "training": {
     "title": "Tu talón de Aquiles",

@@ -77,7 +77,9 @@
     "due_one": "復習する手が {{count}} 個あります",
     "due_other": "復習する手が {{count}} 個あります",
     "training": "あなたの弱点",
-    "trainingSub": "よくあるミスと、それを鍛える今週のパズル計画"
+    "trainingSub": "よくあるミスと、それを鍛える今週のパズル計画",
+    "openSource": "Open Chess は無料のオープンソースです。",
+    "star": "GitHub でスターを付ける"
   },
   "play": {
     "botsTab": "ボット",
@@ -614,7 +616,8 @@
     },
     "highContrast": "ハイコントラスト",
     "highContrastHint": "ボタンと補助テキストを読みやすく（WCAG AA）",
-    "system": "システム"
+    "system": "システム",
+    "source": "GitHub のソースコード"
   },
   "training": {
     "title": "あなたの弱点",

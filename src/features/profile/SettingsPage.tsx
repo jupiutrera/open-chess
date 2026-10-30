@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { PageHeader, Panel, Segmented, Toggle } from '../../ui/kit'
 import { useSettings, PIECE_SETS, SOUND_SETS, LANGS, LANG_NAMES, type BoardTheme } from '../../settings'
 import { play, preloadSounds } from '../../chess/sounds'
+import { REPO_URL } from '../../ui/links'
 
 const KNIGHTS = import.meta.glob('../../assets/pieces/*/wN.svg', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
 const KINGS = import.meta.glob('../../assets/pieces/*/bK.svg', { eager: true, query: '?url', import: 'default' }) as Record<string, string>
@@ -170,7 +171,12 @@ export default function SettingsPage() {
           </div>
         </Panel>
 
-        <p className="px-1 text-[13px] text-fg-3">{t('settings.about')}</p>
+        <p className="px-1 text-[13px] text-fg-3">
+          {t('settings.about')}{' '}
+          <a href={REPO_URL} target="_blank" rel="noreferrer" className="font-semibold text-accent underline underline-offset-2">
+            {t('settings.source')}
+          </a>
+        </p>
       </div>
     </div>
   )
