@@ -26,7 +26,14 @@ export function BotAvatar({ bot, size = 40, mood = 'neutral', className = '' }: 
       }}
       aria-hidden
     >
-      {src && <img src={src} alt="" width={size} height={size} draggable={false} className="absolute inset-0 h-full w-full object-cover" />}
+      {src ? (
+        <img src={src} alt="" width={size} height={size} draggable={false} className="absolute inset-0 h-full w-full object-cover" />
+      ) : (
+        // clones have no portrait: their initial instead
+        <span className="absolute inset-0 grid place-items-center font-extrabold text-white/95" style={{ fontSize: size * 0.46 }}>
+          {bot.name.slice(0, 1).toUpperCase()}
+        </span>
+      )}
       {borrowed && (
         <span
           className="absolute inset-0"

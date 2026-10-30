@@ -168,7 +168,8 @@
       "advanced": "Avanzados",
       "master": "Maestros",
       "engine": "Motor",
-      "challenge": "Retos"
+      "challenge": "Retos",
+      "clone": "Clones"
     }
   },
   "review": {
@@ -621,5 +622,55 @@
     "noOpenings": "Aún no hay al menos dos partidas de una misma apertura.",
     "games_one": "{{count}} partida",
     "games_other": "{{count}} partidas"
+  },
+  "clone": {
+    "title": "Clones",
+    "intro": "Crea un bot que juegue como cualquier jugador: sus aperturas salen de sus partidas reales y sus errores de cómo falla en cada fase. Prueba con un amigo, con un gran maestro o con tu yo de hace un año.",
+    "source": "De dónde salen las partidas",
+    "local": "Mis partidas",
+    "period": "Partidas de",
+    "periods": {
+      "recent": "los últimos 3 meses",
+      "year": "el último año",
+      "yearAgo": "hace un año (de 12 a 24 meses atrás)",
+      "all": "siempre"
+    },
+    "sources": {
+      "chesscom": "chess.com",
+      "lichess": "Lichess",
+      "local": "Tus partidas"
+    },
+    "selfName": {
+      "recent": "Yo (últimos meses)",
+      "year": "Yo (este año)",
+      "yearAgo": "Yo (hace un año)",
+      "all": "Yo"
+    },
+    "create": "Crear clon",
+    "downloading_one": "Descargando partidas: {{count}}",
+    "downloading_other": "Descargando partidas: {{count}}",
+    "analysing": "Midiendo sus errores: partida {{done}} de {{total}}",
+    "noGames": "No hay partidas de ese jugador en ese periodo.",
+    "note": "Solo se usan partidas públicas, y se guardan en este dispositivo. Open Chess no está afiliado a chess.com ni a Lichess.",
+    "yours": "Tus clones",
+    "empty": "Aún no has creado ningún clon.",
+    "emptyHub": "Crea un clon de cualquier jugador a partir de sus partidas.",
+    "manage": "Crear o gestionar clones",
+    "ready": "Clon de {{name}} listo",
+    "deleteTitle": "Borrar clon",
+    "deleteConfirm": "¿Borrar el clon de {{name}}? Podrás volver a crearlo.",
+    "games_one": "{{count}} partida",
+    "games_other": "{{count}} partidas",
+    "bio_one": "Juega como {{name}}: sus aperturas y sus errores, sacados de {{count}} partida.",
+    "bio_other": "Juega como {{name}}: sus aperturas y sus errores, sacados de {{count}} partidas.",
+    "asWhite": "Con blancas:",
+    "vsE4": "Contra 1.e4:",
+    "vsD4": "Contra 1.d4:",
+    "errors": "Errores:",
+    "errorRates": "{{blunders}} graves y {{mistakes}} errores cada 100 jugadas",
+    "noErrors": "sin datos; juega a su Elo",
+    "play": "Jugar",
+    "update": "Actualizar",
+    "missing": "Ese clon ya no existe en este dispositivo."
   }
 }

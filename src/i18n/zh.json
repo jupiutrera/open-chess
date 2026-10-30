@@ -168,7 +168,8 @@
       "advanced": "高级",
       "master": "大师",
       "engine": "引擎",
-      "challenge": "挑战"
+      "challenge": "挑战",
+      "clone": "克隆"
     }
   },
   "review": {
@@ -621,5 +622,55 @@
     "noOpenings": "还没有至少下过两盘的开局。",
     "games_one": "{{count}} 盘",
     "games_other": "{{count}} 盘"
+  },
+  "clone": {
+    "title": "克隆",
+    "intro": "创建一个像任何人一样下棋的机器人：开局来自他的真实对局，失误来自他在各个阶段的出错方式。试试你的朋友、特级大师，或者一年前的你。",
+    "source": "对局来源",
+    "local": "我的对局",
+    "period": "对局时间",
+    "periods": {
+      "recent": "最近 3 个月",
+      "year": "最近一年",
+      "yearAgo": "一年前（12 到 24 个月前）",
+      "all": "全部"
+    },
+    "sources": {
+      "chesscom": "chess.com",
+      "lichess": "Lichess",
+      "local": "你的对局"
+    },
+    "selfName": {
+      "recent": "我（最近几个月）",
+      "year": "我（今年）",
+      "yearAgo": "我（一年前）",
+      "all": "我"
+    },
+    "create": "创建克隆",
+    "downloading_one": "正在下载对局：{{count}}",
+    "downloading_other": "正在下载对局：{{count}}",
+    "analysing": "正在衡量他的失误：第 {{done}} 盘，共 {{total}} 盘",
+    "noGames": "该棋手在这段时间内没有对局。",
+    "note": "只使用公开对局，并保存在本设备上。Open Chess 与 chess.com 和 Lichess 均无关联。",
+    "yours": "你的克隆",
+    "empty": "你还没有创建任何克隆。",
+    "emptyHub": "根据任何棋手的对局创建他的克隆。",
+    "manage": "创建或管理克隆",
+    "ready": "{{name}} 的克隆已就绪",
+    "deleteTitle": "删除克隆",
+    "deleteConfirm": "删除 {{name}} 的克隆？之后可以重新创建。",
+    "games_one": "{{count}} 盘",
+    "games_other": "{{count}} 盘",
+    "bio_one": "像 {{name}} 一样下棋：开局和失误都来自 {{count}} 盘对局。",
+    "bio_other": "像 {{name}} 一样下棋：开局和失误都来自 {{count}} 盘对局。",
+    "asWhite": "执白：",
+    "vsE4": "对 1.e4：",
+    "vsD4": "对 1.d4：",
+    "errors": "失误：",
+    "errorRates": "每 100 步有 {{blunders}} 次严重失误和 {{mistakes}} 次错误",
+    "noErrors": "没有数据；按其等级分下棋",
+    "play": "下棋",
+    "update": "更新",
+    "missing": "这个克隆已不在本设备上。"
   }
 }
