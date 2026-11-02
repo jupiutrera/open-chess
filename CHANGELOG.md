@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/jupiutrera/open-chess/compare/v0.6.0...v0.7.0) (2026-10-30)
+
+
+### Features
+
+* Shared links show a preview, and the app links to its source code ([#40](https://github.com/jupiutrera/open-chess/issues/40)) ([bcfcd47](https://github.com/jupiutrera/open-chess/commit/bcfcd4704f27b7edbf2c22e076f5da9a2360e534))
+
 ## [0.6.0](https://github.com/jupiutrera/open-chess/compare/v0.5.0...v0.6.0) (2026-10-30)
 
 
