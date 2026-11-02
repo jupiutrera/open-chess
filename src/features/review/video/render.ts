@@ -41,6 +41,7 @@ export interface VideoText {
   moveNumber: (ply: number) => string
   result: string
   footer: string
+  site: string
   vs: string
 }
 
@@ -378,5 +379,7 @@ export function drawMoment(ctx: CanvasRenderingContext2D, game: VideoGame, text:
     ctx.globalAlpha = 1
   }
 
-  centered(ctx, text.footer, HEIGHT - 90, `800 44px ${theme.font}`, theme.accent)
+  // the address makes a shared clip lead back to the app
+  centered(ctx, text.footer, HEIGHT - 112, `800 44px ${theme.font}`, theme.accent)
+  centered(ctx, text.site, HEIGHT - 60, `600 30px ${theme.font}`, theme.text3)
 }
