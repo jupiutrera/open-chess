@@ -11,6 +11,7 @@ import { moveNumberLabel } from '../moveNumber'
 import { loadTheme, type VideoGame, type VideoText } from './render'
 import { HiddenError, recordVideo, videoFormat, type VideoOptions } from './record'
 import type { VideoMode, VideoSpeed } from './timeline'
+import { WEB_ADDRESS } from '../../../ui/links'
 
 
 /** Whether this browser can record the video at all (MediaRecorder on a canvas). */
@@ -86,6 +87,7 @@ export function VideoExport({
       moveNumber: (ply) => moveNumberLabel(ply, parsed.startFen, '…'),
       result: winner ? t('review.video.wins', { name: winner }) : game.result === '*' ? '' : t('review.video.draw'),
       footer: 'Open Chess',
+      site: WEB_ADDRESS,
       vs: t('games.vs'),
     }
     const opts: VideoOptions = { mode, speed, sound }
