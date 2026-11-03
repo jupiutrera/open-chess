@@ -84,6 +84,19 @@ test('moves queued while the bot thinks are played in turn', async ({ page }) =>
   await expect(moves.nth(4)).toHaveText('Bc4')
 })
 
+test('bots with a playing style answer, below and above the engine limiter', async ({ page }) => {
+  // Ivan plays the weak path, Kira Stockfish's limiter plus a look at every move
+  for (const bot of ['ivan', 'kira']) {
+    await page.goto(`/#/play/bot/${bot}?color=w&tc=none&eval=0`)
+    await expect(page.locator('cg-board')).toBeVisible()
+    const moves = page.locator('.tabular button:visible')
+    await move(page, 'd2', 'd4')
+    await expect(moves).toHaveCount(2, { timeout: 20_000 })
+    await move(page, 'g1', 'f3')
+    await expect(moves).toHaveCount(4, { timeout: 20_000 })
+  }
+})
+
 // the browser runs in English (playwright.config.ts); null: the screen has no h1 of its own yet
 const PAGES: [string, RegExp | null][] = [
   ['/', /What are we training today/],

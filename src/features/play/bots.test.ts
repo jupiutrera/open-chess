@@ -96,6 +96,16 @@ describe('softPick', () => {
     for (let i = 0; i < 200; i++) picks.add(softPick(lines, true, 260))
     expect(picks.size).toBe(2)
   })
+
+  it('leans toward the moves a style likes, but not in a decided game', () => {
+    const level = [line('a1a2', { cp: 0 }), line('b1b2', { cp: 0 }, 2)]
+    const likesB = (uci: string) => (uci === 'b1b2' ? 5 : 0)
+    let hits = 0
+    for (let i = 0; i < 200; i++) if (softPick(level, true, 30, Math.random, likesB) === 'b1b2') hits++
+    expect(hits).toBeGreaterThan(140)
+    const won = [line('a1a2', { mate: 2 }), line('b1b2', { cp: 900 }, 2)]
+    expect(softPick(won, true, 30, () => 0.5, likesB)).toBe('a1a2')
+  })
 })
 
 describe('moverValue', () => {

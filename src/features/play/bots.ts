@@ -7,6 +7,7 @@ import type { ChallengeKind } from './challenges'
 import type { Lang } from '../../settings'
 import type { CloneRow } from '../../db/db'
 import { localize } from '../../i18n/content'
+import { pickStyled, styleBonus, styleMargin, type PlayStyle } from './styles'
 
 export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine' | 'challenge' | 'clone'
 
@@ -21,6 +22,8 @@ export interface Bot {
   bio: { es: string; en: string }
   /** voice for the in-game chat */
   style: ChatStyle
+  /** how it likes to play (see styles.ts); balanced when unset */
+  playStyle?: PlayStyle
   /** lines of their own; the rest come from the style */
   says?: Partial<Record<ChatEvent, Lines>>
   /** preferred first moves (SAN) as White, and replies to 1.e4 / 1.d4 as Black */
@@ -67,6 +70,7 @@ export const BOTS: Bot[] = [
     group: 'beginner',
     hue: 340,
     style: 'bold',
+    playStyle: 'aggressive',
     bio: { es: 'Saca la dama muy pronto. A veces funciona.', en: 'Brings the queen out early. Sometimes it works.' },
     says: {
       greet: {
@@ -98,6 +102,7 @@ export const BOTS: Bot[] = [
     group: 'intermediate',
     hue: 30,
     style: 'calm',
+    playStyle: 'solid',
     bio: { es: 'Le gustan las posiciones cerradas y no tiene ninguna prisa.', en: 'Likes closed positions and is never in a hurry.' },
     says: {
       greet: { es: ['Siéntate, cielo. Sin prisas, que esto va despacito.'], en: ['Have a seat, dear. No rush, we take it slow here.'] },
@@ -112,6 +117,7 @@ export const BOTS: Bot[] = [
     group: 'intermediate',
     hue: 260,
     style: 'bold',
+    playStyle: 'aggressive',
     bio: { es: 'Atacante nato: si hay un sacrificio, lo intentará.', en: 'Born attacker: if there is a sacrifice, he will try it.' },
     says: {
       greet: {
@@ -157,6 +163,7 @@ export const BOTS: Bot[] = [
     group: 'advanced',
     hue: 300,
     style: 'cool',
+    playStyle: 'simplifier',
     bio: { es: 'Rápida y precisa. Le encantan los finales.', en: 'Fast and precise. Loves endgames.' },
     says: {
       greet: { es: ['Cambiamos damas y nos vemos en el final.'], en: ['Let’s trade queens and meet in the endgame.'] },
@@ -171,6 +178,7 @@ export const BOTS: Bot[] = [
     group: 'advanced',
     hue: 220,
     style: 'cool',
+    playStyle: 'tricky',
     bio: { es: 'Experto de club con un repertorio muy afilado.', en: 'Club expert with a sharp repertoire.' },
     says: {
       greet: { es: ['Siciliana, como siempre. Tú eliges el sufrimiento.'], en: ['Sicilian, as always. You pick the pain.'] },
@@ -184,6 +192,7 @@ export const BOTS: Bot[] = [
     group: 'master',
     hue: 120,
     style: 'calm',
+    playStyle: 'solid',
     bio: { es: 'Candidata a maestra. Juega posicional y no regala nada.', en: 'Candidate master. Positional and gives nothing away.' },
     says: {
       greet: { es: ['Una casilla débil es todo lo que necesito.'], en: ['One weak square is all I need.'] },
@@ -315,11 +324,20 @@ export function mateInOne(fen: string): string | null {
  * positions compare win% (a pawn matters less once winning), but win% saturates in decisive
  * ones, so there raw centipawns and mate distance decide and a won game keeps being pushed.
  */
-export function softPick(lines: PvLine[], whiteToMove: boolean, temp: number, rnd = Math.random): string | null {
+export function softPick(
+  lines: PvLine[],
+  whiteToMove: boolean,
+  temp: number,
+  rnd = Math.random,
+  /** a playing style's liking for a move, in win% points; decisive positions ignore it */
+  bonus?: (uci: string) => number,
+): string | null {
   if (!lines.length) return null
   const wins = lines.map((l) => moverWin(l.score, whiteToMove))
   const decisive = Math.max(...wins) >= 95
-  const values = decisive ? lines.map((l) => moverValue(l.score, whiteToMove)) : wins.map((w) => w * 10)
+  const values = decisive
+    ? lines.map((l) => moverValue(l.score, whiteToMove))
+    : wins.map((w, i) => (w + (bonus && lines[i].pv[0] ? bonus(lines[i].pv[0]) : 0)) * 10)
   const best = Math.max(...values)
   const weights = values.map((v) => Math.exp((v - best) / temp))
   const total = weights.reduce((a, b) => a + b, 0)
@@ -419,7 +437,8 @@ export async function rankMoves(
 /**
  * Plays at any rating from 0 to 3200: full strength from 3200, Stockfish's own UCI_Elo limiter
  * from 1350, and below that a shallow search with a softmax over its best lines plus the odd
- * random move. Weak bots still never miss a mate in one.
+ * random move. Weak bots still never miss a mate in one. A `style` other than balanced picks,
+ * among the moves about as good as that one, the kind it likes.
  */
 export async function playAtElo(
   engine: Engine,
@@ -427,6 +446,7 @@ export async function playAtElo(
   elo: number,
   history?: GameHistory,
   clock?: BotClock,
+  style: PlayStyle = 'balanced',
 ): Promise<string | null> {
   const chess = new Chess(fen)
   const legal = chess.moves({ verbose: true })
@@ -439,7 +459,11 @@ export async function playAtElo(
   if (elo >= 1350) {
     const movetime = budgetMs(elo >= 2000 ? 900 : 500, clock)
     const r = await engine.search(fen, { movetime, elo, history: hist })
-    return r.bestmove
+    if (style === 'balanced' || !r.bestmove) return r.bestmove
+    // a quick look at every move, to find the ones as good as its pick
+    const ranked = await rankMoves(engine, fen, { history, movetime: budgetMs(400, clock) })
+    if (!ranked.moves.length) return r.bestmove
+    return pickStyled(fen, ranked.moves, r.bestmove, style, styleMargin(elo, style))
   }
 
   const mate = mateInOne(fen)
@@ -451,7 +475,8 @@ export async function playAtElo(
   }
   const r = await engine.search(fen, { depth: p.depth, multipv: p.topN, history: hist })
   if (!r.lines.length) return r.bestmove
-  return softPick(r.lines, chess.turn() === 'w', p.temp) ?? r.bestmove
+  const bonus = style === 'balanced' ? undefined : (uci: string) => styleBonus(fen, uci, style)
+  return softPick(r.lines, chess.turn() === 'w', p.temp, Math.random, bonus) ?? r.bestmove
 }
 
 /**
@@ -469,7 +494,7 @@ export async function botMove(
   if (!chess.moves().length) return null
   const book = bookMove(bot, chess, history?.moves.map((m) => m.san) ?? [])
   if (book) return book
-  return playAtElo(engine, fen, bot.group === 'engine' ? 3200 : bot.elo, history, clock)
+  return playAtElo(engine, fen, bot.group === 'engine' ? 3200 : bot.elo, history, clock, bot.playStyle)
 }
 
 /** Bots occasionally accept a draw when the position is level or worse for them. */
