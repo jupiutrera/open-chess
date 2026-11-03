@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.0](https://github.com/jupiutrera/open-chess/compare/v0.7.0...v0.8.0) (2026-11-03)
+
+
+### Features
+
+* A league of generated rivals with a rating of its own ([#48](https://github.com/jupiutrera/open-chess/issues/48)) ([4a792c2](https://github.com/jupiutrera/open-chess/commit/4a792c24b6aeee74ce1eb6ecee7de29c7b7f3d1c))
+* Exported videos show where to get the app ([#43](https://github.com/jupiutrera/open-chess/issues/43)) ([961e373](https://github.com/jupiutrera/open-chess/commit/961e373ccd73eda7480b725a28577b7cbf902922))
+* Several moves can be premoved while the bot thinks ([#46](https://github.com/jupiutrera/open-chess/issues/46)) ([eccc237](https://github.com/jupiutrera/open-chess/commit/eccc237a31db990abb0b396455056c25750d90d0))
+* Some bots have a playing style: aggressive, solid, simplifier or tricky ([#47](https://github.com/jupiutrera/open-chess/issues/47)) ([9acffbd](https://github.com/jupiutrera/open-chess/commit/9acffbd351976d0dd883c12adf16c5f1212885ae))
+
 ## [0.7.0](https://github.com/jupiutrera/open-chess/compare/v0.6.0...v0.7.0) (2026-10-30)
 
 
