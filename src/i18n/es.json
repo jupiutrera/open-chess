@@ -696,5 +696,54 @@
     "play": "Jugar",
     "update": "Actualizar",
     "missing": "Ese clon ya no existe en este dispositivo."
+  },
+  "league": {
+    "title": "Liga",
+    "note": "Los rivales de la liga los genera la app: son bots con nombre propio, no personas. Las partidas se juegan sin ayudas y dejar una a medias cuenta como derrota.",
+    "startTitle": "¿Desde qué nivel empiezas?",
+    "startHint": "Es solo el punto de partida: las primeras partidas ajustan tu rating enseguida.",
+    "level": {
+      "new": "Estoy empezando",
+      "casual": "Juego de vez en cuando",
+      "club": "Nivel de club",
+      "strong": "Jugador fuerte"
+    },
+    "rating": "Tu rating de liga",
+    "provisional": "Provisional: se asienta con unas partidas más",
+    "record": "{{w}} ganadas · {{d}} tablas · {{l}} perdidas",
+    "lineEmpty": "Juega unas partidas para ver cómo evoluciona tu rating.",
+    "lineLabel": "Evolución del rating, de {{from}} a {{to}}",
+    "findTitle": "Tu próximo rival",
+    "style": {
+      "balanced": "Equilibrado",
+      "aggressive": "Agresivo",
+      "solid": "Sólido",
+      "simplifier": "Simplificador",
+      "tricky": "Tramposo"
+    },
+    "bio": {
+      "balanced": "Juega de todo un poco y se adapta a la posición.",
+      "aggressive": "Va a por tu rey en cuanto puede, aunque cueste material.",
+      "solid": "Enroca pronto, cambia piezas y espera tu error.",
+      "simplifier": "Le encanta cambiar piezas y ganar en el final.",
+      "tricky": "Busca amenazas y trampas en cada jugada."
+    },
+    "vsYou": "Contra ti: {{w}}-{{d}}-{{l}}",
+    "firstMeet": "Primera partida contra este rival",
+    "time": "Ritmo",
+    "play": "Jugar",
+    "another": "Otro rival",
+    "continue": "Partida de liga en curso contra {{name}}",
+    "recent": "Rivales recientes",
+    "rematch": "Revancha",
+    "history": "Historial",
+    "empty": "Aún no has jugado ninguna partida de liga.",
+    "won": "Victoria",
+    "drew": "Tablas",
+    "lost": "Derrota",
+    "abandoned": "La partida contra {{name}} quedó sin terminar y cuenta como derrota.",
+    "abandonedTag": "Abandonada",
+    "ratingChange": "Rating {{before}} → {{after}}",
+    "replaceSaved": "Tienes una partida de liga sin terminar contra {{name}}. Si empiezas otra, contará como derrota."
   }
 }

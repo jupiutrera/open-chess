@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
-import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal, UsersThree } from '@phosphor-icons/react'
+import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal, UsersThree, Ranking } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
 
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
@@ -23,6 +23,7 @@ import { localize } from '../../i18n/content'
 import { START_FEN } from '../../chess/util'
 import { customStartFen } from './startPosition'
 import { cloneBot } from '../clone/clone'
+import { parseRivalId, rivalBot } from '../league/league'
 
 type Tab = 'bots' | 'challenges' | 'clones'
 const TABS: Tab[] = ['bots', 'challenges', 'clones']
@@ -75,7 +76,8 @@ export default function PlayHub() {
   const record = useBotRecord(selected.id)
   const greeting = useMemo(() => botLine(selected, 'greet', lang), [selected, lang])
   const [live, setLive] = useState(() => loadLiveGame('bot'))
-  const liveBot = live?.botId ? (botById(live.botId) ?? cloneBots.find((b) => b.id === live.botId)) : undefined
+  const liveRival = live?.botId ? parseRivalId(live.botId) : null
+  const liveBot = live?.botId ? (botById(live.botId) ?? cloneBots.find((b) => b.id === live.botId) ?? (liveRival ? rivalBot(liveRival) : undefined)) : undefined
   // a challenge may fix the start position and the user's side
   const rules = selected.challenge ? CHALLENGES[selected.challenge] : undefined
   const side = rules?.userColor ?? color
@@ -100,9 +102,14 @@ export default function PlayHub() {
       <PageHeader
         title={t('play.title')}
         right={
-          <Link to="/play/local" className="btn min-h-9 px-3 text-[14px]">
-            <Users size={18} weight="bold" /> {t('play.local')}
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/league" className="btn min-h-9 px-3 text-[14px]">
+              <Ranking size={18} weight="bold" /> {t('league.title')}
+            </Link>
+            <Link to="/play/local" className="btn min-h-9 px-3 text-[14px]">
+              <Users size={18} weight="bold" /> {t('play.local')}
+            </Link>
+          </div>
         }
       />
       {fenParam && (
@@ -328,7 +335,7 @@ export default function PlayHub() {
         </button>
       </Sheet>
       <Sheet open={confirmNew} onClose={() => setConfirmNew(false)} title={t('play.newGame')}>
-        <p className="mb-4 text-fg-2">{t('play.replaceSaved', { name: liveBot ? botName(liveBot, lang) : '' })}</p>
+        <p className="mb-4 text-fg-2">{t(liveRival ? 'league.replaceSaved' : 'play.replaceSaved', { name: liveBot ? botName(liveBot, lang) : '' })}</p>
         <div className="grid grid-cols-2 gap-2">
           <button className="btn" onClick={() => setConfirmNew(false)}>
             {t('common.cancel')}

@@ -696,5 +696,54 @@
     "play": "Gioca",
     "update": "Aggiorna",
     "missing": "Quel clone non esiste più su questo dispositivo."
+  },
+  "league": {
+    "title": "Lega",
+    "note": "Gli avversari della lega li crea l'app: sono bot con un nome proprio, non persone. Le partite si giocano senza aiuti e lasciarne una a metà conta come sconfitta.",
+    "startTitle": "Da che livello parti?",
+    "startHint": "È solo un punto di partenza: le prime partite aggiustano subito il tuo rating.",
+    "level": {
+      "new": "Sto iniziando",
+      "casual": "Gioco ogni tanto",
+      "club": "Livello circolo",
+      "strong": "Giocatore forte"
+    },
+    "rating": "Il tuo rating di lega",
+    "provisional": "Provvisorio: si assesta con qualche partita in più",
+    "record": "{{w}} vinte · {{d}} patte · {{l}} perse",
+    "lineEmpty": "Gioca qualche partita per vedere com'evolve il tuo rating.",
+    "lineLabel": "Andamento del rating, da {{from}} a {{to}}",
+    "findTitle": "Il tuo prossimo avversario",
+    "style": {
+      "balanced": "Equilibrato",
+      "aggressive": "Aggressivo",
+      "solid": "Solido",
+      "simplifier": "Semplificatore",
+      "tricky": "Insidioso"
+    },
+    "bio": {
+      "balanced": "Gioca un po’ di tutto e si adatta alla posizione.",
+      "aggressive": "Punta al tuo re appena può, anche a costo di materiale.",
+      "solid": "Arrocca presto, cambia i pezzi e aspetta il tuo errore.",
+      "simplifier": "Adora cambiare i pezzi e vincere il finale.",
+      "tricky": "Cerca minacce e trappole a ogni mossa."
+    },
+    "vsYou": "Contro di te: {{w}}-{{d}}-{{l}}",
+    "firstMeet": "Prima partita contro questo avversario",
+    "time": "Cadenza",
+    "play": "Gioca",
+    "another": "Un altro avversario",
+    "continue": "Partita di lega in corso contro {{name}}",
+    "recent": "Avversari recenti",
+    "rematch": "Rivincita",
+    "history": "Cronologia",
+    "empty": "Non hai ancora giocato nessuna partita di lega.",
+    "won": "Vittoria",
+    "drew": "Patta",
+    "lost": "Sconfitta",
+    "abandoned": "La partita contro {{name}} è rimasta a metà e conta come sconfitta.",
+    "abandonedTag": "Abbandonata",
+    "ratingChange": "Rating {{before}} → {{after}}",
+    "replaceSaved": "Hai una partita di lega non finita contro {{name}}. Iniziarne un’altra la conta come sconfitta."
   }
 }

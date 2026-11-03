@@ -71,6 +71,8 @@ Open Chess puts those pieces together in one app with a clean, familiar interfac
 
 **🤖 13 bots with personality.** Pip, the kid who just discovered the knight; Iván, who will sacrifice whatever it takes; Boris, the old-school FIDE master… Each one has a portrait, favourite openings and their own voice: they greet you, react to your captures and blunders, and celebrate (or regret) the result. They play like people, not like a broken engine. And with **clone bots** you can face any chess.com or Lichess player: the clone plays their openings and at their level, from their own games. Even you, a year ago.
 
+**🏆 A league.** Rated games against rivals the app makes up, matched to your rating: each has a name, a face, favourite openings and a style (aggressive, solid, simplifier, tricky). No help, a Glicko rating with its history, and rivals you meet again. They are bots and say so: no one else is online.
+
 **🐟 17 challenges.** Stockfish, but with a silly rule: **Meltfish** loses 50 Elo every move, **Growfish** starts at 0 and climbs, **Envyfish** drops 300 Elo whenever you find the best move, **Drawfish** plays for 0.00, **Checkfish** checks whenever it can, **Greedfish** grabs everything, **Coinfish** picks its n-th best move with probability ½ⁿ, **Yoyofish** swings between 250 and 3200 on every capture, **Copyfish** copies the quality of your last move, **Mirrorfish** mirrors your moves, **Panicfish** gets weaker as its clock runs down, **Grudgefish** hunts the piece type you took from it… The bot's Elo changes live as you play.
 
 **🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.

@@ -56,4 +56,22 @@ for (const [id, l] of Object.entries(LOOKS)) {
   }
 }
 
+// League rivals: generated players, so DiceBear picks the look from the seed; only the
+// expression is fixed per mood. league.ts picks one by RIVAL_PORTRAITS.
+const RIVAL_FACES = ['calm', 'smile', 'serious', 'cheeky', 'driven', 'suspicious', 'explaining', 'calm', 'smile', 'serious', 'cheeky', 'driven']
+const SKINS = Object.values(SKIN)
+RIVAL_FACES.forEach((face, i) => {
+  for (const [mood, f] of Object.entries({ neutral: face, happy: 'smileLOL', sad: 'solemn' })) {
+    const svg = createAvatar(openPeeps, {
+      seed: `rival-${i}`,
+      skinColor: [SKINS[i % SKINS.length]],
+      face: [f],
+      maskProbability: 0,
+      scale: 90,
+      translateY: 4,
+    }).toString()
+    writeFileSync(`${out}/rival-${i}-${mood}.svg`, svg)
+  }
+})
+
 console.log('avatars written to', out)

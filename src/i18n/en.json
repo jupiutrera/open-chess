@@ -696,5 +696,54 @@
     "play": "Play",
     "update": "Update",
     "missing": "That clone no longer exists on this device."
+  },
+  "league": {
+    "title": "League",
+    "note": "League rivals are made up by the app: they are bots with names of their own, not people. Games are played without help, and leaving one unfinished counts as a loss.",
+    "startTitle": "Where do you start?",
+    "startHint": "It is only a starting point: your first games adjust your rating quickly.",
+    "level": {
+      "new": "Just starting out",
+      "casual": "I play now and then",
+      "club": "Club level",
+      "strong": "Strong player"
+    },
+    "rating": "Your league rating",
+    "provisional": "Provisional: it settles after a few more games",
+    "record": "{{w}} won · {{d}} drawn · {{l}} lost",
+    "lineEmpty": "Play a few games to see how your rating moves.",
+    "lineLabel": "Rating over time, from {{from}} to {{to}}",
+    "findTitle": "Your next rival",
+    "style": {
+      "balanced": "Balanced",
+      "aggressive": "Aggressive",
+      "solid": "Solid",
+      "simplifier": "Simplifier",
+      "tricky": "Tricky"
+    },
+    "bio": {
+      "balanced": "Plays a bit of everything and adapts to the position.",
+      "aggressive": "Goes for your king as soon as possible, even at a cost.",
+      "solid": "Castles early, trades pieces and waits for your mistake.",
+      "simplifier": "Loves trading pieces and winning the endgame.",
+      "tricky": "Looks for threats and traps on every move."
+    },
+    "vsYou": "Against you: {{w}}-{{d}}-{{l}}",
+    "firstMeet": "First game against this rival",
+    "time": "Time control",
+    "play": "Play",
+    "another": "Another rival",
+    "continue": "League game in progress against {{name}}",
+    "recent": "Recent rivals",
+    "rematch": "Rematch",
+    "history": "History",
+    "empty": "You have not played any league games yet.",
+    "won": "Win",
+    "drew": "Draw",
+    "lost": "Loss",
+    "abandoned": "The game against {{name}} was left unfinished and counts as a loss.",
+    "abandonedTag": "Abandoned",
+    "ratingChange": "Rating {{before}} → {{after}}",
+    "replaceSaved": "You have an unfinished league game against {{name}}. Starting another one counts it as a loss."
   }
 }

@@ -36,6 +36,12 @@ import type { DrawShape } from '@lichess-org/chessground/draw'
 import { localize } from '../../i18n/content'
 import { PLAYER } from './playerName'
 import { customStartFen } from './startPosition'
+import { LEAGUE_CLOCKS, parseRivalId, recordResult, rivalBot, rivalProfile, isProvisional, settlePending } from '../league/league'
+import { updateLeague, useLeague } from '../league/store'
+import type { AssistSettings } from '../../settings'
+
+/** league games are rated: no help of any kind */
+const NO_ASSIST: AssistSettings = { eval: false, threats: false, suggest: false, feedback: false, engine: false }
 
 /** chess.js piece letters to their `common.piece.*` names */
 const PIECE_NAMES: Record<string, string> = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }
@@ -50,9 +56,13 @@ export default function PlayBot() {
   const kept = useRef<CloneRow | null>(null)
   if (live) kept.current = live
   const clone = live ?? (live === null ? kept.current : undefined)
-  const bio = clone ? t('clone.bio', { name: clone.name, count: clone.games }) : ''
+  const rival = useMemo(() => parseRivalId(botId), [botId])
+  const bio = clone ? t('clone.bio', { name: clone.name, count: clone.games }) : rival ? t(`league.bio.${rivalProfile(rival.seed).style}`) : ''
   // one Bot per clone row, so the game's effects do not restart on every render
-  const bot = useMemo(() => (clone ? cloneBot(clone, bio) : (botById(botId) ?? botById('ivan')!)), [clone, bio, botId])
+  const bot = useMemo(
+    () => (clone ? cloneBot(clone, bio) : rival ? rivalBot(rival, bio) : (botById(botId) ?? botById('ivan')!)),
+    [clone, rival, bio, botId],
+  )
   if (cloneId && clone === undefined) return <BoardScreenSkeleton />
   if (cloneId && !clone)
     return (
@@ -71,12 +81,18 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   const { t } = useTranslation()
   const nav = useNavigate()
   const [params, setParams] = useSearchParams()
-  const assist = useSettings((s) => s.assist)
+  // league rivals play rated games
+  const rated = !!bot.league
+  const league = useLeague()
+  const assistSetting = useSettings((s) => s.assist)
+  const assist = rated ? NO_ASSIST : assistSetting
   const lang = useSettings((s) => s.lang)
   const name = botName(bot, lang)
   // a challenge may fix the start position and the user's side
   const rules = bot.challenge ? CHALLENGES[bot.challenge] : undefined
-  const tc = timeControl(challengeClock(bot.challenge, params.get('tc')))
+  // rated games are always played on one of the league's clocks
+  const tcParam = params.get('tc')
+  const tc = timeControl(rated ? ((LEAGUE_CLOCKS as readonly string[]).includes(tcParam ?? '') ? tcParam : '10+0') : challengeClock(bot.challenge, tcParam))
 
   // a saved game in progress against this bot, when coming from "Continue" or reloading
   const [resumed] = useState(() => {
@@ -84,7 +100,8 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     return g && g.botId === bot.id ? g : null
   })
   // a game from a given position ("play this position" from analysis); kept for rematches
-  const [startFen] = useState(() => customStartFen(rules?.startFen ?? (resumed ? resumed.fen : params.get('fen'))) ?? START_FEN)
+  // rated games always start from the usual position
+  const [startFen] = useState(() => customStartFen(rules?.startFen ?? (resumed ? resumed.fen : rated ? null : params.get('fen'))) ?? START_FEN)
   const pickColor = useCallback(() => {
     if (rules?.userColor) return rules.userColor
     const c = params.get('color')
@@ -111,6 +128,8 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   const [confirmResign, setConfirmResign] = useState(false)
   const [assistOpen, setAssistOpen] = useState(false)
   const [chat, setChat] = useState<{ text: string; key: number } | null>(null)
+  // a rated game's effect on the user's league rating, once recorded
+  const [ratingChange, setRatingChange] = useState<{ before: number; after: number } | null>(null)
   const lastChatPly = useRef(-10)
   const say = useCallback(
     (event: ChatEvent, chance = 1) => {
@@ -145,6 +164,14 @@ function PlayBotGame({ bot }: { bot: Bot }) {
       clock.stop()
       play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
       const token = gameToken.current
+      // a rated result goes in first, before anything can interrupt it; the saved game's id follows
+      const rival = bot.league
+      const ratedAt = Date.now()
+      const ratedResult = rival
+        ? updateLeague((s) =>
+            recordResult(s, rival, e.result === '1/2-1/2' ? 0.5 : (e.result === '1-0') === (userColor === 'w') ? 1 : 0, { now: ratedAt }),
+          ).catch(() => null)
+        : null
       // a challenge bot is saved at the Elo it ended on
       const botElo = challenge.plies.current.at(-1)?.elo ?? bot.elo
       const pending = saveGame({
@@ -167,6 +194,12 @@ function PlayBotGame({ bot }: { bot: Bot }) {
         clearLiveGame('bot')
         setSavedId(row.id)
       } else toast(t('play.saveFailed'), 'error')
+      if (ratedResult) {
+        const g = (await ratedResult)?.games.findLast((x) => x.at === ratedAt)
+        if (g) setRatingChange({ before: g.before, after: g.after })
+        const id = row?.id
+        if (id) void updateLeague((s) => ({ ...s, games: s.games.map((x) => (x.at === ratedAt && x.rival === bot.id ? { ...x, gameId: id } : x)) }))
+      }
       dialogTimer.current = setTimeout(() => setDialog(true), 450)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -295,7 +328,7 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     }
     think()
       .then(async (uci) => {
-        const minThink = Math.min(350 + Math.random() * 500, botClock ? botClock.left / 60 : Infinity)
+        const minThink = Math.min((350 + Math.random() * 500) * (bot.tempo ?? 1), botClock ? botClock.left / 60 : Infinity)
         const wait = Math.max(0, minThink - (performance.now() - started))
         await new Promise((r) => setTimeout(r, wait))
         if (cancelled) return
@@ -436,13 +469,24 @@ function PlayBotGame({ bot }: { bot: Bot }) {
 
   // before both sides have moved, the game can be dropped without a result
   const canAbort = game.moves.length < 2
+  // from then on a rated game counts: left unfinished, it is lost (see settlePending)
+  useEffect(() => {
+    const rival = bot.league
+    if (!rival || canAbort || end) return
+    const id = bot.id
+    // another rated game still pending was left for this one: it is lost first
+    void updateLeague((s) => {
+      const settled = settlePending(s, id)
+      return settled.pending?.rival === id ? settled : { ...settled, pending: { rival: id, handle: bot.name, elo: rival.elo, at: Date.now() } }
+    })
+  }, [bot, canAbort, end])
   const abort = () => {
     aborted.current = true
     clock.stop()
     sharedEngine().stop()
     clearLiveGame('bot')
     toast(t('play.aborted'))
-    nav('/play')
+    nav(rated ? '/league' : '/play')
   }
 
   const restart = (sameColor: boolean) => {
@@ -456,6 +500,7 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     setEnd(null)
     setDialog(false)
     setSavedId(null)
+    setRatingChange(null)
     setHint([])
     lastChatPly.current = -10
     clearLiveGame('bot')
@@ -501,6 +546,7 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   const userBar = (
     <PlayerBar
       name={t('common.you')}
+      rating={rated && league ? `${league.rating.rating}${isProvisional(league.rating) ? '?' : ''}` : undefined}
       color={userColor}
       captured={userColor === 'w' ? cap.byWhite : cap.byBlack}
       advantage={userColor === 'w' ? cap.diff : -cap.diff}
@@ -549,14 +595,16 @@ function PlayBotGame({ bot }: { bot: Bot }) {
                 </p>
               </div>
               {tc.base > 0 && <span className="tabular shrink-0 text-[13px] text-fg-3">{tc.label}</span>}
-              <button
-                className="btn btn-ghost btn-icon -mr-1 shrink-0"
-                onClick={() => setAssistOpen(true)}
-                aria-label={t('play.assist')}
-                title={t('play.assist')}
-              >
-                <SlidersHorizontal size={20} weight="bold" />
-              </button>
+              {!rated && (
+                <button
+                  className="btn btn-ghost btn-icon -mr-1 shrink-0"
+                  onClick={() => setAssistOpen(true)}
+                  aria-label={t('play.assist')}
+                  title={t('play.assist')}
+                >
+                  <SlidersHorizontal size={20} weight="bold" />
+                </button>
+              )}
             </div>
             {assist.engine && (
               <div className="border-b border-line py-1 max-lg:order-5">
@@ -615,19 +663,28 @@ function PlayBotGame({ bot }: { bot: Bot }) {
                   <button className="btn col-span-2" onClick={() => restart(true)}>
                     {t('play.rematch')}
                   </button>
-                  <button className="btn col-span-2" onClick={() => nav('/play')}>
+                  <button className="btn col-span-2" onClick={() => nav(rated ? '/league' : '/play')}>
                     {t('play.newGame')}
                   </button>
                 </>
               ) : (
                 <>
-                  <ActionButton icon={<Lightbulb size={22} weight="bold" />} label={t('play.hint')} onClick={showHint} disabled={turn !== userColor} />
-                  <ActionButton icon={<ArrowCounterClockwise size={22} weight="bold" />} label={t('play.undo')} onClick={takeback} disabled={game.moves.length < 1} />
-                  <ActionButton icon={<Handshake size={22} weight="bold" />} label={t('play.draw')} onClick={offerDraw} disabled={thinking || offering} />
+                  {/* rated games: no hints or takebacks, so the two that remain take the row */}
+                  {!rated && <ActionButton icon={<Lightbulb size={22} weight="bold" />} label={t('play.hint')} onClick={showHint} disabled={turn !== userColor} />}
+                  {!rated && (
+                    <ActionButton icon={<ArrowCounterClockwise size={22} weight="bold" />} label={t('play.undo')} onClick={takeback} disabled={game.moves.length < 1} />
+                  )}
+                  <ActionButton
+                    icon={<Handshake size={22} weight="bold" />}
+                    label={t('play.draw')}
+                    onClick={offerDraw}
+                    disabled={thinking || offering}
+                    className={rated ? 'col-span-2' : ''}
+                  />
                   {canAbort ? (
-                    <ActionButton icon={<X size={22} weight="bold" />} label={t('play.abort')} onClick={abort} />
+                    <ActionButton icon={<X size={22} weight="bold" />} label={t('play.abort')} onClick={abort} className={rated ? 'col-span-2' : ''} />
                   ) : (
-                    <ActionButton icon={<Flag size={22} weight="bold" />} label={t('play.resign')} onClick={() => setConfirmResign(true)} />
+                    <ActionButton icon={<Flag size={22} weight="bold" />} label={t('play.resign')} onClick={() => setConfirmResign(true)} className={rated ? 'col-span-2' : ''} />
                   )}
                 </>
               )}
@@ -644,7 +701,8 @@ function PlayBotGame({ bot }: { bot: Bot }) {
           onReview={() => savedId && nav(`/review/${savedId}`)}
           reviewReady={!!savedId}
           onRematch={() => restart(true)}
-          onNew={() => nav('/play')}
+          onNew={() => nav(rated ? '/league' : '/play')}
+          ratingChange={ratingChange}
         />
       )}
       <Sheet open={assistOpen} onClose={() => setAssistOpen(false)} title={t('play.assist')}>
@@ -665,9 +723,21 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   )
 }
 
-export function ActionButton({ icon, label, onClick, disabled }: { icon: React.ReactNode; label: string; onClick: () => void; disabled?: boolean }) {
+export function ActionButton({
+  icon,
+  label,
+  onClick,
+  disabled,
+  className = '',
+}: {
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
+  disabled?: boolean
+  className?: string
+}) {
   return (
-    <button className="btn flex-col gap-0.5 px-1 py-1.5 text-[11px] font-semibold" style={{ minHeight: 56 }} onClick={onClick} disabled={disabled} title={label}>
+    <button className={`btn flex-col gap-0.5 px-1 py-1.5 text-[11px] font-semibold ${className}`} style={{ minHeight: 56 }} onClick={onClick} disabled={disabled} title={label}>
       {icon}
       <span className="truncate">{label}</span>
     </button>
