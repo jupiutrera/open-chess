@@ -281,6 +281,10 @@ cg-board square.premove-dest {
 cg-board square.premove-dest.oc {
   background: radial-gradient(transparent 0%, transparent 77%, rgba(20, 30, 85, 0.25) 79%);
 }
+/* squares of the queued premoves */
+cg-board square.current-premove {
+  background-color: rgba(20, 30, 85, 0.35);
+}
 cg-board square.move-dest:hover {
   background: rgba(0, 0, 0, 0.12);
 }

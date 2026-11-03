@@ -340,7 +340,7 @@ function PlayBotGame({ bot }: { bot: Bot }) {
 
   // the clock re-renders this screen every 100ms: keep the board's props stable so its memo holds
   // (help.lines is a new empty array on every render while the position is unevaluated)
-  // and only while it's the user's turn, so the bot's thinking doesn't touch them (it would cost a premove)
+  // and only while it's the user's turn, so the bot's thinking doesn't touch them
   const suggestion = userTurn ? help.lines[0]?.pv[0] : undefined
   const threat = userTurn ? help.threat : undefined
   const shapes = useMemo(() => {
