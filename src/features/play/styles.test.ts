@@ -10,7 +10,7 @@ describe('move traits', () => {
   it('sees checks, pressure on the king and trades', () => {
     const t = moveTraits('4k3/8/8/8/8/8/8/3QK3 w - - 0 1', 'd1a4')!
     expect(t.check).toBe(true)
-    expect(t.kingPressure).toBe(3)
+    expect(t.kingPressure).toBe(2)
     const trade = moveTraits('3qk3/8/8/8/8/8/8/3QK3 w - - 0 1', 'd1d8')!
     expect(trade.trade).toBe(true)
     expect(trade.queenTrade).toBe(true)
@@ -62,5 +62,21 @@ describe('styled picks', () => {
     expect(styleMargin(3000, 'solid')).toBe(2)
     expect(styleMargin(1500, 'tricky')).toBeGreaterThan(styleMargin(1500, 'solid'))
     expect(styleMargin(1500, 'balanced')).toBe(0)
+  })
+})
+
+describe('trait edge cases', () => {
+  it('a capture the opponent cannot take back is no trade', () => {
+    // the bishop on e6 is pinned to its king by the rook on e1, so it can't retake on d5
+    expect(moveTraits('4k3/8/4b3/3r4/8/8/8/3RR2K w - - 0 1', 'd1d5')!.trade).toBe(false)
+    expect(moveTraits('4k3/8/4b3/3r4/8/8/8/R2R3K w - - 0 1', 'd1d5')!.trade).toBe(true)
+  })
+
+  it('a king walked to the wing in an endgame is not castled', () => {
+    expect(moveTraits('6k1/8/8/8/8/8/6PP/6K1 w - - 0 1', 'g2g4')!.shieldBreak).toBe(false)
+  })
+
+  it('caps the pull toward the king', () => {
+    expect(moveTraits('7k/8/8/8/8/8/8/Q6K w - - 0 1', 'a1g7')!.kingPressure).toBe(2)
   })
 })

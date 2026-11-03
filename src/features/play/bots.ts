@@ -457,11 +457,14 @@ export async function playAtElo(
     return r.bestmove
   }
   if (elo >= 1350) {
-    const movetime = budgetMs(elo >= 2000 ? 900 : 500, clock)
+    const styled = style !== 'balanced'
+    const budget = budgetMs(elo >= 2000 ? 900 : 500, clock)
+    // on the clock a style splits the same time between its pick and the look at every move
+    const movetime = styled && clock ? budget * 0.6 : budget
     const r = await engine.search(fen, { movetime, elo, history: hist })
-    if (style === 'balanced' || !r.bestmove) return r.bestmove
+    if (!styled || !r.bestmove) return r.bestmove
     // a quick look at every move, to find the ones as good as its pick
-    const ranked = await rankMoves(engine, fen, { history, movetime: budgetMs(400, clock) })
+    const ranked = await rankMoves(engine, fen, { history, movetime: clock ? budget * 0.4 : 400 })
     if (!ranked.moves.length) return r.bestmove
     return pickStyled(fen, ranked.moves, r.bestmove, style, styleMargin(elo, style))
   }
@@ -475,7 +478,9 @@ export async function playAtElo(
   }
   const r = await engine.search(fen, { depth: p.depth, multipv: p.topN, history: hist })
   if (!r.lines.length) return r.bestmove
-  const bonus = style === 'balanced' ? undefined : (uci: string) => styleBonus(fen, uci, style)
+  // capped, so the style tilts its choice but can't talk it into a much worse move
+  const cap = styleMargin(elo, style) / 2
+  const bonus = style === 'balanced' ? undefined : (uci: string) => Math.max(-cap, Math.min(cap, styleBonus(fen, uci, style)))
   return softPick(r.lines, chess.turn() === 'w', p.temp, Math.random, bonus) ?? r.bestmove
 }
 

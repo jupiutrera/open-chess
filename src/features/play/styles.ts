@@ -9,13 +9,11 @@ import type { RankedMove } from './bots'
  */
 export type PlayStyle = 'balanced' | 'aggressive' | 'solid' | 'simplifier' | 'tricky'
 
-export const PLAY_STYLES: PlayStyle[] = ['balanced', 'aggressive', 'solid', 'simplifier', 'tricky']
-
 /** What a move does, as the styles see it. */
 export interface MoveTraits {
   check: boolean
   sacrifice: boolean
-  /** steps the moved piece came closer to the enemy king (negative: further) */
+  /** steps the moved piece came closer to the enemy king (negative: further), capped at 2 */
   kingPressure: number
   /** a pawn push next to the enemy king */
   pawnStorm: boolean
@@ -66,10 +64,11 @@ export function moveTraits(fen: string, uci: string): MoveTraits | null {
   if (!move || !theirKing || !myKing) return null
   const moved = move.promotion ?? move.piece
   const captured = move.captured ? PIECE_VALUE[move.captured] : 0
-  const recapture = c.attackers(move.to as Square, them).length > 0
-  // the king's file on its home rank with the rooks' side castled: g/h or a/b/c
+  // legal replies only: a pinned piece, or a king stepping into check, can't take back
+  const recapture = c.moves({ verbose: true }).some((m) => m.to === move.to)
+  // a king tucked on a wing of its home rank while the pieces are still on: castled, or as good as
   const homeRank = me === 'w' ? '1' : '8'
-  const castled = myKing[1] === homeRank && 'abcgh'.includes(myKing[0])
+  const castled = myKing[1] === homeRank && 'bcgh'.includes(myKing[0]) && pieceMaterial(c) > 14
   const theirPieces: { square: Square; value: number }[] = []
   for (const row of c.board()) for (const p of row) if (p?.color === them && p.type !== 'k') theirPieces.push({ square: p.square, value: PIECE_VALUE[p.type] })
   const threats = theirPieces.filter(
@@ -78,7 +77,7 @@ export function moveTraits(fen: string, uci: string): MoveTraits | null {
   return {
     check: c.inCheck(),
     sacrifice: isSacrifice(fen, uci),
-    kingPressure: move.piece === 'k' ? 0 : dist(move.from, theirKing) - dist(move.to, theirKing),
+    kingPressure: move.piece === 'k' ? 0 : Math.max(-2, Math.min(2, dist(move.from, theirKing) - dist(move.to, theirKing))),
     pawnStorm: move.piece === 'p' && !move.captured && Math.abs(move.to.charCodeAt(0) - theirKing.charCodeAt(0)) <= 1,
     trade: captured > 0 && captured >= PIECE_VALUE[move.piece] && recapture,
     queenTrade: move.captured === 'q' && move.piece === 'q' && recapture,
@@ -108,6 +107,8 @@ export function styleMargin(elo: number, style: PlayStyle): number {
 /**
  * Picks among `ranked` (best first) a move within `margin` win% of `ref`, the one its Elo chose,
  * weighing what the style likes against straying from it. Decisive positions keep `ref`.
+ * `ranked` comes from a quick search, so the margin is approximate: a few win% of noise is
+ * within what a player at that level misjudges anyway.
  */
 export function pickStyled(fen: string, ranked: RankedMove[], ref: string, style: PlayStyle, margin: number, rnd = Math.random): string {
   const base = ranked.find((m) => m.uci === ref)
