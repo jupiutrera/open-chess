@@ -12,7 +12,7 @@ import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
 import { QualityBadge, PieceSprite } from './QualityIcon'
 import { OutcomeMarks } from './OutcomeMarks'
-import { addPremove, premoveLegal, virtualPlacement, type Premove } from './premoves'
+import { addPremove, plyOf, premoveLegal, virtualPlacement, type Premove } from './premoves'
 import { useDismiss, useFocusTrap } from '../ui/kit'
 
 export interface BoardProps {
@@ -160,13 +160,22 @@ function BoardView({
     if (!queueOn) setQueue([])
   }, [queueOn])
 
-  // premoves fire as soon as it's our turn again; one that became illegal clears the rest,
-  // since they were planned around it
+  // premoves fire as soon as it's our turn again, once per position (a premove can land just
+  // after the turn came back); one that became illegal clears the rest, planned around it.
+  // The queue follows the game one move at a time: a takeback or a new game drops it.
+  const lastPly = useRef(plyOf(fen))
+  const firedAt = useRef<string | null>(null)
   useEffect(() => {
-    if (!queueOn || !myTurn || !queue.length) return
+    const ply = plyOf(fen)
+    const jumped = ply !== lastPly.current && ply !== lastPly.current + 1
+    lastPly.current = ply
+    if (jumped) return setQueue([])
+    if (!queueOn || !myTurn || !queue.length || firedAt.current === fen) return
+    firedAt.current = fen
     const [next, ...rest] = queue
-    setQueue(premoveLegal(fen, next) ? rest : [])
-    if (premoveLegal(fen, next)) onMoveRef.current?.(next.from, next.to, next.promotion)
+    const legal = premoveLegal(fen, next)
+    setQueue(legal ? rest : [])
+    if (legal) onMoveRef.current?.(next.from, next.to, next.promotion)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen, myTurn, queueOn, queue.length])
 

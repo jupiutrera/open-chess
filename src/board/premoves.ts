@@ -20,7 +20,11 @@ function castleTarget(pieces: Pieces, from: string, to: string): string {
   return (to[0] > from[0] ? 'g' : 'c') + to[1]
 }
 
-/** Moves a piece on a bare placement, by geometry alone: castling takes the rook along, a pawn on the last rank queens. */
+/**
+ * Moves a piece on a bare placement, by geometry alone: castling takes the rook along, a pawn on
+ * the last rank queens. A diagonal pawn step onto an empty square may be a capture still to come,
+ * so en passant isn't guessed.
+ */
 function shift(pieces: Pieces, from: string, to: string): Premove | null {
   const piece = pieces.get(from as Key)
   if (!piece) return null
@@ -34,8 +38,6 @@ function shift(pieces: Pieces, from: string, to: string): Premove | null {
       pieces.set(((df > 0 ? 'f' : 'd') + from[1]) as Key, rook)
     }
   }
-  // en passant: a diagonal pawn step onto an empty square removes the pawn beside it
-  if (piece.role === 'pawn' && df !== 0 && !pieces.has(to as Key)) pieces.delete((to[0] + from[1]) as Key)
   pieces.delete(from as Key)
   const promotes = piece.role === 'pawn' && (to[1] === '8' || to[1] === '1')
   pieces.set(to as Key, promotes ? { ...piece, role: 'queen' } : piece)
@@ -57,6 +59,12 @@ export function virtualPlacement(fen: string, queue: Premove[]): string {
   const pieces = read(fen)
   for (const m of queue) shift(pieces, m.from, m.to)
   return write(pieces)
+}
+
+/** Half-moves played before this position, from its FEN counters. */
+export function plyOf(fen: string): number {
+  const [, turn, , , , full] = fen.split(' ')
+  return (Number(full) || 1) * 2 - 2 + (turn === 'b' ? 1 : 0)
 }
 
 /** Whether the first queued move is legal in the real position. */

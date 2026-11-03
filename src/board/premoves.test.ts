@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addPremove, premoveLegal, virtualPlacement } from './premoves'
+import { addPremove, plyOf, premoveLegal, virtualPlacement } from './premoves'
 
 const AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
 
@@ -40,4 +40,17 @@ describe('premove queue', () => {
     expect(premoveLegal(fen, { from: 'e4', to: 'e5' })).toBe(false)
     expect(premoveLegal(fen, undefined)).toBe(false)
   })
+})
+
+describe('plyOf', () => {
+  it('counts half-moves from the FEN counters', () => {
+    expect(plyOf('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toBe(0)
+    expect(plyOf(AFTER_E4)).toBe(1)
+    expect(plyOf('rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2')).toBe(2)
+  })
+})
+
+it('does not guess en passant, so a pawn beside the target stays', () => {
+  const fen = '4k3/8/8/8/3PP3/8/8/4K3 b - - 0 1'
+  expect(virtualPlacement(fen, addPremove(fen, [], 'e4', 'd5'))).toBe('4k3/8/8/3P4/3P4/8/8/4K3')
 })
