@@ -49,6 +49,8 @@ export interface LeagueState {
 }
 
 export const RIVAL_PORTRAITS = 12
+/** clocks a league game can be played at: always with one, as rated play is */
+export const LEAGUE_CLOCKS = ['3+2', '5+0', '10+0', '15+10'] as const
 const HISTORY = 300
 /** a rival's rating is what they play at: far more certain than the user's */
 const RIVAL_RD = 80
@@ -164,16 +166,18 @@ export function parseRivalId(id: string): Rival | null {
   return m ? { seed: Number(m[1]), elo: Number(m[2]) } : null
 }
 
+/** A rival's strength: in steps of 10, within what the bots can play. */
+const clampElo = (elo: number) => Math.max(250, Math.min(2900, Math.round(elo / 10) * 10))
+
 /** A rival close to the user's rating; `rnd` picks who. */
 export function findRival(rating: number, rnd = Math.random): Rival {
   const seed = Math.floor(rnd() * 2 ** 31)
-  const elo = Math.round((rating + (rnd() * 2 - 1) * 150) / 10) * 10
-  return { seed, elo: Math.max(250, Math.min(2900, elo)) }
+  return { seed, elo: clampElo(rating + (rnd() * 2 - 1) * 150) }
 }
 
-/** The same rival, at the strength it has now: it follows the user's level within its range. */
+/** The same rival, at the strength it has now: it follows the user's level, within 100 of before. */
 export function meetAgain(rival: Rival, rating: number): Rival {
-  return { seed: rival.seed, elo: Math.max(250, Math.min(2900, Math.round(Math.max(rival.elo - 100, Math.min(rival.elo + 100, rating)) / 10) * 10)) }
+  return { seed: rival.seed, elo: clampElo(Math.max(rival.elo - 100, Math.min(rival.elo + 100, rating))) }
 }
 
 /** The rival as a bot to play. `bio` is its line, already in the user's language. */

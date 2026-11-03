@@ -7,6 +7,7 @@ import { BotAvatar } from '../play/BotAvatar'
 import { clearLiveGame, loadLiveGame } from '../play/liveGame'
 import { timeControl } from '../play/timeControl'
 import {
+  LEAGUE_CLOCKS,
   START_LEVELS,
   findRival,
   isProvisional,
@@ -24,9 +25,6 @@ import {
   type Rival,
 } from './league'
 import { saveLeague, updateLeague, useLeague } from './store'
-
-/** clocks a league game can be played at: always with one, as rated play is */
-const LEAGUE_CLOCKS = ['3+2', '5+0', '10+0', '15+10'] as const
 
 export default function League() {
   const { t } = useTranslation()
@@ -89,6 +87,13 @@ function LeagueHome({ league }: { league: LeagueState }) {
   const nav = useNavigate()
   const rating = league.rating.rating
   const [rival, setRival] = useState<Rival>(() => findRival(rating))
+  // a result moves the rating: the next rival is found around the new one
+  const shownFor = useRef(rating)
+  useEffect(() => {
+    if (shownFor.current === rating) return
+    shownFor.current = rating
+    setRival(findRival(rating))
+  }, [rating])
   const [tc, setTc] = useState<string>('10+0')
   const live = loadLiveGame('bot')
   const liveRival = live?.botId ? parseRivalId(live.botId) : null
@@ -112,7 +117,7 @@ function LeagueHome({ league }: { league: LeagueState }) {
             {isProvisional(league.rating) ? t('league.provisional') : t('league.record', overall)}
           </div>
         </div>
-        <RatingLine games={league.games} start={league.games[0]?.before ?? rating} />
+        <RatingLine games={league.games} rating={rating} />
       </Panel>
 
       {liveRival && live ? (
@@ -128,10 +133,14 @@ function LeagueHome({ league }: { league: LeagueState }) {
 }
 
 /** The user's rating after each game; the list below is its table view. */
-function RatingLine({ games, start }: { games: LeagueGame[]; start: number }) {
+function RatingLine({ games, rating }: { games: LeagueGame[]; rating: number }) {
   const { t } = useTranslation()
   const [hover, setHover] = useState<number | null>(null)
-  const points = useMemo(() => [start, ...games.slice(-50).map((g) => g.after)], [games, start])
+  // the last 50 games, from the rating before the first of them
+  const points = useMemo(() => {
+    const shown = games.slice(-50)
+    return [shown[0]?.before ?? rating, ...shown.map((g) => g.after)]
+  }, [games, rating])
   if (points.length < 3) return <p className="flex-1 text-[14px] text-fg-3 sm:text-right">{t('league.lineEmpty')}</p>
   const W = 320
   const H = 72
@@ -276,7 +285,7 @@ function History({ games }: { games: LeagueGame[] }) {
         <Panel className="p-4 text-fg-2">{t('league.empty')}</Panel>
       ) : (
         <Panel className="divide-y divide-line overflow-hidden">
-          {last.map((g) => {
+          {last.map((g, i) => {
             const delta = g.after - g.before
             const label = g.abandoned ? t('league.abandonedTag') : t(g.score === 1 ? 'league.won' : g.score === 0.5 ? 'league.drew' : 'league.lost')
             const row = (
@@ -292,11 +301,11 @@ function History({ games }: { games: LeagueGame[] }) {
               </>
             )
             return g.gameId ? (
-              <Link key={g.at} to={`/review/${g.gameId}`} className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-150 hover:bg-raise">
+              <Link key={`${g.at}-${i}`} to={`/review/${g.gameId}`} className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-150 hover:bg-raise">
                 {row}
               </Link>
             ) : (
-              <div key={g.at} className="flex items-center gap-3 px-4 py-2.5">
+              <div key={`${g.at}-${i}`} className="flex items-center gap-3 px-4 py-2.5">
                 {row}
               </div>
             )

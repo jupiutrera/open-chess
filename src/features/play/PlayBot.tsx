@@ -36,7 +36,7 @@ import type { DrawShape } from '@lichess-org/chessground/draw'
 import { localize } from '../../i18n/content'
 import { PLAYER } from './playerName'
 import { customStartFen } from './startPosition'
-import { parseRivalId, recordResult, rivalBot, rivalProfile, isProvisional } from '../league/league'
+import { LEAGUE_CLOCKS, parseRivalId, recordResult, rivalBot, rivalProfile, isProvisional, settlePending } from '../league/league'
 import { updateLeague, useLeague } from '../league/store'
 import type { AssistSettings } from '../../settings'
 
@@ -90,7 +90,9 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   const name = botName(bot, lang)
   // a challenge may fix the start position and the user's side
   const rules = bot.challenge ? CHALLENGES[bot.challenge] : undefined
-  const tc = timeControl(challengeClock(bot.challenge, params.get('tc')))
+  // rated games are always played on one of the league's clocks
+  const tcParam = params.get('tc')
+  const tc = timeControl(rated ? ((LEAGUE_CLOCKS as readonly string[]).includes(tcParam ?? '') ? tcParam : '10+0') : challengeClock(bot.challenge, tcParam))
 
   // a saved game in progress against this bot, when coming from "Continue" or reloading
   const [resumed] = useState(() => {
@@ -162,6 +164,14 @@ function PlayBotGame({ bot }: { bot: Bot }) {
       clock.stop()
       play(e.result === '1/2-1/2' ? 'draw' : (e.result === '1-0') === (userColor === 'w') ? 'win' : 'lose')
       const token = gameToken.current
+      // a rated result goes in first, before anything can interrupt it; the saved game's id follows
+      const rival = bot.league
+      const ratedAt = Date.now()
+      const ratedResult = rival
+        ? updateLeague((s) =>
+            recordResult(s, rival, e.result === '1/2-1/2' ? 0.5 : (e.result === '1-0') === (userColor === 'w') ? 1 : 0, { now: ratedAt }),
+          ).catch(() => null)
+        : null
       // a challenge bot is saved at the Elo it ended on
       const botElo = challenge.plies.current.at(-1)?.elo ?? bot.elo
       const pending = saveGame({
@@ -184,12 +194,11 @@ function PlayBotGame({ bot }: { bot: Bot }) {
         clearLiveGame('bot')
         setSavedId(row.id)
       } else toast(t('play.saveFailed'), 'error')
-      if (bot.league) {
-        const rival = bot.league
-        const score = e.result === '1/2-1/2' ? 0.5 : (e.result === '1-0') === (userColor === 'w') ? 1 : 0
-        const next = await updateLeague((s) => recordResult(s, rival, score, { gameId: row?.id })).catch(() => null)
-        const g = next?.games.at(-1)
-        if (g && token === gameToken.current) setRatingChange({ before: g.before, after: g.after })
+      if (ratedResult) {
+        const g = (await ratedResult)?.games.findLast((x) => x.at === ratedAt)
+        if (g) setRatingChange({ before: g.before, after: g.after })
+        const id = row?.id
+        if (id) void updateLeague((s) => ({ ...s, games: s.games.map((x) => (x.at === ratedAt && x.rival === bot.id ? { ...x, gameId: id } : x)) }))
       }
       dialogTimer.current = setTimeout(() => setDialog(true), 450)
     },
@@ -465,7 +474,11 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     const rival = bot.league
     if (!rival || canAbort || end) return
     const id = bot.id
-    void updateLeague((s) => (s.pending?.rival === id ? s : { ...s, pending: { rival: id, handle: bot.name, elo: rival.elo, at: Date.now() } }))
+    // another rated game still pending was left for this one: it is lost first
+    void updateLeague((s) => {
+      const settled = settlePending(s, id)
+      return settled.pending?.rival === id ? settled : { ...settled, pending: { rival: id, handle: bot.name, elo: rival.elo, at: Date.now() } }
+    })
   }, [bot, canAbort, end])
   const abort = () => {
     aborted.current = true
