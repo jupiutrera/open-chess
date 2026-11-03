@@ -9,7 +9,7 @@ import type { CloneRow } from '../../db/db'
 import { localize } from '../../i18n/content'
 import { pickStyled, styleBonus, styleMargin, type PlayStyle } from './styles'
 
-export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine' | 'challenge' | 'clone'
+export type BotGroup = 'beginner' | 'intermediate' | 'advanced' | 'master' | 'engine' | 'challenge' | 'clone' | 'league'
 
 type Lines = { es: string[]; en: string[] }
 
@@ -36,6 +36,10 @@ export interface Bot {
   avatar?: string
   /** clone bots: the player they imitate (see clone.ts) */
   clone?: CloneRow
+  /** league rivals: who they are and the strength they were met at (see league.ts) */
+  league?: { seed: number; elo: number }
+  /** how long it pauses over a move, against the usual (1) */
+  tempo?: number
 }
 
 /** The bot's name in the given language. */

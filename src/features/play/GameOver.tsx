@@ -29,6 +29,7 @@ export function GameOverDialog({
   onRematch,
   onNew,
   reviewReady = true,
+  ratingChange,
 }: {
   end: GameEnd
   /** undefined for two-player games */
@@ -39,6 +40,8 @@ export function GameOverDialog({
   onRematch?: () => void
   onNew?: () => void
   reviewReady?: boolean
+  /** league games: the user's rating before and after */
+  ratingChange?: { before: number; after: number } | null
 }) {
   const { t } = useTranslation()
   const draw = end.result === '1/2-1/2'
@@ -54,6 +57,15 @@ export function GameOverDialog({
         <h2 className="text-[26px] font-extrabold">{title}</h2>
         <p className="text-fg-2">{t(`play.by.${end.reason}`)}</p>
         <p className="tabular mt-1 font-mono text-[18px] font-bold text-fg-3">{end.result.replace('1/2', '½')}</p>
+        {ratingChange && (
+          <p className="tabular mt-1 text-[15px] font-semibold" data-testid="rating-change">
+            {t('league.ratingChange', { before: ratingChange.before, after: ratingChange.after })}{' '}
+            <span className={ratingChange.after >= ratingChange.before ? 'text-accent' : 'text-fg-3'}>
+              ({ratingChange.after >= ratingChange.before ? '+' : '−'}
+              {Math.abs(ratingChange.after - ratingChange.before)})
+            </span>
+          </p>
+        )}
       </div>
       <div className="mt-4 grid gap-2">
         <button className="btn btn-primary btn-lg w-full" onClick={onReview} disabled={!reviewReady}>

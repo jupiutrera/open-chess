@@ -13,8 +13,9 @@ function portrait(id: string, mood: Mood): string | undefined {
 export function BotAvatar({ bot, size = 40, mood = 'neutral', className = '' }: { bot: Bot; size?: number; mood?: Mood; className?: string }) {
   const face = bot.avatar ?? bot.id
   const src = portrait(face, mood) ?? portrait(face, 'neutral')
-  // a borrowed portrait (the challenge Stockfishes share the cod photo) is framed in the bot's own colour
-  const borrowed = !!bot.avatar
+  // a borrowed portrait (the challenge Stockfishes share the cod photo) is framed in the bot's own colour;
+  // league rivals' portraits come from a shared pool but are their own face
+  const borrowed = !!bot.avatar && !bot.league
   return (
     <span
       className={`relative inline-block shrink-0 overflow-hidden ${className}`}

@@ -1,4 +1,4 @@
-/** Glicko-2 for a single result against a puzzle (Glickman, 2012). */
+/** Glicko-2 for a single result against a puzzle or a rival (Glickman, 2012). */
 
 export interface Glicko {
   rating: number
@@ -22,7 +22,7 @@ export function idleRd(g: Glicko, now = Date.now()): number {
   return Math.min(350, Math.sqrt(phi * phi + g.vol * g.vol * days) * SCALE)
 }
 
-export function updateGlicko(player: Glicko, oppRating: number, oppRd: number, score: 0 | 1, now = Date.now()): Glicko {
+export function updateGlicko(player: Glicko, oppRating: number, oppRd: number, score: 0 | 0.5 | 1, now = Date.now()): Glicko {
   const mu = (player.rating - 1500) / SCALE
   const phi = idleRd(player, now) / SCALE
   const muJ = (oppRating - 1500) / SCALE

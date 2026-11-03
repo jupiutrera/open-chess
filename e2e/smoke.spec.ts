@@ -97,6 +97,32 @@ test('bots with a playing style answer, below and above the engine limiter', asy
   }
 })
 
+test('a league game is rated, without help, and lands in the history', async ({ page }) => {
+  await page.goto('/#/league')
+  await page.getByRole('button', { name: /Club level/ }).click()
+  await expect(page.getByTestId('league-rating')).toContainText('1400')
+  await expect(page.getByTestId('rival-name')).toBeVisible()
+
+  // a fixed rival and side, so the moves below are ours to make
+  await page.goto('/#/play/bot/league-77-800?color=w&tc=5%2B0')
+  await expect(page.locator('cg-board')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Hint' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0)
+  const moves = page.locator('.tabular button:visible')
+  await move(page, 'e2', 'e4')
+  await expect(moves).toHaveCount(2, { timeout: 20_000 })
+  await move(page, 'd2', 'd4')
+  await expect(moves).toHaveCount(4, { timeout: 20_000 })
+
+  await page.getByRole('button', { name: /Resign/ }).first().click()
+  await page.getByRole('dialog').getByRole('button', { name: /Resign/ }).click()
+  await expect(page.getByTestId('rating-change')).toContainText('1400 →')
+
+  await page.goto('/#/league')
+  await expect(page.getByText('Loss', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Rematch' })).toBeVisible()
+})
+
 // the browser runs in English (playwright.config.ts); null: the screen has no h1 of its own yet
 const PAGES: [string, RegExp | null][] = [
   ['/', /What are we training today/],
@@ -105,6 +131,7 @@ const PAGES: [string, RegExp | null][] = [
   ['/puzzles', /^Puzzles$/],
   ['/training', /^Your weak spots$/],
   ['/clones', /^Clones$/],
+  ['/league', /^League$/],
   ['/puzzles/rated', /Rated puzzles/],
   ['/openings', /Openings/],
   ['/lessons', /^Lessons$/],

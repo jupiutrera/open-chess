@@ -696,5 +696,54 @@
     "play": "Jouer",
     "update": "Mettre à jour",
     "missing": "Ce clone n’existe plus sur cet appareil."
+  },
+  "league": {
+    "title": "Ligue",
+    "note": "Les adversaires de la ligue sont créés par l'application : ce sont des bots avec leur propre nom, pas des personnes. Les parties se jouent sans aide, et en laisser une inachevée compte comme une défaite.",
+    "startTitle": "À quel niveau commences-tu ?",
+    "startHint": "Ce n'est qu'un point de départ : tes premières parties ajustent vite ton classement.",
+    "level": {
+      "new": "Je débute",
+      "casual": "Je joue de temps en temps",
+      "club": "Niveau club",
+      "strong": "Joueur fort"
+    },
+    "rating": "Ton classement de ligue",
+    "provisional": "Provisoire : il se stabilise après quelques parties",
+    "record": "{{w}} gagnées · {{d}} nulles · {{l}} perdues",
+    "lineEmpty": "Joue quelques parties pour voir l'évolution de ton classement.",
+    "lineLabel": "Évolution du classement, de {{from}} à {{to}}",
+    "findTitle": "Ton prochain adversaire",
+    "style": {
+      "balanced": "Équilibré",
+      "aggressive": "Agressif",
+      "solid": "Solide",
+      "simplifier": "Simplificateur",
+      "tricky": "Rusé"
+    },
+    "bio": {
+      "balanced": "Joue un peu de tout et s'adapte à la position.",
+      "aggressive": "S'attaque à ton roi dès que possible, même au prix de matériel.",
+      "solid": "Roque tôt, échange les pièces et attend ton erreur.",
+      "simplifier": "Adore échanger les pièces et gagner la finale.",
+      "tricky": "Cherche des menaces et des pièges à chaque coup."
+    },
+    "vsYou": "Contre toi : {{w}}-{{d}}-{{l}}",
+    "firstMeet": "Première partie contre cet adversaire",
+    "time": "Cadence",
+    "play": "Jouer",
+    "another": "Un autre adversaire",
+    "continue": "Partie de ligue en cours contre {{name}}",
+    "recent": "Adversaires récents",
+    "rematch": "Revanche",
+    "history": "Historique",
+    "empty": "Tu n'as encore joué aucune partie de ligue.",
+    "won": "Victoire",
+    "drew": "Nulle",
+    "lost": "Défaite",
+    "abandoned": "La partie contre {{name}} est restée inachevée et compte comme une défaite.",
+    "abandonedTag": "Abandonnée",
+    "ratingChange": "Classement {{before}} → {{after}}",
+    "replaceSaved": "Tu as une partie de ligue inachevée contre {{name}}. En commencer une autre la compte comme une défaite."
   }
 }

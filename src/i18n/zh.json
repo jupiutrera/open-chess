@@ -696,5 +696,54 @@
     "play": "下棋",
     "update": "更新",
     "missing": "这个克隆已不在本设备上。"
+  },
+  "league": {
+    "title": "联赛",
+    "note": "联赛对手由应用生成：它们是有自己名字的机器人，不是真人。对局不提供任何辅助，中途离开算作负局。",
+    "startTitle": "你从哪个水平开始？",
+    "startHint": "这只是起点：最初几局会很快调整你的等级分。",
+    "level": {
+      "new": "刚刚入门",
+      "casual": "偶尔下棋",
+      "club": "俱乐部水平",
+      "strong": "强手"
+    },
+    "rating": "你的联赛等级分",
+    "provisional": "暂定：再下几局就会稳定",
+    "record": "胜 {{w}} · 和 {{d}} · 负 {{l}}",
+    "lineEmpty": "下几局棋，看看你的等级分如何变化。",
+    "lineLabel": "等级分变化，从 {{from}} 到 {{to}}",
+    "findTitle": "你的下一个对手",
+    "style": {
+      "balanced": "均衡",
+      "aggressive": "进攻型",
+      "solid": "稳健型",
+      "simplifier": "简化型",
+      "tricky": "诡计型"
+    },
+    "bio": {
+      "balanced": "什么都下一点，会根据局面调整。",
+      "aggressive": "一有机会就攻王，哪怕要付出子力。",
+      "solid": "早早易位，兑换棋子，等你犯错。",
+      "simplifier": "喜欢兑子，在残局中取胜。",
+      "tricky": "每步棋都在寻找威胁和陷阱。"
+    },
+    "vsYou": "对你：{{w}}-{{d}}-{{l}}",
+    "firstMeet": "第一次与这位对手对局",
+    "time": "用时",
+    "play": "开始",
+    "another": "换一个对手",
+    "continue": "与 {{name}} 的联赛对局进行中",
+    "recent": "最近的对手",
+    "rematch": "再来一局",
+    "history": "历史",
+    "empty": "你还没有下过联赛对局。",
+    "won": "胜",
+    "drew": "和",
+    "lost": "负",
+    "abandoned": "与 {{name}} 的对局未完成，算作负局。",
+    "abandonedTag": "已放弃",
+    "ratingChange": "等级分 {{before}} → {{after}}",
+    "replaceSaved": "你与 {{name}} 有一局未完成的联赛对局。开始新对局会将其算作负局。"
   }
 }
