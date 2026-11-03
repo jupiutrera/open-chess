@@ -71,6 +71,19 @@ test('play a bot, resign, review the game', async ({ page }) => {
   await expect(page.locator('.q-badge')).toBeVisible()
 })
 
+test('moves queued while the bot thinks are played in turn', async ({ page }) => {
+  await page.goto('/#/play/bot/pip?color=w&tc=none&eval=0')
+  await expect(page.locator('cg-board')).toBeVisible()
+  const moves = page.locator('.tabular button:visible')
+  // no reply after 1.e4 can stop Nf3 or Bc4, so both premoves stay legal
+  await move(page, 'e2', 'e4')
+  await move(page, 'g1', 'f3')
+  await move(page, 'f1', 'c4')
+  await expect(moves).toHaveCount(6, { timeout: 20_000 })
+  await expect(moves.nth(2)).toHaveText('Nf3')
+  await expect(moves.nth(4)).toHaveText('Bc4')
+})
+
 // the browser runs in English (playwright.config.ts); null: the screen has no h1 of its own yet
 const PAGES: [string, RegExp | null][] = [
   ['/', /What are we training today/],

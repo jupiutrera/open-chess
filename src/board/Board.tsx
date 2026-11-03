@@ -12,6 +12,7 @@ import { useSettings } from '../settings'
 import type { Quality } from '../features/review/classify'
 import { QualityBadge, PieceSprite } from './QualityIcon'
 import { OutcomeMarks } from './OutcomeMarks'
+import { addPremove, plyOf, premoveLegal, virtualPlacement, type Premove } from './premoves'
 import { useDismiss, useFocusTrap } from '../ui/kit'
 
 export interface BoardProps {
@@ -62,6 +63,9 @@ function BoardView({
   // honour the OS setting even when piece animation is on in the app
   const reducedMotion = useMemo(() => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches, [])
   const [promo, setPromo] = useState<{ from: string; to: string } | null>(null)
+  // moves queued while the opponent thinks; chessground holds only one, so the queue lives here
+  const [queue, setQueue] = useState<Premove[]>([])
+  const queueOn = premoves && (movable === 'white' || movable === 'black')
 
   const chess = useMemo(() => {
     try {
@@ -71,31 +75,45 @@ function BoardView({
     }
   }, [fen])
 
+  const myTurn = chess?.turn() === (movable === 'black' ? 'b' : 'w')
+  // on our turn the first queued move is about to be played: keep showing it unless it can't be
+  const shown = queueOn && queue.length && (!myTurn || premoveLegal(fen, queue[0])) ? queue : null
+  const boardFen = useMemo(() => (shown ? virtualPlacement(fen, shown) : fen), [fen, shown])
+  const queued = useMemo(() => {
+    if (!shown) return highlights
+    const out = new Map(highlights)
+    for (const m of shown) {
+      out.set(m.from, 'current-premove')
+      out.set(m.to, 'current-premove')
+    }
+    return out
+  }, [shown, highlights])
+
   const config: Config = useMemo(() => {
     const turn = chess?.turn() === 'b' ? 'black' : 'white'
     // a bare FEN has no history, and the 50-move rule needs a claim: only a position with no
     // legal play locks the board (games that ended otherwise pass movable 'none')
     const canMove = movable !== 'none' && chess && !chess.isCheckmate() && !chess.isStalemate() && !chess.isInsufficientMaterial()
     return {
-      fen,
+      fen: boardFen,
       orientation,
       turnColor: turn,
       check: chess?.inCheck() ? turn : false,
       lastMove: (lastMove ?? undefined) as Key[] | undefined,
       coordinates: settings.coords,
       animation: { enabled: settings.animation && !reducedMotion, duration: 180 },
-      highlight: { lastMove: true, check: true, custom: highlights as Map<Key, string> | undefined },
+      highlight: { lastMove: true, check: true, custom: queued as Map<Key, string> | undefined },
       movable: {
         free: false,
         color: canMove ? (movable === 'both' ? turn : movable) : undefined,
         dests: canMove && chess ? toDests(chess) : new Map(),
         showDests: settings.showDests,
       },
-      premovable: { enabled: premoves && movable !== 'both' },
+      premovable: { enabled: queueOn },
       draggable: { enabled: true, showGhost: true },
       drawable: { enabled: true, autoShapes: shapes ?? [] },
     }
-  }, [fen, orientation, movable, lastMove, settings.coords, settings.animation, settings.showDests, shapes, highlights, chess, premoves, reducedMotion])
+  }, [boardFen, orientation, movable, lastMove, settings.coords, settings.animation, settings.showDests, shapes, queued, chess, queueOn, reducedMotion])
 
   // mount once
   useEffect(() => {
@@ -114,6 +132,16 @@ function BoardView({
           },
         },
       },
+      premovable: {
+        ...config.premovable,
+        events: {
+          // take the premove off chessground's single slot and into the queue
+          set: (orig, dest) => {
+            api.current?.cancelPremove()
+            setQueue((q) => addPremove(fenRef.current, q, orig, dest))
+          },
+        },
+      },
     })
     const stopKnightArrows = bendKnightArrows(el.current)
     return () => {
@@ -123,17 +151,55 @@ function BoardView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // the position a premove was last tried on: playPremove() drops a premove it can't play,
-  // so other config changes (arrows landing while the bot thinks) mustn't call it
-  const premoveAt = useRef(fen)
   useEffect(() => {
     api.current?.set(config)
-    // premoves fire as soon as it's our turn again
-    if (premoves && premoveAt.current !== config.fen) {
-      premoveAt.current = config.fen as string
-      api.current?.playPremove()
+  }, [config])
+
+  // a finished game, or browsing back through it, drops the queue
+  useEffect(() => {
+    if (!queueOn) setQueue([])
+  }, [queueOn])
+
+  // premoves fire as soon as it's our turn again, once per position (a premove can land just
+  // after the turn came back); one that became illegal clears the rest, planned around it.
+  // The queue follows the game one move at a time: a takeback or a new game drops it.
+  const lastPly = useRef(plyOf(fen))
+  const firedAt = useRef<string | null>(null)
+  useEffect(() => {
+    const ply = plyOf(fen)
+    const jumped = ply !== lastPly.current && ply !== lastPly.current + 1
+    lastPly.current = ply
+    if (jumped) return setQueue([])
+    if (!queueOn || !myTurn || !queue.length || firedAt.current === fen) return
+    firedAt.current = fen
+    const [next, ...rest] = queue
+    const legal = premoveLegal(fen, next)
+    setQueue(legal ? rest : [])
+    if (legal) onMoveRef.current?.(next.from, next.to, next.promotion)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fen, myTurn, queueOn, queue.length])
+
+  // tapping an empty or enemy square with nothing selected, or Escape, cancels the queue
+  useEffect(() => {
+    const root = el.current
+    if (!root || !queue.length) return
+    const down = (e: PointerEvent) => {
+      const cg = api.current
+      if (!cg || e.button !== 0 || cg.state.selected) return
+      const key = cg.getKeyAtDomPos([e.clientX, e.clientY])
+      const piece = key && cg.state.pieces.get(key)
+      if (key && piece?.color !== cg.state.movable.color) setQueue([])
     }
-  }, [config, premoves])
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setQueue([])
+    }
+    root.addEventListener('pointerdown', down, true)
+    window.addEventListener('keydown', esc)
+    return () => {
+      root.removeEventListener('pointerdown', down, true)
+      window.removeEventListener('keydown', esc)
+    }
+  }, [queue.length])
 
   // Badge position as a percentage of the board
   const badgePos = useMemo(() => {
