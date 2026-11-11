@@ -1,0 +1,610 @@
+{
+  "lessons": {
+    "hanging-pieces": {
+      "title": "Bij niebronione figury",
+      "intro": "Przed każdym ruchem szukaj niebronionych figur przeciwnika. Zdobycie ich za darmo to najprostsza droga do wygranej.",
+      "steps": [
+        "Czarny hetman stoi na tej samej linii co Twoja wieża i nic go nie broni. Zbij go.",
+        "Twój skoczek może dotrzeć do niebronionej wieży."
+      ]
+    },
+    "mate-in-one": {
+      "title": "Mat w jednym ruchu",
+      "intro": "Mat: król jest atakowany i nie może uciec, zasłonić się ani zbić atakującej figury.",
+      "steps": [
+        "Czarny król jest zamknięty przez własne piony. To mat na ostatniej linii.",
+        "Pola f7 broni tylko król. Hetman i goniec atakują je razem."
+      ]
+    },
+    "smothered-mate": {
+      "title": "Mat zduszony",
+      "intro": "Gdy król jest otoczony własnymi figurami, sam skoczek może dać mata.",
+      "steps": [
+        "Król nie ma wolnych pól. Znajdź skok skoczka."
+      ]
+    },
+    "arabian-mate": {
+      "title": "Mat arabski",
+      "intro": "Wieża i skoczek współpracują: skoczek broni wieży i odbiera królowi drogę ucieczki w rogu.",
+      "steps": [
+        "Ustaw wieżę obok króla. Skoczek jej broni."
+      ]
+    },
+    "forks": {
+      "title": "Widełki",
+      "intro": "Figura atakująca jednocześnie dwa cele pozwala przeciwnikowi uratować tylko jeden z nich. Skoczek jest mistrzem widełek.",
+      "steps": [
+        "Daj szacha, atakując jednocześnie wieżę.",
+        "Kolejny szach skoczkiem wygrywa hetmana."
+      ]
+    },
+    "pin": {
+      "title": "Związanie",
+      "intro": "Związana figura nie może opuścić linii bez odsłonięcia cenniejszej figury stojącej za nią. Jeśli za nią stoi król, opuszczenie linii jest niedozwolone.",
+      "steps": [
+        "Ustaw wieżę na linii króla: hetman jest związany, a Twój król broni wieży.",
+        "Zwiąż hetmana na przekątnej króla. Pion b3 broni Twojego gońca.",
+        "Skoczek jest związany i nie może się ruszyć. Zaatakuj go pionem, a potem zbij."
+      ]
+    },
+    "skewer": {
+      "title": "Atak przez odsłonięcie",
+      "intro": "Zaatakuj cenną figurę tak, aby po jej odejściu odsłonić inną figurę stojącą za nią na tej samej linii.",
+      "steps": [
+        "Daj szacha na linii króla, a stojący za nim hetman zostanie odsłonięty."
+      ]
+    },
+    "discovered-attack": {
+      "title": "Atak z odsłony",
+      "intro": "Ruch jednej figury otwiera linię innej, stojącej za nią. Jeśli poruszona figura również atakuje, przeciwnik nie może odeprzeć obu gróźb.",
+      "steps": [
+        "Przesuń gońca, aby odsłonić szacha wieżą i zdobyć hetmana."
+      ]
+    },
+    "kq-vs-k": {
+      "title": "Król i hetman przeciwko królowi",
+      "intro": "Hetmanem ograniczaj przestrzeń przeciwnika, zbliż swojego króla i daj mata na brzegu szachownicy. Uważaj na pat.",
+      "steps": [
+        "Daj mata czarnemu królowi."
+      ]
+    },
+    "kr-vs-k": {
+      "title": "Król i wieża przeciwko królowi",
+      "intro": "Wieża odcina króla kolejnymi liniami. Ustaw swojego króla w opozycji i szachuj wieżą, aby zepchnąć przeciwnika do brzegu.",
+      "steps": [
+        "Daj mata czarnemu królowi."
+      ]
+    },
+    "two-rooks": {
+      "title": "Mat schodkowy",
+      "intro": "Dwie wieże na zmianę szachują i odcinają króla, jakby wspinały się po schodach do brzegu szachownicy.",
+      "steps": [
+        "Daj mata dwiema wieżami."
+      ]
+    },
+    "promote-pawn": {
+      "title": "Promocja piona",
+      "intro": "Gdy Twój król stoi na szóstej linii przed pionem, wygrana jest pewna. Zdobądź opozycję i eskortuj piona do pola promocji.",
+      "steps": [
+        "Promuj piona i wygraj partię."
+      ]
+    },
+    "opposition": {
+      "title": "Opozycja",
+      "intro": "Gdy królowie stoją naprzeciw siebie, a między nimi jest jedno pole, opozycję ma strona, która nie musi wykonać ruchu. Drugi król musi ustąpić. Atakujący zmierza do kluczowych pól przed pionem, a broniący zastępuje mu drogę.",
+      "steps": [
+        "Kluczowe pola piona e4 to d6, e6 i f6. Gdy Twój król stanie na jednym z nich, partia będzie wygrana. Zajmij takie pole.",
+        "Stań naprzeciw czarnego króla, zostawiając między wami jedno pole. Teraz czarne będą musiały ustąpić Ci drogi.",
+        "Teraz bronisz się czarnymi. Zdobądź opozycję, aby biały król nie mógł się posunąć.",
+        "Broń się czarnymi: pozostań przed pionem i odzyskuj opozycję, gdy biały król się zbliży. Wytrzymaj 12 ruchów, nie przepuszczając go."
+      ]
+    },
+    "rule-of-the-square": {
+      "title": "Reguła kwadratu",
+      "intro": "Czy Twój król zdąży dogonić samotnego piona? Wyobraź sobie kwadrat, którego bok biegnie od piona do pola promocji. Jeśli król może wejść do kwadratu w swoim ruchu, dogoni piona; w przeciwnym razie pion promuje na hetmana.",
+      "steps": [
+        "Grasz czarnymi. Pion a4 potrzebuje czterech ruchów do promocji, więc jego kwadrat rozciąga się od a4 do e8. Wejdź do niego.",
+        "Czarny król jest poza kwadratem. Nie trać ani jednego tempa: posuń piona, a nic go nie dogoni.",
+        "Grając czarnymi, dogoń piona królem i go zbij."
+      ]
+    },
+    "lucena": {
+      "title": "Pozycja Luceny",
+      "intro": "Wieża i pion przeciwko wieży, pion na siódmej linii, a król przed nim: wygrywasz, budując most. Szachem odsuń króla przeciwnika, ustaw wieżę na czwartej linii i wyprowadź króla. Gdy przeciwnik zacznie szachować wieżą, zasłoń się swoją wieżą.",
+      "steps": [
+        "Najpierw daj szacha wieżą, aby odsunąć czarnego króla o jeszcze jedną linię.",
+        "Przesuń wieżę na czwartą linię. To most, który ochroni Twojego króla przed szachami.",
+        "Wyprowadź króla sprzed piona. Gdy czarna wieża da szacha, idź dalej w stronę swojej wieży.",
+        "Teraz wykonaj cały plan przeciwko silnikowi i promuj piona."
+      ]
+    },
+    "philidor": {
+      "title": "Obrona Philidora",
+      "intro": "W końcówce wieża przeciwko wieży i pionowi obrona Philidora pozwala utrzymać remis. Dopóki pion nie dotarł do Twojej trzeciej linii, wieża pozostaje na niej i nie przepuszcza króla. Gdy pion ruszy dalej, król przeciwnika traci schronienie: wieża schodzi na tył i szachuje od tyłu.",
+      "steps": [
+        "Grasz czarnymi. Ustaw wieżę na swojej trzeciej linii (szóstej), aby biały król nie mógł przejść.",
+        "Pion się posunął. Przestaw wieżę na pierwszą linię: stamtąd będziesz szachować od tyłu, a biały król nie znajdzie schronienia."
+      ]
+    }
+  },
+  "bots": {
+    "pip": {
+      "bio": "Dopiero co nauczył się ruchów skoczka i uwielbia go używać.",
+      "says": {
+        "greet": [
+          "Cześć! Wiesz, że skoczek skacze w kształcie litery L? To moja ulubiona figura!",
+          "Zagrajmy! Wyciągam konika."
+        ],
+        "win": [
+          "WYGRAŁEM!! Powiem mamie."
+        ],
+        "lose": [
+          "Ojej… zagramy jeszcze raz? Tym razem wygram."
+        ]
+      }
+    },
+    "lola": {
+      "bio": "Bardzo wcześnie wyprowadza hetmana. Czasem to działa.",
+      "says": {
+        "greet": [
+          "Uprzedzam: wyprowadzam hetmana w drugim ruchu.",
+          "Cześć! Przygotuj się, gram va banque."
+        ],
+        "win": [
+          "A nie mówiłam! Hetman zawsze wygrywa."
+        ],
+        "lose": [
+          "Dobra, dobra… może trochę za wcześnie wyprowadziłam hetmana."
+        ]
+      }
+    },
+    "teo": {
+      "bio": "Grywa w lokalnym klubie w sobotnie poranki.",
+      "says": {
+        "greet": [
+          "Cześć! Jak w klubie, tylko bez kawy z automatu."
+        ]
+      }
+    },
+    "marga": {
+      "bio": "Lubi zamknięte pozycje i nigdy się nie spieszy.",
+      "says": {
+        "greet": [
+          "Usiądź, kochanie. Bez pośpiechu, gramy powoli."
+        ],
+        "win": [
+          "Oj, przepraszam, kochanie. Cierpliwość to mój sposób."
+        ]
+      }
+    },
+    "ivan": {
+      "bio": "Urodzony atakujący: jeśli może coś poświęcić, spróbuje.",
+      "says": {
+        "greet": [
+          "Obrona? To dla tych, którzy nie potrafią atakować.",
+          "Dziś coś poświęcę. Jeszcze nie wiem co."
+        ],
+        "win": [
+          "Zawsze atakuj! Widzisz, jak to się skończyło?"
+        ],
+        "lose": [
+          "Poświęcenie było poprawne. Prawie na pewno."
+        ]
+      }
+    },
+    "noa": {
+      "bio": "Co wieczór studiuje debiuty i zna je całkiem dobrze.",
+      "says": {
+        "greet": [
+          "Wczoraj powtórzyłem dwanaście wariantów. Zaskocz mnie."
+        ],
+        "lose": [
+          "Tego nie było w moich notatkach. Zapiszę to."
+        ]
+      }
+    },
+    "rafa": {
+      "bio": "Solidny gracz turniejowy. Wykorzystuje błędy taktyczne.",
+      "says": {
+        "greet": [
+          "Powodzenia. Graj uważnie."
+        ]
+      }
+    },
+    "kira": {
+      "bio": "Szybka i precyzyjna. Uwielbia końcówki.",
+      "says": {
+        "greet": [
+          "Wymieńmy hetmany i spotkajmy się w końcówce."
+        ],
+        "win": [
+          "Końcówki nie wybaczają."
+        ]
+      }
+    },
+    "oscar": {
+      "bio": "Klubowy ekspert z ostrym repertuarem.",
+      "says": {
+        "greet": [
+          "Sycylijska, jak zawsze. Wybierz, jak chcesz cierpieć."
+        ]
+      }
+    },
+    "vera": {
+      "bio": "Kandydatka na mistrzynię. Gra pozycyjnie i niczego nie oddaje za darmo.",
+      "says": {
+        "greet": [
+          "Jedno słabe pole to wszystko, czego potrzebuję."
+        ]
+      }
+    },
+    "boris": {
+      "bio": "Mistrz FIDE starej szkoły. Głęboko liczy warianty.",
+      "says": {
+        "greet": [
+          "Za moich czasów nie było silników. Tylko kawa i liczenie wariantów."
+        ],
+        "win": [
+          "Hm. Dobra gra do dwudziestego ruchu."
+        ],
+        "lose": [
+          "Hm. Dobrze. Bardzo dobrze. Jeszcze raz."
+        ]
+      }
+    },
+    "elena": {
+      "bio": "Arcymistrzyni. Przygotuj się na ciężką przeprawę.",
+      "says": {
+        "greet": [
+          "Dalej. Pokaż, co potrafisz."
+        ],
+        "lose": [
+          "Imponujące. Naprawdę."
+        ]
+      }
+    },
+    "stockfish": {
+      "bio": "Silnik w pełnej mocy. Nikt go nie pokona."
+    },
+    "sf-fading": {
+      "name": "Meltfish",
+      "bio": "Zaczyna od 3200 Elo i traci 50 w każdym ruchu."
+    },
+    "sf-rising": {
+      "name": "Growfish",
+      "bio": "Zaczyna od 0 Elo i zyskuje 50 w każdym ruchu, aż do 3200."
+    },
+    "sf-jealous": {
+      "name": "Envyfish",
+      "bio": "Traci 300 Elo za każdym razem, gdy zagrasz najlepszy ruch."
+    },
+    "sf-kind": {
+      "name": "Pityfish",
+      "bio": "Traci 500 Elo za każdym razem, gdy zagrasz najgorszy ruch."
+    },
+    "sf-ticklish": {
+      "name": "Ticklefish",
+      "bio": "Traci 300 Elo za każdym razem, gdy dasz szacha."
+    },
+    "drawfish": {
+      "name": "Drawfish",
+      "bio": "Zawsze gra ruch najbliższy ocenie 0.00 i przyjmuje każdą propozycję remisu."
+    },
+    "checkfish": {
+      "name": "Checkfish",
+      "bio": "Jeśli może dać szacha, robi to. W przeciwnym razie gra najlepszy ruch."
+    },
+    "sf-glutton": {
+      "name": "Greedfish",
+      "bio": "Jeśli może bić, bije: zawsze najcenniejszą figurę."
+    },
+    "sf-clumsy": {
+      "name": "Oopsfish",
+      "bio": "Gra z pełną siłą, ale każdy ruch ma 5% szans na to, że będzie najgorszy."
+    },
+    "sf-indecisive": {
+      "name": "Dicefish",
+      "bio": "Losowo wybiera jeden ze swoich trzech najlepszych ruchów."
+    },
+    "sf-halfhearted": {
+      "name": "Coinfish",
+      "bio": "W połowie przypadków gra najlepszy ruch, w jednej czwartej drugi najlepszy i tak dalej."
+    },
+    "sf-rollercoaster": {
+      "name": "Yoyofish",
+      "bio": "Przy każdym biciu, niezależnie od strony, zmienia siłę między 3200 a 250 Elo."
+    },
+    "sf-mirror": {
+      "name": "Copyfish",
+      "bio": "Naśladuje jakość Twojego ostatniego ruchu: gdy popełnisz podstawkę, zrobi to samo; gdy grasz dobrze, on też."
+    },
+    "sf-queenless": {
+      "name": "Oddsfish",
+      "bio": "Stockfish w pełnej mocy, ale zaczyna bez hetmana. Grasz białymi."
+    },
+    "sf-symmetry": {
+      "name": "Mirrorfish",
+      "bio": "Odbija Twoje ruchy lustrzanie, dopóki są dozwolone. Gdy nie może, myśli samodzielnie z siłą 1800 Elo. Grasz białymi."
+    },
+    "sf-panic": {
+      "name": "Panicfish",
+      "bio": "Przy pełnym zegarze gra z siłą 3200 Elo, a im mniej ma czasu, tym słabiej. Zawsze gra z zegarem: 5 minut, jeśli nie wybierzesz inaczej."
+    },
+    "sf-grudge": {
+      "name": "Grudgefish",
+      "bio": "Jeśli zbijesz jego figurę, będzie atakował Twoje figury tego samego typu, o ile nie będzie go to zbyt wiele kosztować."
+    }
+  },
+  "chat": {
+    "kid": {
+      "greet": [
+        "Cześć! Zagramy?"
+      ],
+      "capture": [
+        "Mniam! Zabieram to.",
+        "Mam cię!"
+      ],
+      "lostPiece": [
+        "Hej! To było moje!",
+        "Ups… nie zauważyłem."
+      ],
+      "check": [
+        "Szach! Szach! Szach!"
+      ],
+      "blunder": [
+        "Eee, na pewno chcesz to zrobić?"
+      ],
+      "win": [
+        "Wygrałem, wygrałem!"
+      ],
+      "lose": [
+        "O nie, znowu…"
+      ],
+      "draw": [
+        "Remis? Przybij piątkę!"
+      ]
+    },
+    "bold": {
+      "greet": [
+        "Niech rozpocznie się bitwa!"
+      ],
+      "capture": [
+        "Więcej materiału do garnka!",
+        "Dzięki za prezent."
+      ],
+      "lostPiece": [
+        "E tam, to było poświęcenie. Oczywiście.",
+        "Wszystko wyliczone. Mniej więcej."
+      ],
+      "check": [
+        "Szach! Gorąco, prawda?",
+        "Atak na króla!"
+      ],
+      "blunder": [
+        "Ha! Nawet ja to widziałem."
+      ],
+      "win": [
+        "Zwycięstwo! Tak się atakuje."
+      ],
+      "lose": [
+        "Za dużo odwagi jak na mój gust. Rewanż."
+      ],
+      "draw": [
+        "Remis? Nuda… ale dobrze."
+      ]
+    },
+    "friendly": {
+      "greet": [
+        "Niech wygra lepszy!"
+      ],
+      "capture": [
+        "Przepraszam, nie mogłem się oprzeć."
+      ],
+      "lostPiece": [
+        "Dobrze zauważone!",
+        "O, dobry ruch."
+      ],
+      "check": [
+        "Szach, uważaj na króla!"
+      ],
+      "blunder": [
+        "Hmm, chcesz się jeszcze zastanowić?"
+      ],
+      "win": [
+        "Dobra partia! Niewiele brakowało."
+      ],
+      "lose": [
+        "Gratulacje! Świetna gra."
+      ],
+      "draw": [
+        "Sprawiedliwy remis. Dobra partia!"
+      ]
+    },
+    "calm": {
+      "greet": [
+        "Spokojnie. W szachach nie trzeba się spieszyć."
+      ],
+      "capture": [
+        "Dziękuję.",
+        "Teraz to moje."
+      ],
+      "lostPiece": [
+        "Dobrze. Bardzo dobrze."
+      ],
+      "check": [
+        "Szach, spokojnie."
+      ],
+      "blunder": [
+        "Powoli. Spójrz na szachownicę."
+      ],
+      "win": [
+        "Krok po kroku można zajść daleko."
+      ],
+      "lose": [
+        "Bardzo dobra gra. Należało mi się."
+      ],
+      "draw": [
+        "Wyrównany remis."
+      ]
+    },
+    "studious": {
+      "greet": [
+        "Zobaczmy, jaki debiut wybierzesz."
+      ],
+      "capture": [
+        "Według moich notatek to było za darmo."
+      ],
+      "lostPiece": [
+        "Ciekawe. Tego nie przygotowałem."
+      ],
+      "check": [
+        "Szach. Czysta teoria."
+      ],
+      "blunder": [
+        "To podręcznikowa niedokładność."
+      ],
+      "win": [
+        "Przygotowanie zawsze popłaca."
+      ],
+      "lose": [
+        "Muszę powtórzyć ten wariant."
+      ],
+      "draw": [
+        "Teoretyczny remis, zgodnie z oczekiwaniami."
+      ]
+    },
+    "serious": {
+      "greet": [
+        "Zaczynajmy."
+      ],
+      "capture": [
+        "Błąd wykorzystany."
+      ],
+      "lostPiece": [
+        "Dobra gra."
+      ],
+      "check": [
+        "Szach."
+      ],
+      "blunder": [
+        "To będzie kosztowne."
+      ],
+      "win": [
+        "Dobra partia."
+      ],
+      "lose": [
+        "Zasłużenie. Gratulacje."
+      ],
+      "draw": [
+        "Remis. Sprawiedliwie."
+      ]
+    },
+    "cool": {
+      "greet": [
+        "Pokaż, co potrafisz."
+      ],
+      "capture": [
+        "Dzięki.",
+        "Za łatwo."
+      ],
+      "lostPiece": [
+        "O. Nieźle."
+      ],
+      "check": [
+        "Szach.",
+        "Widzisz, co nadchodzi?"
+      ],
+      "blunder": [
+        "To był prezent."
+      ],
+      "win": [
+        "GG."
+      ],
+      "lose": [
+        "Dobra gra. Poważnie."
+      ],
+      "draw": [
+        "Remis. Do zobaczenia."
+      ]
+    },
+    "old": {
+      "greet": [
+        "Ach, młodość. Zobaczmy."
+      ],
+      "capture": [
+        "Hm. Za darmo.",
+        "Za moich czasów nie rozdawaliśmy takich prezentów."
+      ],
+      "lostPiece": [
+        "Hm. Dobrze zauważone, młody człowieku."
+      ],
+      "check": [
+        "Szach. Patrz uważnie."
+      ],
+      "blunder": [
+        "Hm. Tego nie uczą w żadnej książce."
+      ],
+      "win": [
+        "Doświadczenie ma znaczenie."
+      ],
+      "lose": [
+        "Hm. Znów czuję się młodo."
+      ],
+      "draw": [
+        "Remis. Jak za dawnych czasów."
+      ]
+    },
+    "gm": {
+      "greet": [
+        "Graj najlepiej, jak potrafisz."
+      ],
+      "capture": [
+        "Dziękuję."
+      ],
+      "lostPiece": [
+        "Precyzyjnie."
+      ],
+      "check": [
+        "Szach."
+      ],
+      "blunder": [
+        "Tego już nie da się naprawić."
+      ],
+      "win": [
+        "Dobra partia. Trenuj dalej."
+      ],
+      "lose": [
+        "Znakomicie. Gra była lepsza od mojej."
+      ],
+      "draw": [
+        "Zasłużony remis."
+      ]
+    },
+    "machine": {
+      "greet": [
+        "Rozpoczynam wyszukiwanie. Głębokość: wystarczająca."
+      ],
+      "capture": [
+        "Materiał +1. Ocena zaktualizowana."
+      ],
+      "lostPiece": [
+        "Poświęcenie obliczone 23 ruchy temu."
+      ],
+      "check": [
+        "Szach. Mat nadchodzi."
+      ],
+      "blunder": [
+        "Wykryto błąd. Ocena: −4,2."
+      ],
+      "win": [
+        "Wynik zgodny z prognozą. Koniec procesu."
+      ],
+      "lose": [
+        "BŁĄD: wynik niemożliwy."
+      ],
+      "draw": [
+        "Remis. Nietypowe."
+      ]
+    }
+  }
+}

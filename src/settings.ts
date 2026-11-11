@@ -8,11 +8,11 @@ export type PieceSet = (typeof PIECE_SETS)[number]
 export const SOUND_SETS = ['wood', 'sfx', 'piano', 'nes', 'futuristic'] as const
 export type SoundSet = (typeof SOUND_SETS)[number]
 
-export const LANGS = ['es', 'en', 'fr', 'it', 'zh', 'ja'] as const
+export const LANGS = ['es', 'en', 'fr', 'it', 'zh', 'ja', 'pl'] as const
 export type Lang = (typeof LANGS)[number]
 
 /** Native name of each language, for the picker. */
-export const LANG_NAMES: Record<Lang, string> = { es: 'Español', en: 'English', fr: 'Français', it: 'Italiano', zh: '中文', ja: '日本語' }
+export const LANG_NAMES: Record<Lang, string> = { es: 'Español', en: 'English', fr: 'Français', it: 'Italiano', zh: '中文', ja: '日本語', pl: 'Polski' }
 
 /** The first browser language the app speaks; English for everyone else. */
 export function detectLang(prefs: readonly string[] = typeof navigator === 'undefined' ? [] : (navigator.languages ?? [navigator.language])): Lang {
