@@ -5,10 +5,16 @@ import fr from './fr.json'
 import itJson from './it.json'
 import zh from './zh.json'
 import ja from './ja.json'
+import pl from './pl.json'
 import contentFr from './content/fr.json'
 import contentIt from './content/it.json'
 import contentZh from './content/zh.json'
 import contentJa from './content/ja.json'
+import contentPl from './content/pl.json'
+import { createInstance } from 'i18next'
+import { polishPlurals } from './polishPlurals'
+import { detectLang } from '../settings'
+import { localize, localizeList } from './content'
 import { LESSONS } from '../features/lessons/lessonData'
 import { BOTS } from '../features/play/bots'
 import { POOLS } from '../features/play/botChat'
@@ -25,13 +31,21 @@ const vars = (s: unknown) => (typeof s === 'string' ? [...s.matchAll(/{{(\w+)}}/
 
 describe('UI translations', () => {
   const base = leaves(en)
-  for (const [lang, json] of Object.entries({ es, fr, it: itJson, zh, ja })) {
+  for (const [lang, json] of Object.entries({ es, fr, it: itJson, zh, ja, pl })) {
     it(`${lang} has the same keys and placeholders as en`, () => {
       const l = leaves(json)
       expect([...l.keys()].sort()).toEqual([...base.keys()].sort())
       for (const [k, v] of base) expect(vars(l.get(k)), k).toEqual(vars(v))
     })
   }
+
+  it('detects Polish and resolves all Polish plural categories', async () => {
+    expect(detectLang(['pl-PL'])).toBe('pl')
+    const instance = createInstance()
+    await instance.init({ lng: 'pl', resources: { pl: { translation: polishPlurals(pl) } } })
+    expect(instance.t('play.movesPlayed', { count: 1 })).toBe('1 ruch')
+    for (const count of [2, 5, 12, 22]) expect(instance.t('play.movesPlayed', { count })).toBe(`Liczba ruchów: ${count}`)
+  })
 })
 
 describe('content translations', () => {
@@ -48,11 +62,17 @@ describe('content translations', () => {
   }
   for (const [style, pool] of Object.entries(POOLS)) for (const [ev, lines] of Object.entries(pool)) expected.set(`chat.${style}.${ev}`, lines.en.length)
 
-  for (const [lang, json] of Object.entries({ fr: contentFr, it: contentIt, zh: contentZh, ja: contentJa })) {
+  for (const [lang, json] of Object.entries({ fr: contentFr, it: contentIt, zh: contentZh, ja: contentJa, pl: contentPl })) {
     it(`${lang} covers every lesson and bot line`, () => {
       const l = leaves(json)
       expect([...l.keys()].sort()).toEqual([...expected.keys()].sort())
       for (const [k, v] of expected) expect(v === 'string' ? typeof l.get(k) : l.get(k), k).toBe(v)
     })
   }
+
+  it('uses Polish lesson and bot overlays', () => {
+    expect(localize(LESSONS[0].title, 'pl', `lessons.${LESSONS[0].id}.title`)).toBe(contentPl.lessons['hanging-pieces'].title)
+    expect(localizeList(POOLS.kid.greet, 'pl', 'chat.kid.greet')).toEqual(contentPl.chat.kid.greet)
+    expect(localize(BOTS[0].bio, 'pl', `bots.${BOTS[0].id}.bio`)).toBe(contentPl.bots.pip.bio)
+  })
 })

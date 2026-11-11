@@ -3,13 +3,14 @@ import fr from './content/fr.json'
 import it from './content/it.json'
 import zh from './content/zh.json'
 import ja from './content/ja.json'
+import pl from './content/pl.json'
 
 /**
  * Lesson and bot texts live next to their data in Spanish and English; the
  * other languages come from overlay files in ./content, keyed by a dotted path
  * (e.g. "lessons.forks.title"). Anything missing falls back to English.
  */
-const OVERLAYS: Partial<Record<Lang, unknown>> = { fr, it, zh, ja }
+const OVERLAYS: Partial<Record<Lang, unknown>> = { fr, it, zh, ja, pl }
 
 function lookup(lang: Lang, path: string): unknown {
   let node = OVERLAYS[lang]
