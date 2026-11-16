@@ -1,5 +1,5 @@
 import { Chess } from 'chess.js'
-import { sharedEngine } from '../../engine/engine'
+import { sharedEngine, type SearchResult } from '../../engine/engine'
 import { classifyMoves, gameAccuracy, repetitionDraws, terminalScore, winPercent, type PositionEval } from './classify'
 import { bookChecker } from '../openings/openingsData'
 import { db, put, type GameRow } from '../../db/db'
@@ -27,6 +27,14 @@ export function parseGame(pgn: string): ParsedGame {
 
 const PV_KEEP = 8
 const SAVE_EVERY = 8
+const MOVETIME = 1200
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 300
+
+/** True when a search of a non-terminal position was interrupted: no lines, or short of `depth` well before the time cap. */
+export function isCut(r: SearchResult, depth: number, ms: number): boolean {
+  return !r.lines.length || (r.depth < depth && ms < MOVETIME * 0.8)
+}
 
 /** Runs Stockfish over every position and stores the review on the game row. */
 export async function analyzeGame(
@@ -61,7 +69,19 @@ export async function analyzeGame(
       // depth is the target; the time cap keeps a long game on a slow phone from taking minutes
       // the moves so far let the engine see a repetition coming
       const history = { startFen: parsed.startFen, moves: ucis.slice(0, i) }
-      const r = await engine.search(fen, { depth, multipv: 2, movetime: 1200, history })
+      const run = async () => {
+        const t0 = Date.now()
+        const res = await engine.search(fen, { depth, multipv: 2, movetime: MOVETIME, history })
+        return { res, ms: Date.now() - t0 }
+      }
+      let { res: r, ms } = await run()
+      // another user of the shared engine can cut this search short: redo it instead of storing junk.
+      // Hitting the time cap legitimately ends below `depth`, so only an early stop counts as cut
+      for (let retry = 0; retry < MAX_RETRIES && !signal?.cancelled && isCut(r, depth, ms); retry++) {
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
+        if (signal?.cancelled) break
+        ;({ res: r, ms } = await run())
+      }
       if (signal?.cancelled) return stop()
       // short PVs are all the review keeps, and they keep the resume save small
       const lines = r.lines.map((l) => ({ ...l, pv: l.pv.slice(0, PV_KEEP) }))

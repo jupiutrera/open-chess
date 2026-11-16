@@ -46,7 +46,7 @@ export async function recordVideo(
   canvas.width = WIDTH
   canvas.height = HEIGHT
   const ctx = canvas.getContext('2d')!
-  const beats = buildTimeline(game.qualities, opts.mode, opts.speed)
+  const beats = buildTimeline(game.qualities, opts.mode, opts.speed, game.losses)
   const total = totalMs(beats)
   const check = () => {
     if (signal.aborted) throw new DOMException('Aborted', 'AbortError')

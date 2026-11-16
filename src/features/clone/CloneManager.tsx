@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -37,6 +37,8 @@ export default function CloneManager() {
   const [error, setError] = useState<string | null>(null)
   const [removing, setRemoving] = useState<CloneRow | null>(null)
   const abort = useRef<AbortController | null>(null)
+  // leaving the screen must not leave a build hogging the shared engine
+  useEffect(() => () => abort.current?.abort(), [])
   const nav = useNavigate()
   // playing a clone starts a new game: a saved one against another bot is only replaced after asking
   const { guard, sheet: replaceSheet } = useReplaceSaved()

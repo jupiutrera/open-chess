@@ -41,6 +41,21 @@ describe('splitPgn', () => {
   it('splits games with no blank line between them', () => {
     expect(splitPgn('[Event "1"]\n1. e4 *\n[Event "2"]\n1. d4 *')).toHaveLength(2)
   })
+  it('splits games with no tags at all after a result and a blank line', () => {
+    const text = '1. e4 e5 2. Nf3 Nc6 1-0\n\n1. d4 d5 2. c4 e6 1/2-1/2\n\n1. c4 e5 *'
+    expect(splitPgn(text)).toEqual(['1. e4 e5 2. Nf3 Nc6 1-0', '1. d4 d5 2. c4 e6 1/2-1/2', '1. c4 e5 *'])
+  })
+  it('keeps a game whose movetext has a blank line before its result', () => {
+    expect(splitPgn('1. e4 e5\n\n2. Nf3 Nc6 1-0')).toHaveLength(1)
+    // a result inside a comment is not the end of the game
+    expect(splitPgn('1. e4 {then 1-0}\n\n1... e5 *')).toHaveLength(1)
+  })
+  it('does not split on a tag-shaped line inside a multi-line comment', () => {
+    const text = '[Event "a"]\n\n1. e4 {note:\n[Event "fake"]\nmore} e5 *\n\n[Event "b"]\n\n1. d4 *'
+    const games = splitPgn(text)
+    expect(games).toHaveLength(2)
+    expect(games[0]).toContain('[Event "fake"]')
+  })
 })
 
 describe('row ids', () => {
@@ -66,6 +81,18 @@ describe('pgnDate', () => {
   it('reads a bare date as local noon, so it stays on that day', () => {
     const d = new Date(pgnDate({ Date: '2024.01.05' })!)
     expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours()]).toEqual([2024, 0, 5, 12])
+  })
+  it('reads dates without zeros and with other separators', () => {
+    for (const date of ['2019.3.7', '2019-03-07', '2019/03/07', '2019-3-7']) {
+      const d = new Date(pgnDate({ Date: date })!)
+      expect([d.getFullYear(), d.getMonth(), d.getDate()]).toEqual([2019, 2, 7])
+    }
+  })
+  it('rejects days the month does not have instead of rolling over', () => {
+    expect(pgnDate({ Date: '2023.02.31' })).toBeUndefined()
+    expect(pgnDate({ Date: '2023.04.31' })).toBeUndefined()
+    expect(pgnDate({ Date: '2023.02.29' })).toBeUndefined()
+    expect(new Date(pgnDate({ Date: '2024.02.29' })!).getDate()).toBe(29)
   })
   it('puts partial dates at the start of what is known', () => {
     const y = new Date(pgnDate({ Date: '2024.??.??' })!)

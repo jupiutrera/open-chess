@@ -15,7 +15,7 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { QualityIcon, qualityColor } from '../../board/QualityIcon'
 import { EvalGraph } from './EvalGraph'
 import { analyzeGame, getGame, parseGame } from './analyze'
-import { QUALITY_ORDER, countQualities, estimateRating, repetitionDraws, retryAccepted, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
+import { MIN_RATED_MOVES, QUALITY_ORDER, countQualities, estimateRating, repetitionDraws, retryAccepted, terminalScore, winPercent, type MoveReview, type Quality } from './classify'
 import { moveNumberLabel } from './moveNumber'
 import { capturedPieces, playUci, uciLineToSan } from '../../chess/util'
 import { playMoveSound, play } from '../../chess/sounds'
@@ -26,7 +26,7 @@ import { BoardScreenSkeleton, Panel, toast } from '../../ui/kit'
 import { botById } from '../play/bots'
 import { BotAvatar } from '../play/BotAvatar'
 import { playerName } from '../play/playerName'
-import { fmtDecimal } from '../../i18n/format'
+import { fmtDecimal, localDay } from '../../i18n/format'
 import { put } from '../../db/db'
 import { saveTextFile } from '../../ui/files'
 import { annotatedPgn } from './pgnExport'
@@ -117,7 +117,7 @@ export default function Review() {
 
   const exportPgn = () => {
     if (!game) return
-    const name = `${game.white}-${game.black}-${new Date(game.date).toISOString().slice(0, 10)}`.replace(/[^\w-]+/g, '_')
+    const name = `${game.white}-${game.black}-${localDay(game.date)}`.replace(/[^\w-]+/g, '_')
     void saveTextFile(`${name}.pgn`, annotatedPgn(game, (q) => t(`review.q.${q}`)), 'application/x-chess-pgn').catch(() => {})
   }
 
@@ -586,6 +586,10 @@ function Summary({
   const { t } = useTranslation()
   const w = countQualities(moves, 'w')
   const b = countQualities(moves, 'b')
+  // a side with only a few moves gets no rating (see MIN_RATED_MOVES)
+  const rated = (c: 'w' | 'b') => moves.filter((m) => m.color === c).length >= MIN_RATED_MOVES
+  const ratedW = rated('w')
+  const ratedB = rated('b')
   return (
     <div className="enter flex-1 overflow-y-auto p-4">
       <EvalGraph curve={curve} moves={moves} ply={ply} onSelect={onSelect} startFen={startFen} height={72} />
@@ -609,11 +613,13 @@ function Summary({
         ))}
       </div>
 
-      <div className="mt-3 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 border-t border-line pt-3">
-        <span className="font-semibold text-fg-2">{t('review.gameRating')}</span>
-        <span className="tabular w-[76px] rounded-md border border-line py-1 text-center text-[17px] font-extrabold">{estimateRating(accuracy.white)}</span>
-        <span className="tabular w-[76px] rounded-md border border-line py-1 text-center text-[17px] font-extrabold">{estimateRating(accuracy.black)}</span>
-      </div>
+      {(ratedW || ratedB) && (
+        <div className="mt-3 grid grid-cols-[1fr_auto_auto] items-center gap-x-3 border-t border-line pt-3">
+          <span className="font-semibold text-fg-2">{t('review.gameRating')}</span>
+          <span className="tabular w-[76px] rounded-md border border-line py-1 text-center text-[17px] font-extrabold">{ratedW ? estimateRating(accuracy.white) : '–'}</span>
+          <span className="tabular w-[76px] rounded-md border border-line py-1 text-center text-[17px] font-extrabold">{ratedB ? estimateRating(accuracy.black) : '–'}</span>
+        </div>
+      )}
       {game.opening && (
         <p className="mt-3 text-[13px] text-fg-3">
           {t('review.opening')}: <span className="text-fg-2">{game.opening}</span>

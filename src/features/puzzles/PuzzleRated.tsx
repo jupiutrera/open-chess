@@ -26,11 +26,23 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
   const includeSeen = seenOk === (theme ?? '')
   const setIncludeSeen = () => setSeenOk(theme ?? '')
 
+  // the attempt guard: one result per puzzle shown (a puzzle served twice in a row is a new attempt)
+  const recorded = useRef<string | null>(null)
+  const shownId = useRef<string | null>(null)
+
   const load = useCallback(async () => {
     setDelta(null)
     const r = await getPuzzleRating()
     setRating(r.rating)
-    const p = daily ? await dailyPuzzle() : await nextPuzzle(r.rating, { theme, includeSeen })
+    let p: Puzzle | null
+    if (daily) p = await dailyPuzzle()
+    else {
+      // not the one just shown, unless it is the only one there is
+      const exclude = shownId.current ? new Set([shownId.current]) : undefined
+      p = (await nextPuzzle(r.rating, { theme, includeSeen, exclude })) ?? (exclude ? await nextPuzzle(r.rating, { theme, includeSeen }) : null)
+    }
+    recorded.current = null
+    shownId.current = p?.id ?? null
     setEmpty(p ? null : await noPuzzleReason())
     setPuzzle(p)
     setKey((k) => k + 1)
@@ -40,7 +52,6 @@ export default function PuzzleRated({ daily = false }: { daily?: boolean }) {
     void load()
   }, [load])
 
-  const recorded = useRef<string | null>(null)
   const retry = () => {
     setPuzzle((p) => (p ? { ...p } : p))
     setKey((k) => k + 1)

@@ -41,20 +41,35 @@ const MAX_KEY = 12
 
 export const KEY_QUALITIES: Quality[] = ['brilliant', 'great', 'miss', 'mistake', 'blunder']
 
-/** The plies a video of this mode shows; key mode falls back to every move when nothing stands out. */
-export function shownPlies(qualities: Quality[], mode: VideoMode): number[] {
+/** Stand-in win% losses when a review has none, and what a brilliant or great move weighs against a mistake. */
+const WEIGHT: Partial<Record<Quality, number>> = { brilliant: 30, great: 20, blunder: 30, miss: 20, mistake: 15 }
+
+/**
+ * The plies a video of this mode shows, in game order. Key mode keeps the `MAX_KEY` that matter most
+ * (biggest loss, brilliant and great moves) and falls back to every move when nothing stands out.
+ */
+export function shownPlies(qualities: Quality[], mode: VideoMode, losses?: number[]): number[] {
   const all = qualities.map((_, i) => i + 1)
   if (mode === 'all') return all
-  const key = all.filter((p) => KEY_QUALITIES.includes(qualities[p - 1])).slice(0, MAX_KEY)
-  return key.length ? key : all
+  const key = all.filter((p) => KEY_QUALITIES.includes(qualities[p - 1]))
+  if (!key.length) return all
+  const weight = (p: number) => {
+    const q = qualities[p - 1]
+    return q === 'brilliant' || q === 'great' ? WEIGHT[q]! : (losses?.[p - 1] ?? WEIGHT[q] ?? 0)
+  }
+  // ties keep the earlier move; the clip itself plays in game order
+  return key
+    .sort((a, b) => weight(b) - weight(a) || a - b)
+    .slice(0, MAX_KEY)
+    .sort((a, b) => a - b)
 }
 
-export function buildTimeline(qualities: Quality[], mode: VideoMode, speed: VideoSpeed): Beat[] {
+export function buildTimeline(qualities: Quality[], mode: VideoMode, speed: VideoSpeed, losses?: number[]): Beat[] {
   const k = SPEED[speed]
   const beats: Beat[] = [{ kind: 'intro', ply: 0, start: 0, lead: 0, move: 0, hold: INTRO * k }]
   let t = INTRO * k
   let shown = 0
-  for (const ply of shownPlies(qualities, mode)) {
+  for (const ply of shownPlies(qualities, mode, losses)) {
     const key = KEY_QUALITIES.includes(qualities[ply - 1])
     const beat: Beat = {
       kind: 'move',

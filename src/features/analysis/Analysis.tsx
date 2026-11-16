@@ -23,7 +23,7 @@ import { EvalBar, EvalStrip } from '../../board/EvalBar'
 import { useGame } from '../../chess/useGame'
 import { gameResultText, normalizeFen, parseUci, positionProblem, uciLineToSan } from '../../chess/util'
 import { winPercent } from '../review/classify'
-import { formatScore } from '../../engine/engine'
+import { formatScore, type Score } from '../../engine/engine'
 import { useAnalysis } from './useAnalysis'
 import { latestOpening, type Opening } from '../openings/openingsData'
 import { Panel, Sheet, Toggle, toast } from '../../ui/kit'
@@ -148,7 +148,17 @@ export default function Analysis() {
     }
   }, [game.startFen, game.moves, game.ply])
   // a finished position has no engine lines; show the result instead
-  const evalScore = outcome ? (outcome.reason === 'checkmate' ? { mate: 0, cp: outcome.result === '1-0' ? 1 : -1 } : { cp: 0 }) : lines[0]?.score
+  const liveScore = useMemo<Score | undefined>(
+    () => (outcome ? (outcome.reason === 'checkmate' ? { mate: 0, cp: outcome.result === '1-0' ? 1 : -1 } : { cp: 0 }) : lines[0]?.score),
+    [outcome, lines],
+  )
+  // `lines` is empty while the next position is searched: keep the last score so the bar doesn't flash to 0.0
+  const [keptScore, setKeptScore] = useState<Score | undefined>()
+  useEffect(() => {
+    if (!engineOn) setKeptScore(undefined)
+    else if (liveScore) setKeptScore(liveScore)
+  }, [engineOn, liveScore])
+  const evalScore = liveScore ?? keptScore
   const best = lines[0]
   const threat = showThreat && !outcome ? rating.threat : null
   const shapes: DrawShape[] = useMemo(() => {

@@ -134,8 +134,10 @@ export async function nextPuzzle(
   const tried = opts.includeSeen ? null : await seenPuzzles()
   const seen = { has: (id: string) => !!tried?.has(id) || !!opts.exclude?.has(id) }
   lastMiss = { failed: false, seen: false }
-  // look in the target bucket first, then widen
-  for (let spread = 0; spread <= 6; spread++) {
+  // look in the target bucket first, then widen; a theme keeps going to the farthest bucket,
+  // since rare themes may only exist far from the target rating
+  const maxSpread = opts.theme ? Math.ceil((idx.max - idx.min) / idx.step) : 6
+  for (let spread = 0; spread <= maxSpread; spread++) {
     const offsets = spread === 0 ? [0] : [spread, -spread]
     for (const off of offsets) {
       const b = bucketOf(idx, target) + off * idx.step
@@ -159,6 +161,8 @@ export async function dailyPuzzle(date = new Date()): Promise<Puzzle | null> {
   const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000)
   const b = 1400 + (day % 8) * 100
   const list = await loadBucket(Math.min(idx.max - idx.step, b))
+  // report a bucket that didn't load as a connection problem, so the screen offers a retry
+  lastMiss = { failed: !list.length, seen: false }
   if (!list.length) return null
   return list[(day * 2654435761) % list.length]
 }

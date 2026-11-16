@@ -226,32 +226,67 @@ export function pgnDate(h: Record<string, string | undefined>): number | undefin
   const ut = /^(\d{2}):(\d{2}):(\d{2})$/.exec(h.UTCTime ?? '')
   if (ud && ut) return Date.UTC(+ud[1], +ud[2] - 1, +ud[3], +ut[1], +ut[2], +ut[3])
   // a bare calendar date is a local day: noon keeps it on that day in every time zone
-  // partial dates ("2024.??.??") fall on the first day of what is known
+  // partial dates ("2024.??.??") fall on the first day of what is known;
+  // other tools write "2019.3.7", "2019-03-07" or "2019/03/07"
   for (const tag of [h.Date, h.UTCDate]) {
-    const d = /^(\d{4})\.(\d{2}|\?\?)\.(\d{2}|\?\?)$/.exec((tag ?? '').trim())
+    const d = /^(\d{4})[./-](\d{1,2}|\?\?)[./-](\d{1,2}|\?\?)$/.exec((tag ?? '').trim())
     if (!d) continue
     const month = d[2] === '??' ? 1 : +d[2]
     const day = d[2] === '??' || d[3] === '??' ? 1 : +d[3]
-    if (month < 1 || month > 12 || day < 1 || day > 31) continue
+    // day 0 of the next month is this month's last day: "31 February" is rejected, not rolled over
+    if (month < 1 || month > 12 || day < 1 || day > new Date(+d[1], month, 0).getDate()) continue
     return new Date(+d[1], month - 1, day, 12).getTime()
   }
   return undefined
 }
 
+const TAG_LINE = /^\s*\[\w+\s+".*"\]\s*$/
+const RESULT_AT_END = /(?:^|\s)(?:1-0|0-1|1\/2-1\/2|\*)\s*$/
+
+/** The movetext of a line without its comments, and whether a {…} comment is still open at its end. */
+function stripComments(line: string, open: boolean): { code: string; open: boolean } {
+  let code = ''
+  for (const ch of line) {
+    if (open) open = ch !== '}'
+    else if (ch === '{') open = true
+    else if (ch === ';') break
+    else code += ch
+  }
+  return { code, open }
+}
+
 /**
  * Splits a multi-game PGN file. A game starts at a tag line that follows movetext,
- * whatever the first tag is (not every exporter starts with [Event).
+ * whatever the first tag is (not every exporter starts with [Event), or, with no tags at all,
+ * at movetext that follows a result and a blank line. Tag-shaped lines inside a {…} comment are text.
  */
 export function splitPgn(text: string): string[] {
   const games: string[] = []
   let current: string[] = []
   let sawMoves = false
+  let open = false
+  // the last movetext line ended with a result, and a blank line came after it
+  let resulted = false
+  let gap = false
+  const cut = () => {
+    games.push(current.join('\n').trim())
+    current = []
+    sawMoves = false
+    resulted = false
+    gap = false
+  }
   for (const line of text.replace(/\r\n?/g, '\n').split('\n')) {
-    const isTag = /^\s*\[\w+\s+".*"\]\s*$/.test(line)
-    if (isTag && sawMoves) {
-      games.push(current.join('\n').trim())
-      current = []
-      sawMoves = false
+    const isTag = !open && TAG_LINE.test(line)
+    if (isTag) {
+      if (sawMoves) cut()
+    } else {
+      const stripped = stripComments(line, open)
+      open = stripped.open
+      if (stripped.code.trim()) {
+        if (resulted && gap) cut()
+        resulted = RESULT_AT_END.test(stripped.code)
+        gap = false
+      } else if (!line.trim() && resulted) gap = true
     }
     if (!isTag && line.trim()) sawMoves = true
     current.push(line)
@@ -303,7 +338,12 @@ export async function importPgnText(text: string, opts: PgnImportOptions = {}): 
   /** every game this import added, flushed or not: a repeat later in the file is neither new nor "already had" */
   const added = new Set<string>()
   const flush = async () => {
-    if (pending.size) await db.games.bulkPut([...pending.values()])
+    if (pending.size) {
+      // stamped when written, not when parsed: a sync that ran in between would otherwise never upload these
+      const now = Date.now()
+      for (const row of pending.values()) row.updatedAt = now
+      await db.games.bulkPut([...pending.values()])
+    }
     pending.clear()
   }
   for (let i = 0; i < texts.length; i++) {
@@ -352,7 +392,7 @@ export async function importPgnText(text: string, opts: PgnImportOptions = {}): 
       // no usable date at all: the import time keeps it sortable among recent games
       date: pgnDate(h) ?? Date.now(),
       opening: await openingName(c),
-      updatedAt: Date.now(),
+      updatedAt: 0, // stamped in flush()
     }
     pending.set(externalId, row)
     added.add(externalId)

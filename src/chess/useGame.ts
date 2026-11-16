@@ -3,6 +3,12 @@ import { Chess, type Move } from 'chess.js'
 import { START_FEN } from './util'
 import { playMoveSound } from './sounds'
 
+/** The recorded move after `ply` when it is exactly from→to(+promotion), so a branch can just step forward. */
+export function nextRecordedMove(history: Move[], ply: number, from: string, to: string, promotion?: string): Move | null {
+  const next = history[ply]
+  return next && next.from === from && next.to === to && next.promotion === promotion ? next : null
+}
+
 /**
  * Game state with history browsing. `ply` is the position being viewed;
  * moves are only accepted at the live position.
@@ -28,6 +34,13 @@ export function useGame(initialFen: string = START_FEN) {
     if (branch) {
       const extra = live.current.history().length - plyRef.current
       if (extra > 0) {
+        // replaying the game's own next move is navigation, not a new branch: keep the rest
+        const same = nextRecordedMove(live.current.history({ verbose: true }), plyRef.current, from, to, promotion)
+        if (same) {
+          if (sound) playMoveSound(same)
+          setPly(plyRef.current + 1)
+          return same
+        }
         const trial = new Chess(live.current.history({ verbose: true })[plyRef.current].before)
         try {
           trial.move({ from, to, promotion })

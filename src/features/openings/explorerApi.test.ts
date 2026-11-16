@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ExplorerError, explorerErrorKind, fetchExplorer, RATE_LIMIT_BACKOFF } from './explorerApi'
+import { cachedExplorer, ExplorerError, explorerErrorKind, fetchExplorer, RATE_LIMIT_BACKOFF } from './explorerApi'
 import { useSettings } from '../../settings'
 
 const FEN = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
@@ -24,6 +24,18 @@ describe('explorer errors', () => {
     vi.stubGlobal('fetch', fetch)
     expect(await kindOf(fetchExplorer(FEN, 'masters'))).toBe('no-token')
     expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('reuses a result for the same position reached with other move counters', async () => {
+    useSettings.setState({ lichessToken: 'tok' })
+    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ white: 1, draws: 0, black: 0, moves: [] }), { status: 200 }))
+    vi.stubGlobal('fetch', fetch)
+    const fen = 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2'
+    await fetchExplorer(fen, 'masters')
+    // same position through a transposition: other half-move clock and move number
+    expect(await kindOf(fetchExplorer('rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 2 4', 'masters'))).toBe('ok')
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(cachedExplorer(fen.replace('0 2', '5 9'), 'masters')).toBeDefined()
   })
 
   it('waits a minute after a 429 before asking again', async () => {

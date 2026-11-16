@@ -49,6 +49,7 @@ export function mateInMoves(dtm: number, move: boolean): number {
   return move ? Math.floor(Math.abs(dtm) / 2) + 1 : Math.ceil(Math.abs(dtm) / 2)
 }
 
+const TIMEOUT_MS = 6000
 const cache = new Map<string, Promise<TbResult | null>>()
 
 /** Null when the position has too many pieces or the service can't be reached. */
@@ -57,7 +58,8 @@ export function tablebase(fen: string): Promise<TbResult | null> {
   const key = fen.split(' ').slice(0, 4).join(' ')
   let p = cache.get(key)
   if (!p) {
-    p = fetch(`https://tablebase.lichess.ovh/standard?fen=${encodeURIComponent(fen)}`)
+    // a stalled request would leave the panel on "…" forever
+    p = fetch(`https://tablebase.lichess.ovh/standard?fen=${encodeURIComponent(fen)}`, { signal: AbortSignal.timeout(TIMEOUT_MS) })
       .then((r) => (r.ok ? (r.json() as Promise<TbResult>) : null))
       .then((r) => (r ? normalize(r) : null))
       .catch(() => null)
