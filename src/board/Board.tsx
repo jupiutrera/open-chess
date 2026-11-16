@@ -13,7 +13,7 @@ import type { Quality } from '../features/review/classify'
 import { QualityBadge, PieceSprite } from './QualityIcon'
 import { OutcomeMarks } from './OutcomeMarks'
 import { addPremove, plyOf, premoveLegal, virtualPlacement, type Premove } from './premoves'
-import { useDismiss, useFocusTrap } from '../ui/kit'
+import { PromotionPicker } from './PromotionPicker'
 
 export interface BoardProps {
   fen: string
@@ -33,6 +33,8 @@ export interface BoardProps {
 }
 
 const FILES = 'abcdefgh'
+const PROMOTIONS = ['q', 'n', 'r', 'b']
+const PROMOTION_ROLE: Record<string, string> = { q: 'queen', n: 'knight', r: 'rook', b: 'bishop' }
 
 /** Re-renders only when what it shows changes; `onMove` is read through a ref, so a new callback doesn't count. */
 export const Board = memo(BoardView, (a, b) => {
@@ -53,6 +55,7 @@ function BoardView({
   outcome,
   className = '',
 }: BoardProps) {
+  const { t } = useTranslation()
   const el = useRef<HTMLDivElement>(null)
   const api = useRef<Api | null>(null)
   const onMoveRef = useRef(onMove)
@@ -220,9 +223,9 @@ function BoardView({
       {outcome && chess && <OutcomeMarks chess={chess} outcome={outcome} orientation={orientation} />}
       {promo && (
         <PromotionPicker
-          color={promoColor}
-          file={promo.to[0]}
-          orientation={orientation}
+          col={orientation === 'white' ? FILES.indexOf(promo.to[0]) : 7 - FILES.indexOf(promo.to[0])}
+          fromTop={(promoColor === 'w') === (orientation === 'white')}
+          options={PROMOTIONS.map((p) => ({ id: p, label: t(`common.piece.${PROMOTION_ROLE[p]}`), piece: <PieceSprite role={PROMOTION_ROLE[p]} color={promoColor} /> }))}
           onPick={(p) => {
             const m = promo
             setPromo(null)
@@ -275,59 +278,3 @@ function bendKnightArrows(root: HTMLElement): () => void {
   bend()
   return () => obs.disconnect()
 }
-
-function PromotionPicker({
-  color,
-  file,
-  orientation,
-  onPick,
-}: {
-  color: 'w' | 'b'
-  file: string
-  orientation: 'white' | 'black'
-  onPick: (piece: string | null) => void
-}) {
-  const f = FILES.indexOf(file)
-  const col = orientation === 'white' ? f : 7 - f
-  const fromTop = (color === 'w') === (orientation === 'white')
-  const pieces = ['q', 'n', 'r', 'b']
-  const role: Record<string, string> = { q: 'queen', n: 'knight', r: 'rook', b: 'bishop' }
-  const { t } = useTranslation()
-  const box = useRef<HTMLDivElement>(null)
-  // a modal like any sheet: focus moves in, Escape and the Android back button cancel
-  useDismiss(true, () => onPick(null))
-  useFocusTrap(box, true)
-  return (
-    <div className="absolute inset-0 z-20 bg-black/45" onClick={() => onPick(null)}>
-      <div
-        ref={box}
-        role="dialog"
-        aria-modal
-        aria-label={t('common.promotion')}
-        tabIndex={-1}
-        className="pop absolute flex w-[12.5%] flex-col overflow-hidden rounded-md bg-[#f2f1ee] shadow-xl outline-none"
-        style={{
-          left: `${col * 12.5}%`,
-          top: fromTop ? 0 : 'auto',
-          bottom: fromTop ? 'auto' : 0,
-          flexDirection: fromTop ? 'column' : 'column-reverse',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {pieces.map((p) => (
-          <button
-            key={p}
-            data-autofocus={p === 'q' ? '' : undefined}
-            className="cg-wrap aspect-square w-full transition-colors duration-100 hover:bg-[#ddd]"
-            style={{ position: 'relative' }}
-            onClick={() => onPick(p)}
-            aria-label={t(`common.piece.${role[p]}`)}
-          >
-            <PieceSprite role={role[p]} color={color} />
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-

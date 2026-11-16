@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type Ke
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { PieceSprite } from '../../board/QualityIcon'
+import { PromotionPicker } from '../../board/PromotionPicker'
 import { useSettings } from '../../settings'
 import type { FairyKind } from './catalog'
 import { FILES, movesByOrigin, pieceKind, squareCoords, squareName, type Position, type VariantMove } from './fen'
@@ -18,11 +19,24 @@ const COMPOSITE: Record<FairyKind, [base: string, badge: string]> = {
   royalKnight: ['knight', 'king'],
 }
 const STANDARD = new Set(['pawn', 'knight', 'bishop', 'rook', 'queen', 'king'])
+/** Promotion choices in the order of the standard board, with the variant's own pieces right after the queen. */
+const PROMOTION_ORDER = ['queen', '', 'knight', 'rook', 'bishop']
+const promotionRank = (kind: string) => {
+  const i = PROMOTION_ORDER.indexOf(STANDARD.has(kind) ? kind : '')
+  return i < 0 ? PROMOTION_ORDER.length : i
+}
 
 /** The translation key of a piece's name in a variant. */
 export function pieceNameKey(letter: string, fairy?: Record<string, FairyKind>): string {
   const kind = pieceKind(letter, fairy)
   return STANDARD.has(kind) ? `common.piece.${kind}` : `variants.piece.${kind}`
+}
+
+const ICON_LETTER: Record<string, string> = { pawn: 'p', knight: 'n', bishop: 'b', rook: 'r', queen: 'q', king: 'k' }
+/** The standard piece that stands for a letter where there is only room for a small icon: a fairy piece shows as its base. */
+export function iconLetter(letter: string, fairy?: Record<string, FairyKind>): string {
+  const kind = pieceKind(letter, fairy)
+  return ICON_LETTER[STANDARD.has(kind) ? kind : COMPOSITE[kind as FairyKind][0]]
 }
 
 export function VariantPiece({ letter, color, fairy }: { letter: string; color: 'w' | 'b'; fairy?: Record<string, FairyKind> }) {
@@ -55,7 +69,8 @@ export interface VariantBoardProps {
   checked?: string[]
   /** squares the variant's goal is about */
   marks?: string[]
-  onMove?: (from: string, to: string) => void
+  /** the move the user has made, with its promotion already chosen */
+  onMove?: (move: VariantMove) => void
   /** a small picture of a position: no coordinates */
   preview?: boolean
   className?: string
@@ -91,6 +106,13 @@ export const VariantBoard = memo(function VariantBoard({
   useEffect(() => {
     if (picked && !byOrigin.has(picked)) setPicked(null)
   }, [picked, byOrigin])
+  // a pawn that may become several pieces waits here for the user to say which
+  const [promo, setPromo] = useState<VariantMove[] | null>(null)
+  // the question only stands while that move can still be played
+  const asking = promo && moves.includes(promo[0]) ? promo : null
+  useEffect(() => {
+    if (promo && !moves.includes(promo[0])) setPromo(null)
+  }, [promo, moves])
   // the board is one tab stop: the arrow keys walk the squares
   const [cursor, setCursor] = useState<string | null>(null)
   const dests = useMemo(() => new Set(selected ? byOrigin.get(selected)!.map((m) => m.to) : []), [selected, byOrigin])
@@ -115,7 +137,9 @@ export const VariantBoard = memo(function VariantBoard({
   const move = (from: string, to: string, byDrag = false) => {
     dropped.current = byDrag ? from + to : null
     setPicked(null)
-    onMove?.(from, to)
+    const options = byOrigin.get(from)?.filter((m) => m.to === to) ?? []
+    if (options.length > 1) setPromo(options)
+    else if (options[0]) onMove?.(options[0])
   }
 
   /** A tap, a keyboard press or the start of a drag on `sq`. */
@@ -187,6 +211,7 @@ export const VariantBoard = memo(function VariantBoard({
   // the square Tab lands on: the last one visited, or the first of the board
   const tabStop = cursor ?? squareName(flip ? width - 1 : 0, flip ? 0 : height - 1)
   const showCoords = settings.coords && !preview
+  const promoTo = asking ? squareCoords(asking[0].to) : null
 
   const squares = []
   for (let r = 0; r < height; r++)
@@ -223,7 +248,7 @@ export const VariantBoard = memo(function VariantBoard({
         >
           {showCoords && c === 0 && <span className="vcoord rank">{rank + 1}</span>}
           {showCoords && r === height - 1 && <span className="vcoord file">{FILES[file]}</span>}
-          {piece && (
+          {piece && asking?.[0].from !== sq && (
             <span key={sliding ? lastKey : 'still'} className={`vpiece ${sliding ? 'vslide' : ''}`} style={offset}>
               <VariantPiece letter={piece.letter} color={piece.color} fairy={fairy} />
             </span>
@@ -236,17 +261,42 @@ export const VariantBoard = memo(function VariantBoard({
   return (
     // boards that are not square sit centred in the square space the layout gives a board
     <div className={`grid aspect-square w-full place-items-center ${className}`}>
-      <div
-        ref={root}
-        className="vboard"
-        style={{ gridTemplateColumns: `repeat(${width}, 1fr)`, aspectRatio: `${width} / ${height}`, width: width >= height ? '100%' : `${(width / height) * 100}%` }}
-        onKeyDown={keyDown}
-        onPointerDown={down}
-        onPointerMove={dragMove}
-        onPointerUp={up}
-        onPointerCancel={up}
-      >
-        {squares}
+      <div className="relative" style={{ aspectRatio: `${width} / ${height}`, width: width >= height ? '100%' : `${(width / height) * 100}%` }}>
+        <div
+          ref={root}
+          className="vboard"
+          style={{ gridTemplateColumns: `repeat(${width}, 1fr)` }}
+          onKeyDown={keyDown}
+          // the press that opens the promotion picker must not take the focus the picker has just taken
+          onMouseDown={asking ? (e) => e.preventDefault() : undefined}
+          onPointerDown={down}
+          onPointerMove={dragMove}
+          onPointerUp={up}
+          onPointerCancel={up}
+        >
+          {squares}
+        </div>
+        {asking && promoTo && (
+          <PromotionPicker
+            columns={width}
+            col={col(promoTo.file)}
+            fromTop={row(promoTo.rank) < height / 2}
+            options={[...asking]
+              .sort((a, b) => promotionRank(pieceKind(a.promotion ?? 'q', fairy)) - promotionRank(pieceKind(b.promotion ?? 'q', fairy)))
+              .map((m) => ({
+                id: m.uci,
+                label: pieceName(m.promotion ?? 'q'),
+                piece: <VariantPiece letter={m.promotion ?? 'q'} color={position.turn} fairy={fairy} />,
+              }))}
+            onPick={(uci) => {
+              const chosen = asking.find((m) => m.uci === uci)
+              setPromo(null)
+              if (chosen) onMove?.(chosen)
+              // a pawn dropped by hand and then taken back is not a move that has been seen
+              else dropped.current = null
+            }}
+          />
+        )}
       </div>
     </div>
   )

@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
-import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal, UsersThree, Ranking, SquaresFour } from '@phosphor-icons/react'
-import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
+import { Users, PuzzlePiece, Timer, SlidersHorizontal, UsersThree, Ranking, SquaresFour } from '@phosphor-icons/react'
+import { BOTS, botById, botName, type Bot } from './bots'
+import { BotGrid, ColorPicker } from './BotGrid'
 
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
 import { CHALLENGES, challengeClock } from './challenges'
@@ -14,7 +15,6 @@ import { TimeControlPicker } from './TimeControlPicker'
 import { timeControl } from './timeControl'
 import { BotAvatar } from './BotAvatar'
 import { botLine } from './botChat'
-import { PieceIcon } from '../../board/QualityIcon'
 import { PageHeader, Panel, Segmented, Sheet } from '../../ui/kit'
 import { AssistToggles } from './AssistToggles'
 import { Board } from '../../board/Board'
@@ -213,27 +213,7 @@ export default function PlayHub() {
           </div>
           <div className="min-h-[132px] flex-1 overflow-y-auto p-3">
             {tab === 'bots' ? (
-              BOT_GROUPS.filter((g) => g !== 'challenge').map((g) => (
-                <div key={g} className="mb-3">
-                  <h2 className="mb-1.5 px-1 text-[13px] font-bold text-fg-3">{t(`bots.group.${g}`)}</h2>
-                  <div className="grid grid-cols-5 gap-2 sm:grid-cols-6 lg:grid-cols-5">
-                    {BOTS.filter((b) => b.group === g).map((b) => (
-                      <button
-                        key={b.id}
-                        onClick={() => setSelected(b)}
-                        className={`flex flex-col items-center gap-1 rounded-lg p-1.5 transition-[background-color,transform] duration-150 active:scale-[0.97] ${
-                          b.id === selected.id ? 'bg-raise-2 ring-2 ring-accent' : 'hover:bg-raise'
-                        }`}
-                        aria-pressed={b.id === selected.id}
-                      >
-                        <BotAvatar bot={b} size={48} />
-                        <span className="w-full truncate text-center text-[12px] font-semibold">{botName(b, lang)}</span>
-                        <span className="tabular -mt-1 text-[11px] text-fg-3">{b.elo}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))
+              <BotGrid selected={selected} onSelect={setSelected} />
             ) : tab === 'clones' ? (
               <div className="space-y-1">
                 {cloneBots.length === 0 && cloneRows && <p className="p-1 text-[14px] text-fg-2">{t('clone.emptyHub')}</p>}
@@ -285,16 +265,7 @@ export default function PlayHub() {
           {/* colour, clock and helps stay one row each; the clock and helps open in sheets */}
           <div className="shrink-0 space-y-3 border-t border-line p-3 lg:p-4">
             <div className="grid grid-cols-2 gap-2">
-              <Segmented
-                label={t('play.color')}
-                value={side}
-                onChange={(c) => !rules?.userColor && setColor(c)}
-                options={[
-                  { value: 'w', label: <PieceIcon piece="k" color="w" size={24} /> },
-                  { value: 'r', label: <Shuffle size={20} weight="bold" aria-label={t('common.random')} /> },
-                  { value: 'b', label: <PieceIcon piece="k" color="b" size={24} /> },
-                ]}
-              />
+              <ColorPicker value={side} onChange={(c) => !rules?.userColor && setColor(c)} />
               <button
                 className="btn min-w-0 px-3"
                 onClick={() => setTimeOpen(true)}

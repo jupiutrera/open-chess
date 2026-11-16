@@ -749,7 +749,7 @@
   },
   "variants": {
     "title": "Variantes",
-    "intro": "Otros tableros, otras piezas y otras reglas. Juegas contra Fairy-Stockfish en tu dispositivo, o con alguien en la misma pantalla.",
+    "intro": "Otros tableros, otras piezas y otras reglas. Juega contra los bots de siempre o con alguien en la misma pantalla.",
     "short": "Mini tableros, piezas especiales y otras reglas",
     "family": {
       "mini": {
@@ -850,19 +850,8 @@
       "commoner": "Hombre",
       "royalKnight": "Caballo real"
     },
-    "level": {
-      "1": "Principiante",
-      "2": "Fácil",
-      "3": "Medio",
-      "4": "Difícil",
-      "5": "Máximo"
-    },
-    "levelLabel": "Nivel",
-    "levelShort": "Nivel {{level}}",
-    "rival": "Rival",
-    "vsEngine": "Contra el motor",
+    "ratingNote": "En las variantes la puntuación es aproximada: los bots conservan su fuerza, no sus aperturas ni su estilo.",
     "checksGiven": "Jaques: {{n}}/3",
-    "loadFailed": "No se han podido cargar las reglas de las variantes.",
-    "other": "Otra variante"
+    "loadFailed": "No se han podido cargar las reglas de las variantes."
   }
 }

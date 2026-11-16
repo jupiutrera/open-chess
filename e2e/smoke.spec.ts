@@ -400,10 +400,12 @@ test('a variant is played on its own board against its own engine', { tag: '@mob
   await page.getByRole('link', { name: 'Variants' }).click()
   await expect(page.getByRole('heading', { name: 'Variants', level: 1 })).toBeVisible()
   await page.getByTestId('variant-gardner').click()
-  const sheet = page.getByRole('dialog')
-  await sheet.getByRole('radio', { name: 'White' }).click()
-  await sheet.getByRole('button', { name: 'Play', exact: true }).click()
-  await expect(page).toHaveURL(/#\/variants\/gardner\?/)
+  // the rival is one of the usual bots, picked by its rating as in standard chess
+  await expect(page.getByRole('heading', { name: 'Gardner', level: 1 })).toBeVisible()
+  await page.getByRole('button', { name: /Lola\s*400/ }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
+  await expect(page).toHaveURL(/#\/variants\/gardner\/play\?bot=lola&color=w/)
+  await expect(page.getByText('(400)')).toBeVisible()
 
   // a 5x5 board, drawn by the app itself
   const squares = page.locator('.vboard .vsq')
@@ -417,7 +419,7 @@ test('a variant is played on its own board against its own engine', { tag: '@mob
   await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled()
 
   // a wide board with pieces of its own
-  await page.goto('/#/variants/capablanca?vs=human&color=w')
+  await page.goto('/#/variants/capablanca/play?vs=human')
   await expect(squares).toHaveCount(80)
   await expect(page.locator('[data-sq="c1"]')).toHaveAccessibleName(/White Archbishop/)
   // by keyboard: the arrows walk the squares, Enter picks a piece up and puts it down
@@ -429,4 +431,17 @@ test('a variant is played on its own board against its own engine', { tag: '@mob
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-sq="d3"]')).toHaveAccessibleName(/White Archbishop/)
   await expect(page.getByRole('status').filter({ hasText: 'White:' })).toHaveCount(1)
+
+  // a pawn on the last rank picks its piece on the board, on its own file, as in standard chess
+  await page.goto('/#/variants/microchess/play?vs=human')
+  for (const [from, to] of [['d2', 'd3'], ['a4', 'a3'], ['d3', 'd4'], ['a3', 'a2'], ['d4', 'c5']]) {
+    await page.locator(`[data-sq="${from}"]`).click()
+    await page.locator(`[data-sq="${to}"]`).click()
+  }
+  const picker = page.getByRole('dialog', { name: 'Promotion' })
+  await expect(picker.getByRole('button')).toHaveCount(4)
+  await expect(picker.getByRole('button').first()).toBeFocused()
+  await picker.getByRole('button', { name: 'Knight' }).click()
+  await expect(picker).toBeHidden()
+  await expect(page.locator('[data-sq="c5"]')).toHaveAccessibleName(/White Knight/)
 })

@@ -3,7 +3,7 @@
  * The build is single-threaded, so a search cannot be interrupted: cancelling terminates
  * the worker, and the next search starts a fresh one.
  */
-import { VARIANTS_INI, type Level, type Variant } from './catalog'
+import { VARIANTS_INI, type Strength, type Variant } from './catalog'
 
 const ENGINE_URL = `${import.meta.env.BASE_URL}fairy/fairy-stockfish.js`
 /** On top of the thinking time: a first search also downloads and compiles the engine. */
@@ -53,7 +53,7 @@ export class FairyEngine {
   }
 
   /** The engine's move in the position after `moves`, or null when there is none. A newer call cancels this one. */
-  bestMove(v: Variant, startFen: string, moves: string[], level: Level): Promise<string | null> {
+  bestMove(v: Variant, startFen: string, moves: string[], strength: Strength): Promise<string | null> {
     this.cancel()
     const w = (this.worker ??= this.start())
     if (this.variant !== v.engine) {
@@ -61,11 +61,12 @@ export class FairyEngine {
       w.postMessage('ucinewgame')
       this.variant = v.engine
     }
-    w.postMessage(`setoption name Skill Level value ${level.skill}`)
+    w.postMessage(`setoption name UCI_LimitStrength value ${strength.elo !== undefined}`)
+    if (strength.elo !== undefined) w.postMessage(`setoption name UCI_Elo value ${strength.elo}`)
     w.postMessage(`position fen ${startFen}${moves.length ? ` moves ${moves.join(' ')}` : ''}`)
-    w.postMessage(`go movetime ${level.movetime}`)
+    w.postMessage(`go movetime ${strength.movetime}`)
     // a worker that dies while loading (out of memory, a failed download) may never say so
-    this.timer = setTimeout(() => this.fail('Fairy-Stockfish did not answer'), level.movetime + ANSWER_MARGIN_MS)
+    this.timer = setTimeout(() => this.fail('Fairy-Stockfish did not answer'), strength.movetime + ANSWER_MARGIN_MS)
     return new Promise((resolve, reject) => {
       this.waiting = { resolve, reject }
     })

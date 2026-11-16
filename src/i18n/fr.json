@@ -749,7 +749,7 @@
   },
   "variants": {
     "title": "Variantes",
-    "intro": "D'autres échiquiers, d'autres pièces et d'autres règles. Jouez contre Fairy-Stockfish sur votre appareil, ou à deux sur le même écran.",
+    "intro": "D'autres échiquiers, d'autres pièces et d'autres règles. Joue contre les bots habituels, ou à deux sur le même écran.",
     "short": "Mini-échiquiers, pièces spéciales et autres règles",
     "family": {
       "mini": {
@@ -850,19 +850,8 @@
       "commoner": "Homme",
       "royalKnight": "Cavalier royal"
     },
-    "level": {
-      "1": "Débutant",
-      "2": "Facile",
-      "3": "Moyen",
-      "4": "Difficile",
-      "5": "Maximum"
-    },
-    "levelLabel": "Niveau",
-    "levelShort": "Niveau {{level}}",
-    "rival": "Adversaire",
-    "vsEngine": "Contre le moteur",
+    "ratingNote": "Dans les variantes, le classement est approximatif : les bots gardent leur force, pas leurs ouvertures ni leur style.",
     "checksGiven": "Échecs : {{n}}/3",
-    "loadFailed": "Les règles des variantes n'ont pas pu être chargées.",
-    "other": "Autre variante"
+    "loadFailed": "Les règles des variantes n'ont pas pu être chargées."
   }
 }

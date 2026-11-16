@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowCounterClockwise, ArrowsDownUp, CaretLeft, CaretRight, Flag, Robot } from '@phosphor-icons/react'
+import { ArrowCounterClockwise, ArrowsDownUp, CaretLeft, CaretRight, Flag } from '@phosphor-icons/react'
 import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { MoveList, MoveStrip } from '../../board/MoveList'
@@ -10,13 +10,18 @@ import { GameAnnouncer } from '../../board/GameAnnouncer'
 import { play, sanSound } from '../../chess/sounds'
 import { BoardScreenSkeleton, Panel, Sheet, toast } from '../../ui/kit'
 import { NotFound } from '../../ui/NotFound'
+import { useSettings } from '../../settings'
 import { ActionButton } from '../play/PlayBot'
+import { botName } from '../play/bots'
+import { BotAvatar, type Mood } from '../play/BotAvatar'
+import { botLine, type ChatEvent } from '../play/botChat'
 import { GameOverDialog, endAnnouncement, endTitle } from '../play/GameOver'
-import { levelById, variantById, type Level, type Variant } from './catalog'
+import { strengthFor, variantById, type Variant } from './catalog'
 import { FairyEngine } from './fairyEngine'
-import { materialDiff, parsePosition, type VariantMove } from './fen'
+import { capturedPieces, materialDiff, parsePosition, type VariantMove } from './fen'
+import { rivalById } from './rival'
 import { loadRules, type Rules, type VariantEnd, type VariantGame } from './rules'
-import { VariantBoard, VariantPiece, pieceNameKey } from './VariantBoard'
+import { VariantBoard, iconLetter } from './VariantBoard'
 
 /** The variant from the URL, once the rules library has loaded. */
 export default function VariantPlay() {
@@ -57,9 +62,12 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   const nav = useNavigate()
   const [params] = useSearchParams()
   const twoPlayers = params.get('vs') === 'human'
-  const level: Level = levelById(Number(params.get('level')))
+  const lang = useSettings((s) => s.lang)
+  const bot = rivalById(params.get('bot'))
   const pickColor = (): 'w' | 'b' => {
     const c = params.get('color')
+    // two players at one screen have no colour to draw: the board starts from White's side
+    if (twoPlayers) return 'w'
     return c === 'w' || c === 'b' ? c : Math.random() < 0.5 ? 'w' : 'b'
   }
   const [userColor, setUserColor] = useState<'w' | 'b'>(pickColor)
@@ -78,8 +86,9 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   const [thinking, setThinking] = useState(false)
   const [botFailed, setBotFailed] = useState(false)
   const [retry, setRetry] = useState(0)
-  const [promo, setPromo] = useState<VariantMove[] | null>(null)
   const [confirmResign, setConfirmResign] = useState(false)
+  const [chat, setChat] = useState<{ text: string; key: number } | null>(null)
+  const say = useCallback((event: ChatEvent) => setChat({ text: botLine(bot, event, lang), key: Date.now() }), [bot, lang])
   const engine = useRef<FairyEngine | null>(null)
   const dialogTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -92,10 +101,13 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
     setDialog(false)
     setBotFailed(false)
     play('start')
+    const greet = twoPlayers ? undefined : setTimeout(() => say('greet'), 500)
     return () => {
+      clearTimeout(greet)
       clearTimeout(dialogTimer.current)
       g.dispose()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rules, variant, round])
   useEffect(() => () => engine.current?.destroy(), [])
 
@@ -104,13 +116,13 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
       setEnd(e)
       // a question left open (resign?) is about a game that no longer goes on
       setConfirmResign(false)
-      setPromo(null)
       const draw = e.result === '1/2-1/2'
       const userWon = (e.result === '1-0') === (userColor === 'w')
       play(draw ? 'draw' : twoPlayers || userWon ? 'win' : 'lose')
+      if (!twoPlayers) say(draw ? 'draw' : userWon ? 'lose' : 'win')
       dialogTimer.current = setTimeout(() => setDialog(true), 450)
     },
-    [userColor, twoPlayers],
+    [userColor, twoPlayers, say],
   )
 
   const playMove = useCallback(
@@ -139,8 +151,11 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
     setBotFailed(false)
     const started = performance.now()
     const fairy = (engine.current ??= new FairyEngine())
-    fairy
-      .bestMove(variant, game.startFen, [...game.moves], level)
+    const strength = strengthFor(bot.elo)
+    // the weakest bots are below what the engine's limiter reaches: now and then they play any move
+    const legal = strength.random && Math.random() < strength.random ? game.legalMoves() : []
+    const answer = legal.length ? Promise.resolve(legal[Math.floor(Math.random() * legal.length)].uci) : fairy.bestMove(variant, game.startFen, [...game.moves], strength)
+    answer
       .then(async (uci) => {
         // a reply that lands at once reads as a glitch
         await new Promise((r) => setTimeout(r, Math.max(0, 450 - (performance.now() - started))))
@@ -181,7 +196,6 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   const sans = useMemo(() => (game ? [...game.sans] : []), [game, count])
   // every variant here starts with White to move
   const spoken = useMemo(() => sans.map((san, i) => ({ san, color: i % 2 === 0 ? ('w' as const) : ('b' as const) })), [sans])
-  const startDiff = useMemo(() => materialDiff(parsePosition(variant.fen), variant.fairy), [variant])
 
   const goto = useCallback(
     (p: number) => {
@@ -194,15 +208,15 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   const flip = () => setOrientation((o) => (o === 'w' ? 'b' : 'w'))
   useBoardKeys({ ply, total: count, goto, flip })
 
-  const onMove = useCallback(
-    (from: string, to: string) => {
-      if (!game) return
-      const options = userMoves.filter((m) => m.from === from && m.to === to)
-      if (options.length > 1) setPromo(options)
-      else if (options[0]) playMove(game, options[0].uci)
-    },
-    [game, userMoves, playMove],
-  )
+  const onMove = useCallback((m: VariantMove) => game && playMove(game, m.uci), [game, playMove])
+  const startPosition = useMemo(() => parsePosition(variant.fen), [variant])
+  const captured = useMemo(() => {
+    const none = { byWhite: [] as string[], byBlack: [] as string[] }
+    // where losing pieces is the aim there is nothing to show off
+    if (!position || variant.noMaterial) return none
+    const c = capturedPieces(startPosition, position, variant.fairy)
+    return { byWhite: c.byWhite.map((l) => iconLetter(l, variant.fairy)), byBlack: c.byBlack.map((l) => iconLetter(l, variant.fairy)) }
+  }, [position, startPosition, variant])
 
   const takeback = () => {
     if (!game || !game.moves.length) return
@@ -241,30 +255,41 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
 
   const name = t(`variants.v.${variant.id}.name`)
   // who has gained material since the start: the armies of some variants are uneven from move one
-  const diff = variant.noMaterial ? 0 : materialDiff(position, variant.fairy) - startDiff
+  const diff = variant.noMaterial ? 0 : materialDiff(position, variant.fairy) - materialDiff(startPosition, variant.fairy)
+  const botEdge = userColor === 'w' ? -diff : diff
+  // the bot's face follows the game, as in standard chess
+  const mood: Mood = twoPlayers
+    ? 'neutral'
+    : end
+      ? end.result === '1/2-1/2'
+        ? 'neutral'
+        : (end.result === '1-0') === (userColor === 'w')
+          ? 'sad'
+          : 'happy'
+      : botEdge >= 3
+        ? 'happy'
+        : botEdge <= -3
+          ? 'sad'
+          : 'neutral'
+  const rivalName = botName(bot, lang)
   const sideName = (c: 'w' | 'b') => t(c === 'w' ? 'common.white' : 'common.black')
   const bar = (c: 'w' | 'b') => {
     const isBot = !twoPlayers && c !== userColor
     // three-check: each bar counts the checks its side has given
-    const tags = [
-      isBot ? t('variants.levelShort', { level: level.id }) : null,
-      position.checksLeft ? t('variants.checksGiven', { n: 3 - position.checksLeft[c === 'w' ? 'b' : 'w'] }) : null,
-    ].filter(Boolean)
+    const tags = [isBot ? bot.elo : null, position.checksLeft ? t('variants.checksGiven', { n: 3 - position.checksLeft[c === 'w' ? 'b' : 'w'] }) : null].filter(
+      (x) => x !== null,
+    )
     return (
       <PlayerBar
-        name={twoPlayers ? sideName(c) : isBot ? 'Fairy-Stockfish' : t('common.you')}
+        name={twoPlayers ? sideName(c) : isBot ? rivalName : t('common.you')}
         rating={tags.length ? tags.join(' · ') : undefined}
         color={c}
-        captured={[]}
+        captured={c === 'w' ? captured.byWhite : captured.byBlack}
         advantage={c === 'w' ? diff : -diff}
         thinking={isBot && thinking ? t('play.thinking') : undefined}
-        avatar={
-          isBot ? (
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-raise-2 text-fg-2" aria-hidden>
-              <Robot size={24} weight="fill" />
-            </span>
-          ) : undefined
-        }
+        avatar={isBot ? <BotAvatar bot={bot} mood={mood} size={40} /> : undefined}
+        bubble={isBot ? (chat ?? undefined) : undefined}
+        hue={twoPlayers ? (c === 'w' ? 40 : 230) : undefined}
       />
     )
   }
@@ -291,11 +316,21 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
         }
         side={
           <Panel className="flex flex-col lg:h-full">
-            <div className="border-b border-line p-3 max-lg:order-4 max-lg:border-b-0 max-lg:border-t">
-              <h1 tabIndex={-1} className="text-[17px] font-extrabold">
-                {name}
-              </h1>
-              <p className="mt-1 text-[13px] leading-snug text-fg-2">{t(`variants.v.${variant.id}.rule`)}</p>
+            {/* on phones the game actions come first, right under the board; the rival's card goes last */}
+            <div className="flex items-center gap-3 border-b border-line p-3 max-lg:order-4 max-lg:border-b-0 max-lg:border-t">
+              {!twoPlayers && <BotAvatar bot={bot} mood={mood} size={44} />}
+              <div className="min-w-0 flex-1">
+                {!twoPlayers && (
+                  <div className="font-bold">
+                    {rivalName} <span className="tabular font-normal text-fg-3">{bot.elo}</span>
+                  </div>
+                )}
+                <h1 tabIndex={-1} className={twoPlayers ? 'font-bold' : 'text-[12px] font-bold uppercase tracking-wide text-accent'}>
+                  {name}
+                </h1>
+                {/* the rule is what the game is about: let it wrap instead of cutting it off */}
+                <p className="line-clamp-3 text-[13px] text-fg-2">{t(`variants.v.${variant.id}.rule`)}</p>
+              </div>
             </div>
             <MoveStrip sans={sans} ply={ply} onSelect={goto} startNumber={1} blackFirst={false} className="border-b border-line max-lg:order-1 lg:hidden" />
             <MoveList sans={sans} ply={ply} onSelect={goto} startNumber={1} blackFirst={false} className="hidden min-h-[120px] flex-1 py-1 lg:block" />
@@ -327,8 +362,8 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
                   <button className="btn btn-primary" onClick={rematch}>
                     {t('play.rematch')}
                   </button>
-                  <button className="btn" onClick={() => nav('/variants')}>
-                    {t('variants.other')}
+                  <button className="btn" onClick={() => nav(`/variants/${variant.id}`)}>
+                    {t('play.newGame')}
                   </button>
                 </>
               ) : (
@@ -348,26 +383,9 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
           open={dialog}
           onClose={() => setDialog(false)}
           onRematch={rematch}
-          onNew={() => nav('/variants')}
+          onNew={() => nav(`/variants/${variant.id}`)}
         />
       )}
-      <Sheet open={!!promo} onClose={() => setPromo(null)} title={t('common.promotion')}>
-        <div className="flex flex-wrap justify-center gap-2">
-          {promo?.map((m) => (
-            <button
-              key={m.uci}
-              className="btn relative h-16 w-16 p-0"
-              aria-label={t(pieceNameKey(m.promotion ?? 'q', variant.fairy))}
-              onClick={() => {
-                setPromo(null)
-                playMove(game, m.uci)
-              }}
-            >
-              <VariantPiece letter={m.promotion ?? 'q'} color={turn} fairy={variant.fairy} />
-            </button>
-          ))}
-        </div>
-      </Sheet>
       <Sheet open={confirmResign} onClose={() => setConfirmResign(false)} title={t('play.resign')}>
         <p className="mb-4 text-fg-2">{t('play.confirmResign')}</p>
         <div className="grid grid-cols-2 gap-2">

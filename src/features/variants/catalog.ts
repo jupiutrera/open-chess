@@ -108,18 +108,23 @@ export function variantById(id: string | undefined): Variant | undefined {
   return VARIANTS.find((v) => v.id === id)
 }
 
-/** How strong the engine plays: its Skill Level (-20 to 20) and how long it may think. */
-export interface Level {
-  id: number
-  skill: number
+/** How strong the engine plays a move. */
+export interface Strength {
+  /** the rating its own limiter aims at (UCI_Elo); none is full strength */
+  elo?: number
+  /** how long it may think, in ms */
   movetime: number
+  /** how often it plays any legal move instead, for ratings below what the limiter reaches */
+  random: number
 }
-export const LEVELS: Level[] = [
-  { id: 1, skill: -20, movetime: 100 },
-  { id: 2, skill: -9, movetime: 200 },
-  { id: 3, skill: 1, movetime: 300 },
-  { id: 4, skill: 10, movetime: 500 },
-  { id: 5, skill: 20, movetime: 1200 },
-]
-export const DEFAULT_LEVEL = 2
-export const levelById = (id: number): Level => LEVELS.find((l) => l.id === id) ?? LEVELS[DEFAULT_LEVEL - 1]
+
+/** The limiter's range in Fairy-Stockfish. Its scale was fitted on standard chess, so in a variant a rating is a guide. */
+const LIMITER_MIN = 500
+const LIMITER_MAX = 2850
+
+/** The engine's settings for a bot of the given rating, on the same scale the bots of standard chess use. */
+export function strengthFor(elo: number): Strength {
+  if (elo > LIMITER_MAX) return { movetime: 1200, random: 0 }
+  if (elo >= LIMITER_MIN) return { elo, movetime: elo >= 2000 ? 900 : elo >= 1350 ? 500 : 300, random: 0 }
+  return { elo: LIMITER_MIN, movetime: 200, random: elo <= 300 ? 0.35 : 0.22 }
+}
