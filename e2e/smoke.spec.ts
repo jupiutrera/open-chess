@@ -254,8 +254,9 @@ test('after a finished game the panel offers a rematch, against a bot and betwee
   await page.goto('/#/play/local')
   await page.getByRole('button', { name: 'Start' }).click()
   await move(page, 'e2', 'e4')
-  await clickSquare(page, 'e7')
-  await clickSquare(page, 'e5')
+  // the board only takes Black's move once it has White's
+  await expect(moves).toHaveCount(1)
+  await move(page, 'e7', 'e5')
   await expect(moves).toHaveCount(2)
   await page.getByRole('button', { name: /Resign/ }).first().click()
   await page.getByRole('dialog').getByRole('button', { name: /Resign/ }).click()
