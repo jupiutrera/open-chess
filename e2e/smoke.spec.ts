@@ -80,8 +80,9 @@ test('moves queued while the bot thinks are played in turn', async ({ page }) =>
   await move(page, 'g1', 'f3')
   await move(page, 'f1', 'c4')
   await expect(moves).toHaveCount(6, { timeout: 20_000 })
-  await expect(moves.nth(2)).toHaveText('Nf3')
-  await expect(moves.nth(4)).toHaveText('Bc4')
+  // the move may carry a quality mark ("?!") when the bot's reply made it a worse one
+  await expect(moves.nth(2)).toHaveText(/Nf3$/)
+  await expect(moves.nth(4)).toHaveText(/Bc4$/)
 })
 
 test('bots with a playing style answer, below and above the engine limiter', async ({ page }) => {
@@ -132,6 +133,7 @@ const PAGES: [string, RegExp | null][] = [
   ['/training', /^Your weak spots$/],
   ['/clones', /^Clones$/],
   ['/league', /^League$/],
+  ['/variants', /^Variants$/],
   ['/puzzles/rated', /Rated puzzles/],
   ['/openings', /Openings/],
   ['/lessons', /^Lessons$/],
@@ -391,4 +393,40 @@ test('a reviewed game exports as a vertical video', async ({ page }) => {
   const path = await file.path()
   const { statSync } = await import('node:fs')
   expect(statSync(path).size).toBeGreaterThan(10_000)
+})
+
+test('a variant is played on its own board against its own engine', { tag: '@mobile' }, async ({ page }) => {
+  await page.goto('/#/play')
+  await page.getByRole('link', { name: 'Variants' }).click()
+  await expect(page.getByRole('heading', { name: 'Variants', level: 1 })).toBeVisible()
+  await page.getByTestId('variant-gardner').click()
+  const sheet = page.getByRole('dialog')
+  await sheet.getByRole('radio', { name: 'White' }).click()
+  await sheet.getByRole('button', { name: 'Play', exact: true }).click()
+  await expect(page).toHaveURL(/#\/variants\/gardner\?/)
+
+  // a 5x5 board, drawn by the app itself
+  const squares = page.locator('.vboard .vsq')
+  await expect(squares).toHaveCount(25)
+  await page.locator('[data-sq="b2"]').click()
+  await page.locator('[data-sq="b3"]').click()
+  await expect(page.locator('[data-sq="b3"]')).toHaveAccessibleName(/White Pawn/)
+  // Fairy-Stockfish answers: Black has moved once its ten pieces are no longer all on their first two ranks
+  const blackAtHome = page.locator('[data-sq$="5"][aria-label*="Black"], [data-sq$="4"][aria-label*="Black"]')
+  await expect(async () => expect(await blackAtHome.count()).toBeLessThan(10)).toPass({ timeout: 30_000 })
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled()
+
+  // a wide board with pieces of its own
+  await page.goto('/#/variants/capablanca?vs=human&color=w')
+  await expect(squares).toHaveCount(80)
+  await expect(page.locator('[data-sq="c1"]')).toHaveAccessibleName(/White Archbishop/)
+  // by keyboard: the arrows walk the squares, Enter picks a piece up and puts it down
+  await page.locator('[data-sq="c1"]').focus()
+  await page.keyboard.press('Enter')
+  for (const key of ['ArrowUp', 'ArrowUp', 'ArrowRight']) await page.keyboard.press(key)
+  await expect(page.locator('[data-sq="d3"]')).toBeFocused()
+  // the archbishop jumps like a knight
+  await page.keyboard.press('Enter')
+  await expect(page.locator('[data-sq="d3"]')).toHaveAccessibleName(/White Archbishop/)
+  await expect(page.getByRole('status').filter({ hasText: 'White:' })).toHaveCount(1)
 })

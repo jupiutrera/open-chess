@@ -1,0 +1,46 @@
+name: Fairy engine
+
+# Builds the variant engine and its rules library from their pinned source and checks
+# that the files in public/fairy are exactly that build (see engines/fairy-stockfish/README.md).
+on:
+  pull_request:
+    paths:
+      - engines/fairy-stockfish/**
+      - public/fairy/**
+      - .github/workflows/fairy-engine.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fairy-engine-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # the official Emscripten image: its version decides the bytes of the build
+    container: emscripten/emsdk:3.1.74
+    steps:
+      - uses: actions/checkout@v5
+      - run: bash engines/fairy-stockfish/build.sh "$RUNNER_TEMP/fairy"
+      - run: node engines/fairy-stockfish/test.cjs "$RUNNER_TEMP/fairy"
+      - run: node engines/fairy-stockfish/test-rules.mjs "$RUNNER_TEMP/fairy"
+      - name: The committed files are this build
+        run: |
+          cd "$RUNNER_TEMP/fairy"
+          sha256sum fairy-stockfish.js fairy-stockfish.wasm ffish.js ffish.wasm | tee "$RUNNER_TEMP/built.sha256"
+          committed="$GITHUB_WORKSPACE/public/fairy"
+          for f in fairy-stockfish.wasm ffish.wasm; do
+            if [ ! -f "$committed/$f" ]; then
+              echo "::notice::public/fairy has no $f yet: take the files from this run's artifact"
+              exit 0
+            fi
+          done
+          (cd "$committed" && sha256sum -c "$RUNNER_TEMP/built.sha256")
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fairy-stockfish
+          path: ${{ runner.temp }}/fairy

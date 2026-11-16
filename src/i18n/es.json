@@ -114,7 +114,8 @@
       "resign": "por abandono",
       "timeout": "por tiempo",
       "agreement": "por acuerdo",
-      "timeoutVsInsufficient": "por tiempo contra material insuficiente"
+      "timeoutVsInsufficient": "por tiempo contra material insuficiente",
+      "goal": "por la regla de la variante"
     },
     "confirmResign": "¿Seguro que quieres abandonar?",
     "record": "Tu marcador: {{w}} V · {{d}} T · {{l}} D",
@@ -745,5 +746,123 @@
     "abandonedTag": "Abandonada",
     "ratingChange": "Rating {{before}} → {{after}}",
     "replaceSaved": "Tienes una partida de liga sin terminar contra {{name}}. Si empiezas otra, contará como derrota."
+  },
+  "variants": {
+    "title": "Variantes",
+    "intro": "Otros tableros, otras piezas y otras reglas. Juegas contra Fairy-Stockfish en tu dispositivo, o con alguien en la misma pantalla.",
+    "short": "Mini tableros, piezas especiales y otras reglas",
+    "family": {
+      "mini": {
+        "name": "Mini-ajedrez",
+        "hint": "Tableros pequeños y partidas de pocos minutos."
+      },
+      "pieces": {
+        "name": "Piezas especiales",
+        "hint": "Piezas que combinan los movimientos de dos."
+      },
+      "armies": {
+        "name": "Ejércitos desiguales",
+        "hint": "Cada bando tiene fuerzas distintas."
+      },
+      "rules": {
+        "name": "Otras reglas",
+        "hint": "Las piezas de siempre, con otra forma de ganar."
+      }
+    },
+    "v": {
+      "gardner": {
+        "name": "Gardner",
+        "rule": "El ajedrez completo en 5×5. Sin enroque ni avance doble de peón."
+      },
+      "losalamos": {
+        "name": "Los Álamos",
+        "rule": "6×6 sin alfiles, sin enroque ni avance doble: el ajedrez del primer programa que ganó a una persona."
+      },
+      "microchess": {
+        "name": "Microchess",
+        "rule": "4×5 con un solo peón por bando. Cada jugada cuenta."
+      },
+      "petty": {
+        "name": "Petty",
+        "rule": "5×6 con la dama en la esquina. Sin enroque ni avance doble."
+      },
+      "capablanca": {
+        "name": "Capablanca",
+        "rule": "Tablero de 10×8 con dos piezas más: el canciller (torre + caballo) y el arzobispo (alfil + caballo)."
+      },
+      "amazon": {
+        "name": "Amazona",
+        "rule": "La dama se cambia por una amazona, que mueve como dama y como caballo."
+      },
+      "almost": {
+        "name": "Casi ajedrez",
+        "rule": "Las damas se cambian por cancilleres, que mueven como torre y como caballo."
+      },
+      "knightmate": {
+        "name": "Mate al caballo",
+        "rule": "El rey mueve como un caballo y hay que darle mate. Los caballos se cambian por hombres, que mueven como un rey."
+      },
+      "horde": {
+        "name": "Horda",
+        "rule": "36 peones blancos contra un ejército normal. Las negras ganan si los capturan todos; las blancas, dando mate."
+      },
+      "maharajah": {
+        "name": "Maharajá",
+        "rule": "Una amazona sola (dama + caballo) contra un ejército entero. Gana quien da mate: las negras a la amazona, y ella al rey."
+      },
+      "peasant": {
+        "name": "Revuelta campesina",
+        "rule": "Rey y ocho peones contra rey, tres caballos y un peón."
+      },
+      "weak": {
+        "name": "¡Débil!",
+        "rule": "Un ejército normal contra siete caballos y dieciséis peones."
+      },
+      "brigade": {
+        "name": "Carga de la Brigada Ligera",
+        "rule": "Tres damas contra siete caballos. Sin enroque."
+      },
+      "kingofthehill": {
+        "name": "Rey de la colina",
+        "rule": "Gana quien lleva su rey a una de las cuatro casillas centrales. El mate también vale."
+      },
+      "threecheck": {
+        "name": "Tres jaques",
+        "rule": "Gana quien da jaque tres veces. El mate también vale."
+      },
+      "atomic": {
+        "name": "Atómico",
+        "rule": "Cada captura explota: desaparecen la pieza que captura, la capturada y las vecinas que no sean peones. Gana quien hace explotar al rey rival."
+      },
+      "antichess": {
+        "name": "Pierde-gana",
+        "rule": "Capturar es obligatorio y gana quien se queda sin piezas o sin jugadas. El rey es una pieza más."
+      },
+      "racingkings": {
+        "name": "Carrera de reyes",
+        "rule": "Gana el primer rey que llega a la octava fila. No se puede dar jaque."
+      }
+    },
+    "piece": {
+      "amazon": "Amazona",
+      "chancellor": "Canciller",
+      "archbishop": "Arzobispo",
+      "commoner": "Hombre",
+      "royalKnight": "Caballo real"
+    },
+    "level": {
+      "1": "Principiante",
+      "2": "Fácil",
+      "3": "Medio",
+      "4": "Difícil",
+      "5": "Máximo"
+    },
+    "levelLabel": "Nivel",
+    "levelShort": "Nivel {{level}}",
+    "rival": "Rival",
+    "vsEngine": "Contra el motor",
+    "checksGiven": "Jaques: {{n}}/3",
+    "loadFailed": "No se han podido cargar las reglas de las variantes.",
+    "other": "Otra variante"
   }
 }

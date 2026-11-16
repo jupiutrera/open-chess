@@ -601,3 +601,123 @@ cg-board square.right {
 :root:lang(ja) {
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', 'Meiryo', sans-serif;
 }
+
+/* Variant boards (VariantBoard): any size, same square colours as the main board */
+.vboard {
+  display: grid;
+  overflow: hidden;
+  border-radius: 4px;
+  touch-action: none;
+  user-select: none;
+}
+.vsq {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--sq-light);
+  color: var(--sq-dark);
+}
+.vsq.dark {
+  background: var(--sq-dark);
+  color: var(--sq-light);
+}
+.vsq:focus-visible {
+  outline-offset: -3px;
+  z-index: 3;
+}
+.vsq.last::before,
+.vsq.sel::before,
+.vsq.check::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--sq-last);
+}
+.vsq.sel::before {
+  background: rgba(20, 85, 30, 0.5);
+}
+.vsq.check::before {
+  background: radial-gradient(ellipse at center, var(--sq-check) 0%, rgba(231, 0, 0, 0.55) 30%, rgba(169, 0, 0, 0) 85%);
+}
+/* the squares a variant's goal is about (the hill) */
+.vsq.mark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent-hi) 75%, transparent);
+  pointer-events: none;
+}
+.vpiece {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.vpiece.drag {
+  z-index: 5;
+  pointer-events: none;
+}
+.vslide {
+  animation: vslide 180ms var(--ease-out);
+}
+@keyframes vslide {
+  from {
+    transform: translate(calc(var(--dx) * 100%), calc(var(--dy) * 100%));
+  }
+}
+/* the piece set's sprites hang from .cg-wrap, which chessground positions for its own board */
+.vart.cg-wrap {
+  position: absolute;
+  inset: 0;
+}
+/* the second half of a compound piece (the knight of a chancellor) */
+.vbadge.cg-wrap {
+  position: absolute;
+  top: 1%;
+  right: 1%;
+  z-index: 2;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 25%, transparent);
+}
+.vdest {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: auto;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: rgba(20, 85, 30, 0.5);
+  pointer-events: none;
+}
+.vdest.capture {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: radial-gradient(transparent 0%, transparent 78%, rgba(20, 85, 0, 0.35) 80%);
+}
+.vcoord {
+  position: absolute;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+.vcoord.rank {
+  top: 2px;
+  left: 3px;
+}
+.vcoord.file {
+  right: 3px;
+  bottom: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vslide {
+    animation: none;
+  }
+}

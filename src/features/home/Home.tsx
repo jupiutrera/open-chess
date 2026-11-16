@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DownloadSimple, CaretRight, Target, GithubLogo } from '@phosphor-icons/react'
+import { DownloadSimple, CaretRight, Target, GithubLogo, SquaresFour } from '@phosphor-icons/react'
 import { AppIcon, type AppIconName } from '../../ui/AppIcon'
 import { PieceIcon } from '../../board/QualityIcon'
 import { Chess } from 'chess.js'
@@ -153,6 +153,16 @@ export function Home() {
                   <Skeleton className="aspect-square w-full rounded" />
                 )}
               </div>
+            </Panel>
+          </Link>
+          <Link to="/variants" className="group">
+            <Panel className="flex items-center gap-3 p-4 transition-colors duration-150 group-hover:bg-raise">
+              <SquaresFour size={28} weight="fill" className="shrink-0 text-accent" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">{t('variants.title')}</span>
+                <span className="block text-[13px] text-fg-3">{t('variants.short')}</span>
+              </span>
+              <CaretRight size={20} className="text-fg-3" />
             </Panel>
           </Link>
           <Link to="/import" className="group">

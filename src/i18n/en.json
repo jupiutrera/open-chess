@@ -114,7 +114,8 @@
       "resign": "by resignation",
       "timeout": "on time",
       "agreement": "by agreement",
-      "timeoutVsInsufficient": "by timeout vs insufficient material"
+      "timeoutVsInsufficient": "by timeout vs insufficient material",
+      "goal": "by the variant's rule"
     },
     "confirmResign": "Are you sure you want to resign?",
     "record": "Your record: {{w}} W · {{d}} D · {{l}} L",
@@ -745,5 +746,123 @@
     "abandonedTag": "Abandoned",
     "ratingChange": "Rating {{before}} → {{after}}",
     "replaceSaved": "You have an unfinished league game against {{name}}. Starting another one counts it as a loss."
+  },
+  "variants": {
+    "title": "Variants",
+    "intro": "Other boards, other pieces and other rules. Play against Fairy-Stockfish on your device, or with someone on the same screen.",
+    "short": "Mini boards, special pieces and other rules",
+    "family": {
+      "mini": {
+        "name": "Mini chess",
+        "hint": "Small boards and games of a few minutes."
+      },
+      "pieces": {
+        "name": "Special pieces",
+        "hint": "Pieces that combine the moves of two."
+      },
+      "armies": {
+        "name": "Uneven armies",
+        "hint": "Each side has different forces."
+      },
+      "rules": {
+        "name": "Other rules",
+        "hint": "The usual pieces, with another way to win."
+      }
+    },
+    "v": {
+      "gardner": {
+        "name": "Gardner",
+        "rule": "All of chess on 5×5. No castling and no double pawn step."
+      },
+      "losalamos": {
+        "name": "Los Alamos",
+        "rule": "6×6 with no bishops, no castling and no double step: the chess of the first program to beat a person."
+      },
+      "microchess": {
+        "name": "Microchess",
+        "rule": "4×5 with a single pawn each. Every move counts."
+      },
+      "petty": {
+        "name": "Petty chess",
+        "rule": "5×6 with the queen in the corner. No castling and no double step."
+      },
+      "capablanca": {
+        "name": "Capablanca",
+        "rule": "A 10×8 board with two more pieces: the chancellor (rook + knight) and the archbishop (bishop + knight)."
+      },
+      "amazon": {
+        "name": "Amazon",
+        "rule": "The queen becomes an amazon, which moves as a queen and as a knight."
+      },
+      "almost": {
+        "name": "Almost chess",
+        "rule": "Queens become chancellors, which move as a rook and as a knight."
+      },
+      "knightmate": {
+        "name": "Knightmate",
+        "rule": "The king moves like a knight and must be mated. Knights become men, which move like a king."
+      },
+      "horde": {
+        "name": "Horde",
+        "rule": "36 white pawns against a normal army. Black wins by capturing them all; White, by checkmate."
+      },
+      "maharajah": {
+        "name": "Maharajah",
+        "rule": "A lone amazon (queen + knight) against a whole army. Whoever gives mate wins: Black mates the amazon, the amazon mates the king."
+      },
+      "peasant": {
+        "name": "Peasants' revolt",
+        "rule": "King and eight pawns against king, three knights and a pawn."
+      },
+      "weak": {
+        "name": "Weak!",
+        "rule": "A normal army against seven knights and sixteen pawns."
+      },
+      "brigade": {
+        "name": "Charge of the Light Brigade",
+        "rule": "Three queens against seven knights. No castling."
+      },
+      "kingofthehill": {
+        "name": "King of the hill",
+        "rule": "Whoever brings their king to one of the four centre squares wins. Checkmate counts too."
+      },
+      "threecheck": {
+        "name": "Three-check",
+        "rule": "Whoever gives check three times wins. Checkmate counts too."
+      },
+      "atomic": {
+        "name": "Atomic",
+        "rule": "Every capture explodes: the capturing piece, the captured one and their neighbours that are not pawns all vanish. Blow up the enemy king to win."
+      },
+      "antichess": {
+        "name": "Antichess",
+        "rule": "Capturing is compulsory, and whoever runs out of pieces or moves wins. The king is just another piece."
+      },
+      "racingkings": {
+        "name": "Racing kings",
+        "rule": "The first king to reach the eighth rank wins. Giving check is not allowed."
+      }
+    },
+    "piece": {
+      "amazon": "Amazon",
+      "chancellor": "Chancellor",
+      "archbishop": "Archbishop",
+      "commoner": "Man",
+      "royalKnight": "Royal knight"
+    },
+    "level": {
+      "1": "Beginner",
+      "2": "Easy",
+      "3": "Medium",
+      "4": "Hard",
+      "5": "Maximum"
+    },
+    "levelLabel": "Level",
+    "levelShort": "Level {{level}}",
+    "rival": "Opponent",
+    "vsEngine": "Against the engine",
+    "checksGiven": "Checks: {{n}}/3",
+    "loadFailed": "The variants' rules could not be loaded.",
+    "other": "Another variant"
   }
 }

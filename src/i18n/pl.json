@@ -114,7 +114,8 @@
       "resign": "przez poddanie",
       "timeout": "na czas",
       "agreement": "za zgodą graczy",
-      "timeoutVsInsufficient": "na czas przy niewystarczającym materiale przeciwnika"
+      "timeoutVsInsufficient": "na czas przy niewystarczającym materiale przeciwnika",
+      "goal": "zgodnie z zasadą wariantu"
     },
     "confirmResign": "Czy na pewno chcesz się poddać?",
     "record": "Twój bilans: {{w}} wygr. · {{d}} rem. · {{l}} przegr.",
@@ -745,5 +746,123 @@
     "abandonedTag": "Przerwana",
     "ratingChange": "Ranking {{before}} → {{after}}",
     "replaceSaved": "Masz niedokończoną partię ligową przeciwko {{name}}. Rozpoczęcie kolejnej oznacza przegraną w tej partii."
+  },
+  "variants": {
+    "title": "Warianty",
+    "intro": "Inne szachownice, inne figury i inne zasady. Graj z Fairy-Stockfish na swoim urządzeniu albo z kimś na tym samym ekranie.",
+    "short": "Mini-szachownice, figury specjalne i inne zasady",
+    "family": {
+      "mini": {
+        "name": "Mini-szachy",
+        "hint": "Małe szachownice i partie na kilka minut."
+      },
+      "pieces": {
+        "name": "Figury specjalne",
+        "hint": "Figury łączące ruchy dwóch innych."
+      },
+      "armies": {
+        "name": "Nierówne armie",
+        "hint": "Każda strona ma inne siły."
+      },
+      "rules": {
+        "name": "Inne zasady",
+        "hint": "Zwykłe figury, inny sposób na wygraną."
+      }
+    },
+    "v": {
+      "gardner": {
+        "name": "Gardner",
+        "rule": "Całe szachy na 5×5. Bez roszady i bez podwójnego ruchu pionem."
+      },
+      "losalamos": {
+        "name": "Los Alamos",
+        "rule": "6×6 bez gońców, bez roszady i podwójnego ruchu: szachy pierwszego programu, który pokonał człowieka."
+      },
+      "microchess": {
+        "name": "Microchess",
+        "rule": "4×5 z jednym pionem na stronę. Liczy się każdy ruch."
+      },
+      "petty": {
+        "name": "Petty",
+        "rule": "5×6 z hetmanem w rogu. Bez roszady i podwójnego ruchu."
+      },
+      "capablanca": {
+        "name": "Capablanca",
+        "rule": "Szachownica 10×8 z dwiema dodatkowymi figurami: kanclerzem (wieża + skoczek) i arcybiskupem (goniec + skoczek)."
+      },
+      "amazon": {
+        "name": "Amazonka",
+        "rule": "Hetmana zastępuje amazonka, która rusza się jak hetman i jak skoczek."
+      },
+      "almost": {
+        "name": "Prawie szachy",
+        "rule": "Hetmany zastępują kanclerze, które ruszają się jak wieża i jak skoczek."
+      },
+      "knightmate": {
+        "name": "Mat skoczkowi",
+        "rule": "Król rusza się jak skoczek i trzeba go zamatować. Skoczki zastępują ludzie, którzy ruszają się jak król."
+      },
+      "horde": {
+        "name": "Horda",
+        "rule": "36 białych pionów przeciw zwykłej armii. Czarne wygrywają, bijąc wszystkie; białe, dając mata."
+      },
+      "maharajah": {
+        "name": "Maharadża",
+        "rule": "Samotna amazonka (hetman + skoczek) przeciw całej armii. Wygrywa ten, kto da mata: czarne amazonce, ona królowi."
+      },
+      "peasant": {
+        "name": "Bunt chłopski",
+        "rule": "Król i osiem pionów przeciw królowi, trzem skoczkom i pionowi."
+      },
+      "weak": {
+        "name": "Słabi!",
+        "rule": "Zwykła armia przeciw siedmiu skoczkom i szesnastu pionom."
+      },
+      "brigade": {
+        "name": "Szarża lekkiej brygady",
+        "rule": "Trzy hetmany przeciw siedmiu skoczkom. Bez roszady."
+      },
+      "kingofthehill": {
+        "name": "Król wzgórza",
+        "rule": "Wygrywa ten, kto doprowadzi króla na jedno z czterech pól centralnych. Mat też się liczy."
+      },
+      "threecheck": {
+        "name": "Trzy szachy",
+        "rule": "Wygrywa ten, kto trzy razy da szacha. Mat też się liczy."
+      },
+      "atomic": {
+        "name": "Atomowe",
+        "rule": "Każde bicie wybucha: znikają figura bijąca, zbita i sąsiednie figury niebędące pionami. Wygrywa ten, kto wysadzi króla rywala."
+      },
+      "antichess": {
+        "name": "Antyszachy",
+        "rule": "Bicie jest obowiązkowe, a wygrywa ten, komu zabraknie figur lub ruchów. Król to zwykła figura."
+      },
+      "racingkings": {
+        "name": "Wyścig królów",
+        "rule": "Wygrywa król, który pierwszy dotrze na ósmą linię. Nie wolno dawać szacha."
+      }
+    },
+    "piece": {
+      "amazon": "Amazonka",
+      "chancellor": "Kanclerz",
+      "archbishop": "Arcybiskup",
+      "commoner": "Człowiek",
+      "royalKnight": "Skoczek królewski"
+    },
+    "level": {
+      "1": "Początkujący",
+      "2": "Łatwy",
+      "3": "Średni",
+      "4": "Trudny",
+      "5": "Maksymalny"
+    },
+    "levelLabel": "Poziom",
+    "levelShort": "Poziom {{level}}",
+    "rival": "Przeciwnik",
+    "vsEngine": "Przeciw silnikowi",
+    "checksGiven": "Szachy: {{n}}/3",
+    "loadFailed": "Nie udało się wczytać zasad wariantów.",
+    "other": "Inny wariant"
   }
 }

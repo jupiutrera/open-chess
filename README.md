@@ -75,6 +75,8 @@ Open Chess puts those pieces together in one app with a clean, familiar interfac
 
 **🐟 17 challenges.** Stockfish, but with a silly rule: **Meltfish** loses 50 Elo every move, **Growfish** starts at 0 and climbs, **Envyfish** drops 300 Elo whenever you find the best move, **Drawfish** plays for 0.00, **Checkfish** checks whenever it can, **Greedfish** grabs everything, **Coinfish** picks its n-th best move with probability ½ⁿ, **Yoyofish** swings between 250 and 3200 on every capture, **Copyfish** copies the quality of your last move, **Mirrorfish** mirrors your moves, **Panicfish** gets weaker as its clock runs down, **Grudgefish** hunts the piece type you took from it… The bot's Elo changes live as you play.
 
+**♞ 18 variants.** Other boards, other pieces and other rules, against Fairy-Stockfish or with two players on one screen: mini chess (Gardner 5×5, Los Alamos, Microchess), special pieces (Capablanca's chancellor and archbishop, the amazon), uneven armies (Horde, Maharajah, Peasants' revolt) and other ways to win (King of the hill, Three-check, Atomic, Antichess, Racing kings).
+
 **🎯 Five optional helps.** Evaluation bar, threat arrows, suggestion arrows, live move feedback and engine lines. Turn them on before or during a game.
 
 **🧩 Puzzles.** 104,000 Lichess puzzles with Glicko-2 rating, 47 themes, a daily puzzle, **Puzzle Sprint** (3 min, 5 min and survival), **Puzzle Streak** (no clock, each one harder, one miss ends it) and **mistake puzzles** taken from your own reviewed games.

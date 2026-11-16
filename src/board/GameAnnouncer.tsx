@@ -8,7 +8,7 @@ import { spokenSan } from './speech'
  * ("Black: Knight f6, check") and then the result. The live region stays mounted and only
  * its text changes; regions inserted together with their text are often not read.
  */
-export function GameAnnouncer({ moves, result }: { moves: Move[]; result?: string | null }) {
+export function GameAnnouncer({ moves, result }: { moves: Pick<Move, 'color' | 'san'>[]; result?: string | null }) {
   const { t } = useTranslation()
   const [text, setText] = useState('')
   const last = moves[moves.length - 1]

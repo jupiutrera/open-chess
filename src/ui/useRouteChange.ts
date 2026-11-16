@@ -17,6 +17,7 @@ const SECTION_TITLE: Record<string, string> = {
   league: 'league.title',
   training: 'training.title',
   clones: 'clone.title',
+  variants: 'variants.title',
 }
 
 /**

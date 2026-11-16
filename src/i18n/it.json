@@ -114,7 +114,8 @@
       "resign": "per abbandono",
       "timeout": "per tempo",
       "agreement": "di comune accordo",
-      "timeoutVsInsufficient": "per tempo contro materiale insufficiente"
+      "timeoutVsInsufficient": "per tempo contro materiale insufficiente",
+      "goal": "per la regola della variante"
     },
     "confirmResign": "Vuoi davvero abbandonare?",
     "record": "Il tuo bilancio: {{w}} V · {{d}} P · {{l}} S",
@@ -745,5 +746,123 @@
     "abandonedTag": "Abbandonata",
     "ratingChange": "Rating {{before}} → {{after}}",
     "replaceSaved": "Hai una partita di lega non finita contro {{name}}. Iniziarne un’altra la conta come sconfitta."
+  },
+  "variants": {
+    "title": "Varianti",
+    "intro": "Altre scacchiere, altri pezzi e altre regole. Gioca contro Fairy-Stockfish sul tuo dispositivo, o con qualcuno sullo stesso schermo.",
+    "short": "Mini scacchiere, pezzi speciali e altre regole",
+    "family": {
+      "mini": {
+        "name": "Mini scacchi",
+        "hint": "Scacchiere piccole e partite di pochi minuti."
+      },
+      "pieces": {
+        "name": "Pezzi speciali",
+        "hint": "Pezzi che combinano i movimenti di due."
+      },
+      "armies": {
+        "name": "Eserciti diseguali",
+        "hint": "Ogni schieramento ha forze diverse."
+      },
+      "rules": {
+        "name": "Altre regole",
+        "hint": "I soliti pezzi, con un altro modo di vincere."
+      }
+    },
+    "v": {
+      "gardner": {
+        "name": "Gardner",
+        "rule": "Tutti gli scacchi su 5×5. Senza arrocco né doppio passo di pedone."
+      },
+      "losalamos": {
+        "name": "Los Alamos",
+        "rule": "6×6 senza alfieri, senza arrocco né doppio passo: gli scacchi del primo programma che batté una persona."
+      },
+      "microchess": {
+        "name": "Microchess",
+        "rule": "4×5 con un solo pedone a testa. Ogni mossa conta."
+      },
+      "petty": {
+        "name": "Petty",
+        "rule": "5×6 con la donna nell’angolo. Senza arrocco né doppio passo."
+      },
+      "capablanca": {
+        "name": "Capablanca",
+        "rule": "Scacchiera 10×8 con due pezzi in più: il cancelliere (torre + cavallo) e l’arcivescovo (alfiere + cavallo)."
+      },
+      "amazon": {
+        "name": "Amazzone",
+        "rule": "La donna diventa un’amazzone, che muove come donna e come cavallo."
+      },
+      "almost": {
+        "name": "Quasi scacchi",
+        "rule": "Le donne diventano cancellieri, che muovono come torre e come cavallo."
+      },
+      "knightmate": {
+        "name": "Matto al cavallo",
+        "rule": "Il re muove come un cavallo e va mattato. I cavalli diventano uomini, che muovono come un re."
+      },
+      "horde": {
+        "name": "Orda",
+        "rule": "36 pedoni bianchi contro un esercito normale. Il Nero vince catturandoli tutti; il Bianco, dando matto."
+      },
+      "maharajah": {
+        "name": "Maharaja",
+        "rule": "Un’amazzone sola (donna + cavallo) contro un intero esercito. Vince chi dà matto: il Nero all’amazzone, lei al re."
+      },
+      "peasant": {
+        "name": "Rivolta dei contadini",
+        "rule": "Re e otto pedoni contro re, tre cavalli e un pedone."
+      },
+      "weak": {
+        "name": "Debole!",
+        "rule": "Un esercito normale contro sette cavalli e sedici pedoni."
+      },
+      "brigade": {
+        "name": "Carica della brigata leggera",
+        "rule": "Tre donne contro sette cavalli. Senza arrocco."
+      },
+      "kingofthehill": {
+        "name": "Re della collina",
+        "rule": "Vince chi porta il proprio re su una delle quattro case centrali. Vale anche il matto."
+      },
+      "threecheck": {
+        "name": "Tre scacchi",
+        "rule": "Vince chi dà scacco tre volte. Vale anche il matto."
+      },
+      "atomic": {
+        "name": "Atomico",
+        "rule": "Ogni cattura esplode: spariscono il pezzo che cattura, quello catturato e i vicini che non sono pedoni. Vince chi fa esplodere il re avversario."
+      },
+      "antichess": {
+        "name": "Vinciperdi",
+        "rule": "La cattura è obbligatoria e vince chi resta senza pezzi o senza mosse. Il re è un pezzo come gli altri."
+      },
+      "racingkings": {
+        "name": "Corsa dei re",
+        "rule": "Vince il primo re che raggiunge l’ottava traversa. Non si può dare scacco."
+      }
+    },
+    "piece": {
+      "amazon": "Amazzone",
+      "chancellor": "Cancelliere",
+      "archbishop": "Arcivescovo",
+      "commoner": "Uomo",
+      "royalKnight": "Cavallo reale"
+    },
+    "level": {
+      "1": "Principiante",
+      "2": "Facile",
+      "3": "Medio",
+      "4": "Difficile",
+      "5": "Massimo"
+    },
+    "levelLabel": "Livello",
+    "levelShort": "Livello {{level}}",
+    "rival": "Avversario",
+    "vsEngine": "Contro il motore",
+    "checksGiven": "Scacchi: {{n}}/3",
+    "loadFailed": "Non è stato possibile caricare le regole delle varianti.",
+    "other": "Altra variante"
   }
 }
