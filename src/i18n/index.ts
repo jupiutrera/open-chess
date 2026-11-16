@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import es from './es.json'
 import en from './en.json'
 import { useSettings, type Lang } from '../settings'
+import { polishPlurals } from './polishPlurals'
 
 // Spanish (default) and English (fallback) ship in the main bundle; the rest load when picked.
 const lazyLangs: Partial<Record<Lang, () => Promise<{ default: object }>>> = {
@@ -10,12 +11,14 @@ const lazyLangs: Partial<Record<Lang, () => Promise<{ default: object }>>> = {
   it: () => import('./it.json'),
   zh: () => import('./zh.json'),
   ja: () => import('./ja.json'),
+  pl: () => import('./pl.json'),
 }
 
 async function ensureLang(lang: Lang) {
   const load = lazyLangs[lang]
   if (!load || i18n.hasResourceBundle(lang, 'translation')) return
-  i18n.addResourceBundle(lang, 'translation', (await load()).default)
+  const resource = (await load()).default
+  i18n.addResourceBundle(lang, 'translation', lang === 'pl' ? polishPlurals(resource) : resource)
 }
 
 const initial = useSettings.getState().lang
