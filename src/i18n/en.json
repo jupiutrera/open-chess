@@ -749,7 +749,7 @@
   },
   "variants": {
     "title": "Variants",
-    "intro": "Other boards, other pieces and other rules. Play against Fairy-Stockfish on your device, or with someone on the same screen.",
+    "intro": "Other boards, other pieces and other rules. Play against the usual bots, or with someone on the same screen.",
     "short": "Mini boards, special pieces and other rules",
     "family": {
       "mini": {
@@ -850,19 +850,8 @@
       "commoner": "Man",
       "royalKnight": "Royal knight"
     },
-    "level": {
-      "1": "Beginner",
-      "2": "Easy",
-      "3": "Medium",
-      "4": "Hard",
-      "5": "Maximum"
-    },
-    "levelLabel": "Level",
-    "levelShort": "Level {{level}}",
-    "rival": "Opponent",
-    "vsEngine": "Against the engine",
+    "ratingNote": "In a variant the rating is approximate: the bots keep their strength, not their openings or their style.",
     "checksGiven": "Checks: {{n}}/3",
-    "loadFailed": "The variants' rules could not be loaded.",
-    "other": "Another variant"
+    "loadFailed": "The variants' rules could not be loaded."
   }
 }

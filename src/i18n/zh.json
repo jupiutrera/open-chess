@@ -749,7 +749,7 @@
   },
   "variants": {
     "title": "变体",
-    "intro": "不一样的棋盘、棋子和规则。在你的设备上与 Fairy-Stockfish 对弈，或与朋友同屏对战。",
+    "intro": "不一样的棋盘、棋子和规则。与熟悉的机器人对弈，或与朋友同屏对战。",
     "short": "迷你棋盘、特殊棋子和其他规则",
     "family": {
       "mini": {
@@ -850,19 +850,8 @@
       "commoner": "平民",
       "royalKnight": "马王"
     },
-    "level": {
-      "1": "入门",
-      "2": "简单",
-      "3": "中等",
-      "4": "困难",
-      "5": "最强"
-    },
-    "levelLabel": "难度",
-    "levelShort": "难度 {{level}}",
-    "rival": "对手",
-    "vsEngine": "对战引擎",
+    "ratingNote": "在变体中等级分只是近似值：机器人保留棋力，但不保留开局和风格。",
     "checksGiven": "将军：{{n}}/3",
-    "loadFailed": "无法加载变体规则。",
-    "other": "换一个变体"
+    "loadFailed": "无法加载变体规则。"
   }
 }

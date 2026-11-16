@@ -749,7 +749,7 @@
   },
   "variants": {
     "title": "Warianty",
-    "intro": "Inne szachownice, inne figury i inne zasady. Graj z Fairy-Stockfish na swoim urządzeniu albo z kimś na tym samym ekranie.",
+    "intro": "Inne szachownice, inne figury i inne zasady. Graj ze znanymi botami albo z kimś na tym samym ekranie.",
     "short": "Mini-szachownice, figury specjalne i inne zasady",
     "family": {
       "mini": {
@@ -850,19 +850,8 @@
       "commoner": "Człowiek",
       "royalKnight": "Skoczek królewski"
     },
-    "level": {
-      "1": "Początkujący",
-      "2": "Łatwy",
-      "3": "Średni",
-      "4": "Trudny",
-      "5": "Maksymalny"
-    },
-    "levelLabel": "Poziom",
-    "levelShort": "Poziom {{level}}",
-    "rival": "Przeciwnik",
-    "vsEngine": "Przeciw silnikowi",
+    "ratingNote": "W wariantach ranking jest przybliżony: boty zachowują swoją siłę, ale nie swoje debiuty ani styl.",
     "checksGiven": "Szachy: {{n}}/3",
-    "loadFailed": "Nie udało się wczytać zasad wariantów.",
-    "other": "Inny wariant"
+    "loadFailed": "Nie udało się wczytać zasad wariantów."
   }
 }

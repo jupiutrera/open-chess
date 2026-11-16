@@ -89,6 +89,34 @@ export function pieceKind(letter: string, fairy?: Record<string, string>): strin
   return fairy?.[letter] ?? STANDARD[letter] ?? 'pawn'
 }
 
+/** The order captured pieces are listed in: the least valuable first. */
+const BY_WORTH = (fairy?: Record<string, string>) => (a: string, b: string) => (WORTH[pieceKind(a, fairy)] ?? 0) - (WORTH[pieceKind(b, fairy)] ?? 0)
+
+/**
+ * The letters each side has taken from the other since `start`: the opponent's pieces that are
+ * gone, with a pawn that promoted counted as the piece it became and not as lost.
+ */
+export function capturedPieces(start: Position, now: Position, fairy?: Record<string, string>): { byWhite: string[]; byBlack: string[] } {
+  const count = (pos: Position, color: 'w' | 'b') => {
+    const n: Record<string, number> = {}
+    for (const p of pos.pieces.values()) if (p.color === color) n[p.letter] = (n[p.letter] ?? 0) + 1
+    return n
+  }
+  const missing = (color: 'w' | 'b') => {
+    const was = count(start, color)
+    const is = count(now, color)
+    let promoted = 0
+    for (const [letter, n] of Object.entries(is)) if (letter !== 'p') promoted += Math.max(0, n - (was[letter] ?? 0))
+    const out: string[] = []
+    for (const letter of Object.keys(was).sort(BY_WORTH(fairy))) {
+      const lost = was[letter] - (is[letter] ?? 0) - (letter === 'p' ? promoted : 0)
+      for (let i = 0; i < lost; i++) out.push(letter)
+    }
+    return out
+  }
+  return { byWhite: missing('b'), byBlack: missing('w') }
+}
+
 export function materialDiff(pos: Position, fairy?: Record<string, string>): number {
   let diff = 0
   for (const p of pos.pieces.values()) diff += (p.color === 'w' ? 1 : -1) * (WORTH[pieceKind(p.letter, fairy)] ?? 0)

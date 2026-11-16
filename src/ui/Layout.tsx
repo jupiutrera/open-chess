@@ -9,7 +9,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { useRouteChange } from './useRouteChange'
 
 /** Board screens get a board-shaped placeholder while their code loads; hubs and lists get cards. */
-const BOARD_ROUTES = /^\/(play\/(bot|local)|variants\/|review\/|puzzles\/(rated|daily|rush|mistakes)|openings|lessons\/|analysis)/
+const BOARD_ROUTES = /^\/(play\/(bot|local)|variants\/[^/]+\/play|review\/|puzzles\/(rated|daily|rush|mistakes)|openings|lessons\/|analysis)/
 
 interface Item {
   to: string
