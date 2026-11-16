@@ -114,7 +114,8 @@
       "resign": "par abandon",
       "timeout": "au temps",
       "agreement": "d’un commun accord",
-      "timeoutVsInsufficient": "au temps contre matériel insuffisant"
+      "timeoutVsInsufficient": "au temps contre matériel insuffisant",
+      "goal": "par la règle de la variante"
     },
     "confirmResign": "Voulez-vous vraiment abandonner ?",
     "record": "Votre bilan : {{w}} V · {{d}} N · {{l}} D",
@@ -745,5 +746,123 @@
     "abandonedTag": "Abandonnée",
     "ratingChange": "Classement {{before}} → {{after}}",
     "replaceSaved": "Tu as une partie de ligue inachevée contre {{name}}. En commencer une autre la compte comme une défaite."
+  },
+  "variants": {
+    "title": "Variantes",
+    "intro": "D'autres échiquiers, d'autres pièces et d'autres règles. Jouez contre Fairy-Stockfish sur votre appareil, ou à deux sur le même écran.",
+    "short": "Mini-échiquiers, pièces spéciales et autres règles",
+    "family": {
+      "mini": {
+        "name": "Mini-échecs",
+        "hint": "Petits échiquiers et parties de quelques minutes."
+      },
+      "pieces": {
+        "name": "Pièces spéciales",
+        "hint": "Des pièces qui combinent les déplacements de deux autres."
+      },
+      "armies": {
+        "name": "Armées inégales",
+        "hint": "Chaque camp a des forces différentes."
+      },
+      "rules": {
+        "name": "Autres règles",
+        "hint": "Les pièces habituelles, avec une autre façon de gagner."
+      }
+    },
+    "v": {
+      "gardner": {
+        "name": "Gardner",
+        "rule": "Tous les échecs sur 5×5. Ni roque ni double pas de pion."
+      },
+      "losalamos": {
+        "name": "Los Alamos",
+        "rule": "6×6 sans fous, sans roque ni double pas : les échecs du premier programme à avoir battu un humain."
+      },
+      "microchess": {
+        "name": "Microchess",
+        "rule": "4×5 avec un seul pion par camp. Chaque coup compte."
+      },
+      "petty": {
+        "name": "Petty",
+        "rule": "5×6 avec la dame dans le coin. Ni roque ni double pas."
+      },
+      "capablanca": {
+        "name": "Capablanca",
+        "rule": "Un échiquier 10×8 avec deux pièces de plus : le chancelier (tour + cavalier) et l’archevêque (fou + cavalier)."
+      },
+      "amazon": {
+        "name": "Amazone",
+        "rule": "La dame devient une amazone, qui se déplace comme une dame et comme un cavalier."
+      },
+      "almost": {
+        "name": "Presque échecs",
+        "rule": "Les dames deviennent des chanceliers, qui se déplacent comme une tour et comme un cavalier."
+      },
+      "knightmate": {
+        "name": "Mat au cavalier",
+        "rule": "Le roi se déplace comme un cavalier et doit être maté. Les cavaliers deviennent des hommes, qui se déplacent comme un roi."
+      },
+      "horde": {
+        "name": "Horde",
+        "rule": "36 pions blancs contre une armée normale. Les Noirs gagnent en les capturant tous ; les Blancs, par mat."
+      },
+      "maharajah": {
+        "name": "Maharadjah",
+        "rule": "Une amazone seule (dame + cavalier) contre toute une armée. Celui qui mate gagne : les Noirs matent l’amazone, elle mate le roi."
+      },
+      "peasant": {
+        "name": "Révolte des paysans",
+        "rule": "Roi et huit pions contre roi, trois cavaliers et un pion."
+      },
+      "weak": {
+        "name": "Faible !",
+        "rule": "Une armée normale contre sept cavaliers et seize pions."
+      },
+      "brigade": {
+        "name": "Charge de la brigade légère",
+        "rule": "Trois dames contre sept cavaliers. Sans roque."
+      },
+      "kingofthehill": {
+        "name": "Roi de la colline",
+        "rule": "Celui qui amène son roi sur l’une des quatre cases centrales gagne. Le mat compte aussi."
+      },
+      "threecheck": {
+        "name": "Trois échecs",
+        "rule": "Celui qui donne trois échecs gagne. Le mat compte aussi."
+      },
+      "atomic": {
+        "name": "Atomique",
+        "rule": "Chaque prise explose : la pièce qui prend, la pièce prise et leurs voisines qui ne sont pas des pions disparaissent. Faites exploser le roi adverse pour gagner."
+      },
+      "antichess": {
+        "name": "Qui perd gagne",
+        "rule": "La prise est obligatoire et celui qui n’a plus de pièces ou de coups gagne. Le roi est une pièce comme les autres."
+      },
+      "racingkings": {
+        "name": "Course des rois",
+        "rule": "Le premier roi à atteindre la huitième rangée gagne. Il est interdit de donner échec."
+      }
+    },
+    "piece": {
+      "amazon": "Amazone",
+      "chancellor": "Chancelier",
+      "archbishop": "Archevêque",
+      "commoner": "Homme",
+      "royalKnight": "Cavalier royal"
+    },
+    "level": {
+      "1": "Débutant",
+      "2": "Facile",
+      "3": "Moyen",
+      "4": "Difficile",
+      "5": "Maximum"
+    },
+    "levelLabel": "Niveau",
+    "levelShort": "Niveau {{level}}",
+    "rival": "Adversaire",
+    "vsEngine": "Contre le moteur",
+    "checksGiven": "Échecs : {{n}}/3",
+    "loadFailed": "Les règles des variantes n'ont pas pu être chargées.",
+    "other": "Autre variante"
   }
 }

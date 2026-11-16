@@ -36,7 +36,8 @@ export function GameOverDialog({
   userColor?: 'w' | 'b'
   open: boolean
   onClose: () => void
-  onReview: () => void
+  /** left out where there is no review (variants) */
+  onReview?: () => void
   onRematch?: () => void
   onNew?: () => void
   reviewReady?: boolean
@@ -68,9 +69,11 @@ export function GameOverDialog({
         )}
       </div>
       <div className="mt-4 grid gap-2">
-        <button className="btn btn-primary btn-lg w-full" onClick={onReview} disabled={!reviewReady}>
-          <MagnifyingGlass size={22} weight="bold" /> {t('play.gameReview')}
-        </button>
+        {onReview && (
+          <button className="btn btn-primary btn-lg w-full" onClick={onReview} disabled={!reviewReady}>
+            <MagnifyingGlass size={22} weight="bold" /> {t('play.gameReview')}
+          </button>
+        )}
         <div className="grid grid-cols-2 gap-2">
           {onRematch && (
             <button className="btn" onClick={onRematch}>

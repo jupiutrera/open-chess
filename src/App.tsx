@@ -17,6 +17,8 @@ const PlayHub = lazy(() => import('./features/play/PlayHub'))
 const PlayBot = lazy(() => import('./features/play/PlayBot'))
 const PlayLocal = lazy(() => import('./features/play/PlayLocal'))
 const League = lazy(() => import('./features/league/LeagueScreen'))
+const VariantsHub = lazy(() => import('./features/variants/VariantsHub'))
+const VariantPlay = lazy(() => import('./features/variants/VariantPlay'))
 const Review = lazy(() => import('./features/review/Review'))
 const PuzzlesHub = lazy(() => import('./features/puzzles/PuzzlesHub'))
 const Training = lazy(() => import('./features/weaknesses/Training'))
@@ -92,6 +94,8 @@ export function App() {
             <Route path="play/bot/:botId" element={<PlayBot />} />
             <Route path="play/local" element={<PlayLocal />} />
             <Route path="league" element={<League />} />
+            <Route path="variants" element={<VariantsHub />} />
+            <Route path="variants/:id" element={<VariantPlay />} />
             <Route path="review/:id" element={<Review />} />
             <Route path="puzzles" element={<PuzzlesHub />} />
             <Route path="training" element={<Training />} />

@@ -1,10 +1,14 @@
 // Checks the built rules library in Node: node test-rules.mjs [dir with ffish.js]
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { copyFileSync, mkdtempSync, readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const dir = resolve(process.argv[2] ?? 'public/fairy')
-const { default: load } = await import(pathToFileURL(`${dir}/ffish.js`).href)
+// Node only reads a .js file as a module inside a package that says so: load a copy named .mjs
+const copy = join(mkdtempSync(join(tmpdir(), 'ffish-')), 'ffish.mjs')
+copyFileSync(`${dir}/ffish.js`, copy)
+const { default: load } = await import(pathToFileURL(copy).href)
 const ffish = await load({ wasmBinary: readFileSync(`${dir}/ffish.wasm`) })
 
 let failed = 0

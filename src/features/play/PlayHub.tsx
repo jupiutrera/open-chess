@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Chess } from 'chess.js'
-import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal, UsersThree, Ranking } from '@phosphor-icons/react'
+import { Users, Shuffle, PuzzlePiece, Timer, SlidersHorizontal, UsersThree, Ranking, SquaresFour } from '@phosphor-icons/react'
 import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
 
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
@@ -103,12 +103,16 @@ export default function PlayHub() {
       <PageHeader
         title={t('play.title')}
         right={
+          // three entries don't fit a phone next to the title: there they are icons with their name as the label
           <div className="flex gap-2">
-            <Link to="/league" className="btn min-h-9 px-3 text-[14px]">
-              <Ranking size={18} weight="bold" /> {t('league.title')}
+            <Link to="/league" className="btn min-h-9 px-3 text-[14px]" aria-label={t('league.title')} title={t('league.title')}>
+              <Ranking size={18} weight="bold" /> <span className="max-sm:hidden">{t('league.title')}</span>
             </Link>
-            <Link to="/play/local" className="btn min-h-9 px-3 text-[14px]">
-              <Users size={18} weight="bold" /> {t('play.local')}
+            <Link to="/variants" className="btn min-h-9 px-3 text-[14px]" aria-label={t('variants.title')} title={t('variants.title')}>
+              <SquaresFour size={18} weight="bold" /> <span className="max-sm:hidden">{t('variants.title')}</span>
+            </Link>
+            <Link to="/play/local" className="btn min-h-9 px-3 text-[14px]" aria-label={t('play.local')} title={t('play.local')}>
+              <Users size={18} weight="bold" /> <span className="max-sm:hidden">{t('play.local')}</span>
             </Link>
           </div>
         }
