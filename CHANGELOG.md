@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/jupiutrera/open-chess/compare/v0.9.0...v0.9.1) (2026-11-16)
+
+
+### Bug fixes
+
+* Variants look like the rest of the app: you pick one of the usual bots by its rating and promote on the board ([#58](https://github.com/jupiutrera/open-chess/issues/58)) ([208fafa](https://github.com/jupiutrera/open-chess/commit/208fafaf4a3ede9488adb816b5571764311e7ae1))
+
 ## [0.9.0](https://github.com/jupiutrera/open-chess/compare/v0.8.0...v0.9.0) (2026-11-16)
 
 
