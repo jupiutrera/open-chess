@@ -58,7 +58,11 @@ emcc -O3 -std=c++17 -Wall \
 # The rules library: upstream's ffish.js (Makefile_js), the engine's move generator behind a
 # JavaScript API the page calls directly. The copy on npm builds its bindings with new Function,
 # which the app's content security policy forbids; DYNAMIC_EXECUTION=0 leaves that out.
-# Without SINGLE_THREAD the patch is inert, so this is upstream's library as it is.
+# Without SINGLE_THREAD the patch is inert, so this is upstream's library, minus its PGN reader:
+# that one returns a game object by value, which this Emscripten no longer binds for a type that
+# cannot be copied (upstream builds with a much older one), and the app does not read PGN with it.
+sed -i '/function("readGamePGN", &read_game_pgn);/d' ffishjs.cpp
+! grep -q readGamePGN ffishjs.cpp
 emcc -O3 -std=c++17 -Wall --bind \
   -DNDEBUG -DNO_THREADS -DLARGEBOARDS -DPRECOMPUTED_MAGICS -DALLVARS -DNNUE_EMBEDDING_OFF \
   ${SRCS/main.cpp/ffishjs.cpp} \
