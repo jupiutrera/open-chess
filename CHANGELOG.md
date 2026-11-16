@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.0](https://github.com/jupiutrera/open-chess/compare/v0.8.0...v0.9.0) (2026-11-16)
+
+
+### Features
+
+* add complete Polish localization ([#52](https://github.com/jupiutrera/open-chess/issues/52)) ([b6e5815](https://github.com/jupiutrera/open-chess/commit/b6e58159571022e74b7978700a96f17a72918fc5))
+* Chess variants against their own engine: mini boards, special pieces, uneven armies and other rules ([#55](https://github.com/jupiutrera/open-chess/issues/55)) ([e6ef125](https://github.com/jupiutrera/open-chess/commit/e6ef125075b458de1010c573d2eb27f348df9a30))
+
+
+### Bug fixes
+
+* A saved game is never replaced without asking, pages open at the top, and smaller fixes while playing ([#56](https://github.com/jupiutrera/open-chess/issues/56)) ([e4beb54](https://github.com/jupiutrera/open-chess/commit/e4beb542b1b8b067a8afb34e4378de8b6dc74b71))
+* Reviews survive a clone being built, rare puzzle themes are found at any rating, and PGN imports read more dates and files ([#57](https://github.com/jupiutrera/open-chess/issues/57)) ([576b8a8](https://github.com/jupiutrera/open-chess/commit/576b8a890163ece824fe3876a82d705461dca762))
+
 ## [0.8.0](https://github.com/jupiutrera/open-chess/compare/v0.7.0...v0.8.0) (2026-11-03)
 
 
