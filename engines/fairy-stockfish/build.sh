@@ -24,6 +24,9 @@ git init -q "$work/fsf"
 git -C "$work/fsf" fetch -q --depth 1 "$FSF_REPO" "$FSF_COMMIT"
 git -C "$work/fsf" checkout -q FETCH_HEAD
 git -C "$work/fsf" apply "$here/single-thread.patch"
+# an unversioned build names itself after the day it was compiled, which would change its bytes every day
+sed -i "s/^const string Version = \"\";/const string Version = \"${FSF_COMMIT:0:8}\";/" "$work/fsf/src/misc.cpp"
+grep -q "Version = \"${FSF_COMMIT:0:8}\"" "$work/fsf/src/misc.cpp"
 
 cd "$work/fsf/src"
 

@@ -57,9 +57,9 @@ extinctionPseudoRoyal = true
   assert.match(g, /^[a-e][1-5][a-e][1-5]/, 'a Gardner move stays on the 5x5 board')
   console.log('gardner:', g)
 
-  // the amazon mates as queen + knight: Ah6 covers every flight square
+  // the amazon (queen + knight) mates on the back rank
   send('setoption name UCI_Variant value amazon')
-  send('position fen 7k/8/5K2/8/8/8/8/4A3 w - - 0 1')
+  send('position fen 7k/8/6K1/8/8/8/8/4A3 w - - 0 1')
   const mate = send('go depth 6')
   assert.ok(mate.some((l) => / score mate 1 /.test(l)), 'the amazon finds mate in one')
   console.log('amazon:', bestmove(mate))
