@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { PieceSprite } from '../../board/QualityIcon'
@@ -49,6 +49,8 @@ export interface VariantBoardProps {
   /** the moves the user may play now; none locks the board */
   moves?: VariantMove[]
   lastMove?: [string, string] | null
+  /** the last move has just been played: its piece slides in (not when going back through the game) */
+  slide?: boolean
   /** royal pieces in check */
   checked?: string[]
   /** squares the variant's goal is about */
@@ -60,6 +62,8 @@ export interface VariantBoardProps {
 }
 
 const NO_MOVES: VariantMove[] = []
+/** Column and row steps of the arrow keys, as the board is seen. */
+const ARROWS: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 
 /** A board of any size for the variants (chessground only draws 8x8). Tap or drag to move; every square is a button. */
 export const VariantBoard = memo(function VariantBoard({
@@ -68,6 +72,7 @@ export const VariantBoard = memo(function VariantBoard({
   orientation = 'w',
   moves = NO_MOVES,
   lastMove,
+  slide: slideIn = false,
   checked,
   marks,
   onMove,
@@ -82,6 +87,12 @@ export const VariantBoard = memo(function VariantBoard({
   const [picked, setPicked] = useState<string | null>(null)
   // a selection only lasts while its piece can still move
   const selected = picked && byOrigin.has(picked) ? picked : null
+  // and it is forgotten for good, or it would come back when that piece can move again
+  useEffect(() => {
+    if (picked && !byOrigin.has(picked)) setPicked(null)
+  }, [picked, byOrigin])
+  // the board is one tab stop: the arrow keys walk the squares
+  const [cursor, setCursor] = useState<string | null>(null)
   const dests = useMemo(() => new Set(selected ? byOrigin.get(selected)!.map((m) => m.to) : []), [selected, byOrigin])
   const root = useRef<HTMLDivElement>(null)
   const drag = useRef<{ from: string; x: number; y: number; el: HTMLElement | null; moved: boolean; wasSelected: boolean } | null>(null)
@@ -155,9 +166,26 @@ export const VariantBoard = memo(function VariantBoard({
   }
 
   const lastKey = lastMove ? lastMove.join('') : ''
-  const slide = settings.animation && !reducedMotion && lastMove && dropped.current !== lastKey ? lastMove : null
+  const slide = slideIn && settings.animation && !reducedMotion && lastMove && dropped.current !== lastKey ? lastMove : null
   const slideFrom = slide ? squareCoords(slide[0]) : null
   const pieceName = (letter: string) => t(pieceNameKey(letter, fairy))
+
+  const keyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    const step = ARROWS[e.key]
+    const sq = (e.target as HTMLElement).closest<HTMLElement>('[data-sq]')?.dataset.sq
+    if (!step || !sq || e.altKey || e.ctrlKey || e.metaKey) return
+    // inside the board the arrows move between squares, not through the game's moves
+    e.preventDefault()
+    e.stopPropagation()
+    const at = squareCoords(sq)
+    const c = Math.max(0, Math.min(width - 1, col(at.file) + step[0]))
+    const r = Math.max(0, Math.min(height - 1, row(at.rank) + step[1]))
+    const next = squareName(flip ? width - 1 - c : c, flip ? r : height - 1 - r)
+    setCursor(next)
+    root.current?.querySelector<HTMLElement>(`[data-sq="${next}"]`)?.focus()
+  }
+  // the square Tab lands on: the last one visited, or the first of the board
+  const tabStop = cursor ?? squareName(flip ? width - 1 : 0, flip ? 0 : height - 1)
   const showCoords = settings.coords && !preview
 
   const squares = []
@@ -187,8 +215,11 @@ export const VariantBoard = memo(function VariantBoard({
           className={cls.join(' ')}
           aria-label={label}
           aria-pressed={selected === sq || undefined}
-          // pointer presses are handled on the board; this is the keyboard (a click with no pointer behind it)
-          onClick={(e) => e.detail === 0 && press(sq)}
+          tabIndex={sq === tabStop ? 0 : -1}
+          onFocus={() => setCursor(sq)}
+          // pointer presses are handled on the board; this is the keyboard (a click with no pointer behind it),
+          // where pressing the selected piece again puts it down, as a second tap does
+          onClick={(e) => e.detail === 0 && (selected === sq ? setPicked(null) : press(sq))}
         >
           {showCoords && c === 0 && <span className="vcoord rank">{rank + 1}</span>}
           {showCoords && r === height - 1 && <span className="vcoord file">{FILES[file]}</span>}
@@ -209,6 +240,7 @@ export const VariantBoard = memo(function VariantBoard({
         ref={root}
         className="vboard"
         style={{ gridTemplateColumns: `repeat(${width}, 1fr)`, aspectRatio: `${width} / ${height}`, width: width >= height ? '100%' : `${(width / height) * 100}%` }}
+        onKeyDown={keyDown}
         onPointerDown={down}
         onPointerMove={dragMove}
         onPointerUp={up}

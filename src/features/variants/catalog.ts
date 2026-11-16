@@ -25,6 +25,8 @@ export interface Variant {
   checks?: boolean
   /** the first king on the last rank wins */
   race?: boolean
+  /** having more pieces is no advantage (the aim is to lose them) */
+  noMaterial?: boolean
   /** who the single-player side should be by default, when the armies differ */
   suggested?: 'w' | 'b'
 }
@@ -98,7 +100,7 @@ export const VARIANTS: Variant[] = [
   { id: 'kingofthehill', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', engine: 'kingofthehill', family: 'rules', marks: ['d4', 'e4', 'd5', 'e5'] },
   { id: 'threecheck', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3+3 0 1', engine: '3check', family: 'rules', checks: true },
   { id: 'atomic', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', engine: 'atomic', family: 'rules' },
-  { id: 'antichess', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1', engine: 'antichess', family: 'rules' },
+  { id: 'antichess', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1', engine: 'antichess', family: 'rules', noMaterial: true },
   { id: 'racingkings', fen: '8/8/8/8/8/8/krbnNBRK/qrbnNBRQ w - - 0 1', engine: 'racingkings', family: 'rules', race: true },
 ]
 

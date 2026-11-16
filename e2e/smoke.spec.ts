@@ -420,8 +420,13 @@ test('a variant is played on its own board against its own engine', { tag: '@mob
   await page.goto('/#/variants/capablanca?vs=human&color=w')
   await expect(squares).toHaveCount(80)
   await expect(page.locator('[data-sq="c1"]')).toHaveAccessibleName(/White Archbishop/)
-  await page.locator('[data-sq="c1"]').click()
+  // by keyboard: the arrows walk the squares, Enter picks a piece up and puts it down
+  await page.locator('[data-sq="c1"]').focus()
+  await page.keyboard.press('Enter')
+  for (const key of ['ArrowUp', 'ArrowUp', 'ArrowRight']) await page.keyboard.press(key)
+  await expect(page.locator('[data-sq="d3"]')).toBeFocused()
   // the archbishop jumps like a knight
-  await page.locator('[data-sq="d3"]').click()
+  await page.keyboard.press('Enter')
   await expect(page.locator('[data-sq="d3"]')).toHaveAccessibleName(/White Archbishop/)
+  await expect(page.getByRole('status').filter({ hasText: 'White:' })).toHaveCount(1)
 })

@@ -6,11 +6,12 @@ import { BoardLayout } from '../../board/BoardLayout'
 import { PlayerBar } from '../../board/PlayerBar'
 import { MoveList, MoveStrip } from '../../board/MoveList'
 import { useBoardKeys } from '../../board/useBoardKeys'
+import { GameAnnouncer } from '../../board/GameAnnouncer'
 import { play, sanSound } from '../../chess/sounds'
 import { BoardScreenSkeleton, Panel, Sheet, toast } from '../../ui/kit'
 import { NotFound } from '../../ui/NotFound'
 import { ActionButton } from '../play/PlayBot'
-import { GameOverDialog, endTitle } from '../play/GameOver'
+import { GameOverDialog, endAnnouncement, endTitle } from '../play/GameOver'
 import { levelById, variantById, type Level, type Variant } from './catalog'
 import { FairyEngine } from './fairyEngine'
 import { materialDiff, parsePosition, type VariantMove } from './fen'
@@ -70,6 +71,8 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   // the game object mutates in place; this counts its moves so React follows along
   const [count, setCount] = useState(0)
   const [ply, setPly] = useState(0)
+  // the ply reached by stepping one move forward: only then does the board slide the piece in
+  const [stepped, setStepped] = useState<number | null>(null)
   const [end, setEnd] = useState<VariantEnd | null>(null)
   const [dialog, setDialog] = useState(false)
   const [thinking, setThinking] = useState(false)
@@ -99,6 +102,9 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   const finish = useCallback(
     (e: VariantEnd) => {
       setEnd(e)
+      // a question left open (resign?) is about a game that no longer goes on
+      setConfirmResign(false)
+      setPromo(null)
       const draw = e.result === '1/2-1/2'
       const userWon = (e.result === '1-0') === (userColor === 'w')
       play(draw ? 'draw' : twoPlayers || userWon ? 'win' : 'lose')
@@ -113,6 +119,7 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
       play(sanSound(g.sans[g.sans.length - 1]))
       setCount(g.moves.length)
       setPly(g.moves.length)
+      setStepped(g.moves.length)
       const e = g.end()
       if (e) finish(e)
       return true
@@ -172,8 +179,18 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
   const checked = useMemo(() => (game && atLive ? game.checked() : []), [game, atLive, count])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sans = useMemo(() => (game ? [...game.sans] : []), [game, count])
+  // every variant here starts with White to move
+  const spoken = useMemo(() => sans.map((san, i) => ({ san, color: i % 2 === 0 ? ('w' as const) : ('b' as const) })), [sans])
+  const startDiff = useMemo(() => materialDiff(parsePosition(variant.fen), variant.fairy), [variant])
 
-  const goto = useCallback((p: number) => setPly(Math.max(0, Math.min(p, game?.moves.length ?? 0))), [game])
+  const goto = useCallback(
+    (p: number) => {
+      const to = Math.max(0, Math.min(p, game?.moves.length ?? 0))
+      setStepped(to === ply + 1 ? to : null)
+      setPly(to)
+    },
+    [game, ply],
+  )
   const flip = () => setOrientation((o) => (o === 'w' ? 'b' : 'w'))
   useBoardKeys({ ply, total: count, goto, flip })
 
@@ -196,12 +213,14 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
     game.undo(Math.min(plies, game.moves.length))
     setCount(game.moves.length)
     setPly(game.moves.length)
+    setStepped(null)
     setEnd(null)
     setDialog(false)
   }
 
   const resign = () => {
     setConfirmResign(false)
+    if (end) return
     // with two players, the side to move is the one giving up
     const loser = twoPlayers ? turn : userColor
     finish({ result: loser === 'w' ? '0-1' : '1-0', reason: 'resign' })
@@ -209,16 +228,20 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
 
   const rematch = () => {
     engine.current?.cancel()
-    const next = userColor === 'w' ? 'b' : 'w'
-    setUserColor(next)
-    setOrientation(next)
+    // against the engine the colours swap; two players at one screen keep their seats
+    if (!twoPlayers) {
+      const next = userColor === 'w' ? 'b' : 'w'
+      setUserColor(next)
+      setOrientation(next)
+    }
     setRound((n) => n + 1)
   }
 
   if (!game || !position) return <BoardScreenSkeleton />
 
   const name = t(`variants.v.${variant.id}.name`)
-  const diff = materialDiff(position, variant.fairy)
+  // who has gained material since the start: the armies of some variants are uneven from move one
+  const diff = variant.noMaterial ? 0 : materialDiff(position, variant.fairy) - startDiff
   const sideName = (c: 'w' | 'b') => t(c === 'w' ? 'common.white' : 'common.black')
   const bar = (c: 'w' | 'b') => {
     const isBot = !twoPlayers && c !== userColor
@@ -249,6 +272,7 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
 
   return (
     <>
+      <GameAnnouncer moves={spoken} result={end ? endAnnouncement(end, twoPlayers ? undefined : userColor, t) : null} />
       <BoardLayout
         top={bar(top)}
         bottom={bar(orientation)}
@@ -259,6 +283,7 @@ function Game({ variant, rules }: { variant: Variant; rules: Rules }) {
             orientation={orientation}
             moves={userMoves}
             lastMove={lastMove}
+            slide={stepped === ply}
             checked={checked}
             marks={variant.marks}
             onMove={onMove}
