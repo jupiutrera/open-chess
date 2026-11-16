@@ -131,7 +131,7 @@ export default function PlayLocal() {
 
   const turn = game.chess.turn()
   const orientation = (autoFlip ? turn === 'b' : false) !== flip ? 'black' : 'white'
-  const cap = useMemo(() => capturedPieces(game.fen), [game.fen])
+  const cap = useMemo(() => capturedPieces(game.fen, game.startFen), [game.fen, game.startFen])
   const numbering = useMemo(() => moveNumbering(game.startFen), [game.startFen])
 
   const bar = (c: 'w' | 'b') => (
@@ -213,10 +213,14 @@ export default function PlayLocal() {
 
   // before both sides have moved the game is dropped without a result, back to the setup
   const canAbort = game.moves.length < 2
-  const abort = () => {
+  // back to the setup screen, e.g. to pick another time control
+  const toSetup = () => {
     newGame()
     setSaved(null)
     setStarted(false)
+  }
+  const abort = () => {
+    toSetup()
     toast(t('play.aborted'))
   }
 
@@ -261,9 +265,19 @@ export default function PlayLocal() {
             </div>
             <div className="grid grid-cols-3 gap-2 border-t border-line p-3">
               {end ? (
-                <button className="btn btn-primary col-span-3" disabled={!savedId} onClick={() => savedId && nav(`/review/${savedId}`)}>
-                  {t('play.gameReview')}
-                </button>
+                <>
+                  <button className="btn btn-primary col-span-3" disabled={!savedId} onClick={() => savedId && nav(`/review/${savedId}`)}>
+                    {t('play.gameReview')}
+                  </button>
+                  <div className="col-span-3 grid grid-cols-2 gap-2">
+                    <button className="btn" onClick={newGame}>
+                      {t('play.rematch')}
+                    </button>
+                    <button className="btn" onClick={toSetup}>
+                      {t('play.newGame')}
+                    </button>
+                  </div>
+                </>
               ) : (
                 <>
                   <ActionButton
@@ -296,7 +310,8 @@ export default function PlayLocal() {
           onClose={() => setDialog(false)}
           onReview={() => savedId && nav(`/review/${savedId}`)}
           reviewReady={!!savedId}
-          onNew={newGame}
+          onRematch={newGame}
+          onNew={toSetup}
         />
       )}
       <Sheet open={!!confirm} onClose={() => setConfirm(null)} title={confirm === 'draw' ? t('play.draw') : t('play.resign')}>

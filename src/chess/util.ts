@@ -76,20 +76,39 @@ export function materialCount(chess: Chess, color: Color): number {
   return total
 }
 
-/** Captured pieces per side and the material difference, for the player bars. */
-export function capturedPieces(fen: string) {
-  const start: Record<string, number> = { p: 8, n: 2, b: 2, r: 2, q: 1 }
-  const count = { w: { ...start }, b: { ...start } } as Record<Color, Record<string, number>>
-  const board = fen.split(' ')[0]
-  const onBoard = { w: { p: 0, n: 0, b: 0, r: 0, q: 0 }, b: { p: 0, n: 0, b: 0, r: 0, q: 0 } } as Record<Color, Record<string, number>>
-  for (const ch of board) {
+const CAPTURABLE = ['q', 'r', 'b', 'n', 'p'] as const
+
+/** Non-king pieces of each colour on the board part of a FEN. */
+function pieceCounts(fen: string): Record<Color, Record<string, number>> {
+  const counts = { w: { p: 0, n: 0, b: 0, r: 0, q: 0 }, b: { p: 0, n: 0, b: 0, r: 0, q: 0 } } as Record<Color, Record<string, number>>
+  for (const ch of fen.split(' ')[0]) {
     const lower = ch.toLowerCase()
-    if (!'pnbrq'.includes(lower)) continue
-    onBoard[ch === lower ? 'b' : 'w'][lower]++
+    if ('pnbrq'.includes(lower)) counts[ch === lower ? 'b' : 'w'][lower]++
   }
-  const missing = (c: Color) =>
-    (['q', 'r', 'b', 'n', 'p'] as const).flatMap((p) => Array(Math.max(0, count[c][p] - onBoard[c][p])).fill(p) as string[])
-  const mat = (c: Color) => (['q', 'r', 'b', 'n', 'p'] as const).reduce((s, p) => s + onBoard[c][p] * PIECE_VALUE[p], 0)
+  return counts
+}
+
+/**
+ * Captured pieces per side and the material difference, for the player bars. Counted
+ * against the material of `startFen` (a custom position or a handicap challenge does not
+ * start from the full set), and a promoted piece's extra copy cancels the pawn it came
+ * from instead of showing that pawn as captured.
+ */
+export function capturedPieces(fen: string, startFen: string = START_FEN) {
+  const start = pieceCounts(startFen)
+  const now = pieceCounts(fen)
+  const missing = (c: Color) => {
+    let promoted = 0
+    for (const p of CAPTURABLE) if (p !== 'p') promoted += Math.max(0, now[c][p] - start[c][p])
+    const out: string[] = []
+    for (const p of CAPTURABLE) {
+      const lost = start[c][p] - now[c][p]
+      const count = p === 'p' ? lost - promoted : lost
+      for (let i = 0; i < count; i++) out.push(p)
+    }
+    return out
+  }
+  const mat = (c: Color) => CAPTURABLE.reduce((sum, p) => sum + now[c][p] * PIECE_VALUE[p], 0)
   return {
     // pieces white has captured = black pieces missing
     byWhite: missing('b'),

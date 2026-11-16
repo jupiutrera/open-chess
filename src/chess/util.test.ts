@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Chess } from 'chess.js'
-import { START_FEN, canMate, gameResultText, moveNumbering, normalizeFen, positionProblem, timeoutResult } from './util'
+import { START_FEN, canMate, capturedPieces, gameResultText, moveNumbering, normalizeFen, positionProblem, timeoutResult } from './util'
 
 describe('timeoutResult', () => {
   it('is a loss when the opponent has mating material', () => {
@@ -83,5 +83,41 @@ describe('moveNumbering', () => {
   })
   it('falls back to move 1 without counters', () => {
     expect(moveNumbering('4k3/8/8/8/8/8/8/R3K3 w - -')).toEqual({ startNumber: 1, blackFirst: false })
+  })
+})
+
+describe('capturedPieces', () => {
+  it('shows nothing captured at the start', () => {
+    expect(capturedPieces(START_FEN)).toEqual({ byWhite: [], byBlack: [], diff: 0 })
+  })
+  it('lists what is missing from the standard set', () => {
+    // white lost a knight and a pawn, black lost its queen
+    const c = capturedPieces('rnb1kbnr/pppppppp/8/8/8/8/PPPPPPP1/R1BQKBNR w KQkq - 0 1')
+    expect(c.byBlack).toEqual(['n', 'p'])
+    expect(c.byWhite).toEqual(['q'])
+    expect(c.diff).toBe(5)
+  })
+  it('counts against the start position given, not the full set', () => {
+    // a queen-less start: nothing has been captured yet
+    const queenless = 'rnb1kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    expect(capturedPieces(queenless).byWhite).toEqual(['q'])
+    expect(capturedPieces(queenless, queenless)).toEqual({ byWhite: [], byBlack: [], diff: 9 })
+    const endgame = '4k3/8/8/8/8/8/PPPP4/4K2R w - - 0 1'
+    expect(capturedPieces(endgame, endgame)).toEqual({ byWhite: [], byBlack: [], diff: 9 })
+  })
+  it('does not report a promoted pawn as captured', () => {
+    // a white pawn became a second queen: it was not captured
+    const fen = '4k3/8/8/8/8/8/PPPPPPP1/Q2QK3 w - - 0 1'
+    const c = capturedPieces(fen)
+    expect(c.byBlack).not.toContain('p')
+    expect(c.byBlack).toEqual(['r', 'r', 'b', 'b', 'n', 'n'])
+  })
+  it('still reports a pawn captured next to a promotion', () => {
+    // two white pawns gone, one of them promoted to a queen: one pawn was captured
+    const fen = '4k3/8/8/8/8/8/PPPPPP2/Q2QK3 w - - 0 1'
+    expect(capturedPieces(fen).byBlack.filter((p) => p === 'p')).toHaveLength(1)
+  })
+  it('keeps diff as the on-board material difference', () => {
+    expect(capturedPieces('4k3/8/8/8/8/8/8/4K2R w - - 0 1').diff).toBe(5)
   })
 })

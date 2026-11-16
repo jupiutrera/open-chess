@@ -249,6 +249,8 @@ function PlayBotGame({ bot }: { bot: Bot }) {
 
   const turn = game.chess.turn()
   const liveFen = game.fens[game.fens.length - 1]
+  // before both sides have moved, the game can be dropped without a result
+  const canAbort = game.moves.length < 2
 
   // autosave after every move, and when the page is hidden or left (clock times)
   const persist = useRef(() => {})
@@ -404,7 +406,9 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   }, [lastFeedback])
 
   const onUserMove = (from: string, to: string, promotion?: string) => {
-    if (!game.atLive || endRef.current) return
+    // a premove fires before the end-of-game effect has seen a repetition or 50-move draw
+    // the bot's reply just created: that game is over, so the move must not be played
+    if (!game.atLive || endRef.current || gameResultText(game.chess)) return
     const m = game.move(from, to, promotion)
     if (m) {
       setHint([])
@@ -423,7 +427,9 @@ function PlayBotGame({ bot }: { bot: Bot }) {
   }
 
   const takeback = () => {
-    if (endRef.current || thinking) return
+    if (endRef.current) return
+    // while the bot thinks only the user's last move is undone; the bot's search is stopped
+    // here and its effect is cancelled by the position change
     const n = turn === userColor ? 2 : 1
     if (game.moves.length < n) return
     sharedEngine().stop()
@@ -432,10 +438,11 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     challenge.truncate(game.moves.length - n)
     clock.setTurn(game.chess.turn())
     setHint([])
+    setBotFailed(false)
   }
 
   const offerDraw = async () => {
-    if (endRef.current || thinking || offering) return
+    if (endRef.current || thinking || offering || canAbort) return
     // Drawfish takes any draw
     if (rules?.acceptsDraws) {
       toast(t('play.drawAccepted'))
@@ -467,8 +474,6 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     void finish({ result: userColor === 'w' ? '0-1' : '1-0', reason: 'resign' })
   }
 
-  // before both sides have moved, the game can be dropped without a result
-  const canAbort = game.moves.length < 2
   // from then on a rated game counts: left unfinished, it is lost (see settlePending)
   useEffect(() => {
     const rival = bot.league
@@ -510,11 +515,20 @@ function PlayBotGame({ bot }: { bot: Bot }) {
     clock.reset()
     setUserColor(c)
     setOrientation(c === 'w' ? 'white' : 'black')
+    // the URL must name the new colour, or a reload before the first move would restart with the old one
+    setParams(
+      (p) => {
+        p.set('color', c)
+        p.delete('resume')
+        return p
+      },
+      { replace: true },
+    )
     void sharedEngine().newGame()
     play('start')
   }
 
-  const cap = useMemo(() => capturedPieces(game.fen), [game.fen])
+  const cap = useMemo(() => capturedPieces(game.fen, game.startFen), [game.fen, game.startFen])
   const numbering = useMemo(() => moveNumbering(game.startFen), [game.startFen])
   const lineSans = useMemo(() => (assist.engine ? help.lines.slice(0, 3).map((l) => uciLineToSan(game.fen, l.pv, 8).join(' ')) : []), [assist.engine, help.lines, game.fen])
   const botEdge = userColor === 'w' ? -cap.diff : cap.diff
@@ -678,7 +692,7 @@ function PlayBotGame({ bot }: { bot: Bot }) {
                     icon={<Handshake size={22} weight="bold" />}
                     label={t('play.draw')}
                     onClick={offerDraw}
-                    disabled={thinking || offering}
+                    disabled={thinking || offering || canAbort}
                     className={rated ? 'col-span-2' : ''}
                   />
                   {canAbort ? (

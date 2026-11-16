@@ -9,6 +9,7 @@ import { BOTS, BOT_GROUPS, botById, botName, type Bot } from './bots'
 const CHALLENGE_BOTS = BOTS.filter((b) => b.challenge)
 import { CHALLENGES, challengeClock } from './challenges'
 import { clearLiveGame, loadLiveGame } from './liveGame'
+import { ReplaceSavedSheet } from './ReplaceSaved'
 import { TimeControlPicker } from './TimeControlPicker'
 import { timeControl } from './timeControl'
 import { BotAvatar } from './BotAvatar'
@@ -334,17 +335,13 @@ export default function PlayHub() {
           {t('common.close')}
         </button>
       </Sheet>
-      <Sheet open={confirmNew} onClose={() => setConfirmNew(false)} title={t('play.newGame')}>
-        <p className="mb-4 text-fg-2">{t(liveRival ? 'league.replaceSaved' : 'play.replaceSaved', { name: liveBot ? botName(liveBot, lang) : '' })}</p>
-        <div className="grid grid-cols-2 gap-2">
-          <button className="btn" onClick={() => setConfirmNew(false)}>
-            {t('common.cancel')}
-          </button>
-          <button className="btn btn-primary" onClick={begin}>
-            {t('play.discard')}
-          </button>
-        </div>
-      </Sheet>
+      <ReplaceSavedSheet
+        open={confirmNew}
+        name={liveBot ? botName(liveBot, lang) : ''}
+        league={!!liveRival}
+        onCancel={() => setConfirmNew(false)}
+        onConfirm={begin}
+      />
     </div>
   )
 }

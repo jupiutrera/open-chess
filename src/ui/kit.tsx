@@ -186,9 +186,19 @@ export function Sheet({
   const box = useRef<HTMLDivElement>(null)
   useDismiss(open, onClose)
   useFocusTrap(box, open)
+  // closing needs the press to start on the backdrop too: selecting text in an input and releasing outside must not dismiss
+  const pressedBackdrop = useRef(false)
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/55 sm:items-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-40 flex items-end justify-center bg-black/55 sm:items-center"
+      onPointerDown={(e) => {
+        pressedBackdrop.current = e.target === e.currentTarget
+      }}
+      onClick={(e) => {
+        if (pressedBackdrop.current && e.target === e.currentTarget) onClose()
+      }}
+    >
       <div
         ref={box}
         role="dialog"
