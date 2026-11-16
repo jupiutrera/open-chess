@@ -29,6 +29,8 @@ export interface VideoGame {
   fens: string[]
   moves: { from: string; to: string; san: string }[]
   qualities: Quality[]
+  /** win% each move lost for its mover (like `qualities`, by move); picks the moments of a short clip */
+  losses?: number[]
   /** win% for White, one per position; empty hides the eval bar */
   curve: number[]
   orientation: 'white' | 'black'

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Segmented, Sheet, Toggle, toast } from '../../../ui/kit'
 import { useSettings } from '../../../settings'
-import { fmtDecimal } from '../../../i18n/format'
+import { fmtDecimal, localDay } from '../../../i18n/format'
 import { saveBlobFile } from '../../../ui/files'
 import type { GameRow } from '../../../db/db'
 import type { ParsedGame } from '../analyze'
@@ -61,7 +61,7 @@ export function VideoExport({
     const review = game.review
     if (!review) return
     // named before recording: a bad date must not cost the finished clip
-    const day = Number.isFinite(game.date) ? new Date(game.date).toISOString().slice(0, 10) : 'game'
+    const day = Number.isFinite(game.date) ? localDay(game.date) : 'game'
     const name = `${whiteName}-${blackName}-${day}`.replace(/[^\p{L}\p{N}-]+/gu, '_')
     const ctrl = new AbortController()
     abort.current = ctrl
@@ -78,6 +78,7 @@ export function VideoExport({
       fens: parsed.fens,
       moves: parsed.moves,
       qualities: review.moves.map((m) => m.quality),
+      losses: review.moves.map((m) => m.loss),
       curve: review.curve,
       orientation,
     }

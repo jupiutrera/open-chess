@@ -1,4 +1,5 @@
 import { useSettings } from '../../settings'
+import { epd } from '../../chess/util'
 
 export interface ExplorerMove {
   uci: string
@@ -33,6 +34,7 @@ export class ExplorerError extends Error {
 /** Lichess asks clients to wait a minute after a 429. */
 export const RATE_LIMIT_BACKOFF = 60_000
 
+// keyed by position without move counters, so a transposition reuses the answer
 const cache = new Map<string, ExplorerResult>()
 let blockedUntil = 0
 
@@ -44,12 +46,12 @@ export function explorerErrorKind(status: number): ExplorerErrorKind {
 
 /** A result already fetched this session, for showing it without waiting. */
 export function cachedExplorer(fen: string, source: ExplorerDb): ExplorerResult | undefined {
-  return cache.get(`${source}|${fen}`)
+  return cache.get(`${source}|${epd(fen)}`)
 }
 
 /** Lichess opening explorer. Throws an ExplorerError (or an AbortError) so the UI can say why it fell back. */
 export async function fetchExplorer(fen: string, source: ExplorerDb, signal?: AbortSignal): Promise<ExplorerResult> {
-  const key = `${source}|${fen}`
+  const key = `${source}|${epd(fen)}`
   const hit = cache.get(key)
   if (hit) return hit
   const token = useSettings.getState().lichessToken.trim()

@@ -49,6 +49,11 @@ export function useAnalysis(fen: string, enabled: boolean, multipv = 3, maxDepth
       setState({ fen, lines: latest.l, depth: latest.d, done })
     }
     const timer = setTimeout(() => {
+      // a crashed worker is replaced instead of failing every later search
+      if (engine.current?.failed) {
+        engine.current.destroy()
+        engine.current = new Engine()
+      }
       void engine.current
         ?.search(fen, {
           depth: maxDepth,

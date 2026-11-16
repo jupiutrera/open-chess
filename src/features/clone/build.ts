@@ -58,7 +58,7 @@ function archiveMonth(url: string): { from: number; to: number } | null {
   return { from: Date.UTC(Number(m[1]), Number(m[2]) - 1, 1), to: Date.UTC(Number(m[1]), Number(m[2]), 1) }
 }
 
-async function fetchGames(
+export async function fetchGames(
   opts: BuildOptions,
   range: { from: number; to: number },
   signal: AbortSignal,
@@ -94,8 +94,9 @@ async function fetchGames(
   let until: number | undefined = range.to
   while (until) {
     const page = await lichessGames(opts.username, until, signal, 50)
-    // an empty page, or one that does not move back in time, ends it
-    if (!page.games.length || (page.next !== undefined && page.next >= until)) return out
+    // a page that does not move back in time ends it. An empty one does not: a full page of variant
+    // games parses to nothing, yet `next` says there are older games (it is unset only on the last page)
+    if (page.next !== undefined && page.next >= until) return out
     for (const g of page.games) {
       if (g.date < range.from) return out
       const game = fromRemote(g, opts.username)
@@ -103,6 +104,8 @@ async function fetchGames(
       if (out.length >= MAX_GAMES) return out
     }
     report()
+    // everything left is older than the period
+    if (page.next !== undefined && page.next < range.from) return out
     until = page.next
   }
   return out

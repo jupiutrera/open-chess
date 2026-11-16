@@ -30,10 +30,10 @@ export interface GameFilter {
 
 export const NO_FILTER: GameFilter = { source: 'all', result: 'all', color: 'all', speed: 'all', query: '' }
 
-/** The game's result for the user; draws are draws whoever played, wins and losses need the user's side. */
+/** The game's result for the user; a game without the user's side (someone else's, imported) has none, draws included. */
 export function gameOutcome(g: Pick<GameRow, 'result' | 'userColor'>): Outcome | null {
-  if (g.result === '1/2-1/2') return 'draw'
   if (!g.userColor || g.result === '*') return null
+  if (g.result === '1/2-1/2') return 'draw'
   return (g.result === '1-0') === (g.userColor === 'w') ? 'win' : 'loss'
 }
 

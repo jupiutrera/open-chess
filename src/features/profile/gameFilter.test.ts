@@ -19,7 +19,9 @@ describe('gameOutcome', () => {
   it('reads the result from the user side', () => {
     expect(gameOutcome(g({}))).toBe('win')
     expect(gameOutcome(g({ userColor: 'b' }))).toBe('loss')
-    expect(gameOutcome(g({ result: '1/2-1/2', userColor: undefined }))).toBe('draw')
+    expect(gameOutcome(g({ result: '1/2-1/2' }))).toBe('draw')
+    // someone else's draw is not the user's draw
+    expect(gameOutcome(g({ result: '1/2-1/2', userColor: undefined }))).toBeNull()
     expect(gameOutcome(g({ userColor: undefined }))).toBeNull()
     expect(gameOutcome(g({ result: '*' }))).toBeNull()
   })
@@ -37,6 +39,11 @@ describe('gameMatcher', () => {
     expect(gameMatcher({ ...NO_FILTER, result: 'loss' })(g({}))).toBe(false)
     expect(gameMatcher({ ...NO_FILTER, result: 'win', color: 'w' })(g({}))).toBe(true)
     expect(gameMatcher({ ...NO_FILTER, color: 'b' })(g({}))).toBe(false)
+  })
+  it('the draw filter leaves out games without a user side, as win and loss do', () => {
+    const draws = gameMatcher({ ...NO_FILTER, result: 'draw' })
+    expect(draws(g({ result: '1/2-1/2' }))).toBe(true)
+    expect(draws(g({ result: '1/2-1/2', userColor: undefined }))).toBe(false)
   })
   it('searches names and opening ignoring case and accents', () => {
     expect(gameMatcher({ ...NO_FILTER, query: 'martin' })(g({}))).toBe(true)

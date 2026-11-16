@@ -11,7 +11,12 @@ import { useSettings } from '../../settings'
 export default function PuzzlesHub() {
   const { t } = useTranslation()
   const rating = useLiveQuery(() => getPuzzleRating(), [])
-  const solved = useLiveQuery(() => db.puzzleAttempts.filter((a) => a.solved && !a.deleted).count(), [])
+  // distinct puzzles: solving the same one three times is still one
+  const solved = useLiveQuery(async () => {
+    const ids = new Set<string>()
+    await db.puzzleAttempts.filter((a) => a.solved && !a.deleted).each((a) => ids.add(a.puzzleId))
+    return ids.size
+  }, [])
   const rush = useLiveQuery(() => kvGet<Record<string, number>>('rushBest', {}), [])
   const lang = useSettings((s) => s.lang)
   // last rated attempts: the history list and the current run of solved puzzles

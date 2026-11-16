@@ -9,6 +9,7 @@ import { GameRowItem } from './GameRowItem'
 import { gameMatcher, NO_FILTER, SPEEDS, type GameFilter } from './gameFilter'
 import { gamesPgn } from '../review/pgnExport'
 import { playerName } from '../play/playerName'
+import { localDay } from '../../i18n/format'
 import { saveTextFile } from '../../ui/files'
 
 const PAGE = 50
@@ -43,7 +44,7 @@ export default function Games() {
   const exportPgn = async () => {
     try {
       const all = await db.games.orderBy('date').reverse().filter(match).toArray()
-      if (all.length) await saveTextFile(`open-chess-${new Date().toISOString().slice(0, 10)}.pgn`, gamesPgn(all), 'application/x-chess-pgn')
+      if (all.length) await saveTextFile(`open-chess-${localDay()}.pgn`, gamesPgn(all), 'application/x-chess-pgn')
     } catch {
       toast(t('common.error'), 'error')
     }

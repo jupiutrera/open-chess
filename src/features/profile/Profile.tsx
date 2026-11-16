@@ -11,7 +11,7 @@ import { RatingChart } from './RatingChart'
 import { useSettings } from '../../settings'
 import { exportBackup, importBackup, signInWithEmail, signInWithGoogle, signOut, syncConfigured, syncNow, useSync } from '../../sync/sync'
 import { saveTextFile } from '../../ui/files'
-import { fmtDecimal } from '../../i18n/format'
+import { fmtDecimal, localDay } from '../../i18n/format'
 import { PieceIcon } from '../../board/QualityIcon'
 import { gameOutcome, gameSpeed, SPEEDS, type Outcome } from './gameFilter'
 
@@ -24,11 +24,12 @@ export default function Profile() {
   const data = useLiveQuery(async () => {
     // rows are streamed with each() and reduced to a few numbers, so the PGNs and
     // reviews of every game are never held in memory at once
-    let solved = 0
+    // distinct puzzles, as in the puzzles hub
+    const solvedIds = new Set<string>()
     const history: { date: number; rating: number }[] = []
     const attemptsDone = db.puzzleAttempts.orderBy('date').each((a) => {
       if (a.deleted) return
-      if (a.solved) solved++
+      if (a.solved) solvedIds.add(a.puzzleId)
       if (a.ratingAfter !== undefined) history.push({ date: a.date, rating: a.ratingAfter })
     })
     let gamesPlayed = 0
@@ -41,8 +42,9 @@ export default function Profile() {
     const byOpening = new Map<string, { n: number; points: number; accSum: number; accN: number; color: 'w' | 'b' }>()
     const gamesDone = db.games.each((g) => {
       if (g.deleted) return
-      gamesPlayed++
       const uc = g.userColor
+      // imported games of other players have no side and are not the user's; two-player games on this device are
+      if (uc || g.source === 'local') gamesPlayed++
       if (!uc) return
       const acc = g.review ? (uc === 'w' ? g.review.accuracy.white : g.review.accuracy.black) : null
       if (acc !== null) {
@@ -83,7 +85,7 @@ export default function Profile() {
       .slice(0, 10)
     return {
       rating: rating.rating,
-      solved,
+      solved: solvedIds.size,
       gamesPlayed,
       avgAcc: accN ? accSum / accN : null,
       // the Puzzle Streak record shares the rushBest row but isn't a Rush score
@@ -276,7 +278,7 @@ function BackupPanel() {
   const { t } = useTranslation()
   const download = async () => {
     try {
-      await saveTextFile(`open-chess-${new Date().toISOString().slice(0, 10)}.json`, await exportBackup(), 'application/json')
+      await saveTextFile(`open-chess-${localDay()}.json`, await exportBackup(), 'application/json')
     } catch {
       // saveTextFile already ignores the share sheet being closed
       toast(t('common.error'), 'error')

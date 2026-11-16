@@ -14,6 +14,20 @@ describe('video timeline', () => {
     expect(shownPlies(q('good', 'best'), 'key')).toEqual([1, 2])
   })
 
+  it('keeps the most relevant key moments, in game order, when there are too many', () => {
+    // 20 mistakes with growing losses, plus one brilliant move at the very end
+    const many: Quality[] = [...Array<Quality>(20).fill('mistake'), 'brilliant']
+    const losses = [...many.map((_, i) => 10 + i), 0]
+    const plies = shownPlies(many, 'key', losses)
+    expect(plies).toHaveLength(12)
+    // the brilliant ending is kept (weight 30), the 11 biggest losses fill the rest
+    expect(plies.at(-1)).toBe(21)
+    expect(plies).toEqual([...plies].sort((a, b) => a - b))
+    expect(plies.slice(0, -1)).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+    // without losses, the earliest of equals win
+    expect(shownPlies(many, 'key')).toHaveLength(12)
+  })
+
   it('opens with a title, closes with the result, and holds key moments longer', () => {
     const beats = buildTimeline(game, 'all', 'normal')
     expect(beats[0].kind).toBe('intro')

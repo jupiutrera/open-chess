@@ -4,6 +4,7 @@ import type { EntityTable } from 'dexie'
 import i18n from 'i18next'
 import { db, SYNC_TABLES, type SyncRow } from '../db/db'
 import { mergeRow } from './merge'
+import { readBackupClones } from './backup'
 import { serialRunner } from './runner'
 import { backupSettings, settingsPatch, useSettings } from '../settings'
 
@@ -247,16 +248,17 @@ function clearDeviceState() {
   useSettings.getState().set({ lichessToken: '' })
 }
 
-/** Full local backup as JSON (works without an account): live rows plus settings, without the Lichess token. */
+/** Full local backup as JSON (works without an account): live rows, clones and settings, without the Lichess token. */
 export async function exportBackup(): Promise<string> {
   const out: Record<string, unknown[]> = {}
   for (const name of SYNC_TABLES) out[name] = await table(name).filter((r) => !r.deleted).toArray()
-  return JSON.stringify({ app: 'open-chess', version: 1, exportedAt: Date.now(), tables: out, settings: backupSettings() })
+  // clones are local only (never synced), so the backup is the only copy that travels
+  return JSON.stringify({ app: 'open-chess', version: 1, exportedAt: Date.now(), tables: out, clones: await db.clones.toArray(), settings: backupSettings() })
 }
 
 /** Restores a backup in one transaction (a bad file changes nothing); newer local rows are kept. */
 export async function importBackup(json: string) {
-  const parsed = JSON.parse(json) as { app?: string; tables?: Record<string, unknown>; settings?: unknown }
+  const parsed = JSON.parse(json) as { app?: string; tables?: Record<string, unknown>; clones?: unknown; settings?: unknown }
   if (parsed?.app !== 'open-chess' || typeof parsed.tables !== 'object' || !parsed.tables) throw new Error('not an Open Chess backup')
   const rows = new Map<string, SyncRow[]>()
   for (const name of SYNC_TABLES) {
@@ -265,7 +267,11 @@ export async function importBackup(json: string) {
     for (const r of list as SyncRow[]) if (typeof r?.id !== 'string' || typeof r.updatedAt !== 'number') throw new Error(`bad row in ${name}`)
     rows.set(name, list as SyncRow[])
   }
-  await db.transaction('rw', SYNC_TABLES.map(table), async () => {
+  const clones = readBackupClones(parsed.clones)
+  await db.transaction('rw', [...SYNC_TABLES.map(table), db.clones], async () => {
+    // clones carry no updatedAt: a rebuilt (newer) local one wins over the backup's copy
+    const localClones = await db.clones.bulkGet(clones.map((c) => c.id))
+    await db.clones.bulkPut(clones.filter((c, i) => !localClones[i] || localClones[i]!.createdAt < c.createdAt))
     for (const [name, list] of rows) {
       const local = await table(name).bulkGet(list.map((r) => r.id))
       const write = list.flatMap((row, i) => {

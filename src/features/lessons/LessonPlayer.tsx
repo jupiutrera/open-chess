@@ -5,7 +5,7 @@ import { Chess } from 'chess.js'
 import { CheckCircle, XCircle, ArrowRight, ArrowCounterClockwise, GraduationCap, Lightbulb } from '@phosphor-icons/react'
 import { Board } from '../../board/Board'
 import { BoardLayout } from '../../board/BoardLayout'
-import { Panel } from '../../ui/kit'
+import { Panel, toast } from '../../ui/kit'
 import { LESSONS, type LessonStep } from './lessonData'
 import { useSettings } from '../../settings'
 import { parseUci, playUci } from '../../chess/util'
@@ -85,6 +85,17 @@ export default function LessonPlayer() {
     if (!step || step.kind !== 'practice') return
     setState('thinking')
     const mine = round.current
+    try {
+      await engineMove(step, mine)
+    } catch {
+      // a crashed engine must not leave the board waiting: fail the try so Retry restarts the step
+      if (mine !== round.current) return
+      toast(t('common.error'), 'error')
+      setState('failed')
+    }
+  }
+
+  const engineMove = async (step: Extract<LessonStep, { kind: 'practice' }>, mine: number) => {
     const r = await sharedEngine().search(chess.current.fen(), { movetime: 350, elo: step.elo })
     if (!r.bestmove || mine !== round.current) return
     const m = playUci(chess.current, r.bestmove)
@@ -96,6 +107,12 @@ export default function LessonPlayer() {
     if (chess.current.isGameOver()) {
       // a draw the engine's move forces still meets a draw goal; being mated never does
       if (step.goal === 'draw' && !chess.current.isCheckmate()) return stepComplete()
+      play('wrong')
+      setState('failed')
+      return
+    }
+    // a promote goal with no pawn left (captured, or promoted somewhere it does not count) cannot be met
+    if (step.goal === 'promote' && !chess.current.board().some((row) => row.some((sq) => sq?.type === 'p' && sq.color === solver))) {
       play('wrong')
       setState('failed')
       return

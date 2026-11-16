@@ -124,6 +124,9 @@ export function gameAccuracy(whiteWins: number[], firstMover: 'w' | 'b' = 'w'): 
   return { white: combine(acc.w, wts.w), black: combine(acc.b, wts.b) }
 }
 
+/** Fewer moves than this say too little about a player: a short game's accuracy would read as a 3200 rating. */
+export const MIN_RATED_MOVES = 10
+
 /** Rough performance estimate from accuracy, shown as an estimate only. */
 export function estimateRating(accuracy: number): number {
   const table: [number, number][] = [
