@@ -5,6 +5,7 @@ import { ArrowsClockwise, Info, Play } from '@phosphor-icons/react'
 import { PageHeader, Panel, Segmented, SkeletonText, toast } from '../../ui/kit'
 import { BotAvatar } from '../play/BotAvatar'
 import { clearLiveGame, loadLiveGame } from '../play/liveGame'
+import { useReplaceSaved } from '../play/ReplaceSaved'
 import { timeControl } from '../play/timeControl'
 import {
   LEAGUE_CLOCKS,
@@ -98,10 +99,13 @@ function LeagueHome({ league }: { league: LeagueState }) {
   const live = loadLiveGame('bot')
   const liveRival = live?.botId ? parseRivalId(live.botId) : null
 
-  const play = (r: Rival) => {
-    clearLiveGame('bot')
-    nav(`/play/bot/${rivalId(r)}?${new URLSearchParams({ color: 'r', tc })}`)
-  }
+  // a saved game against a normal bot or a clone is only replaced after asking
+  const { guard, sheet } = useReplaceSaved()
+  const play = (r: Rival) =>
+    guard(rivalId(r), () => {
+      clearLiveGame('bot')
+      nav(`/play/bot/${rivalId(r)}?${new URLSearchParams({ color: 'r', tc })}`)
+    })
   const overall = record(league.games)
 
   return (
@@ -128,6 +132,7 @@ function LeagueHome({ league }: { league: LeagueState }) {
 
       <RecentRivals games={league.games} rating={rating} onRematch={liveRival ? undefined : (r) => play(meetAgain(r, rating))} />
       <History games={league.games} />
+      {sheet}
     </>
   )
 }

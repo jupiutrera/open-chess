@@ -36,8 +36,16 @@ export const i18nReady = i18n
   .then(() => i18n.changeLanguage(initial))
   .catch(() => undefined)
 
+async function applyLang() {
+  const lang = useSettings.getState().lang
+  await ensureLang(lang)
+  // the user may have picked another language while this chunk loaded: only the latest pick wins
+  if (useSettings.getState().lang === lang) await i18n.changeLanguage(lang)
+}
+
 useSettings.subscribe((s) => {
-  if (i18n.language !== s.lang) void ensureLang(s.lang).then(() => i18n.changeLanguage(s.lang))
+  // a chunk that fails to load (offline) leaves the current language in place
+  if (i18n.language !== s.lang) void applyLang().catch(() => undefined)
 })
 
 export default i18n

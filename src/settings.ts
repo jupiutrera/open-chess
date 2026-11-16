@@ -148,6 +148,12 @@ export function useResolvedTheme(): 'dark' | 'light' {
   return choice === 'system' ? (systemLight ? 'light' : 'dark') : choice
 }
 
+/** Puts the stored settings on <html> before the first render, so a light theme never flashes dark. */
+export function applyInitialDocumentSettings() {
+  const s = useSettings.getState()
+  applyDocumentSettings({ ...s, theme: s.theme === 'system' ? (lightQuery()?.matches ? 'light' : 'dark') : s.theme })
+}
+
 export function applyDocumentSettings(s: Pick<Settings, 'board' | 'lang' | 'pieces' | 'highContrast'> & { theme: 'dark' | 'light' }) {
   const root = document.documentElement
   root.dataset.theme = s.theme

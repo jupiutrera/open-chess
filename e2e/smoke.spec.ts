@@ -173,6 +173,116 @@ test('navigating names the tab and focuses the new heading', { tag: '@mobile' },
   await expect(page).toHaveTitle('Puzzles · Open Chess')
 })
 
+/** A bot game left in the middle, as the app saves it. */
+const savedPipGame = JSON.stringify({ kind: 'bot', botId: 'pip', userColor: 'w', tc: 'none', sans: ['e4', 'e5'], savedAt: Date.now() })
+
+test('a new page starts at the top and going back returns to where the old one was left', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 400 })
+  await page.goto('/#/settings')
+  await expect(page.locator('main h1')).toBeVisible()
+  const main = page.locator('main')
+  const scrollTop = () => main.evaluate((el) => Math.round(el.scrollTop))
+  await main.evaluate((el) => (el.scrollTop = 150))
+  await expect.poll(scrollTop).toBe(150)
+
+  await page.locator('nav a:visible', { hasText: /^Puzzles$/ }).click()
+  await expect(page.locator('main h1')).toHaveText('Puzzles')
+  await expect.poll(scrollTop).toBe(0)
+
+  await page.goBack()
+  await expect(page.locator('main h1')).toHaveText('Settings')
+  await expect.poll(scrollTop).toBe(150)
+})
+
+test('the league asks before it replaces a saved bot game', async ({ page }) => {
+  await page.goto('/#/league')
+  await page.getByRole('button', { name: /Club level/ }).click()
+  await expect(page.getByTestId('rival-name')).toBeVisible()
+  await page.evaluate((g) => localStorage.setItem('oc-live-bot', g), savedPipGame)
+  await page.reload()
+
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
+  const sheet = page.getByRole('dialog')
+  await expect(sheet).toContainText('You have an unfinished game against Pip')
+  await sheet.getByRole('button', { name: 'Cancel' }).click()
+  await expect(page).toHaveURL(/#\/league/)
+  expect(await page.evaluate(() => localStorage.getItem('oc-live-bot'))).not.toBeNull()
+
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Discard' }).click()
+  await expect(page).toHaveURL(/#\/play\/bot\/league-/)
+  expect(await page.evaluate(() => localStorage.getItem('oc-live-bot'))).toBeNull()
+})
+
+test('a clone asks before replacing a saved game against another bot, and continues its own', async ({ page }) => {
+  await page.goto('/#/clones')
+  await expect(page.locator('main h1')).toHaveText('Clones')
+  await seed(page, 'clones', [
+    { id: 'e2e', name: 'Friend', source: 'lichess', username: 'friend', period: 'year', createdAt: Date.now(), games: 12, elo: 1500, book: {} },
+  ])
+  await page.evaluate((g) => localStorage.setItem('oc-live-bot', g), savedPipGame)
+  await page.reload()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
+  await expect(page.getByRole('dialog')).toContainText('You have an unfinished game against Pip')
+  await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click()
+  await expect(page).toHaveURL(/#\/clones/)
+
+  // the saved game is against this clone: Continue goes straight back to it
+  await page.evaluate((g) => localStorage.setItem('oc-live-bot', g.replace('"pip"', '"clone-e2e"')), savedPipGame)
+  await page.reload()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page).toHaveURL(/#\/play\/bot\/clone-e2e\?.*resume=1/)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+})
+
+test('after a finished game the panel offers a rematch, against a bot and between two players', async ({ page }) => {
+  await page.goto('/#/play/bot/pip?color=w&tc=none&eval=0')
+  await expect(page.locator('cg-board')).toBeVisible()
+  const moves = page.locator('.tabular button:visible')
+  await move(page, 'e2', 'e4')
+  await expect(moves).toHaveCount(2, { timeout: 20_000 })
+  await page.getByRole('button', { name: /Resign/ }).first().click()
+  await page.getByRole('dialog').getByRole('button', { name: /Resign/ }).click()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Rematch' }).click()
+  // the colours swap, and the address says so before anyone moves: a reload keeps the new side
+  await expect(page).toHaveURL(/color=b/)
+  await expect(page).not.toHaveURL(/resume=1/)
+  await expect(moves).toHaveCount(1, { timeout: 20_000 })
+
+  await page.goto('/#/play/local')
+  await page.getByRole('button', { name: 'Start' }).click()
+  await move(page, 'e2', 'e4')
+  // the board only takes Black's move once it has White's
+  await expect(moves).toHaveCount(1)
+  await move(page, 'e7', 'e5')
+  await expect(moves).toHaveCount(2)
+  await page.getByRole('button', { name: /Resign/ }).first().click()
+  await page.getByRole('dialog').getByRole('button', { name: /Resign/ }).click()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Rematch' }).click()
+  await expect(moves).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Resign' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Abort' })).toBeVisible()
+})
+
+test('a takeback while the bot thinks undoes the move and cancels the reply', async ({ page }) => {
+  await page.goto('/#/play/bot/pip?color=w&tc=none&eval=0')
+  await expect(page.locator('cg-board')).toBeVisible()
+  const moves = page.locator('.tabular button:visible')
+  await move(page, 'e2', 'e4')
+  await expect(moves).toHaveCount(1)
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(moves).toHaveCount(0)
+  // the bot had a search under way: its reply must not land on the position we went back to
+  await page.waitForTimeout(2000)
+  await expect(moves).toHaveCount(0)
+  await move(page, 'd2', 'd4')
+  await expect(moves).toHaveCount(2, { timeout: 20_000 })
+})
+
 test('a bot game starts without scrolling and the bot never talks over the board', { tag: '@mobile' }, async ({ page }) => {
   // a small phone: the whole setup has to fit above the bottom bar
   await page.setViewportSize({ width: 360, height: 640 })

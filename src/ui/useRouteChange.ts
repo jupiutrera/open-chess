@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigationType } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 /** Tab title per section, from the first path segment; sub-screens share their section's name. */
@@ -14,6 +14,66 @@ const SECTION_TITLE: Record<string, string> = {
   import: 'nav.import',
   profile: 'nav.profile',
   settings: 'nav.settings',
+  league: 'league.title',
+  training: 'training.title',
+  clones: 'clone.title',
+}
+
+/**
+ * <main> is the one scroll container of every route, so it keeps its scroll position across pages:
+ * a new page starts at the top, back/forward return to where that history entry was left.
+ */
+function useScrollRestoration(main: RefObject<HTMLElement | null>) {
+  const { pathname, key } = useLocation()
+  const navType = useNavigationType()
+  // scrollTop per history entry (location.key)
+  const positions = useRef(new Map<string, number>())
+  const shown = useRef({ key, pathname })
+  // true while a restore is still waiting for the page to be tall enough: the clamped scroll it causes isn't a position to keep
+  const restoring = useRef(false)
+
+  useEffect(() => {
+    const box = main.current
+    if (!box) return
+    const onScroll = () => {
+      if (!restoring.current) positions.current.set(shown.current.key, box.scrollTop)
+    }
+    box.addEventListener('scroll', onScroll, { passive: true })
+    return () => box.removeEventListener('scroll', onScroll)
+  }, [main])
+
+  // a layout effect, so the old page's offset never shows under the new page
+  useLayoutEffect(() => {
+    const prev = shown.current
+    if (prev.key === key) return
+    shown.current = { key, pathname }
+    const box = main.current
+    if (!box) return
+    if (prev.pathname === pathname) {
+      // only the query changed (a replace): same screen, the entry keeps the position it had
+      const kept = positions.current.get(prev.key)
+      if (kept !== undefined) positions.current.set(key, kept)
+      return
+    }
+    const target = navType === 'POP' ? (positions.current.get(key) ?? 0) : 0
+    positions.current.set(key, target)
+    box.scrollTop = target
+    if (!target) return
+    // lazy screens are shorter than their saved offset until they have rendered: try again for a few frames
+    restoring.current = true
+    let frames = 0
+    let raf = 0
+    const apply = () => {
+      box.scrollTop = target
+      if (Math.abs(box.scrollTop - target) < 2 || ++frames > 40) restoring.current = false
+      else raf = requestAnimationFrame(apply)
+    }
+    raf = requestAnimationFrame(apply)
+    return () => {
+      cancelAnimationFrame(raf)
+      restoring.current = false
+    }
+  }, [key, pathname, navType, main])
 }
 
 /**
@@ -24,6 +84,7 @@ export function useRouteChange(main: RefObject<HTMLElement | null>) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const section = pathname.split('/')[1] ?? ''
+  useScrollRestoration(main)
 
   // a layout effect, so a page's own passive effect (NotFound) can still override it
   useLayoutEffect(() => {

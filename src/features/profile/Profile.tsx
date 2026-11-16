@@ -277,9 +277,9 @@ function BackupPanel() {
   const download = async () => {
     try {
       await saveTextFile(`open-chess-${new Date().toISOString().slice(0, 10)}.json`, await exportBackup(), 'application/json')
-    } catch (e) {
-      // closing the share sheet rejects too; only real failures are worth a message
-      if (!/cancel/i.test(String((e as Error)?.message ?? e))) toast(t('common.error'), 'error')
+    } catch {
+      // saveTextFile already ignores the share sheet being closed
+      toast(t('common.error'), 'error')
     }
   }
   return (

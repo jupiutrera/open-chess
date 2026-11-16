@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ArrowsClockwise, Trash, UsersThree } from '@phosphor-icons/react'
@@ -8,6 +8,8 @@ import { db, type CloneRow } from '../../db/db'
 import { sharedEngine } from '../../engine/engine'
 import { fmtDecimal } from '../../i18n/format'
 import { BotAvatar } from '../play/BotAvatar'
+import { loadLiveGame, type LiveGame } from '../play/liveGame'
+import { useReplaceSaved } from '../play/ReplaceSaved'
 import { NotFoundError, RateLimitError } from '../import/sources'
 import { NoGamesError, buildClone, type BuildOptions, type BuildProgress } from './build'
 import { PERIODS, cloneBot, errorRates, favourites, type ClonePeriod, type CloneSource } from './clone'
@@ -35,6 +37,10 @@ export default function CloneManager() {
   const [error, setError] = useState<string | null>(null)
   const [removing, setRemoving] = useState<CloneRow | null>(null)
   const abort = useRef<AbortController | null>(null)
+  const nav = useNavigate()
+  // playing a clone starts a new game: a saved one against another bot is only replaced after asking
+  const { guard, sheet: replaceSheet } = useReplaceSaved()
+  const [saved] = useState(() => loadLiveGame('bot'))
 
   const pickSource = (s: CloneSource) => {
     setSource(s)
@@ -153,6 +159,8 @@ export default function CloneManager() {
                   key={c.id}
                   clone={c}
                   busy={busy}
+                  saved={saved}
+                  onPlay={(to) => guard(`clone-${c.id}`, () => nav(to))}
                   onUpdate={() => void run({ source: c.source, username: c.username, period: c.period, name: c.name, id: c.id })}
                   onDelete={() => setRemoving(c)}
                 />
@@ -161,6 +169,7 @@ export default function CloneManager() {
           )}
         </section>
       </div>
+      {replaceSheet}
       <Sheet open={!!removing} onClose={() => setRemoving(null)} title={t('clone.deleteTitle')}>
         <p className="mb-4 text-fg-2">{t('clone.deleteConfirm', { name: removing?.name ?? '' })}</p>
         <div className="grid grid-cols-2 gap-2">
@@ -182,9 +191,29 @@ export default function CloneManager() {
   )
 }
 
-function CloneCard({ clone, busy, onUpdate, onDelete }: { clone: CloneRow; busy: boolean; onUpdate: () => void; onDelete: () => void }) {
+function CloneCard({
+  clone,
+  busy,
+  saved,
+  onPlay,
+  onUpdate,
+  onDelete,
+}: {
+  clone: CloneRow
+  busy: boolean
+  /** the saved bot game, if any */
+  saved: LiveGame | null
+  onPlay: (to: string) => void
+  onUpdate: () => void
+  onDelete: () => void
+}) {
   const { t } = useTranslation()
   const bot = cloneBot(clone, '')
+  // the game saved against this very clone is continued, not replaced
+  const resuming = saved?.botId === bot.id
+  const playUrl = resuming
+    ? `/play/bot/${bot.id}?${new URLSearchParams({ tc: saved.tc, color: saved.userColor ?? 'w', resume: '1' })}`
+    : `/play/bot/${bot.id}`
   const fav = favourites(clone.book)
   const rates = errorRates(clone.errors)
   return (
@@ -210,9 +239,9 @@ function CloneCard({ clone, busy, onUpdate, onDelete }: { clone: CloneRow; busy:
         />
       </dl>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Link to={`/play/bot/${bot.id}`} className="btn btn-primary">
-          {t('clone.play')}
-        </Link>
+        <button className="btn btn-primary" onClick={() => onPlay(playUrl)}>
+          {resuming ? t('play.continue') : t('clone.play')}
+        </button>
         <button className="btn" onClick={onUpdate} disabled={busy}>
           <ArrowsClockwise size={18} weight="bold" /> {t('clone.update')}
         </button>

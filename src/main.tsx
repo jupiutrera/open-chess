@@ -7,6 +7,10 @@ import { App } from './App'
 import { Capacitor } from '@capacitor/core'
 import { useUpdate } from './ui/UpdateBanner'
 import { reloadOnce } from './ui/ErrorBoundary'
+import { applyInitialDocumentSettings } from './settings'
+
+// before waiting for the language chunk: App only applies the theme after its first render
+applyInitialDocumentSettings()
 
 // a lazy screen whose chunk vanished with a new deploy: reload once onto the new version
 window.addEventListener('vite:preloadError', (e) => {

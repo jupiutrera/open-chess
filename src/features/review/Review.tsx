@@ -240,7 +240,7 @@ export default function Review() {
   const result = (h.Result ?? game.result) as '1-0' | '0-1' | '1/2-1/2' | '*'
   const outcome = ply === total && !variation && !retry && !lineView && result !== '*' ? { result, reason: endReason(h.Termination, fen) } : null
 
-  const cap = capturedPieces(fen)
+  const cap = capturedPieces(fen, parsed.startFen)
   const bot = game.botId ? botById(game.botId) : undefined
   // chess.js fills missing headers with "?": the names stored with the game are better then
   const header = (v: string | undefined) => (v && v !== '?' ? v : undefined)

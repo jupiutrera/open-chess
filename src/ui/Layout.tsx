@@ -22,6 +22,8 @@ export function Layout() {
   const location = useLocation()
   const [moreOpen, setMoreOpen] = useState(false)
   useDismiss(moreOpen, () => setMoreOpen(false))
+  // browser back/forward changes the page without going through the menu's links
+  useEffect(() => setMoreOpen(false), [location.pathname])
   const moreButton = useRef<HTMLButtonElement>(null)
   const moreMenu = useRef<HTMLDivElement>(null)
   const main = useRef<HTMLElement>(null)
