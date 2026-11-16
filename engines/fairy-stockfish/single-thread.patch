@@ -1,0 +1,255 @@
+diff -ruN a/src/main.cpp b/src/main.cpp
+--- a/src/main.cpp	2026-11-06 15:59:09.123822870 +0000
++++ b/src/main.cpp	2026-11-06 15:59:38.093484742 +0000
+@@ -35,6 +35,20 @@
+ 
+ using namespace Stockfish;
+ 
++#ifdef SINGLE_THREAD
++#include <emscripten/emscripten.h>
++
++/// fsf_command() is the WebAssembly build's whole input: the page (or the
++/// worker glue in fairy-stockfish-single) calls it once per UCI line, and the
++/// engine answers on stdout, which Emscripten routes to Module.print.
++extern "C" EMSCRIPTEN_KEEPALIVE void fsf_command(const char* line) {
++  std::string cmd(line);
++  char name[] = "fairy-stockfish";
++  char* argv[] = { name, cmd.data(), nullptr };
++  UCI::loop(2, argv);
++}
++#endif
++
+ int main(int argc, char* argv[]) {
+ 
+   std::cout << engine_info() << std::endl;
+@@ -53,6 +67,12 @@
+   Search::clear(); // After threads are up
+   Eval::NNUE::init();
+ 
++#ifdef SINGLE_THREAD
++  // Keep the engine alive after main() returns; commands arrive by fsf_command().
++  (void)argc; (void)argv;
++  return 0;
++#endif
++
+   UCI::loop(argc, argv);
+ 
+   Threads.set(0);
+diff -ruN a/src/search.cpp b/src/search.cpp
+--- a/src/search.cpp	2026-11-06 15:59:09.127033525 +0000
++++ b/src/search.cpp	2026-11-06 15:59:21.025056529 +0000
+@@ -232,8 +232,10 @@
+   // GUI sends a "stop" or "ponderhit" command. We therefore simply wait here
+   // until the GUI sends one of those commands.
+ 
++#ifndef SINGLE_THREAD
+   while (!Threads.stop && (ponder || Limits.infinite))
+   {} // Busy wait for a stop or a ponder reset
++#endif // SINGLE_THREAD: no "stop" can arrive while we are searching, so finish now
+ 
+   // Stop the threads if not already stopped (also raise the stop if
+   // "ponderhit" just reset Threads.ponder).
+diff -ruN a/src/thread.cpp b/src/thread.cpp
+--- a/src/thread.cpp	2026-11-06 15:59:09.129004035 +0000
++++ b/src/thread.cpp	2026-11-06 15:59:21.022849178 +0000
+@@ -38,7 +38,11 @@
+ 
+ Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
+ 
++#ifdef SINGLE_THREAD
++  searching = false; // No thread was started, so nobody parks in idle_loop()
++#else
+   wait_for_search_finished();
++#endif
+ }
+ 
+ 
+@@ -50,8 +54,10 @@
+   assert(!searching);
+ 
+   exit = true;
++#ifndef SINGLE_THREAD
+   start_searching();
+   stdThread.join();
++#endif
+ }
+ 
+ 
+@@ -80,6 +86,17 @@
+ 
+ void Thread::start_searching() {
+ 
++#ifdef SINGLE_THREAD
++  // Search right here, on the caller's stack, and return when it is done.
++  // A "go" therefore returns only after "bestmove" has been printed, so every
++  // search needs a limit (movetime, depth, nodes or a clock).
++  if (exit)
++      return;
++  searching = true;
++  search();
++  searching = false;
++  return;
++#endif
+   std::lock_guard<std::mutex> lk(mutex);
+   searching = true;
+   cv.notify_one(); // Wake up the thread in idle_loop()
+@@ -91,6 +108,9 @@
+ 
+ void Thread::wait_for_search_finished() {
+ 
++#ifdef SINGLE_THREAD
++  return; // start_searching() already ran the search to the end
++#endif
+   std::unique_lock<std::mutex> lk(mutex);
+   cv.wait(lk, [&]{ return !searching; });
+ }
+diff -ruN a/src/thread_win32_osx.h b/src/thread_win32_osx.h
+--- a/src/thread_win32_osx.h	2026-11-06 15:59:09.129956277 +0000
++++ b/src/thread_win32_osx.h	2026-11-06 15:59:21.019251061 +0000
+@@ -27,7 +27,24 @@
+ /// The implementation calls pthread_create() with the stack size parameter
+ /// equal to the linux 8MB default, on platforms that support it.
+ 
+-#if defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__) || defined(USE_PTHREADS)
++#if defined(SINGLE_THREAD)
++
++namespace Stockfish {
++
++/// SINGLE_THREAD (the browser WebAssembly build without SharedArrayBuffer):
++/// no OS thread is ever started. Thread::start_searching() runs the search
++/// on the caller's stack instead, so this class only has to exist.
++class NativeThread {
++public:
++  NativeThread() = default;
++  template<class T> NativeThread(void(T::*)(), T*) {}
++  void join() {}
++  void detach() {}
++};
++
++} // namespace Stockfish
++
++#elif defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__) || defined(USE_PTHREADS)
+ 
+ #include <pthread.h>
+ 
+diff -ruN a/src/tt.cpp b/src/tt.cpp
+--- a/src/tt.cpp	2026-11-06 15:59:09.130168858 +0000
++++ b/src/tt.cpp	2026-11-06 17:16:35.991579587 +0000
+@@ -85,6 +85,12 @@
+ 
+ void TranspositionTable::clear() {
+ 
++#ifdef SINGLE_THREAD
++  // No helper threads can start here: zero the table on the calling thread.
++  std::memset(table, 0, clusterCount * sizeof(Cluster));
++  return;
++#endif
++
+   std::vector<std::thread> threads;
+ 
+   for (size_t idx = 0; idx < Options["Threads"]; ++idx)
+diff -ruN a/src/uci.cpp b/src/uci.cpp
+--- a/src/uci.cpp	2026-11-06 15:59:09.130764505 +0000
++++ b/src/uci.cpp	2026-11-06 16:04:55.645521399 +0000
+@@ -171,6 +171,21 @@
+             limits.time[BLACK] += byoyomi;
+         }
+ 
++#ifdef SINGLE_THREAD
++    // A search here holds the only thread until it ends, so neither "stop" nor
++    // "ponderhit" can reach it. Search every "go" as a plain limited search,
++    // and give an open-ended one (go, go infinite) a two-second limit rather
++    // than hang the engine.
++    limits.infinite = 0;
++    ponderMode = false;
++    if (   !limits.use_time_management() && !limits.depth && !limits.nodes
++        && !limits.movetime && !limits.perft)
++    {
++        limits.movetime = 2000;
++        sync_cout << "info string single-threaded build: no search limit given, searching for 2000 ms" << sync_endl;
++    }
++#endif
++
+     Threads.start_thinking(pos, states, limits, ponderMode);
+   }
+ 
+@@ -295,6 +310,23 @@
+ 
+ void UCI::loop(int argc, char* argv[]) {
+ 
++#ifdef SINGLE_THREAD
++  // The WebAssembly build calls loop() once per command (see fsf_command() in
++  // main.cpp), so the position and its history must outlive each call.
++  static Position pos;
++  static StateListPtr states;
++  static std::vector<Move> banmoves;
++  static bool started = false;
++  string token, cmd;
++
++  if (!started)
++  {
++      started = true;
++      states = StateListPtr(new std::deque<StateInfo>(1));
++      pos.set(variants.find(Options["UCI_Variant"])->second, variants.find(Options["UCI_Variant"])->second->startFen, false, &states->back(), Threads.main());
++      XBoard::stateMachine = new XBoard::StateMachine(pos, states);
++  }
++#else
+   Position pos;
+   string token, cmd;
+   StateListPtr states(new std::deque<StateInfo>(1));
+@@ -302,13 +334,14 @@
+   assert(variants.find(Options["UCI_Variant"])->second != nullptr);
+   pos.set(variants.find(Options["UCI_Variant"])->second, variants.find(Options["UCI_Variant"])->second->startFen, false, &states->back(), Threads.main());
+ 
+-  for (int i = 1; i < argc; ++i)
+-      cmd += std::string(argv[i]) + " ";
+-
+   // XBoard state machine
+   XBoard::stateMachine = new XBoard::StateMachine(pos, states);
+   // UCCI banmoves state
+   std::vector<Move> banmoves = {};
++#endif
++
++  for (int i = 1; i < argc; ++i)
++      cmd += std::string(argv[i]) + " ";
+ 
+   if (argc > 1 && (std::strcmp(argv[1], "noautoload") == 0))
+   {
+@@ -366,8 +399,10 @@
+               sync_cout << "id name " << engine_info(true)
+                           << "\n" << Options
+                           << "\n" << token << "ok"  << sync_endl;
++#ifndef SINGLE_THREAD
+           // Allow to enforce protocol at startup
+           argc = 1;
++#endif
+       }
+ 
+       else if (CurrentProtocol == XBOARD)
+@@ -398,7 +433,11 @@
+               filename = f;
+           Eval::NNUE::save_eval(filename);
+       }
++#ifdef SINGLE_THREAD
++      else if (token == "load")     load(is); // there is no stdin to continue reading
++#else
+       else if (token == "load")     { load(is); argc = 1; } // continue reading stdin
++#endif
+       else if (token == "check")    load(is, true);
+       // UCI-Cyclone omits the "position" keyword
+       else if (token == "fen" || token == "startpos")
+diff -ruN a/src/ucioption.cpp b/src/ucioption.cpp
+--- a/src/ucioption.cpp	2026-11-06 15:59:09.131046175 +0000
++++ b/src/ucioption.cpp	2026-11-06 15:59:21.025326571 +0000
+@@ -203,7 +203,11 @@
+   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
+   o["Syzygy50MoveRule"]      << Option(true);
+   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
++  #ifdef SINGLE_THREAD
++  o["Use NNUE"]              << Option(false, on_use_NNUE); // no network file ships with the WASM build
++#else
+   o["Use NNUE"]              << Option(true, on_use_NNUE);
++#endif
+ #ifndef NNUE_EMBEDDING_OFF
+   o["EvalFile"]              << Option(EvalFileDefaultName, on_eval_file);
+ #else
