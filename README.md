@@ -270,6 +270,8 @@ Contributions are welcome: new lessons, more bots, **translations into other lan
 - Lessons are data in `src/features/lessons/lessonData.ts`, and a test checks that every move in them is legal.
 - To add a language, copy `src/i18n/en.json` and `src/i18n/content/fr.json` and register it as CONTRIBUTING describes. A test checks that no key is missing.
 
+Most of the code is written by coding agents. [How Open Chess is built with coding agents](docs/built-with-agents.md) explains the method, and [AGENTS.md](AGENTS.md) has the rules they follow.
+
 ## 📜 Credits and licences
 
 Open Chess is **GPL-3.0-or-later** and builds on:
